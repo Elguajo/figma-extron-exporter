@@ -6,9 +6,12 @@ using ExtronExporter.Screen;
 
 namespace ExtronExporter.Adapter;
 
-public sealed record DonorElementRef(string Page, string? Type = null, int? ControlId = null);
+/// <summary>A donor object: a page by name, a control by page + type + control ID or name, or a popup by name.</summary>
+public sealed record DonorElementRef(string? Page = null, string? Type = null, int? ControlId = null, string? Name = null);
 
-public sealed record DonorElements(DonorElementRef Page, DonorElementRef Button, DonorElementRef Label, DonorElementRef Level);
+/// <summary>PopupReference, StandardPopup and ModalPopup are needed only to author popups.</summary>
+public sealed record DonorElements(DonorElementRef Page, DonorElementRef Button, DonorElementRef Label, DonorElementRef Level,
+    DonorElementRef? PopupReference = null, DonorElementRef? StandardPopup = null, DonorElementRef? ModalPopup = null);
 
 public sealed record DonorPreparation(string Source, string SourceSha256, IReadOnlyList<string> KeepPages,
     IReadOnlyList<long> KeepPopupIds, string? Retarget, string ProjectName);

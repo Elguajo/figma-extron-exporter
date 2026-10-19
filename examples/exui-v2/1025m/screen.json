@@ -1,0 +1,827 @@
+{
+  "schema": "exui-screen/2",
+  "project": {
+    "name": "exui страницы и popup TLP Pro 1025M"
+  },
+  "groups": [
+    {
+      "key": "group.sources",
+      "groupId": 1,
+      "name": "Источники"
+    }
+  ],
+  "pages": [
+    {
+      "key": "page.home",
+      "objectId": 100,
+      "name": "Главная",
+      "background": "#14151C",
+      "shownBy": "start",
+      "elements": [
+        {
+          "key": "home.title",
+          "objectId": 1,
+          "controlId": null,
+          "name": "Заголовок главной",
+          "rect": [
+            80,
+            40,
+            1120,
+            80
+          ],
+          "kind": "label",
+          "text": "Главная",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 28,
+            "bold": false
+          }
+        },
+        {
+          "key": "nav.sources",
+          "objectId": 2,
+          "controlId": 8111,
+          "name": "К источникам",
+          "rect": [
+            80,
+            160,
+            340,
+            140
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 22,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Источники",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Источники",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Источники",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed",
+          "navigate": "page.sources"
+        },
+        {
+          "key": "nav.volume",
+          "objectId": 3,
+          "controlId": 8112,
+          "name": "Открыть громкость",
+          "rect": [
+            470,
+            160,
+            340,
+            140
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 20,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Громкость",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Громкость",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Громкость",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed",
+          "navigate": "popup.volume"
+        },
+        {
+          "key": "nav.power",
+          "objectId": 4,
+          "controlId": 8113,
+          "name": "Выключение",
+          "rect": [
+            860,
+            160,
+            340,
+            140
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 20,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Выключить",
+              "fill": "#3A2020",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Выключить",
+              "fill": "#C0392B",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Выключить",
+              "fill": "#5A3030",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed",
+          "navigate": "popup.confirm"
+        },
+        {
+          "key": "home.volume-ref",
+          "objectId": 5,
+          "controlId": null,
+          "name": "Место popup громкости",
+          "rect": [
+            340,
+            520,
+            600,
+            220
+          ],
+          "kind": "popup-ref",
+          "popup": "popup.volume"
+        }
+      ]
+    },
+    {
+      "key": "page.sources",
+      "objectId": 101,
+      "name": "Источники",
+      "background": "#14151C",
+      "shownBy": "navigation",
+      "elements": [
+        {
+          "key": "sources.title",
+          "objectId": 1,
+          "controlId": null,
+          "name": "Заголовок источников",
+          "rect": [
+            80,
+            40,
+            1120,
+            80
+          ],
+          "kind": "label",
+          "text": "Источники",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 28,
+            "bold": false
+          }
+        },
+        {
+          "key": "nav.list-1",
+          "objectId": 2,
+          "controlId": 8114,
+          "name": "Список 1",
+          "rect": [
+            80,
+            160,
+            260,
+            100
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 20,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Список 1",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Список 1",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Список 1",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed",
+          "navigate": "popup.sources-1"
+        },
+        {
+          "key": "nav.list-2",
+          "objectId": 3,
+          "controlId": 8115,
+          "name": "Список 2",
+          "rect": [
+            370,
+            160,
+            260,
+            100
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 20,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Список 2",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Список 2",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Список 2",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed",
+          "navigate": "popup.sources-2"
+        },
+        {
+          "key": "sources.group-ref",
+          "objectId": 4,
+          "controlId": null,
+          "name": "Место группы источников",
+          "rect": [
+            80,
+            300,
+            1120,
+            320
+          ],
+          "kind": "popup-ref",
+          "group": "group.sources"
+        },
+        {
+          "key": "nav.back",
+          "objectId": 5,
+          "controlId": 8116,
+          "name": "Назад",
+          "rect": [
+            80,
+            660,
+            260,
+            100
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 20,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Назад",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Назад",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Назад",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed",
+          "navigate": "page.home"
+        }
+      ]
+    }
+  ],
+  "popups": [
+    {
+      "key": "popup.volume",
+      "objectId": 201,
+      "name": "Громкость",
+      "background": "#202230",
+      "modal": false,
+      "size": [
+        600,
+        220
+      ],
+      "shownBy": "navigation",
+      "elements": [
+        {
+          "key": "volume.caption",
+          "objectId": 1,
+          "controlId": null,
+          "name": "Подпись громкости",
+          "rect": [
+            20,
+            10,
+            560,
+            50
+          ],
+          "kind": "label",
+          "text": "Громкость",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 20,
+            "bold": false
+          }
+        },
+        {
+          "key": "volume.level",
+          "objectId": 2,
+          "controlId": 8103,
+          "name": "Громкость",
+          "rect": [
+            20,
+            70,
+            560,
+            48
+          ],
+          "kind": "level",
+          "display": "slider",
+          "orientation": "left-to-right",
+          "min": 0,
+          "max": 100,
+          "fillColor": "#F28C28"
+        },
+        {
+          "key": "volume.mute",
+          "objectId": 3,
+          "controlId": 8104,
+          "name": "Mute",
+          "rect": [
+            180,
+            130,
+            240,
+            80
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 20,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Без звука",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Без звука",
+              "fill": "#C0392B",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Без звука",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed"
+        }
+      ]
+    },
+    {
+      "key": "popup.sources-1",
+      "objectId": 202,
+      "name": "Источники 1",
+      "background": "#202230",
+      "modal": false,
+      "size": [
+        1120,
+        320
+      ],
+      "group": "group.sources",
+      "shownBy": "navigation",
+      "elements": [
+        {
+          "key": "source.music",
+          "objectId": 1,
+          "controlId": 8101,
+          "name": "Источник Музыка",
+          "rect": [
+            20,
+            20,
+            520,
+            280
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 22,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Музыка",
+              "fill": "#242634",
+              "textColor": "#FFFFFF",
+              "image": "icon.note-light",
+              "imageAlign": "top-center",
+              "textAlign": "bottom-center"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Музыка",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F",
+              "image": "icon.note-dark",
+              "imageAlign": "top-center",
+              "textAlign": "bottom-center"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Музыка",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF",
+              "image": "icon.note-light",
+              "imageAlign": "middle-center",
+              "textAlign": "bottom-center"
+            }
+          ],
+          "press": "Pressed"
+        },
+        {
+          "key": "source.radio",
+          "objectId": 2,
+          "controlId": 8102,
+          "name": "Источник Радио",
+          "rect": [
+            580,
+            20,
+            520,
+            280
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 22,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Радио",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Радио",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Радио",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed"
+        }
+      ]
+    },
+    {
+      "key": "popup.sources-2",
+      "objectId": 203,
+      "name": "Источники 2",
+      "background": "#202230",
+      "modal": false,
+      "size": [
+        1120,
+        320
+      ],
+      "group": "group.sources",
+      "shownBy": "navigation",
+      "elements": [
+        {
+          "key": "source.tv",
+          "objectId": 1,
+          "controlId": 8105,
+          "name": "Источник ТВ",
+          "rect": [
+            20,
+            20,
+            520,
+            280
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 22,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "ТВ",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "ТВ",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "ТВ",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed"
+        },
+        {
+          "key": "source.mic",
+          "objectId": 2,
+          "controlId": 8106,
+          "name": "Источник Микрофон",
+          "rect": [
+            580,
+            20,
+            520,
+            280
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 22,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Микрофон",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Микрофон",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Микрофон",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed"
+        }
+      ]
+    },
+    {
+      "key": "popup.confirm",
+      "objectId": 204,
+      "name": "Выключение",
+      "background": "#000000",
+      "modal": true,
+      "shownBy": "navigation",
+      "elements": [
+        {
+          "key": "confirm.text",
+          "objectId": 1,
+          "controlId": null,
+          "name": "Вопрос выключения",
+          "rect": [
+            240,
+            250,
+            800,
+            100
+          ],
+          "kind": "label",
+          "text": "Выключить систему?",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 22,
+            "bold": false
+          }
+        },
+        {
+          "key": "confirm.yes",
+          "objectId": 2,
+          "controlId": 8121,
+          "name": "Подтвердить выключение",
+          "rect": [
+            240,
+            420,
+            380,
+            120
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 22,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Да",
+              "fill": "#3A2020",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Да",
+              "fill": "#C0392B",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Да",
+              "fill": "#5A3030",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed"
+        },
+        {
+          "key": "confirm.no",
+          "objectId": 3,
+          "controlId": 8122,
+          "name": "Отменить выключение",
+          "rect": [
+            660,
+            420,
+            380,
+            120
+          ],
+          "kind": "button",
+          "font": {
+            "family": "Arial",
+            "size": 22,
+            "bold": true
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Off",
+              "role": "normal",
+              "text": "Нет",
+              "fill": "#242634",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "On",
+              "role": "feedback",
+              "text": "Нет",
+              "fill": "#F28C28",
+              "textColor": "#1B1B1F"
+            },
+            {
+              "stateId": 2,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "Нет",
+              "fill": "#3A3D52",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed"
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "key": "icon.note-light",
+      "file": "assets/note-light.png",
+      "resourceName": "exui-note-light.png"
+    },
+    {
+      "key": "icon.note-dark",
+      "file": "assets/note-dark.png",
+      "resourceName": "exui-note-dark.png"
+    }
+  ]
+}

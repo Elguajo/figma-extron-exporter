@@ -30,7 +30,7 @@ public static class PackageGenerator
         try
         {
             var generated = ScreenGenerator.Generate(donor, donorId, package.Plan, package.ScreenSha256, Path.Combine(stage, "result.gdl"), adapter);
-            var report = new PackageGenerationReport(package.Sha256, "exui/1", package.Profile.Id,
+            var report = new PackageGenerationReport(package.Sha256, package.Contract, package.Profile.Id,
                 generated with { Output = Path.GetFullPath(outputPath) });
             string reportStage = Path.Combine(stage, "report.json");
             File.WriteAllText(reportStage, JsonSerializer.Serialize(report, new JsonSerializerOptions

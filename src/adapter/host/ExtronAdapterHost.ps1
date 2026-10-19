@@ -317,25 +317,36 @@ function Invoke-PrepareDonor($Project, $Op) {
     for ($i = $pages.Count - 1; $i -ge 0; $i--) { if ($keepPages -notcontains (Get-F $pages[$i] 'nameField')) { $pages.RemoveAt($i) } }
     $popups = Get-Popups $Project
     $keepPopups = @($Op.keepPopupIds | ForEach-Object { [uint64]$_ })
+    foreach ($id in $keepPopups) { if (@(Items $popups | Where-Object { [uint64](Get-F $_ 'idField') -eq $id }).Count -ne 1) { Fail 'donor-unsuitable' "Source popup $id not found exactly once." } }
     for ($i = $popups.Count - 1; $i -ge 0; $i--) { if ($keepPopups -notcontains [uint64](Get-F $popups[$i] 'idField')) { $popups.RemoveAt($i) } }
+    $pageIds = @(Items $pages | ForEach-Object { [uint64](Get-F $_ 'idField') })
     foreach ($pu in $popups) {
-        # Back-pointers to references on removed pages would be dangling.
-        $refs = Get-F $pu 'popupReferencesField'
-        if ($refs -and $refs.Count) { Fail 'donor-unsuitable' "Kept popup '$(Get-F $pu 'nameField')' has popup references; not supported by donor preparation." }
+        # Back-pointers must name controls on kept pages; anything else would dangle.
+        foreach ($r in (Get-F $pu 'popupReferencesField')) {
+            if ([uint64](Get-F $r 'popupPageIDField') -ne [uint64]::MaxValue -or $pageIds -notcontains [uint64](Get-F $r 'pageIDField')) {
+                Fail 'donor-unsuitable' "Kept popup '$(Get-F $pu 'nameField')' is referenced from a removed page or popup."
+            }
+        }
     }
     if ($Op.retarget) {
         $oldW = $before.width; $oldH = $before.height
         $size = Set-Platform $Project $Op.retarget
-        # Uniform scale, centered: page and popup geometry stays inside the canvas.
+        # Uniform scale. Full-canvas containers are centered; a smaller popup keeps its authored size
+        # ratio and scales with its own contents (its placement comes from its reference control).
         # [double]: 1280/320 is Int32 in PowerShell, and Math.Min(int, double) would then round 1.667 to 2.
         $scale = [Math]::Min([double]$size[0] / $oldW, [double]$size[1] / $oldH)
         $dx = [int](($size[0] - $oldW * $scale) / 2); $dy = [int](($size[1] - $oldH * $scale) / 2)
         foreach ($pg in @(Items (Get-Pages $Project)) + @(Items (Get-Popups $Project))) {
-            if ([int](Get-F $pg 'widthField') -ne $oldW -or [int](Get-F $pg 'heightField') -ne $oldH) {
-                Fail 'donor-unsuitable' "Container '$(Get-F $pg 'nameField')' is not full-canvas; retarget would need its own size rule."
+            $w = [int](Get-F $pg 'widthField'); $h = [int](Get-F $pg 'heightField')
+            if ($w -eq $oldW -and $h -eq $oldH) {
+                Set-F $pg 'widthField' $size[0]; Set-F $pg 'heightField' $size[1]
+                Scale-Container $pg $scale $dx $dy
+            } elseif ($pg.GetType().Name -eq 'PBPopupPage' -and $w -le $oldW -and $h -le $oldH) {
+                Set-F $pg 'widthField' ([int][Math]::Round($w * $scale)); Set-F $pg 'heightField' ([int][Math]::Round($h * $scale))
+                Scale-Container $pg $scale 0 0
+            } else {
+                Fail 'donor-unsuitable' "Container '$(Get-F $pg 'nameField')' has no retarget size rule."
             }
-            Set-F $pg 'widthField' $size[0]; Set-F $pg 'heightField' $size[1]
-            Scale-Container $pg $scale $dx $dy
         }
     }
     if ($Op.projectName) { Set-F $Project 'nameField' $Op.projectName }
@@ -364,6 +375,73 @@ function New-Control($Project, $Donor, $El) {
     return , $c
 }
 
+function Find-Container($Project, [string]$Field, [string]$Name, [string]$What) {
+    $hits = @(Items (Get-F $Project $Field) | Where-Object { (Get-F $_ 'nameField') -eq $Name })
+    if ($hits.Count -ne 1) { Fail 'donor-element' "Donor $What '$Name' not found exactly once." }
+    return , $hits[0]
+}
+
+function New-Container($Project, $Donor, $Spec, [int]$Width, [int]$Height) {
+    $c = Copy-Graph $Donor
+    Set-F $c 'idField' ([uint64]$Spec.objectId)
+    Set-F $c 'userIdField' ([uint16]$Spec.objectId)
+    Set-F $c 'nameField' $Spec.name
+    Set-F $c 'commentsField' ("exui-key=" + $Spec.key)
+    Set-F $c 'widthField' $Width; Set-F $c 'heightField' $Height
+    Set-F $c '<TLPImageID>k__BackingField' -1
+    Set-F $c 'backgroundImageField' $null
+    Set-Color $Project $c 'backgroundFillColorField' $Spec.background
+    (Get-F $c 'controlsField').Clear()
+    return , $c
+}
+
+# One button, label or level, from a plan element (popup-ref is bound separately).
+function New-PlanControl($Project, $Donors, $El, $ImageRef) {
+    $c = New-Control $Project $Donors[$El.kind] $El
+    switch ($El.kind) {
+        'label' {
+            Set-F $c 'textField' $El.text
+            Set-Color $Project $c 'textColorField' $El.textColor
+            Set-Font $Project $c $El.font
+        }
+        'level' {
+            Set-F $c 'displayTypeField' $El.display
+            Set-F $c 'orientationField' $El.orientation
+            Set-F $c 'minValueField' ([uint32]$El.min)
+            Set-F $c 'maxValueField' ([uint32]$El.max)
+            Set-Color $Project $c 'gaugeFillColorField' $El.fillColor
+        }
+        'button' {
+            Set-F $c 'textField' $null
+            $states = Resize-States $c @($El.states).Count
+            for ($i = 0; $i -lt $states.Count; $i++) {
+                $s = @($El.states)[$i]; $st = $states[$i]
+                Set-F $st 'nameField' $s.name
+                Set-F $st 'textField' $s.text
+                Set-F $st 'ftextField' $null
+                Set-F $st '<TLPImageID>k__BackingField' -1
+                Set-F $st 'backgroundImageField' $null
+                Set-ImageRef $st 'buttonImageField' $ImageRef $s.image
+                if ($s.image) {
+                    Set-F $st 'buttonImageLayoutField' 'Native'
+                    Set-F $st 'buttonImageAlignmentField' $s.imageAlign
+                }
+                Set-F $st 'textAlignmentField' $s.textAlign
+                Set-Color $Project $st 'borderFillColorField' $s.fill
+                Set-Color $Project $st 'textColorField' $s.textColor
+                Set-Font $Project $st $El.font
+            }
+            Set-F $c '<TLPDefaultStateID>k__BackingField' 0
+            Set-F $c '<TLPPressFeedbackStateID>k__BackingField' ([int]$El.pressState)
+            Set-F $c '<HidePressFeedback>k__BackingField' $false
+            Set-F $c '<HideVisualFeedback>k__BackingField' $false
+            Set-F $c '<HideTextFeedback>k__BackingField' $false
+        }
+        default { Fail 'spec' "Element kind '$($El.kind)' is not supported here." }
+    }
+    return , $c
+}
+
 function Invoke-Generate($Project, $Op) {
     $profile = Get-Profile $Project
     $exp = $Op.expectedProfile
@@ -376,83 +454,121 @@ function Invoke-Generate($Project, $Op) {
         if ($null -eq $ref) { Fail 'donor-element' "Donor registry gives no element for kind '$kind'." }
         $donors[$kind] = Find-DonorControl $Project $ref $kind
     }
-    $donorPage = @(Items (Get-Pages $Project) | Where-Object { (Get-F $_ 'nameField') -eq $Op.donorElements.page.page })
-    if ($donorPage.Count -ne 1) { Fail 'donor-element' "Donor page '$($Op.donorElements.page.page)' not found exactly once." }
+    $donorPage = Find-Container $Project 'pagesField' $Op.donorElements.page.page 'page'
+    $planPopups = @($Op.popups)
+    $usesRefs = @(@($Op.pages) | ForEach-Object { @($_.elements) } | Where-Object { $_.kind -eq 'popup-ref' }).Count -gt 0
+    $donorStd = $null; $donorModal = $null; $backDonor = $null
+    if ($planPopups.Count -or $usesRefs) {
+        foreach ($k in 'popupReference', 'standardPopup', 'modalPopup') {
+            if ($null -eq $Op.donorElements.$k) { Fail 'donor-element' "Donor registry gives no '$k'; this donor cannot author popups." }
+        }
+        $refPage = Find-Container $Project 'pagesField' $Op.donorElements.popupReference.page 'page'
+        $refHits = @(Items (Get-F $refPage 'controlsField') | Where-Object { $_.GetType().Name -eq 'PBPopupPageReference' -and (Get-F $_ 'nameField') -eq $Op.donorElements.popupReference.name })
+        if ($refHits.Count -ne 1) { Fail 'donor-element' "Donor popup reference '$($Op.donorElements.popupReference.name)' not found exactly once." }
+        $donors['popup-ref'] = $refHits[0]
+        $donorStd = Find-Container $Project 'popupPagesField' $Op.donorElements.standardPopup.name 'standard popup'
+        $donorModal = Find-Container $Project 'popupPagesField' $Op.donorElements.modalPopup.name 'modal popup'
+        if ([bool](Get-F $donorStd 'modalField') -or -not [bool](Get-F $donorModal 'modalField')) { Fail 'donor-element' 'Donor standard/modal popup roles are swapped.' }
+        $backDonor = @(Items (Get-F $donorStd 'popupReferencesField'))[0]
+        if (-not $backDonor) { Fail 'donor-element' 'Donor standard popup has no back-reference to clone.' }
+    }
 
     foreach ($im in @($Op.images)) { Add-ImageResource $Project $im }
     $imageRef = Find-ImageReference $Project
+    $projectId = [string](Get-F $Project 'idField')
+    $NONE = [uint64]::MaxValue
 
-    $spec = $Op.page
-    $page = Copy-Graph $donorPage[0]
-    Set-F $page 'idField' ([uint64]$spec.objectId)
-    Set-F $page 'userIdField' ([uint16]$spec.objectId)
-    Set-F $page 'nameField' $spec.name
-    Set-F $page 'commentsField' ("exui-key=" + $spec.key)
-    Set-F $page 'widthField' $profile.width; Set-F $page 'heightField' $profile.height
-    Set-F $page '<TLPImageID>k__BackingField' -1
-    Set-F $page 'backgroundImageField' $null
-    Set-Color $Project $page 'backgroundFillColorField' $spec.background
-    $controls = Get-F $page 'controlsField'
-    $controls.Clear()
-
-    foreach ($el in @($Op.elements)) {
-        $c = New-Control $Project $donors[$el.kind] $el
-        switch ($el.kind) {
-            'label' {
-                Set-F $c 'textField' $el.text
-                Set-Color $Project $c 'textColorField' $el.textColor
-                Set-Font $Project $c $el.font
-            }
-            'level' {
-                Set-F $c 'displayTypeField' $el.display
-                Set-F $c 'orientationField' $el.orientation
-                Set-F $c 'minValueField' ([uint32]$el.min)
-                Set-F $c 'maxValueField' ([uint32]$el.max)
-                Set-Color $Project $c 'gaugeFillColorField' $el.fillColor
-            }
-            'button' {
-                Set-F $c 'textField' $null
-                $states = Resize-States $c @($el.states).Count
-                for ($i = 0; $i -lt $states.Count; $i++) {
-                    $s = @($el.states)[$i]; $st = $states[$i]
-                    Set-F $st 'nameField' $s.name
-                    Set-F $st 'textField' $s.text
-                    Set-F $st 'ftextField' $null
-                    Set-F $st '<TLPImageID>k__BackingField' -1
-                    Set-F $st 'backgroundImageField' $null
-                    Set-ImageRef $st 'buttonImageField' $imageRef $s.image
-                    if ($s.image) {
-                        Set-F $st 'buttonImageLayoutField' 'Native'
-                        Set-F $st 'buttonImageAlignmentField' $s.imageAlign
-                    }
-                    Set-F $st 'textAlignmentField' $s.textAlign
-                    Set-Color $Project $st 'borderFillColorField' $s.fill
-                    Set-Color $Project $st 'textColorField' $s.textColor
-                    Set-Font $Project $st $el.font
-                }
-                Set-F $c '<TLPDefaultStateID>k__BackingField' 0
-                Set-F $c '<TLPPressFeedbackStateID>k__BackingField' ([int]$el.pressState)
-                Set-F $c '<HidePressFeedback>k__BackingField' $false
-                Set-F $c '<HideVisualFeedback>k__BackingField' $false
-                Set-F $c '<HideTextFeedback>k__BackingField' $false
-            }
-        }
-        $controls.Add($c)
+    # Popup group registry: rebuilt from the plan. There is no donor PBControlGroup to clone; it is a plain
+    # serializable data object whose (name, id) constructor touches no editor service.
+    $groups = Get-F $Project 'popupPageGroupsField'
+    # List<T>.Clear bumps the serialized _version even when empty; touch the list only when needed.
+    if ($groups.Count) { $groups.Clear() }
+    $groupIds = @{}
+    $groupIndex = 0
+    foreach ($g in @($Op.groups)) {
+        $groupType = Get-ExtronType 'Extron.GUICPro.PBControlGroup'
+        $grp = $groupType.GetConstructor([type[]]@([string], [uint16])).Invoke(@([string]$g.name, [uint16]$g.groupId))
+        Set-F $grp 'indexField' $groupIndex; $groupIndex++
+        Set-F $grp 'referenceCountField' ([int]$g.referenceCount)
+        $groups.Add($grp)
+        $groupIds[$g.key] = [uint16]$g.groupId
     }
 
-    # The generated project holds only the generated page; donor pages are removed.
+    # Only the donor's Offline page survives; donor popups used as clone sources are removed.
+    $popups = Get-Popups $Project
+    for ($i = $popups.Count - 1; $i -ge 0; $i--) { if ([uint64](Get-F $popups[$i] 'idField') -ne 65535) { $popups.RemoveAt($i) } }
+    $made = @{}
+    foreach ($pu in $planPopups) {
+        $donor = if ($pu.modal) { $donorModal } else { $donorStd }
+        $p = New-Container $Project $donor $pu ([int]$pu.width) ([int]$pu.height)
+        Set-F $p 'modalField' ([bool]$pu.modal)
+        $backs = Get-F $p 'popupReferencesField'
+        if ($backs.Count) { $backs.Clear() }
+        Set-F $p 'hasReferencesField' $false
+        if ($pu.group) {
+            $gname = @(@($Op.groups) | Where-Object { $_.key -eq $pu.group })[0].name
+            Set-F $p 'groupIDField' $groupIds[$pu.group]; Set-F $p 'groupNameField' $gname
+        } else {
+            Set-F $p 'groupIDField' ([uint16]0); Set-F $p 'groupNameField' $null
+        }
+        foreach ($el in @($pu.elements)) { (Get-F $p 'controlsField').Add((New-PlanControl $Project $donors $el $imageRef)) }
+        $popups.Add($p)
+        $made[$pu.key] = $p
+    }
+
+    $newPages = @()
+    foreach ($pg in @($Op.pages)) {
+        $page = New-Container $Project $donorPage $pg $profile.width $profile.height
+        $controls = Get-F $page 'controlsField'
+        foreach ($el in @($pg.elements)) {
+            if ($el.kind -ne 'popup-ref') { $controls.Add((New-PlanControl $Project $donors $el $imageRef)); continue }
+            # A popup binding lives in four places: this control's PBPopupPageID, the popup's group fields,
+            # the popup's back-references and the project's group registry. All are written here.
+            $c = New-Control $Project $donors['popup-ref'] $el
+            Set-F $c 'modalField' $false
+            $bind = Copy-Graph (Get-F $c 'popupPageIDField')
+            if ($el.group) {
+                $gname = @(@($Op.groups) | Where-Object { $_.key -eq $el.group })[0].name
+                Set-F $bind 'popupIDField' $NONE; Set-F $bind 'groupIDField' $groupIds[$el.group]
+                Set-F $bind 'popupNameField' ''; Set-F $bind 'groupNameField' $gname
+                $targets = @($planPopups | Where-Object { $_.group -eq $el.group } | ForEach-Object { $made[$_.key] })
+            } else {
+                $t = $made[$el.popup]
+                if ($null -eq $t) { Fail 'spec' "Popup '$($el.popup)' is not in the plan." }
+                Set-F $bind 'popupIDField' ([uint64](Get-F $t 'idField')); Set-F $bind 'groupIDField' ([uint16]0)
+                Set-F $bind 'popupNameField' (Get-F $t 'nameField'); Set-F $bind 'groupNameField' $null
+                $targets = @($t)
+            }
+            Set-F $c 'popupPageIDField' $bind
+            foreach ($t in $targets) {
+                $b = Copy-Graph $backDonor
+                Set-F $b 'projectIDField' $projectId
+                Set-F $b 'pageIDField' ([uint64]$pg.objectId)
+                Set-F $b 'popupPageIDField' $NONE
+                Set-F $b 'objectIDField' ([uint64]$el.objectId)
+                (Get-F $t 'popupReferencesField').Add($b)
+                Set-F $t 'hasReferencesField' $true
+            }
+            $controls.Add($c)
+        }
+        $newPages += $page
+    }
+
+    # The generated project holds only the generated pages; donor pages are removed.
     $pages = Get-Pages $Project
     $pages.Clear()
-    $pages.Add($page)
-    Set-F $Project 'defaultPageField' ([uint16]$spec.objectId)
+    foreach ($page in $newPages) { $pages.Add($page) }
+    $start = @(@($Op.pages) | Where-Object { $_.key -eq $Op.startPage })
+    if ($start.Count -ne 1) { Fail 'spec' "Start page '$($Op.startPage)' is not in the plan." }
+    Set-F $Project 'defaultPageField' ([uint16]$start[0].objectId)
     if ($Op.projectName) { Set-F $Project 'nameField' $Op.projectName }
     Set-F $Project 'buildStatusField' 'Needed'
 
     $script:Result.profile = Get-Profile $Project
-    $script:Result.controls = @(Items (Get-F $page 'controlsField') | ForEach-Object {
-        [ordered]@{ type = $_.GetType().Name; objectId = [string](Get-F $_ 'idField'); controlId = [int](Get-F $_ 'userIdField'); name = Get-F $_ 'nameField'
-            states = @(Items (Get-States $_) | ForEach-Object { Get-F $_ 'nameField' }) }
+    $script:Result.containers = @(@(Items $pages) + @(Items $popups) | ForEach-Object {
+        [ordered]@{ type = $_.GetType().Name; objectId = [string](Get-F $_ 'idField'); name = Get-F $_ 'nameField'; controls = (Get-F $_ 'controlsField').Count }
     })
+    $script:Result.groups = @(Items $groups | ForEach-Object { [ordered]@{ id = [int](Get-F $_ 'idField'); name = Get-F $_ 'nameField' } })
 }
 
 # The C# side reads enums as numbers (NRBF); report Extron's own name -> number mapping.

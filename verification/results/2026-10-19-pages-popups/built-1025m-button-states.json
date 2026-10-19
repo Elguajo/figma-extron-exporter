@@ -1,0 +1,340 @@
+[
+  {
+    "containerId": 100,
+    "controlId": 8111,
+    "name": "К источникам",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 2,
+        "text": "Источники",
+        "sha256": "45ad08f0a6a74da499e6d0aa6384795dad32b24d0c9c1a599b35e57f963bd0cc"
+      },
+      {
+        "name": "On",
+        "imageId": 3,
+        "text": "Источники",
+        "sha256": "310a5b5f06a13edee04b5afd96f56530778c7eb467d688a6e778fac7fddc9fe2"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 4,
+        "text": "Источники",
+        "sha256": "e3fbf3cb68c5d91824d2637143884d1c55fc51a0432cb3de9d3507e51dec320d"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 100,
+    "controlId": 8112,
+    "name": "Открыть громкость",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 2,
+        "text": "Громкость",
+        "sha256": "45ad08f0a6a74da499e6d0aa6384795dad32b24d0c9c1a599b35e57f963bd0cc"
+      },
+      {
+        "name": "On",
+        "imageId": 3,
+        "text": "Громкость",
+        "sha256": "310a5b5f06a13edee04b5afd96f56530778c7eb467d688a6e778fac7fddc9fe2"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 4,
+        "text": "Громкость",
+        "sha256": "e3fbf3cb68c5d91824d2637143884d1c55fc51a0432cb3de9d3507e51dec320d"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 100,
+    "controlId": 8113,
+    "name": "Выключение",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 5,
+        "text": "Выключить",
+        "sha256": "71f0e42f9c45574f3be17421cb6bf74533d2b02b600dbe4d93c94e7fe36ec4a1"
+      },
+      {
+        "name": "On",
+        "imageId": 6,
+        "text": "Выключить",
+        "sha256": "b6f33328f73b791661c505ba7fe2963e728401f6ff567c5725a7300b39cf2b11"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 7,
+        "text": "Выключить",
+        "sha256": "91d447e2837cbdb1ce70243384dc95b19e4af759a740bf1bd56833724332c257"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 101,
+    "controlId": 8114,
+    "name": "Список 1",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 8,
+        "text": "Список 1",
+        "sha256": "916fa063eec9d78e5c43d4ee1e9d567976051982a242ba0f89e659a918bccaba"
+      },
+      {
+        "name": "On",
+        "imageId": 9,
+        "text": "Список 1",
+        "sha256": "69784e96c81cb1787764d6c6a7f7f08148c64f7942c62ed1ac7bb47082575228"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 10,
+        "text": "Список 1",
+        "sha256": "7767507bcaf49d4b8399b7cbeeb70d821ec3af3e3f7bb947426a02fc68c3f2d9"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 101,
+    "controlId": 8115,
+    "name": "Список 2",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 8,
+        "text": "Список 2",
+        "sha256": "916fa063eec9d78e5c43d4ee1e9d567976051982a242ba0f89e659a918bccaba"
+      },
+      {
+        "name": "On",
+        "imageId": 9,
+        "text": "Список 2",
+        "sha256": "69784e96c81cb1787764d6c6a7f7f08148c64f7942c62ed1ac7bb47082575228"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 10,
+        "text": "Список 2",
+        "sha256": "7767507bcaf49d4b8399b7cbeeb70d821ec3af3e3f7bb947426a02fc68c3f2d9"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 101,
+    "controlId": 8116,
+    "name": "Назад",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 8,
+        "text": "Назад",
+        "sha256": "916fa063eec9d78e5c43d4ee1e9d567976051982a242ba0f89e659a918bccaba"
+      },
+      {
+        "name": "On",
+        "imageId": 9,
+        "text": "Назад",
+        "sha256": "69784e96c81cb1787764d6c6a7f7f08148c64f7942c62ed1ac7bb47082575228"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 10,
+        "text": "Назад",
+        "sha256": "7767507bcaf49d4b8399b7cbeeb70d821ec3af3e3f7bb947426a02fc68c3f2d9"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 201,
+    "controlId": 8104,
+    "name": "Mute",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 15,
+        "text": "Без звука",
+        "sha256": "b74ef3f53383f43cf79a16f8ec07b94fb14c8669720d2c6c52b4a2f08be846c7"
+      },
+      {
+        "name": "On",
+        "imageId": 16,
+        "text": "Без звука",
+        "sha256": "8bcc5fa0c3f4167ca810eecc3d4b379951cb3422d71a4a22314b852331abaade"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 17,
+        "text": "Без звука",
+        "sha256": "91eacb8bb9c6e60c848f3f6470e9832d0ec1080e7a52f8025c90af722d471afa"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 202,
+    "controlId": 8101,
+    "name": "Источник Музыка",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 19,
+        "text": "Музыка",
+        "sha256": "917e8bed8026142e5066d4f81dee963a7b99d7be7d2a74435c159a9a4162302a"
+      },
+      {
+        "name": "On",
+        "imageId": 20,
+        "text": "Музыка",
+        "sha256": "6827e8b46936003857bab6289ede8d8157886e10e6e3516a474b76c76be774e1"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 21,
+        "text": "Музыка",
+        "sha256": "67fb1b5775269b60e2b2ea3c5463a2249d782d90a6d1159699cb31dc2c3302d4"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 202,
+    "controlId": 8102,
+    "name": "Источник Радио",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 22,
+        "text": "Радио",
+        "sha256": "b910f943b63a115046c2852f24a4c7e5bc43053166db2e5c954cc030392e98f2"
+      },
+      {
+        "name": "On",
+        "imageId": 23,
+        "text": "Радио",
+        "sha256": "b7db9721fa4c3b5561accc10fad4e40202f3874f17e4f7035adb1d5bfabc5598"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 24,
+        "text": "Радио",
+        "sha256": "7c5c320e1875ecf16b02fcaa4352cd586df092c85b3e14e089ecdbb7e4f33ceb"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 203,
+    "controlId": 8105,
+    "name": "Источник ТВ",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 22,
+        "text": "ТВ",
+        "sha256": "b910f943b63a115046c2852f24a4c7e5bc43053166db2e5c954cc030392e98f2"
+      },
+      {
+        "name": "On",
+        "imageId": 23,
+        "text": "ТВ",
+        "sha256": "b7db9721fa4c3b5561accc10fad4e40202f3874f17e4f7035adb1d5bfabc5598"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 24,
+        "text": "ТВ",
+        "sha256": "7c5c320e1875ecf16b02fcaa4352cd586df092c85b3e14e089ecdbb7e4f33ceb"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 203,
+    "controlId": 8106,
+    "name": "Источник Микрофон",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 22,
+        "text": "Микрофон",
+        "sha256": "b910f943b63a115046c2852f24a4c7e5bc43053166db2e5c954cc030392e98f2"
+      },
+      {
+        "name": "On",
+        "imageId": 23,
+        "text": "Микрофон",
+        "sha256": "b7db9721fa4c3b5561accc10fad4e40202f3874f17e4f7035adb1d5bfabc5598"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 24,
+        "text": "Микрофон",
+        "sha256": "7c5c320e1875ecf16b02fcaa4352cd586df092c85b3e14e089ecdbb7e4f33ceb"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 204,
+    "controlId": 8121,
+    "name": "Подтвердить выключение",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 27,
+        "text": "Да",
+        "sha256": "706c688196b2a68a17d004a2520e0dbd2c51967b8adbf048bbb4a6014ddd54fb"
+      },
+      {
+        "name": "On",
+        "imageId": 28,
+        "text": "Да",
+        "sha256": "adb453c06976c68f70c5e82d70198b1712a78e3fbd4e89ddaeab16a5ee6d7278"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 29,
+        "text": "Да",
+        "sha256": "a9c526115d81da70640a14c542f61ec08cc4d40d50d9f949484fd2047de0c47e"
+      }
+    ],
+    "distinct_images": true
+  },
+  {
+    "containerId": 204,
+    "controlId": 8122,
+    "name": "Отменить выключение",
+    "states": [
+      {
+        "name": "Off",
+        "imageId": 30,
+        "text": "Нет",
+        "sha256": "85b238179a9acc8f20a03d49d35e4e6182dcaf59eaca391875afb01b865dff6f"
+      },
+      {
+        "name": "On",
+        "imageId": 31,
+        "text": "Нет",
+        "sha256": "7dc943a5f1e50ce48da06726960f1f76ddd414a249f249e450c152ae1b169350"
+      },
+      {
+        "name": "Pressed",
+        "imageId": 32,
+        "text": "Нет",
+        "sha256": "d65a2201d5d8ee9b51e18f6d0354a9b848b1763eb69c1ed7d1423fff71adb6de"
+      }
+    ],
+    "distinct_images": true
+  }
+]

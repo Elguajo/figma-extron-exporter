@@ -54,11 +54,11 @@ internal static class ContractJson
             foreach (var item in value.EnumerateArray()) Unique(item, at + "[]");
     }
 
-    public static void Validate(JsonElement value, string name)
+    public static void Validate(JsonElement value, int version, string name)
     {
         var assembly = typeof(ContractJson).Assembly;
-        string resource = assembly.GetManifestResourceNames().Single(n => n.EndsWith(name + ".schema.json", StringComparison.Ordinal));
-        using var stream = assembly.GetManifestResourceStream(resource)!;
+        using var stream = assembly.GetManifestResourceStream($"exui-v{version}/{name}.schema.json")
+            ?? throw new InvalidOperationException($"Embedded schema exui-v{version}/{name} is missing.");
         using var doc = JsonDocument.Parse(stream);
         var errors = new List<string>();
         Visit(value, doc.RootElement, doc.RootElement, name, errors);
@@ -84,10 +84,14 @@ internal static class ContractJson
             }
             if (matches != 1)
             {
-                Error("must match exactly one supported element (button, label, level).");
-                if (v.ValueKind == JsonValueKind.Object && v.TryGetProperty("kind", out var kind) && kind.ValueKind == JsonValueKind.String &&
-                    root.GetProperty("$defs").TryGetProperty(kind.GetString()!, out var specific) && kind.GetString() is "button" or "label" or "level")
-                    Visit(v, specific, root, at, errors);
+                var allowed = choices.EnumerateArray().Select(c => c.GetProperty("$ref").GetString()!["#/$defs/".Length..]).ToArray();
+                Error($"must match exactly one supported element ({string.Join(", ", allowed)}).");
+                // Explain the element the producer meant: its kind names one definition (popup-ref -> popupRef).
+                if (v.ValueKind == JsonValueKind.Object && v.TryGetProperty("kind", out var kind) && kind.ValueKind == JsonValueKind.String)
+                {
+                    string def = kind.GetString() == "popup-ref" ? "popupRef" : kind.GetString()!;
+                    if (allowed.Contains(def) && root.GetProperty("$defs").TryGetProperty(def, out var specific)) Visit(v, specific, root, at, errors);
+                }
             }
             return;
         }

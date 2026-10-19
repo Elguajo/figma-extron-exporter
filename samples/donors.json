@@ -6,7 +6,7 @@
       "id": "tlp-pro-300m-portrait",
       "panel": "TLP Pro 300M",
       "file": "donors/tlp-pro-300m-portrait.gdl",
-      "sha256": "ccc1300202be3f8097ff33640c5c5b3dee983d7d8bb866ff56a3e0a3f790aa71",
+      "sha256": "10d9baa98ca65bebbde0df6f5aca970cf2fbbbea0003e5350a2fca498b59d636",
       "profile": {
         "panel": "TLP Pro 300M",
         "platformClass": "PBTLP300MPlatform",
@@ -19,24 +19,56 @@
       "preparation": {
         "source": "original/Full-Test-Project.gdl",
         "sourceSha256": "ba092e45129e08a1a8e2ec601f0ea95b7f07c7670ab7693fa9f3c956af6752e1",
-        "keepPages": [ "Main" ],
-        "keepPopupIds": [ 65535 ],
+        "keepPages": [
+          "Main",
+          "Start"
+        ],
+        "keepPopupIds": [
+          65535,
+          1,
+          4
+        ],
         "retarget": null,
         "projectName": "exui donor TLP Pro 300M portrait"
       },
       "elements": {
-        "page": { "page": "Main" },
-        "button": { "page": "Main", "type": "PBButton", "controlId": 8065 },
-        "label": { "page": "Main", "type": "PBLabel", "controlId": 4052 },
-        "level": { "page": "Main", "type": "PBLevel", "controlId": 8023 }
+        "page": {
+          "page": "Main"
+        },
+        "button": {
+          "page": "Main",
+          "type": "PBButton",
+          "controlId": 8065
+        },
+        "label": {
+          "page": "Main",
+          "type": "PBLabel",
+          "controlId": 4052
+        },
+        "level": {
+          "page": "Main",
+          "type": "PBLevel",
+          "controlId": 8023
+        },
+        "popupReference": {
+          "page": "Start",
+          "type": "PBPopupPageReference",
+          "name": "Volume Level"
+        },
+        "standardPopup": {
+          "name": "Volume Level"
+        },
+        "modalPopup": {
+          "name": "Confirmation"
+        }
       },
-      "notes": "Copy of the local Full-Test-Project reduced to page Main and the Offline popup; profile not changed."
+      "notes": "Copy of the local Full-Test-Project reduced to pages Main and Start (with its popup reference) and the popups Offline Page, Volume Level (standard) and Confirmation (modal); profile not changed."
     },
     {
       "id": "tlp-pro-1025m",
       "panel": "TLP Pro 1025M",
       "file": "donors/tlp-pro-1025m.gdl",
-      "sha256": "d30e4b0a96f312dc9589824a72eea394e68259447c258d220b9d1d7724b1d2e9",
+      "sha256": "881362fdd60ff3208d32cd1bdff7d7f789d9b7e3ba5764e26d3f65030be84564",
       "profile": {
         "panel": "TLP Pro 1025M",
         "platformClass": "PBTLP1025MPlatform",
@@ -49,18 +81,50 @@
       "preparation": {
         "source": "original/Full-Test-Project.gdl",
         "sourceSha256": "ba092e45129e08a1a8e2ec601f0ea95b7f07c7670ab7693fa9f3c956af6752e1",
-        "keepPages": [ "Main" ],
-        "keepPopupIds": [ 65535 ],
+        "keepPages": [
+          "Main",
+          "Start"
+        ],
+        "keepPopupIds": [
+          65535,
+          1,
+          4
+        ],
         "retarget": "TLP1025M",
         "projectName": "exui donor TLP Pro 1025M"
       },
       "elements": {
-        "page": { "page": "Main" },
-        "button": { "page": "Main", "type": "PBButton", "controlId": 8065 },
-        "label": { "page": "Main", "type": "PBLabel", "controlId": 4052 },
-        "level": { "page": "Main", "type": "PBLevel", "controlId": 8023 }
+        "page": {
+          "page": "Main"
+        },
+        "button": {
+          "page": "Main",
+          "type": "PBButton",
+          "controlId": 8065
+        },
+        "label": {
+          "page": "Main",
+          "type": "PBLabel",
+          "controlId": 4052
+        },
+        "level": {
+          "page": "Main",
+          "type": "PBLevel",
+          "controlId": 8023
+        },
+        "popupReference": {
+          "page": "Start",
+          "type": "PBPopupPageReference",
+          "name": "Volume Level"
+        },
+        "standardPopup": {
+          "name": "Volume Level"
+        },
+        "modalPopup": {
+          "name": "Confirmation"
+        }
       },
-      "notes": "Same reduction, platform replaced through Extron's PBPlatformPro.CreatePlatform(TLP1025M); kept containers scaled uniformly and centred. Not made by the GUI Designer Create Wizard."
+      "notes": "Same reduction (Main, Start; Offline, Volume Level, Confirmation), platform replaced through Extron's PBPlatformPro.CreatePlatform(TLP1025M); kept containers scaled uniformly and centred. Not made by the GUI Designer Create Wizard."
     }
   ]
 }

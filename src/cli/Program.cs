@@ -9,11 +9,13 @@ const string Usage = """
 Usage:
   inspect <input.gdl|glt>
   list-controls <input.gdl>
+  compare-graph <a.gdl> <b.gdl>
   repack <input> <new-output>
   set-button-text <input> <new-output> <button-id> <expected-text> <new-text>
   prepare-donor <donor-id> [--registry samples/donors.json] [--extron-dir <dir>]
   generate-screen <screen.json> <donor-id> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
   validate-package <input.exui>
+  id-map <input.exui>
   convert-package <input.exui> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
 """;
 
@@ -34,7 +36,7 @@ string command = positional.Count > 0 ? positional[0] : "";
 bool adapterCommand = command is "prepare-donor" or "generate-screen" or "convert-package";
 int expected = command switch
 {
-    "inspect" or "list-controls" or "prepare-donor" or "validate-package" => 2, "repack" or "convert-package" => 3, "generate-screen" => 4, "set-button-text" => 6, _ => -1
+    "inspect" or "list-controls" or "prepare-donor" or "validate-package" or "id-map" => 2, "repack" or "convert-package" or "compare-graph" => 3, "generate-screen" => 4, "set-button-text" => 6, _ => -1
 };
 if (expected < 0 || positional.Count != expected || (!adapterCommand && args.Length != positional.Count) ||
     (command == "set-button-text" && !int.TryParse(positional[3], out _)))
@@ -52,10 +54,17 @@ try
             using var package = ExuiPackage.Load(positional[1]);
             Console.WriteLine(JsonSerializer.Serialize(new
             {
-                contract = "exui/1", package.Sha256, package.Profile,
-                elements = package.Plan.Elements.Count, resources = package.Plan.Images.Count,
+                contract = package.Contract, package.Sha256, package.Profile,
+                pages = package.Plan.Pages.Count, popups = package.Plan.Popups.Count, groups = package.Plan.Groups.Count,
+                elements = package.Plan.Containers.Sum(c => c.Elements.Count), resources = package.Plan.Images.Count,
                 validation = "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
             }, json));
+            break;
+        }
+        case "id-map":
+        {
+            using var package = ExuiPackage.Load(positional[1]);
+            Console.Write(IdMap.Markdown(package.Plan, package.Profile.Panel));
             break;
         }
         case "convert-package":
@@ -84,6 +93,20 @@ try
                 payloadSha256 = Convert.ToHexString(SHA256.HashData(container.Payload)),
                 project = ProjectInspection.Inspect(container.Payload),
                 validation = "container + NRBF decode; GUI Designer not verified"
+            }, json));
+            break;
+        }
+        case "compare-graph":
+        {
+            byte[] a = ExtronContainer.ReadFile(positional[1]).Payload, b = ExtronContainer.ReadFile(positional[2]).Payload;
+            var all = NrbfGraph.Compare(a, b);
+            var semantic = NrbfGraph.Compare(a, b, new HashSet<string> { "_version" });
+            Console.WriteLine(JsonSerializer.Serialize(new
+            {
+                left = Path.GetFullPath(positional[1]), right = Path.GetFullPath(positional[2]),
+                payloadIdentical = a.AsSpan().SequenceEqual(b),
+                differences = all, differencesIgnoringListVersion = semantic,
+                note = "Record IDs are ignored; List<T>._version is a .NET mutation counter with no project meaning. At most 50 differences are listed."
             }, json));
             break;
         }

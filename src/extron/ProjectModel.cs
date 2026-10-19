@@ -9,7 +9,7 @@ namespace ExtronExporter.Format;
 public sealed record ProjectModel(
     string RootType, string Name, string AppVersion, ulong? Checksum, ushort DefaultPage,
     BuildInfo Build, PlatformProfile Platform, IReadOnlyList<ContainerModel> Pages, IReadOnlyList<ContainerModel> Popups,
-    IReadOnlyList<ResourceModel> Resources)
+    IReadOnlyList<ResourceModel> Resources, string? ProjectId = null, IReadOnlyList<GroupModel>? Groups = null)
 {
     public static ProjectModel Read(byte[] payload)
     {
@@ -31,14 +31,23 @@ public sealed record ProjectModel(
             root.GetRawValue("checksum") as ulong?, (ushort)(Nrbf.Primitive(root, "defaultPageField") ?? 0),
             new BuildInfo(Nrbf.EnumValue(root, "buildStatusField"), Nrbf.Primitive(root, "versionInfoField")?.ToString(),
                 Nrbf.Primitive(root, "revisionDateField") is DateTime revised ? revised : null),
-            profile, ReadContainers(Nrbf.Class(root, "pagesField")), ReadContainers(Nrbf.Class(root, "popupPagesField")), resources);
+            profile, ReadContainers(Nrbf.Class(root, "pagesField")), ReadContainers(Nrbf.Class(root, "popupPagesField")), resources,
+            Nrbf.String(root, "idField"),
+            Nrbf.List(Nrbf.Class(root, "popupPageGroupsField")).Select(g => new GroupModel(Nrbf.String(g, "nameField") ?? "",
+                Convert.ToUInt16(Nrbf.Primitive(g, "idField")), Nrbf.Int(g, "referenceCountField"), Nrbf.Int(g, "indexField"))).ToArray());
     }
 
     private static IReadOnlyList<ContainerModel> ReadContainers(ClassRecord? list) =>
         Nrbf.List(list).Select(p => new ContainerModel(Nrbf.ShortName(p), Nrbf.ULong(p, "idField"), Nrbf.ControlId(p),
             Nrbf.String(p, "nameField") ?? "", Nrbf.String(p, "commentsField"), Nrbf.Int(p, "widthField"), Nrbf.Int(p, "heightField"),
             Nrbf.Color(p, "backgroundFillColorField"),
-            Nrbf.List(Nrbf.Class(p, "controlsField")).Select(ReadControl).ToArray())).ToArray();
+            Nrbf.List(Nrbf.Class(p, "controlsField")).Select(ReadControl).ToArray(), ReadPopup(p))).ToArray();
+
+    private static PopupInfo? ReadPopup(ClassRecord p) => Nrbf.ShortName(p) != "PBPopupPage" ? null : new(
+        (bool)Nrbf.Primitive(p, "modalField")!, Convert.ToUInt16(Nrbf.Primitive(p, "groupIDField")), Nrbf.String(p, "groupNameField"),
+        (bool)Nrbf.Primitive(p, "hasReferencesField")!,
+        Nrbf.List(Nrbf.Class(p, "popupReferencesField")).Select(r => new ObjectReference(Nrbf.String(r, "projectIDField"),
+            Nrbf.ULong(r, "pageIDField"), Nrbf.ULong(r, "popupPageIDField"), Nrbf.ULong(r, "objectIDField"), Nrbf.EnumValue(r, "objectTypeField"))).ToArray());
 
     private static ControlModel ReadControl(ClassRecord c)
     {
@@ -50,9 +59,13 @@ public sealed record ProjectModel(
                 (uint)(Nrbf.Primitive(c, "minValueField") ?? 0u), (uint)(Nrbf.Primitive(c, "maxValueField") ?? 0u), Nrbf.Color(c, "gaugeFillColorField"))
             : null;
         int? press = Nrbf.Has(c, "<TLPPressFeedbackStateID>k__BackingField") ? Nrbf.Int(c, "<TLPPressFeedbackStateID>k__BackingField") : null;
+        PopupBinding? binding = null;
+        if (Nrbf.ShortName(c) == "PBPopupPageReference" && Nrbf.Class(c, "popupPageIDField") is { } id)
+            binding = new(Nrbf.ULong(id, "popupIDField"), Convert.ToUInt16(Nrbf.Primitive(id, "groupIDField")), Nrbf.String(id, "popupNameField"),
+                Nrbf.String(id, "groupNameField"), (bool)Nrbf.Primitive(c, "modalField")!);
         return new(Nrbf.ShortName(c), Nrbf.ULong(c, "idField"), Nrbf.ControlId(c), Nrbf.String(c, "nameField") ?? "",
             Nrbf.String(c, "commentsField"), Nrbf.Int(c, "leftField"), Nrbf.Int(c, "topField"), Nrbf.Int(c, "widthField"), Nrbf.Int(c, "heightField"),
-            Nrbf.String(c, "textField"), Nrbf.Color(c, "textColorField"), states, level, press, Nrbf.ImageId(c));
+            Nrbf.String(c, "textField"), Nrbf.Color(c, "textColorField"), states, level, press, Nrbf.ImageId(c), binding);
     }
 }
 
@@ -67,11 +80,23 @@ public sealed record PlatformProfile(string PlatformClass, int PlatformTypeValue
     int ScreenWidth, int ScreenHeight, int PlatformWidth, int PlatformHeight);
 
 public sealed record ContainerModel(string Type, ulong ObjectId, ushort ControlId, string Name, string? Comments,
-    int Width, int Height, uint? Background, IReadOnlyList<ControlModel> Controls);
+    int Width, int Height, uint? Background, IReadOnlyList<ControlModel> Controls, PopupInfo? Popup = null);
+
+/// <summary>Popup page specifics. References are the back-pointers to the controls that place the popup.</summary>
+public sealed record PopupInfo(bool Modal, ushort GroupId, string? GroupName, bool HasReferences, IReadOnlyList<ObjectReference> References);
+
+/// <summary>PBObjectReference: popupPageId is ulong.MaxValue when the referencing control sits on a page.</summary>
+public sealed record ObjectReference(string? ProjectId, ulong PageId, ulong PopupPageId, ulong ObjectId, int ObjectType);
+
+/// <summary>PBPopupPageReference binding: a popup ID (groupId 0) or a group (popupId = ulong.MaxValue).</summary>
+public sealed record PopupBinding(ulong PopupId, ushort GroupId, string? PopupName, string? GroupName, bool Modal);
+
+/// <summary>Entry of PBProject.popupPageGroupsField.</summary>
+public sealed record GroupModel(string Name, ushort Id, int ReferenceCount, int Index);
 
 public sealed record ControlModel(string Type, ulong ObjectId, ushort ControlId, string Name, string? Comments,
     int Left, int Top, int Width, int Height, string? Text, uint? TextColor, IReadOnlyList<StateModel> States,
-    LevelModel? Level, int? PressFeedbackState, int? TlpImageId);
+    LevelModel? Level, int? PressFeedbackState, int? TlpImageId, PopupBinding? PopupBinding = null);
 
 public sealed record StateModel(string Name, ulong Id, int Index, string? Text, string? Image, uint? Fill, uint? TextColor, int? TlpImageId);
 
