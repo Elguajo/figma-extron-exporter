@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-19",
+  "source": "Final SHA-256 check after user confirmation",
+  "protected_files": [
+    {
+      "file": "samples/original/Full-Test-Project.gdl",
+      "sha256": "ba092e45129e08a1a8e2ec601f0ea95b7f07c7670ab7693fa9f3c956af6752e1",
+      "matches": true
+    },
+    {
+      "file": "../Full-Test-Project.gdl",
+      "sha256": "ba092e45129e08a1a8e2ec601f0ea95b7f07c7670ab7693fa9f3c956af6752e1",
+      "matches": true
+    },
+    {
+      "file": "samples/donors/tlp-pro-300m-portrait.gdl",
+      "sha256": "10d9baa98ca65bebbde0df6f5aca970cf2fbbbea0003e5350a2fca498b59d636",
+      "matches": true
+    },
+    {
+      "file": "samples/donors/tlp-pro-1025m.gdl",
+      "sha256": "881362fdd60ff3208d32cd1bdff7d7f789d9b7e3ba5764e26d3f65030be84564",
+      "matches": true
+    },
+    {
+      "file": "samples/donors/v1/tlp-pro-300m-portrait.gdl",
+      "sha256": "ccc1300202be3f8097ff33640c5c5b3dee983d7d8bb866ff56a3e0a3f790aa71",
+      "matches": true
+    },
+    {
+      "file": "samples/donors/v1/tlp-pro-1025m.gdl",
+      "sha256": "d30e4b0a96f312dc9589824a72eea394e68259447c258d220b9d1d7724b1d2e9",
+      "matches": true
+    },
+    {
+      "file": "examples/exui-v2/pages-popups-1025m.exui",
+      "sha256": "8ac871b711c1cbfb4ce36e51ca5944616b7044d4af231985a7c4cd72aa3c7297",
+      "matches": true
+    },
+    {
+      "file": "examples/exui-v2/pages-popups-300m.exui",
+      "sha256": "d961950ae8264da53d8615104410ac9b229082328dcef8bb55f9f454e546f8a5",
+      "matches": true
+    },
+    {
+      "file": "output/exui-v2/pages-popups-1025m.gdl",
+      "sha256": "6633905f6b21afdd7f22014018de6bf491d16943195a56969a204608dcbcc2dc",
+      "matches": true
+    },
+    {
+      "file": "output/exui-v2/pages-popups-300m.gdl",
+      "sha256": "c593edb7af623440074c474818c06d38706cfcb2a23b7dcedb3c7b6a62cb36a9",
+      "matches": true
+    }
+  ],
+  "working_copies": [
+    {
+      "profile": "1025m",
+      "file": "output/exui-v2/gui-work/pages-popups-1025m.gdl",
+      "bytes": 2371415,
+      "sha256": "8ca658f731c40a9b891812ba990feae25b5299de360084b2bf851f0e44937945",
+      "matches_latest_evidence": true
+    },
+    {
+      "profile": "300m",
+      "file": "output/exui-v2/gui-work/pages-popups-300m.gdl",
+      "bytes": 2367978,
+      "sha256": "1f910727d171fe607891461878385b34658ba4366c0a1ecb88f0e215b916c1cc",
+      "matches_latest_evidence": true
+    }
+  ]
+}

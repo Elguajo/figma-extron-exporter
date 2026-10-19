@@ -25,6 +25,7 @@
 - [Контракт `.exui/2`: страницы и popup](docs/exui-v2.md)
 - [Пакеты `.exui/2` и ручная проверка](examples/exui-v2/README.md)
 - [Протокол страниц и popup](verification/results/2026-10-19-pages-popups.md)
+- [Статус работ и выполненные задачи](ROADMAP.md)
 - [План разработки](DEVELOPMENT_PLAN.md)
 - [Подтверждённый формат](docs/extron-format.md)
 - [Технические решения](docs/decisions.md)

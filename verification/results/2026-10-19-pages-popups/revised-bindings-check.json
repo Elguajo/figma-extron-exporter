@@ -1,0 +1,32 @@
+[
+  {
+    "profile": "1025m",
+    "checks": {
+      "all_expected_control_ids_exactly_once": true,
+      "direct_volume_binding": true,
+      "volume_reference_size_matches_popup": true,
+      "group_reference": true,
+      "group_members": true,
+      "confirmation_is_modal": true,
+      "modal_reference_on_each_page": true,
+      "all_authored_non_reference_controls_have_artwork": true,
+      "music_pngs_equal_previously_viewed_images": true
+    },
+    "all_passed": true
+  },
+  {
+    "profile": "300m",
+    "checks": {
+      "all_expected_control_ids_exactly_once": true,
+      "direct_volume_binding": true,
+      "volume_reference_size_matches_popup": true,
+      "group_reference": true,
+      "group_members": true,
+      "confirmation_is_modal": true,
+      "modal_reference_on_each_page": true,
+      "all_authored_non_reference_controls_have_artwork": true,
+      "music_pngs_equal_previously_viewed_images": true
+    },
+    "all_passed": true
+  }
+]
