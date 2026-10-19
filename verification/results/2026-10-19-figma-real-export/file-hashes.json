@@ -1,0 +1,38 @@
+{
+  "verification/results/2026-10-19-figma-real-export/convert.json": {
+    "bytes": 730,
+    "sha256": "D5C6FB8568873C6C5653212E7B2D6679E0C4D668E2FE9070DC2F34417089C7C2"
+  },
+  "verification/results/2026-10-19-figma-real-export/from-figma-300m.gdl.report.json": {
+    "bytes": 11113,
+    "sha256": "9A1B1A0F6D50DAC9E32384CEBC9F09AC6FA7DCB5452BF7E36BDF0A56F9FEFE49"
+  },
+  "verification/results/2026-10-19-figma-real-export/id-map.md": {
+    "bytes": 1065,
+    "sha256": "364F2A3E16EFF1ED043A287698A910CFE69C4C0C87FC4E6F4E8DDC35391BABC1"
+  },
+  "verification/results/2026-10-19-figma-real-export/png-comparison.json": {
+    "bytes": 316,
+    "sha256": "E516D2731555BBFFCFF67859822091FF92EC6754544732F2DA559BB4450921C6"
+  },
+  "verification/results/2026-10-19-figma-real-export/semantic-comparison.json": {
+    "bytes": 1876,
+    "sha256": "C4A73D78E5EC1267235F24BD6E0415949F3A6BE2C6CC49BE641E8CF61167D53B"
+  },
+  "verification/results/2026-10-19-figma-real-export/validate.json": {
+    "bytes": 400,
+    "sha256": "443E28DA50DC1246A3727408CB06342A09376FB1066D4BB219563BDA51336785"
+  },
+  "examples/figma-plugin/figma-demo-300m.exui": {
+    "bytes": 3227,
+    "sha256": "5EDECEFFAC083F11F1CCF2728448218B7874A4C49832597E42BEC077871890B4"
+  },
+  "output/figma-plugin/real-figma-300m-20261019/from-figma-300m.gdl": {
+    "bytes": 1573699,
+    "sha256": "DD0D41CFA4FA32686EEF6E41B5B0BDE69DB1C11D2793EBEFE5FCD1FD37121C9F"
+  },
+  "output/figma-plugin/real-figma-300m-20261019/gui-check/from-figma-300m.gdl": {
+    "bytes": 1559356,
+    "sha256": "C1D7C5AB4EEA0381824D2E681B54F41A6815FA84DEDA46DE941F7C30040493E7"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "source": "user-provided real Figma export",
+  "semanticsEqualToDemo": true,
+  "page": {
+    "key": "page.home",
+    "objectId": 100,
+    "name": "Главная",
+    "background": "#14151C"
+  },
+  "elements": [
+    {
+      "key": "source.music",
+      "objectId": 1,
+      "controlId": 8101,
+      "rect": [
+        40,
+        40,
+        240,
+        120
+      ],
+      "font": {
+        "family": "Arial",
+        "size": 18,
+        "bold": true
+      },
+      "states": [
+        {
+          "id": 0,
+          "role": "normal",
+          "name": "Off",
+          "image": "icon.note-light"
+        },
+        {
+          "id": 1,
+          "role": "feedback",
+          "name": "On",
+          "image": "icon.note-dark"
+        },
+        {
+          "id": 2,
+          "role": "pressed",
+          "name": "Pressed",
+          "image": "icon.note-light"
+        }
+      ]
+    },
+    {
+      "key": "volume.caption",
+      "objectId": 2,
+      "controlId": null,
+      "rect": [
+        40,
+        190,
+        240,
+        40
+      ],
+      "font": {
+        "family": "Arial",
+        "size": 18,
+        "bold": false
+      }
+    },
+    {
+      "key": "volume.level",
+      "objectId": 3,
+      "controlId": 8103,
+      "rect": [
+        40,
+        240,
+        240,
+        36
+      ]
+    },
+    {
+      "key": "volume.mute",
+      "objectId": 4,
+      "controlId": 8104,
+      "rect": [
+        80,
+        310,
+        160,
+        80
+      ],
+      "font": {
+        "family": "Arial",
+        "size": 18,
+        "bold": true
+      },
+      "states": [
+        {
+          "id": 0,
+          "role": "normal",
+          "name": "Off"
+        },
+        {
+          "id": 1,
+          "role": "feedback",
+          "name": "On"
+        },
+        {
+          "id": 2,
+          "role": "pressed",
+          "name": "Pressed"
+        }
+      ]
+    }
+  ]
+}

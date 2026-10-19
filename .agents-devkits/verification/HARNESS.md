@@ -32,15 +32,15 @@ Automated commands:
 
 ## Isolation and cleanup
 
-Use a separate worktree if main has parallel edits. Current implementation started at 6a006f5 in codex/figma-plugin. Node outputs are git-ignored. Browser test starts its own ephemeral loopback server and Chromium context and closes both in finally; it never controls existing user browser sessions. Figma demos append new Frames away from existing content. Only delete test Frames created by this run; no generic app/process kills. Native generation creates new files and preserves pinned references. Build remains a manual GUI Designer action.
+Work directly in main under AGENTS.md by user instruction. Implementation historically started at 6a006f5 in codex/figma-plugin; that branch was merged and deleted. Node outputs are git-ignored. Browser test starts its own ephemeral loopback server and Chromium context and closes both in finally; it never controls existing user browser sessions. Figma demos append new Frames away from existing content. Only delete test Frames created by this run; no generic app/process kills. Native generation creates new files and preserves pinned references. Build remains a manual GUI Designer action.
 
 ## Known limitations
 
-Current work is directly on main by user instruction; do not create another branch/worktree without a new request. Plugin 0.1.1 additionally tests platform-style messages with a null Window source: run the same Chromium harness, which covers both transports. User screenshot confirms plugin import and demo creation, but real Figma export after this fix remains pending. See `verification/results/2026-10-19-figma-ui-messages.md`.
+Current work is directly on main by user instruction; do not create another branch/worktree without a new request. Plugin 0.1.1 additionally tests platform-style messages with a null Window source: run the same Chromium harness, which covers both transports. Historical fix evidence: `verification/results/2026-10-19-figma-ui-messages.md`.
 
-Plugin 0.1.2 isolates PNG rendering from hidden State ancestors through temporary visible clones, with Native bounds and cleanup. Unit fixtures check hidden-ancestor failures, transparent margins, source/selection preservation and cleanup. Real Figma export must still be repeated; `verification/results/2026-10-19-figma-png-export.md` records this boundary.
+Plugin 0.1.2 isolates PNG rendering from hidden State ancestors through temporary visible clones, with Native bounds and cleanup. Unit fixtures check hidden-ancestor failures, transparent margins, source/selection preservation and cleanup. Fix evidence: `verification/results/2026-10-19-figma-png-export.md`.
 
-Status is an MVP awaiting actual Figma Desktop import/render/persistence verification. Figma MCP use_figma cannot validate our private pluginData path, so it was not substituted for the classic-plugin proof. Browser/API fixtures prove their own boundaries only. Component instances/sets, history-based ID allocation, merge of manual GDL edits, navigation and hardware are unsupported/unverified. Hidden-state PNG rendering, font unit fidelity and label layout must be checked on the real surface.
+The user supplied a real 300M export after 0.1.2: `examples/figma-plugin/figma-demo-300m.exui`. Actual CLI conversion passed 65/65; full screen semantics match the demo and both decoded 64×64 PNGs are nonempty, with at most one channel-value difference from the original icon pixels. See `verification/results/2026-10-19-figma-real-export.md`. Real 1025M export, private metadata after a full Figma restart, edits/re-export and GUI Designer verification of this new GDL remain pending. Figma MCP was not substituted for classic-plugin verification. Component instances/sets, history-based ID allocation, merge of manual GDL edits, navigation and hardware are unsupported/unverified; text layout on device is unverified.
 
 ## Feature map
 

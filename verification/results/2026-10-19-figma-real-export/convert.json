@@ -1,0 +1,12 @@
+{
+  "Contract": "exui/1",
+  "Profile": "tlp-pro-300m-portrait",
+  "PackageSha256": "5EDECEFFAC083F11F1CCF2728448218B7874A4C49832597E42BEC077871890B4",
+  "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-plugin\\real-figma-300m-20261019\\from-figma-300m.gdl",
+  "OutputSha256": "C1D7C5AB4EEA0381824D2E681B54F41A6815FA84DEDA46DE941F7C30040493E7",
+  "checks": "65/65 passed",
+  "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-plugin\\real-figma-300m-20261019\\from-figma-300m.gdl.report.json",
+  "GuiDesignerVerified": false,
+  "HardwareVerified": false,
+  "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+}
