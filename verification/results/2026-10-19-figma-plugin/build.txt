@@ -1,0 +1,11 @@
+  Extron.Format -> C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\src\extron\bin\Debug\net10.0\Extron.Format.dll
+  Extron.Screen -> C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\src\screen\bin\Debug\net10.0\Extron.Screen.dll
+  Extron.Adapter -> C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\src\adapter\bin\Debug\net10.0\Extron.Adapter.dll
+  Extron.Cli -> C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\src\cli\bin\Debug\net10.0\Extron.Cli.dll
+  Extron.Format.Tests -> C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\tests\format\bin\Debug\net10.0\Extron.Format.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.85

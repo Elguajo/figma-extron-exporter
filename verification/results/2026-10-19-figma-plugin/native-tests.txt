@@ -1,0 +1,3 @@
+PASS tlp-pro-1025m: .exui → CLI validation → editable .gdl, 61/61, IDs preserved
+PASS tlp-pro-300m-portrait: .exui → CLI validation → editable .gdl, 61/61, IDs preserved
+Evidence: C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\output\figma-plugin\final-run

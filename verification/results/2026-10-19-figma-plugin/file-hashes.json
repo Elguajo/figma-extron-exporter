@@ -1,0 +1,86 @@
+{
+  "src/figma-plugin/dist/code.js": {
+    "bytes": 84348,
+    "sha256": "BFEB9AF6B338899AE9DD1A1F44A0D6E15D2DA3871A713A5018FC4EAB2FC32324"
+  },
+  "src/figma-plugin/dist/ui.html": {
+    "bytes": 27278,
+    "sha256": "BB8A46179521A5590AC6B2E5AC84DC05E3B170A07A06D6FCCDF0856BAF5B5144"
+  },
+  "output/figma-plugin/final-run/integration.json": {
+    "bytes": 2996,
+    "sha256": "58DE00E01F0397A887C980675CFA70F037FE220EF36B0C863962575DEC626136"
+  },
+  "output/figma-plugin/final-run/plugin-1025m-moved.exui": {
+    "bytes": 2919,
+    "sha256": "CF248CE1D0035201C9B9F4B31AD9794324EE55F5ADD5DEF56E87981C63734873"
+  },
+  "output/figma-plugin/final-run/plugin-1025m-moved.gdl": {
+    "bytes": 1559375,
+    "sha256": "739165C14B233F4A294D58AC776C9C5D2CC9FAF270DF0A9FDA42E85454B96110"
+  },
+  "output/figma-plugin/final-run/plugin-1025m-moved.gdl.report.json": {
+    "bytes": 11093,
+    "sha256": "1DC780EC53090B483DF23C474B3F54DD7E16AB796702977414E4BC7695322531"
+  },
+  "output/figma-plugin/final-run/plugin-1025m.exui": {
+    "bytes": 2917,
+    "sha256": "79DBA891F568C2A45EE5FFB1D7C0597B2A360601E3416C831AC28D8790D0E09A"
+  },
+  "output/figma-plugin/final-run/plugin-1025m.gdl": {
+    "bytes": 1559380,
+    "sha256": "24377925DAF4BDA0D18BA83FB661337320B87E1E04CF5DB2900D33FC6667A986"
+  },
+  "output/figma-plugin/final-run/plugin-1025m.gdl.report.json": {
+    "bytes": 11087,
+    "sha256": "A2844B226B47C609D1C1B37284C4FDB1C18C779B17EAC2DCF57E7BB4889FA1C8"
+  },
+  "output/figma-plugin/final-run/plugin-300m-moved.exui": {
+    "bytes": 2911,
+    "sha256": "363821EC1AF9A84341A9A6ECCD510780F31E16A439BF4843EAF3E642FAA4A86C"
+  },
+  "output/figma-plugin/final-run/plugin-300m-moved.gdl": {
+    "bytes": 1559358,
+    "sha256": "31BAB9B001B1507BA8F49382ACAC0D91D7688202CF9AE3AC8B2F70C3E101C5EA"
+  },
+  "output/figma-plugin/final-run/plugin-300m-moved.gdl.report.json": {
+    "bytes": 11090,
+    "sha256": "0C91E63BC442BAD82B5A79F996D45DCD716A5E240E090777FC6972CDB0383471"
+  },
+  "output/figma-plugin/final-run/plugin-300m.exui": {
+    "bytes": 2907,
+    "sha256": "308D0BD536D7192779AA7084FD0A6C5643823BDD95BAB3A8AC183C01CBE9823F"
+  },
+  "output/figma-plugin/final-run/plugin-300m.gdl": {
+    "bytes": 1559361,
+    "sha256": "92018D19F4BA4FA8D079B1B95E1DBE159AB5D3292D3FA1B918F21552EEEEAB69"
+  },
+  "output/figma-plugin/final-run/plugin-300m.gdl.report.json": {
+    "bytes": 11084,
+    "sha256": "48F80E438661BF629DBFDD90B4F55B369D2AA144E1EF0F5206B279952972765C"
+  },
+  "output/figma-plugin/browser-final/browser.json": {
+    "bytes": 334,
+    "sha256": "B00F0EF644661CAFC44972B5E60C67693122D0CCA9F33229033E531248947172"
+  },
+  "output/figma-plugin/browser-final/interface-tlp-pro-1025m.exui": {
+    "bytes": 2917,
+    "sha256": "79DBA891F568C2A45EE5FFB1D7C0597B2A360601E3416C831AC28D8790D0E09A"
+  },
+  "output/figma-plugin/browser-final/interface-tlp-pro-300m-portrait.exui": {
+    "bytes": 2907,
+    "sha256": "308D0BD536D7192779AA7084FD0A6C5643823BDD95BAB3A8AC183C01CBE9823F"
+  },
+  "output/figma-plugin/browser-final/ui.png": {
+    "bytes": 33944,
+    "sha256": "22A3A901BBDB6C3BE2E354ED3E3CED53DF5DC5F631B7598223FB57EB14A8B9A2"
+  },
+  "output/figma-plugin/figma-extron-plugin-0.1.0.zip": {
+    "bytes": 44612,
+    "sha256": "A933B5C740A44660A98F666AACB358025DFE3276ED9ADE949215F916876D7A82"
+  },
+  "output/figma-plugin/figma-extron-plugin-0.1.0-final-repeat.zip": {
+    "bytes": 44612,
+    "sha256": "A933B5C740A44660A98F666AACB358025DFE3276ED9ADE949215F916876D7A82"
+  }
+}

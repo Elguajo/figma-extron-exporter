@@ -1,0 +1,6 @@
+  Determining projects to restore...
+  Restored C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\src\extron\Extron.Format.csproj (in 1.21 sec).
+  Restored C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\src\adapter\Extron.Adapter.csproj (in 1.21 sec).
+  Restored C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\src\cli\Extron.Cli.csproj (in 1.21 sec).
+  Restored C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\tests\format\Extron.Format.Tests.csproj (in 1.21 sec).
+  Restored C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\src\screen\Extron.Screen.csproj (in 1.21 sec).

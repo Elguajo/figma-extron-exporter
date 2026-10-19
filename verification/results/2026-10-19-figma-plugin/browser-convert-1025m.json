@@ -1,0 +1,12 @@
+{
+  "Contract": "exui/1",
+  "Profile": "tlp-pro-1025m",
+  "PackageSha256": "79DBA891F568C2A45EE5FFB1D7C0597B2A360601E3416C831AC28D8790D0E09A",
+  "Output": "C:\\Users\\Khusan Turaev\\.codex\\worktrees\\figma-plugin\\figma-extron-exporter\\output\\figma-plugin\\browser-upstream-ui\\browser-1025m.gdl",
+  "OutputSha256": "24377925DAF4BDA0D18BA83FB661337320B87E1E04CF5DB2900D33FC6667A986",
+  "checks": "61/61 passed",
+  "reportFile": "C:\\Users\\Khusan Turaev\\.codex\\worktrees\\figma-plugin\\figma-extron-exporter\\output\\figma-plugin\\browser-upstream-ui\\browser-1025m.gdl.report.json",
+  "GuiDesignerVerified": false,
+  "HardwareVerified": false,
+  "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+}

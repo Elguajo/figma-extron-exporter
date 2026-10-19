@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "browser": "156.0.8078.4",
+  "checks": [
+    "empty selection",
+    "keyboard navigation",
+    "both profile downloads",
+    "ZIP payload",
+    "explicit metadata form",
+    "render error recovery",
+    "text injection"
+  ],
+  "boundary": "actual Chromium UI; Figma parent messages mocked",
+  "pageErrors": []
+}

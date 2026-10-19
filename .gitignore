@@ -7,3 +7,5 @@ samples/original/*
 *.user
 samples/donors/*
 !samples/donors/.gitkeep
+**/node_modules/
+src/figma-plugin/dist/

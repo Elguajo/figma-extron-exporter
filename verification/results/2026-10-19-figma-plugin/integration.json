@@ -1,0 +1,64 @@
+[
+  {
+    "profile": "tlp-pro-1025m",
+    "input": "C:\\Users\\Khusan Turaev\\.codex\\worktrees\\figma-plugin\\figma-extron-exporter\\output\\figma-plugin\\final-run\\plugin-1025m.exui",
+    "validation": {
+      "contract": "exui/1",
+      "Sha256": "79DBA891F568C2A45EE5FFB1D7C0597B2A360601E3416C831AC28D8790D0E09A",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "elements": 4,
+      "resources": 2,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake API; real Figma not exercised",
+    "generation": {
+      "Contract": "exui/1",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "79DBA891F568C2A45EE5FFB1D7C0597B2A360601E3416C831AC28D8790D0E09A",
+      "Output": "C:\\Users\\Khusan Turaev\\.codex\\worktrees\\figma-plugin\\figma-extron-exporter\\output\\figma-plugin\\final-run\\plugin-1025m.gdl",
+      "OutputSha256": "24377925DAF4BDA0D18BA83FB661337320B87E1E04CF5DB2900D33FC6667A986",
+      "checks": "61/61 passed",
+      "reportFile": "C:\\Users\\Khusan Turaev\\.codex\\worktrees\\figma-plugin\\figma-extron-exporter\\output\\figma-plugin\\final-run\\plugin-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "idsPreservedAfterMoveAndReorder": true
+  },
+  {
+    "profile": "tlp-pro-300m-portrait",
+    "input": "C:\\Users\\Khusan Turaev\\.codex\\worktrees\\figma-plugin\\figma-extron-exporter\\output\\figma-plugin\\final-run\\plugin-300m.exui",
+    "validation": {
+      "contract": "exui/1",
+      "Sha256": "308D0BD536D7192779AA7084FD0A6C5643823BDD95BAB3A8AC183C01CBE9823F",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "elements": 4,
+      "resources": 2,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake API; real Figma not exercised",
+    "generation": {
+      "Contract": "exui/1",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "308D0BD536D7192779AA7084FD0A6C5643823BDD95BAB3A8AC183C01CBE9823F",
+      "Output": "C:\\Users\\Khusan Turaev\\.codex\\worktrees\\figma-plugin\\figma-extron-exporter\\output\\figma-plugin\\final-run\\plugin-300m.gdl",
+      "OutputSha256": "92018D19F4BA4FA8D079B1B95E1DBE159AB5D3292D3FA1B918F21552EEEEAB69",
+      "checks": "61/61 passed",
+      "reportFile": "C:\\Users\\Khusan Turaev\\.codex\\worktrees\\figma-plugin\\figma-extron-exporter\\output\\figma-plugin\\final-run\\plugin-300m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "idsPreservedAfterMoveAndReorder": true
+  }
+]

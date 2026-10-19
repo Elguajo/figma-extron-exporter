@@ -1,0 +1,73 @@
+{
+  "Output": "C:\\Users\\Khusan Turaev\\.codex\\worktrees\\figma-plugin\\figma-extron-exporter\\samples\\donors\\tlp-pro-300m-portrait.gdl",
+  "Sha256": "CCC1300202BE3F8097FF33640C5C5B3DEE983D7D8BB866FF56A3E0A3F790AA71",
+  "Bytes": 1561124,
+  "Profile": {
+    "PlatformClass": "PBTLP300MPlatform",
+    "PlatformTypeValue": 44,
+    "PartNumber": "60-1667-02",
+    "ScreenWidth": 320,
+    "ScreenHeight": 480,
+    "PlatformWidth": 320,
+    "PlatformHeight": 480
+  },
+  "Pages": [
+    "Main"
+  ],
+  "Popups": [
+    "Offline Page"
+  ],
+  "MatchesRegistry": true,
+  "adapter": {
+    "ok": true,
+    "code": "ok",
+    "message": "written",
+    "warnings": [],
+    "extron": {
+      "installDir": "C:\\Program Files (x86)\\Extron\\GUI Designer",
+      "guiDesignerVersion": "1.28.0.7",
+      "assemblies": 40
+    },
+    "sourceProfile": {
+      "platformClass": "PBTLP300MPlatform",
+      "platformType": "TLP300M",
+      "platformTypeValue": 44,
+      "partNumber": "60-1667-02",
+      "width": 320,
+      "height": 480
+    },
+    "profile": {
+      "platformClass": "PBTLP300MPlatform",
+      "platformType": "TLP300M",
+      "platformTypeValue": 44,
+      "partNumber": "60-1667-02",
+      "width": 320,
+      "height": 480
+    },
+    "pages": [
+      "Main"
+    ],
+    "popups": [
+      "Offline Page"
+    ],
+    "enumValues": {
+      "platformType": 44,
+      "levelDisplay": {
+        "Gauge": 0,
+        "Slider": 1,
+        "MultistateLevel": 2,
+        "None": 3,
+        "VolumeLED": 4
+      },
+      "levelOrientation": {
+        "LeftToRight": 0,
+        "RightToLeft": 1,
+        "BottomToTop": 2,
+        "TopToBottom": 3
+      }
+    },
+    "outputBytes": 2415294
+  },
+  "note": "SHA-256 matches samples/donors.json",
+  "guiDesignerVerified": false
+}

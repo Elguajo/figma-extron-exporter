@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- UI adapted from Baolv/figma-export ui.html, commit 6312d15. See THIRD_PARTY_NOTICES.md. -->
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{color-scheme:light dark;font:12px/1.4 Inter,-apple-system,Segoe UI,sans-serif}
+*{box-sizing:border-box}body{margin:0;padding:14px;color:var(--figma-color-text,#333);background:var(--figma-color-bg,#fff)}
+h1{margin:0 0 2px;font-size:13px}.sub{color:var(--figma-color-text-secondary,#666);margin:0 0 12px;font-size:11px}
+fieldset{min-width:0;border:1px solid var(--figma-color-border,#e5e5e5);border-radius:6px;margin:0 0 10px;padding:8px 10px}
+legend{padding:0 4px;font-weight:600;color:var(--figma-color-text-secondary,#666);text-transform:uppercase;font-size:10px;letter-spacing:.04em}
+label{display:flex;align-items:center;gap:6px;margin:4px 0}.stack{display:block}.stack input,.stack select{margin-top:4px}
+select,input{width:100%;box-sizing:border-box;padding:5px 6px;border:1px solid var(--figma-color-border,#ccc);border-radius:4px;background:var(--figma-color-bg,#fff);color:inherit;font:inherit;min-height:30px}
+.row{display:flex;gap:12px}.row>*{min-width:0;flex:1}
+button{width:100%;padding:9px;border:0;border-radius:6px;background:var(--figma-color-bg-brand-strong,#1769aa);color:var(--figma-color-text-onbrand,#fff);font-weight:600;font:inherit;cursor:pointer;margin-top:6px}
+button:disabled{opacity:.5;cursor:default}.secondary{background:transparent;color:var(--figma-color-text,#333);border:1px solid var(--figma-color-border,#ccc);padding:6px;font-weight:500}
+summary{font-weight:600;cursor:pointer;padding:2px 0}details[open] summary{margin-bottom:8px}
+small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);margin:6px 0}.selected{margin:0 0 8px;overflow-wrap:anywhere;font-weight:600}
+#bar{height:6px;border-radius:3px;background:var(--figma-color-bg-secondary,#eee);overflow:hidden;margin:10px 0 6px}
+#bar>div{height:100%;width:35%;background:var(--figma-color-bg-brand-strong,#1769aa)}#bar[data-complete=true]>div{width:100%}
+#status{font-size:11px;color:var(--figma-color-text-secondary,#666);white-space:pre-wrap;overflow-wrap:anywhere;min-height:16px;margin:8px 0}
+#status[data-kind=error]{color:var(--figma-color-text-danger,#a52720)}#status[data-kind=success]{color:var(--figma-color-text-success,#1a7f37)}
+#download{font-size:11px;color:var(--figma-color-text-brand,#1769aa)}footer{margin-top:12px}footer small{border-top:1px solid var(--figma-color-border,#e5e5e5);padding-top:8px}
+[hidden]{display:none!important}:focus-visible{outline:2px solid var(--figma-color-border-brand,#1769aa);outline-offset:3px}
+</style></head><body>
+<h1>Figma → Extron Exporter</h1><p class="sub">Подготовленный экран → .exui → редактируемый .gdl</p>
+<fieldset><legend>Экран</legend>
+<p id="selection" class="selected">Выберите один Frame экрана</p>
+<label class="stack">Профиль панели<select id="profile"><option value="tlp-pro-1025m">TLP Pro 1025M · 1280×800</option><option value="tlp-pro-300m-portrait">TLP Pro 300M · 320×480</option></select></label>
+<button id="check" class="secondary">Проверить экран</button><small>Экспортируется один экран целиком. Ключи и ID сохраняются.</small>
+</fieldset>
+<fieldset><legend>Первый запуск</legend>
+<button id="demo" class="secondary">Создать демо для этого профиля</button><small>Новый Frame «Главная»: Музыка, Громкость и Mute. Все назначения и три состояния кнопок уже подготовлены.</small>
+</fieldset>
+<fieldset><legend>Элементы</legend><details id="editor"><summary>Назначение выбранного элемента</summary>
+<p class="sub">Имена слоёв можно менять. Назначение, ключ и ID хранятся на узле. Копиям явно назначьте новые ключи и ID.</p>
+<form id="mapping">
+<label class="stack">Назначение<select id="kind"><option value="page">Экран · Frame</option><option value="button">Кнопка · Frame</option><option value="label">Подпись · Text</option><option value="level">Level / Slider · Frame</option><option value="state">Состояние кнопки · Frame</option><option value="image">PNG-иконка · Frame</option></select></label>
+<label class="stack" data-for="page button label level image">Семантический ключ<input id="key" placeholder="source.music" autocomplete="off"></label>
+<div class="row"><label class="stack" data-for="page button label level">ID объекта<input id="objectId" type="number" min="1" step="1"></label><label class="stack" data-for="button level">ID управления Extron<input id="controlId" type="number" min="1" max="65535" step="1"></label></div>
+<label class="stack" data-for="page">Имя проекта<input id="projectName" maxlength="256"></label>
+<label class="stack" data-for="state">Роль<select id="role"><option value="normal">normal · исходный вид · ID 0</option><option value="feedback">feedback · от программы управления · ID 1</option><option value="pressed">pressed · пока держат кнопку · ID 2</option></select></label>
+<label class="stack" data-for="state">Имя состояния<input id="stateName" placeholder="Off"></label>
+<label class="stack" data-for="image">Файл PNG в пакете<input id="file" placeholder="assets/note-light.png"></label>
+<label class="stack" data-for="image">Имя ресурса Extron<input id="resourceName" placeholder="exui-note-light.png"></label>
+<button class="secondary" type="submit">Сохранить назначение</button>
+</form>
+<div data-for="button"><label class="stack">Просмотр состояния<select id="previewRole"><option value="normal">normal</option><option value="feedback">feedback</option><option value="pressed">pressed</option></select></label><button id="preview" class="secondary">Показать состояние</button></div>
+</details></fieldset>
+<button id="export">Скачать .exui</button>
+<div id="bar" role="progressbar" aria-label="Экспорт экрана" aria-valuemin="0" aria-valuemax="100" hidden><div></div></div>
+<p id="status" role="status" aria-live="polite">Выберите подготовленный экран или создайте демо.</p>
+<a id="download" hidden download>Скачать пакет повторно</a>
+<footer><small>Arial · PNG · normal / feedback / pressed · Level 0..100<br>Пакет преобразуется локальным CLI. Build выполняется вручную в GUI Designer.</small></footer>
+<script>/*__BUNDLE__*/</script></body></html>

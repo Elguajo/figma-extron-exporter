@@ -1,0 +1,29 @@
+{
+  "name": "figma-extron-exporter-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.ui.json --noEmit",
+    "test": "node --test test/*.test.ts",
+    "verify": "npm run typecheck && npm test && npm run build",
+    "test:browser": "npm run build && node test/browser.ts",
+    "test:integration": "node test/native-integration.ts",
+    "package": "npm run build && node package-plugin.mjs"
+  },
+  "dependencies": {
+    "@noble/hashes": "1.8.0",
+    "fflate": "0.8.3"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "1.142.0",
+    "esbuild": "0.28.2",
+    "playwright": "1.64.1",
+    "typescript": "5.9.3"
+  }
+}
