@@ -198,6 +198,7 @@ if (args.Length > 1)
 ScreenTests.Container(Test);
 ScreenTests.Spec(Test);
 ScreenTests.Boundary(Test);
+PackageTests.Unit(Test);
 if (flags.TryGetValue("--built", out var built)) ScreenTests.BuiltProject(Test, built!);
 if (flags.TryGetValue("--registry", out var registry)) ScreenTests.Registry(Test, registry!);
 if (flags.TryGetValue("--gui-built-screens", out var screens))
@@ -209,6 +210,7 @@ if (flags.ContainsKey("--integration"))
 {
     if (registry == null) { Console.Error.WriteLine("--integration needs --registry"); return 2; }
     ScreenTests.Integration(Test, registry);
+    PackageTests.Integration(Test, registry);
 }
 Console.WriteLine($"RESULT: {passed} passed, {failed} failed. GUI Designer validation is separate.");
 return failed == 0 ? 0 : 1;

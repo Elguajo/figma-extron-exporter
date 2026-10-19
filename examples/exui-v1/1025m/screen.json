@@ -1,0 +1,163 @@
+{
+  "schema": "exui-screen/1",
+  "project": {
+    "name": "exui первый экран TLP Pro 1025M"
+  },
+  "page": {
+    "key": "page.home",
+    "objectId": 100,
+    "name": "Главная",
+    "background": "#14151C"
+  },
+  "assets": [
+    {
+      "key": "icon.note-light",
+      "file": "assets/note-light.png",
+      "resourceName": "exui-note-light.png"
+    },
+    {
+      "key": "icon.note-dark",
+      "file": "assets/note-dark.png",
+      "resourceName": "exui-note-dark.png"
+    }
+  ],
+  "elements": [
+    {
+      "key": "source.music",
+      "kind": "button",
+      "objectId": 1,
+      "controlId": 8101,
+      "name": "Источник Музыка",
+      "rect": [
+        80,
+        100,
+        320,
+        160
+      ],
+      "font": {
+        "family": "Arial",
+        "size": 22,
+        "bold": true
+      },
+      "states": [
+        {
+          "name": "Off",
+          "role": "normal",
+          "text": "Музыка",
+          "fill": "#242634",
+          "textColor": "#FFFFFF",
+          "image": "icon.note-light",
+          "imageAlign": "top-center",
+          "textAlign": "bottom-center",
+          "stateId": 0
+        },
+        {
+          "name": "On",
+          "role": "feedback",
+          "text": "Музыка",
+          "fill": "#F28C28",
+          "textColor": "#1B1B1F",
+          "image": "icon.note-dark",
+          "imageAlign": "top-center",
+          "textAlign": "bottom-center",
+          "stateId": 1
+        },
+        {
+          "name": "Pressed",
+          "role": "pressed",
+          "text": "Музыка",
+          "fill": "#3A3D52",
+          "textColor": "#FFFFFF",
+          "image": "icon.note-light",
+          "imageAlign": "middle-center",
+          "textAlign": "bottom-center",
+          "stateId": 2
+        }
+      ],
+      "press": "Pressed"
+    },
+    {
+      "key": "volume.caption",
+      "kind": "label",
+      "objectId": 2,
+      "controlId": null,
+      "name": "Подпись громкости",
+      "rect": [
+        480,
+        100,
+        600,
+        56
+      ],
+      "text": "Громкость",
+      "textColor": "#FFFFFF",
+      "font": {
+        "family": "Arial",
+        "size": 24,
+        "bold": false
+      }
+    },
+    {
+      "key": "volume.level",
+      "kind": "level",
+      "objectId": 3,
+      "controlId": 8103,
+      "name": "Громкость",
+      "rect": [
+        480,
+        180,
+        600,
+        48
+      ],
+      "display": "slider",
+      "orientation": "left-to-right",
+      "min": 0,
+      "max": 100,
+      "fillColor": "#F28C28"
+    },
+    {
+      "key": "volume.mute",
+      "kind": "button",
+      "objectId": 4,
+      "controlId": 8104,
+      "name": "Mute",
+      "rect": [
+        480,
+        260,
+        240,
+        96
+      ],
+      "font": {
+        "family": "Arial",
+        "size": 20,
+        "bold": true
+      },
+      "states": [
+        {
+          "name": "Off",
+          "role": "normal",
+          "text": "Без звука",
+          "fill": "#242634",
+          "textColor": "#FFFFFF",
+          "stateId": 0
+        },
+        {
+          "name": "On",
+          "role": "feedback",
+          "text": "Без звука",
+          "fill": "#C0392B",
+          "textColor": "#FFFFFF",
+          "stateId": 1
+        },
+        {
+          "name": "Pressed",
+          "role": "pressed",
+          "text": "Без звука",
+          "fill": "#3A3D52",
+          "textColor": "#FFFFFF",
+          "stateId": 2
+        }
+      ],
+      "press": "Pressed"
+    }
+  ]
+}

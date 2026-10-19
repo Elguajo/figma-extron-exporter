@@ -1,0 +1,22 @@
+[
+  {
+    "file": "../Full-Test-Project.gdl",
+    "sha256": "BA092E45129E08A1A8E2EC601F0EA95B7F07C7670AB7693FA9F3C956AF6752E1",
+    "unchangedSinceStage4": true
+  },
+  {
+    "file": "samples/original/Full-Test-Project.gdl",
+    "sha256": "BA092E45129E08A1A8E2EC601F0EA95B7F07C7670AB7693FA9F3C956AF6752E1",
+    "unchangedSinceStage4": true
+  },
+  {
+    "file": "samples/donors/tlp-pro-300m-portrait.gdl",
+    "sha256": "CCC1300202BE3F8097FF33640C5C5B3DEE983D7D8BB866FF56A3E0A3F790AA71",
+    "unchangedSinceStage4": true
+  },
+  {
+    "file": "samples/donors/tlp-pro-1025m.gdl",
+    "sha256": "D30E4B0A96F312DC9589824A72EEA394E68259447C258D220B9D1D7724B1D2E9",
+    "unchangedSinceStage4": true
+  }
+]

@@ -1,0 +1,8 @@
+Independent JSON Schema QA; jsonschema 4.26.0
+PASS meta-schema manifest
+PASS example 1025m/manifest
+PASS example 300m/manifest
+PASS meta-schema screen
+PASS example 1025m/screen
+PASS example 300m/screen
+RESULT: 20 passed, 0 failed

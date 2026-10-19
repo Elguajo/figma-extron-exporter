@@ -163,7 +163,7 @@ public static class ScreenSpecReader
                 else controlIds[cid] = e.Key ?? where;
             }
             CheckText(e.Name, $"{where}.name", required: true, Error);
-            if (e.Rect is not { Length: 4 } r || r[2] < 1 || r[3] < 1 || r[0] < 0 || r[1] < 0 || r[0] + r[2] > canvasWidth || r[1] + r[3] > canvasHeight)
+            if (e.Rect is not { Length: 4 } r || r[2] < 1 || r[3] < 1 || r[0] < 0 || r[1] < 0 || (long)r[0] + r[2] > canvasWidth || (long)r[1] + r[3] > canvasHeight)
                 Error($"{where}.rect: [left, top, width, height] must lie inside the {canvasWidth}x{canvasHeight} canvas (Build moves outside controls to 0,0).");
             var font = e.Font == null ? null : new PlanFont(e.Font.Family, e.Font.Size, e.Font.Bold);
             if (e.Font is { Size: { } size } && size is < 4 or > 200) Error($"{where}.font.size: 4..200.");

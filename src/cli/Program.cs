@@ -13,6 +13,8 @@ Usage:
   set-button-text <input> <new-output> <button-id> <expected-text> <new-text>
   prepare-donor <donor-id> [--registry samples/donors.json] [--extron-dir <dir>]
   generate-screen <screen.json> <donor-id> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
+  validate-package <input.exui>
+  convert-package <input.exui> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
 """;
 
 // Options are only accepted by the adapter commands; everything else is positional.
@@ -29,10 +31,10 @@ for (int i = 0; i < args.Length; i++)
     else positional.Add(args[i]);
 }
 string command = positional.Count > 0 ? positional[0] : "";
-bool adapterCommand = command is "prepare-donor" or "generate-screen";
+bool adapterCommand = command is "prepare-donor" or "generate-screen" or "convert-package";
 int expected = command switch
 {
-    "inspect" or "list-controls" or "prepare-donor" => 2, "repack" => 3, "generate-screen" => 4, "set-button-text" => 6, _ => -1
+    "inspect" or "list-controls" or "prepare-donor" or "validate-package" => 2, "repack" or "convert-package" => 3, "generate-screen" => 4, "set-button-text" => 6, _ => -1
 };
 if (expected < 0 || positional.Count != expected || (!adapterCommand && args.Length != positional.Count) ||
     (command == "set-button-text" && !int.TryParse(positional[3], out _)))
@@ -45,6 +47,29 @@ try
 {
     switch (command)
     {
+        case "validate-package":
+        {
+            using var package = ExuiPackage.Load(positional[1]);
+            Console.WriteLine(JsonSerializer.Serialize(new
+            {
+                contract = "exui/1", package.Sha256, package.Profile,
+                elements = package.Plan.Elements.Count, resources = package.Plan.Images.Count,
+                validation = "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+            }, json));
+            break;
+        }
+        case "convert-package":
+        {
+            var report = PackageGenerator.Generate(DonorRegistry.Load(registryPath), positional[1], positional[2], new ExtronAdapter(AdapterOptions.Default(extronDir)));
+            Console.WriteLine(JsonSerializer.Serialize(new
+            {
+                report.Contract, report.Profile, report.PackageSha256, report.Generation.Output, report.Generation.OutputSha256,
+                checks = $"{report.Generation.Checks.Count(c => c.Passed)}/{report.Generation.Checks.Count} passed",
+                reportFile = Path.GetFullPath(positional[2] + ".report.json"), report.GuiDesignerVerified, report.HardwareVerified,
+                next = "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+            }, json));
+            break;
+        }
         case "inspect":
         {
             var container = ExtronContainer.ReadFile(positional[1]);
@@ -136,6 +161,11 @@ try
     return 0;
 }
 catch (AdapterException e)
+{
+    Console.Error.WriteLine($"ERROR [{e.Code}]: {e.Message}");
+    return 1;
+}
+catch (ExuiException e)
 {
     Console.Error.WriteLine($"ERROR [{e.Code}]: {e.Message}");
     return 1;

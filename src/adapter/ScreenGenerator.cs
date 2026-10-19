@@ -53,6 +53,12 @@ public static class ScreenGenerator
         var spec = ScreenSpecReader.Load(specPath);
         var plan = ScreenSpecReader.Normalize(spec, donor.Entry.Panel, donor.Entry.Profile.Width, donor.Entry.Profile.Height,
             Path.GetDirectoryName(Path.GetFullPath(specPath))!);
+        return Generate(donor, donorId, plan, Convert.ToHexString(SHA256.HashData(specBytes)), outputPath, adapter);
+    }
+
+    // Both inputs converge here; package data never becomes an Extron deserialization input.
+    internal static GenerationReport Generate(LoadedDonor donor, string donorId, GeneratePlan plan, string specSha256, string outputPath, ExtronAdapter adapter)
+    {
         var e = donor.Entry;
         var run = adapter.Run("generate", donor.Container.Payload, "generate", new
         {
@@ -77,7 +83,7 @@ public static class ScreenGenerator
                 string.Join("; ", failed.Select(c => $"{c.Id}: {c.Detail}")));
         using (var file = new FileStream(outputPath, FileMode.CreateNew, FileAccess.Write)) file.Write(packed);
         return new(Path.GetFullPath(outputPath), Convert.ToHexString(SHA256.HashData(packed)), packed.Length, donorId, donor.Sha256,
-            e.Panel, Convert.ToHexString(SHA256.HashData(specBytes)), checks, run.Result, run.HostOutput);
+            e.Panel, specSha256, checks, run.Result, run.HostOutput);
     }
 
     /// <summary>Build silently moves a control outside its page to 0,0, so every container must fit the canvas.</summary>

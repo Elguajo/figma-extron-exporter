@@ -1,0 +1,68 @@
+CASE validate 1025M; exit=0; expected=0
+{
+  "contract": "exui/1",
+  "Sha256": "1A043DDC60EBDBD5479892B81ADC92B2704CFE9124DF30FA55C5C6957852C463",
+  "Profile": {
+    "Id": "tlp-pro-1025m",
+    "Panel": "TLP Pro 1025M",
+    "Width": 1280,
+    "Height": 800
+  },
+  "elements": 4,
+  "resources": 2,
+  "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+}
+CASE validate 300M; exit=0; expected=0
+{
+  "contract": "exui/1",
+  "Sha256": "3421BE85BCEF4249B10FCB5DB6190CDFF28617961CBED8BACE67B654B6E49380",
+  "Profile": {
+    "Id": "tlp-pro-300m-portrait",
+    "Panel": "TLP Pro 300M",
+    "Width": 320,
+    "Height": 480
+  },
+  "elements": 4,
+  "resources": 2,
+  "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+}
+CASE convert 1025M; exit=0; expected=0
+{
+  "Contract": "exui/1",
+  "Profile": "tlp-pro-1025m",
+  "PackageSha256": "1A043DDC60EBDBD5479892B81ADC92B2704CFE9124DF30FA55C5C6957852C463",
+  "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\exui-v1\\verified-1025m.gdl",
+  "OutputSha256": "24377925DAF4BDA0D18BA83FB661337320B87E1E04CF5DB2900D33FC6667A986",
+  "checks": "61/61 passed",
+  "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\exui-v1\\verified-1025m.gdl.report.json",
+  "GuiDesignerVerified": false,
+  "HardwareVerified": false,
+  "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+}
+CASE convert 300M; exit=0; expected=0
+{
+  "Contract": "exui/1",
+  "Profile": "tlp-pro-300m-portrait",
+  "PackageSha256": "3421BE85BCEF4249B10FCB5DB6190CDFF28617961CBED8BACE67B654B6E49380",
+  "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\exui-v1\\verified-300m.gdl",
+  "OutputSha256": "92018D19F4BA4FA8D079B1B95E1DBE159AB5D3292D3FA1B918F21552EEEEAB69",
+  "checks": "61/61 passed",
+  "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\exui-v1\\verified-300m.gdl.report.json",
+  "GuiDesignerVerified": false,
+  "HardwareVerified": false,
+  "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+}
+CASE existing output refused; exit=1; expected=1
+ERROR [output-exists]: Output or report already exists; choose a new name.
+CASE missing Extron; no output; exit=1; expected=1
+ERROR [extron-missing]: Extron GUI Designer not found at output/exui-v1/missing-install. Install GUI Designer 1.28.0.7 or pass --extron-dir.
+CASE bad arguments; exit=2; expected=2
+Usage:
+  inspect <input.gdl|glt>
+  list-controls <input.gdl>
+  repack <input> <new-output>
+  set-button-text <input> <new-output> <button-id> <expected-text> <new-text>
+  prepare-donor <donor-id> [--registry samples/donors.json] [--extron-dir <dir>]
+  generate-screen <screen.json> <donor-id> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
+  validate-package <input.exui>
+  convert-package <input.exui> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
