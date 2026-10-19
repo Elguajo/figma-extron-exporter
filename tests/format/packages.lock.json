@@ -7,10 +7,23 @@
         "resolved": "10.0.11",
         "contentHash": "6w8KQTESA2HyNt/cyuIfvKBpQuBHd2e0EwAYoWQ7f+cWE0kCQCAGz4bQdATTH3jhDLvoqlf0vgPXK0Ml5qeVjg=="
       },
+      "extron.adapter": {
+        "type": "Project",
+        "dependencies": {
+          "Extron.Format": "[1.0.0, )",
+          "Extron.Screen": "[1.0.0, )"
+        }
+      },
       "extron.format": {
         "type": "Project",
         "dependencies": {
           "System.Formats.Nrbf": "[10.0.11, )"
+        }
+      },
+      "extron.screen": {
+        "type": "Project",
+        "dependencies": {
+          "Extron.Format": "[1.0.0, )"
         }
       }
     }

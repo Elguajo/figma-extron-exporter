@@ -1,10 +1,16 @@
 <Solution>
   <Folder Name="/src/" />
+  <Folder Name="/src/adapter/">
+    <Project Path="src/adapter/Extron.Adapter.csproj" />
+  </Folder>
   <Folder Name="/src/cli/">
     <Project Path="src/cli/Extron.Cli.csproj" />
   </Folder>
   <Folder Name="/src/extron/">
     <Project Path="src/extron/Extron.Format.csproj" />
+  </Folder>
+  <Folder Name="/src/screen/">
+    <Project Path="src/screen/Extron.Screen.csproj" />
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/format/">

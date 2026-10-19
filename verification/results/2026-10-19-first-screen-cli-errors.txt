@@ -1,0 +1,35 @@
+$ generate-screen (existing output)
+ERROR [output-exists]: output/first-screen/first-screen-1025m.gdl already exists; choose a new output file.
+exit=1
+$ generate-screen (300M description on 1025M donor)
+ERROR [spec]: Screen description is invalid:
+  panel: description targets "TLP Pro 300M" but the donor is "TLP Pro 1025M". Choose the donor of that panel; a model name alone does not change the project.
+exit=1
+$ generate-screen (external GDL path as donor)
+ERROR [donor-unknown]: Donor 'samples/original/Full-Test-Project.gdl' is not in D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\samples\donors.json. Known: tlp-pro-300m-portrait, tlp-pro-1025m.
+exit=1
+$ generate-screen --extron-dir C:\missing
+ERROR [extron-missing]: Extron GUI Designer not found at C:\missing. Install GUI Designer 1.28.0.7 or pass --extron-dir.
+exit=1
+$ inspect built multi-entry
+{
+  "input": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\Full-Test-Project-music.gdl",
+  "container": "KP-multi-entry-v1",
+  "entries": [
+    {
+      "Name": "ProjectGCP",
+      "CompressionMethod": 8,
+      "CompressedBytes": 1675886,
+      "RawBytes": 2819952,
+      "Crc32": 2918658921
+    },
+    {
+      "Name": "full-test-project-music.tgz4",
+      "CompressionMethod": 8,
+      "CompressedBytes": 886283,
+      "RawBytes": 919510,
+      "Crc32": 2137005598
+    }
+  ],
+  "entry": "ProjectGCP",
+exit=0

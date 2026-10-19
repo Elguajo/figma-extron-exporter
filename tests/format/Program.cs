@@ -3,6 +3,17 @@ using System.IO.Compression;
 using System.Text;
 using ExtronExporter.Format;
 
+// Positional: [real-gdl] [templates-dir]. Options: --built <gui-saved.gdl> --registry <donors.json> --integration
+var flags = new Dictionary<string, string?>();
+var positional = new List<string>();
+for (int i = 0; i < args.Length; i++)
+{
+    if (args[i] == "--integration") flags[args[i]] = null;
+    else if (args[i] is "--built" or "--registry" && i + 1 < args.Length) flags[args[i]] = args[++i];
+    else if (args[i].StartsWith("--", StringComparison.Ordinal)) { Console.Error.WriteLine($"Unknown option {args[i]}"); return 2; }
+    else positional.Add(args[i]);
+}
+args = positional.ToArray();
 int passed = 0, failed = 0;
 void Test(string name, Action action)
 {
@@ -182,6 +193,16 @@ if (args.Length > 1)
             var copy = ExtronContainer.Parse(source.Repack());
             Check(source.Payload.SequenceEqual(copy.Payload));
         });
+}
+ScreenTests.Container(Test);
+ScreenTests.Spec(Test);
+ScreenTests.Boundary(Test);
+if (flags.TryGetValue("--built", out var built)) ScreenTests.BuiltProject(Test, built!);
+if (flags.TryGetValue("--registry", out var registry)) ScreenTests.Registry(Test, registry!);
+if (flags.ContainsKey("--integration"))
+{
+    if (registry == null) { Console.Error.WriteLine("--integration needs --registry"); return 2; }
+    ScreenTests.Integration(Test, registry);
 }
 Console.WriteLine($"RESULT: {passed} passed, {failed} failed. GUI Designer validation is separate.");
 return failed == 0 ? 0 : 1;

@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><RootNamespace>ExtronExporter.Screen</RootNamespace></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../extron/Extron.Format.csproj" /></ItemGroup>
+</Project>

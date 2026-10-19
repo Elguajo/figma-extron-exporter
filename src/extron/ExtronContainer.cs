@@ -4,22 +4,37 @@ using System.Text;
 
 namespace ExtronExporter.Format;
 
-/// <summary>Observed single-entry KP container profile. Does not instantiate Extron objects.</summary>
+/// <summary>
+/// Observed KP container profile: one ProjectGCP entry, optionally followed by entries GUI Designer's
+/// Save and Build adds (for example &lt;project&gt;.tgz4). Entries are parsed structurally from the central
+/// directory and must be laid out contiguously. Does not instantiate Extron objects.
+/// </summary>
 public sealed class ExtronContainer
 {
     public const int MaxFileBytes = 64 * 1024 * 1024;
     public const int MaxPayloadBytes = 128 * 1024 * 1024;
-    private readonly byte[] localHeader;
-    private readonly byte[] centralDirectory;
-    private readonly byte[] endRecord;
-    public byte[] Payload { get; }
-    public string EntryName => "ProjectGCP";
-    public ushort CompressionMethod { get; }
+    public const int MaxEntries = 16;
+    public const string ProjectEntryName = "ProjectGCP";
 
-    private ExtronContainer(byte[] local, byte[] central, byte[] end, byte[] payload, ushort method)
+    /// <summary>Metadata of one entry, as declared by the central directory and verified against its data.</summary>
+    public sealed record Entry(string Name, ushort CompressionMethod, int CompressedBytes, int RawBytes, uint Crc32);
+
+    // One entry as stored: local header (with name/extra), packed data, central record.
+    private sealed record StoredEntry(Entry Info, byte[] LocalHeader, byte[] Packed, byte[] Central);
+
+    private readonly IReadOnlyList<StoredEntry> stored;
+    private readonly int projectIndex;
+    private readonly byte[] endRecord;
+
+    public byte[] Payload { get; }
+    public string EntryName => ProjectEntryName;
+    public ushort CompressionMethod => stored[projectIndex].Info.CompressionMethod;
+    public IReadOnlyList<Entry> Entries => stored.Select(s => s.Info).ToArray();
+    public bool HasBuildOutput => stored.Count > 1;
+
+    private ExtronContainer(IReadOnlyList<StoredEntry> entries, int project, byte[] end, byte[] payload)
     {
-        localHeader = local; centralDirectory = central; endRecord = end;
-        Payload = payload; CompressionMethod = method;
+        stored = entries; projectIndex = project; endRecord = end; Payload = payload;
     }
 
     public static ExtronContainer ReadFile(string path)
@@ -39,78 +54,138 @@ public sealed class ExtronContainer
         for (int p = data.Length - 22; p >= Math.Max(0, data.Length - 65557); p--)
             if (Signature(data, p, 5, 6) && p + 22 + U16(data, p + 20) == data.Length) { end = p; break; }
         if (end < 0) throw new InvalidDataException("Missing KP end record or invalid archive comment length.");
-        if (U16(data, end + 4) != 0 || U16(data, end + 6) != 0 ||
-            U16(data, end + 8) != 1 || U16(data, end + 10) != 1)
-            throw new InvalidDataException("Only single-disk, single-entry containers are supported.");
+        int count = U16(data, end + 10);
+        if (U16(data, end + 4) != 0 || U16(data, end + 6) != 0 || U16(data, end + 8) != count)
+            throw new InvalidDataException("Only single-disk containers are supported.");
+        if (count < 1 || count > MaxEntries) throw new InvalidDataException($"Expected 1..{MaxEntries} entries, found {count}.");
         int central = Size(U32(data, end + 16)), centralSize = Size(U32(data, end + 12));
-        if ((long)central + centralSize != end || centralSize < 46 || !Signature(data, central, 1, 2))
-            throw new InvalidDataException("Invalid central directory bounds or signature.");
-        ushort flags = U16(data, central + 8), method = U16(data, central + 10);
-        if ((flags & ~0x0800) != 0 || method is not (0 or 8))
-            throw new InvalidDataException("Unsupported flags or compression; expected stored/DEFLATE without descriptors.");
-        if (U16(data, central + 6) > 20 || U16(data, central + 34) != 0 || U32(data, central + 42) != 0)
-            throw new InvalidDataException("ZIP64, multiple disks and prefixed local entries are unsupported.");
-        int nameLength = U16(data, central + 28), extraLength = U16(data, central + 30), commentLength = U16(data, central + 32);
-        if (46 + nameLength + extraLength + commentLength != centralSize)
-            throw new InvalidDataException("Central directory length mismatch.");
-        int packedSize = Size(U32(data, central + 20)), rawSize = Size(U32(data, central + 24));
-        if (rawSize > MaxPayloadBytes) throw new InvalidDataException("Payload exceeds 128 MiB limit.");
-        if (!Signature(data, 0, 3, 4) || central < 30) throw new InvalidDataException("Missing local entry.");
-        if (U16(data, 4) != U16(data, central + 6) || U16(data, 6) != flags || U16(data, 8) != method ||
-            U32(data, 14) != U32(data, central + 16) || U32(data, 18) != packedSize || U32(data, 22) != rawSize)
-            throw new InvalidDataException("Local and central entry metadata disagree.");
-        int localNameLength = U16(data, 26), localExtraLength = U16(data, 28);
-        int start = 30 + localNameLength + localExtraLength;
-        if ((long)start + packedSize != central || localNameLength != nameLength)
-            throw new InvalidDataException("Local entry bounds disagree with central directory.");
-        var localName = data.AsSpan(30, localNameLength);
-        if (!localName.SequenceEqual(data.AsSpan(central + 46, nameLength)) ||
-            !localName.SequenceEqual(Encoding.ASCII.GetBytes("ProjectGCP")))
-            throw new InvalidDataException("Expected exactly one ProjectGCP entry.");
-        var payload = new byte[rawSize];
-        if (method == 0)
+        if ((long)central + centralSize != end) throw new InvalidDataException("Invalid central directory bounds.");
+
+        var entries = new List<StoredEntry>(count);
+        long totalRaw = 0;
+        int cursor = central, expectedLocal = 0;
+        byte[]? payload = null;
+        int project = -1;
+        for (int i = 0; i < count; i++)
         {
-            if (packedSize != rawSize) throw new InvalidDataException("Stored entry size mismatch.");
-            data.AsSpan(start, packedSize).CopyTo(payload);
+            if (cursor > end - 46 || !Signature(data, cursor, 1, 2)) throw new InvalidDataException($"Central record {i} is missing or truncated.");
+            ushort flags = U16(data, cursor + 8), method = U16(data, cursor + 10);
+            if ((flags & ~0x0800) != 0 || method is not (0 or 8))
+                throw new InvalidDataException("Unsupported flags or compression; expected stored/DEFLATE without descriptors.");
+            if (U16(data, cursor + 6) > 20 || U16(data, cursor + 34) != 0)
+                throw new InvalidDataException("ZIP64 and multiple disks are unsupported.");
+            int nameLength = U16(data, cursor + 28), extraLength = U16(data, cursor + 30), commentLength = U16(data, cursor + 32);
+            int recordLength = 46 + nameLength + extraLength + commentLength;
+            if ((long)cursor + recordLength > end) throw new InvalidDataException("Central directory length mismatch.");
+            int packedSize = Size(U32(data, cursor + 20)), rawSize = Size(U32(data, cursor + 24));
+            uint crc = U32(data, cursor + 16);
+            totalRaw += rawSize;
+            if (rawSize > MaxPayloadBytes || totalRaw > MaxPayloadBytes) throw new InvalidDataException("Expanded entries exceed 128 MiB limit.");
+            // Strict layout: entries follow each other from offset 0 and the central directory follows the last one.
+            int local = Size(U32(data, cursor + 42));
+            if (local != expectedLocal) throw new InvalidDataException("Entries must be contiguous from the start of the file, in central-directory order.");
+            if ((long)local + 30 > central || !Signature(data, local, 3, 4)) throw new InvalidDataException($"Missing local entry {i}.");
+            if (U16(data, local + 4) != U16(data, cursor + 6) || U16(data, local + 6) != flags || U16(data, local + 8) != method ||
+                U32(data, local + 14) != crc || U32(data, local + 18) != packedSize || U32(data, local + 22) != rawSize)
+                throw new InvalidDataException("Local and central entry metadata disagree.");
+            int localNameLength = U16(data, local + 26), localExtraLength = U16(data, local + 28);
+            long start = (long)local + 30 + localNameLength + localExtraLength;
+            if (localNameLength != nameLength || start + packedSize > central)
+                throw new InvalidDataException("Local entry bounds disagree with central directory.");
+            if (!data.AsSpan(local + 30, nameLength).SequenceEqual(data.AsSpan(cursor + 46, nameLength)))
+                throw new InvalidDataException("Local and central entry names disagree.");
+            string name = Encoding.ASCII.GetString(data, cursor + 46, nameLength);
+            if (nameLength == 0 || name.Any(c => c < 0x20 || c > 0x7e) || name.Contains('/') || name.Contains('\\'))
+                throw new InvalidDataException("Entry names must be plain ASCII file names.");
+            if (entries.Any(e => e.Info.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidDataException($"Duplicate entry '{name}'.");
+            byte[] raw = Expand(data, (int)start, packedSize, rawSize, method);
+            if (Crc32(raw) != crc) throw new InvalidDataException($"CRC32 mismatch in entry '{name}'.");
+            if (name == ProjectEntryName)
+            {
+                if (i != 0) throw new InvalidDataException("ProjectGCP must be the first entry.");
+                payload = raw; project = i;
+            }
+            entries.Add(new(new(name, method, packedSize, rawSize, crc), data[local..(int)start],
+                data[(int)start..((int)start + packedSize)], data[cursor..(cursor + recordLength)]));
+            expectedLocal = (int)start + packedSize;
+            cursor += recordLength;
         }
-        else
-        {
-            using var packed = new MemoryStream(data, start, packedSize, writable: false);
-            using var decoder = new DeflateStream(packed, CompressionMode.Decompress);
-            try { decoder.ReadExactly(payload); }
-            catch (EndOfStreamException e) { throw new InvalidDataException("Truncated DEFLATE payload.", e); }
-            if (decoder.ReadByte() != -1) throw new InvalidDataException("Expanded payload exceeds declared size.");
-        }
-        if (Crc32(payload) != U32(data, central + 16)) throw new InvalidDataException("Payload CRC32 mismatch.");
-        return new(data[..start], data[central..end], data[end..], payload, method);
+        if (cursor != end) throw new InvalidDataException("Central directory length mismatch.");
+        if (expectedLocal != central) throw new InvalidDataException("Unexpected bytes between entries and central directory.");
+        if (payload == null) throw new InvalidDataException("Expected one ProjectGCP entry.");
+        return new(entries, project, data[end..], payload);
     }
 
     /// <summary>Recompress the same NRBF bytes. This is not an object-graph writer.</summary>
     public byte[] Repack()
         => RepackWithPayload(Payload);
 
-    /// <summary>Package explicitly supplied NRBF bytes; caller owns graph validation.</summary>
+    /// <summary>
+    /// Package explicitly supplied NRBF bytes; caller owns graph validation. Other entries are copied
+    /// byte for byte with recomputed offsets.
+    /// </summary>
     public byte[] RepackWithPayload(byte[] payload)
     {
         if (payload.Length > MaxPayloadBytes) throw new InvalidDataException("Payload too large.");
+        var project = stored[projectIndex];
         byte[] packed;
-        if (CompressionMethod == 0) packed = payload.ToArray();
+        if (project.Info.CompressionMethod == 0) packed = payload.ToArray();
         else
         {
             using var stream = new MemoryStream();
             using (var encoder = new DeflateStream(stream, CompressionLevel.Optimal, leaveOpen: true)) encoder.Write(payload);
             packed = stream.ToArray();
         }
-        var local = localHeader.ToArray(); var central = centralDirectory.ToArray(); var end = endRecord.ToArray();
         uint crc = Crc32(payload);
-        Put(local, 14, crc); Put(local, 18, (uint)packed.Length); Put(local, 22, (uint)payload.Length);
-        Put(central, 16, crc); Put(central, 20, (uint)packed.Length); Put(central, 24, (uint)payload.Length);
-        Put(end, 12, (uint)central.Length); Put(end, 16, checked((uint)(local.Length + packed.Length)));
-        long size = (long)local.Length + packed.Length + central.Length + end.Length;
-        if (size > MaxFileBytes) throw new InvalidDataException("Repacked container exceeds 64 MiB limit.");
-        using var result = new MemoryStream((int)size);
-        result.Write(local); result.Write(packed); result.Write(central); result.Write(end);
+        using var result = new MemoryStream();
+        var centrals = new List<byte[]>();
+        for (int i = 0; i < stored.Count; i++)
+        {
+            var e = stored[i];
+            var local = e.LocalHeader.ToArray(); var centralRecord = e.Central.ToArray();
+            var data = e.Packed;
+            if (i == projectIndex)
+            {
+                data = packed;
+                Put(local, 14, crc); Put(local, 18, (uint)packed.Length); Put(local, 22, (uint)payload.Length);
+                Put(centralRecord, 16, crc); Put(centralRecord, 20, (uint)packed.Length); Put(centralRecord, 24, (uint)payload.Length);
+            }
+            Put(centralRecord, 42, checked((uint)result.Length));
+            result.Write(local); result.Write(data);
+            centrals.Add(centralRecord);
+        }
+        var end = endRecord.ToArray();
+        uint centralOffset = checked((uint)result.Length);
+        foreach (var c in centrals) result.Write(c);
+        Put(end, 12, checked((uint)(result.Length - centralOffset))); Put(end, 16, centralOffset);
+        result.Write(end);
+        if (result.Length > MaxFileBytes) throw new InvalidDataException("Repacked container exceeds 64 MiB limit.");
         return result.ToArray();
+    }
+
+    /// <summary>Raw bytes of a non-project entry (for example the built .tgz4). Validated by CRC on read.</summary>
+    public byte[] ReadEntry(string name)
+    {
+        var e = stored.SingleOrDefault(s => s.Info.Name == name) ?? throw new KeyNotFoundException($"No entry '{name}'.");
+        return Expand(e.Packed, 0, e.Packed.Length, e.Info.RawBytes, e.Info.CompressionMethod);
+    }
+
+    private static byte[] Expand(byte[] data, int start, int packedSize, int rawSize, ushort method)
+    {
+        var raw = new byte[rawSize];
+        if (method == 0)
+        {
+            if (packedSize != rawSize) throw new InvalidDataException("Stored entry size mismatch.");
+            data.AsSpan(start, packedSize).CopyTo(raw);
+            return raw;
+        }
+        using var packed = new MemoryStream(data, start, packedSize, writable: false);
+        using var decoder = new DeflateStream(packed, CompressionMode.Decompress);
+        try { decoder.ReadExactly(raw); }
+        catch (EndOfStreamException e) { throw new InvalidDataException("Truncated DEFLATE payload.", e); }
+        if (decoder.ReadByte() != -1) throw new InvalidDataException("Expanded payload exceeds declared size.");
+        return raw;
     }
 
     public static uint Crc32(ReadOnlySpan<byte> bytes)

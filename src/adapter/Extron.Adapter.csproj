@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><RootNamespace>ExtronExporter.Adapter</RootNamespace></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../extron/Extron.Format.csproj" />
+    <ProjectReference Include="../screen/Extron.Screen.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The x86 host runs from the build output; the Extron assemblies stay in the GUI Designer install. -->
+    <None Include="host/ExtronAdapterHost.ps1" Link="host/ExtronAdapterHost.ps1" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

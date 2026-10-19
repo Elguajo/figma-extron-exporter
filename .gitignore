@@ -5,3 +5,5 @@ output/
 samples/original/*
 !samples/original/.gitkeep
 *.user
+samples/donors/*
+!samples/donors/.gitkeep

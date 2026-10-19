@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "System.Formats.Nrbf": {
+        "type": "Transitive",
+        "resolved": "10.0.11",
+        "contentHash": "6w8KQTESA2HyNt/cyuIfvKBpQuBHd2e0EwAYoWQ7f+cWE0kCQCAGz4bQdATTH3jhDLvoqlf0vgPXK0Ml5qeVjg=="
+      },
+      "extron.format": {
+        "type": "Project",
+        "dependencies": {
+          "System.Formats.Nrbf": "[10.0.11, )"
+        }
+      },
+      "extron.screen": {
+        "type": "Project",
+        "dependencies": {
+          "Extron.Format": "[1.0.0, )"
+        }
+      }
+    }
+  }
+}
