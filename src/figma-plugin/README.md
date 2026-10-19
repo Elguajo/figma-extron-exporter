@@ -85,7 +85,7 @@ $env:EXUI_DONOR_REGISTRY = (Resolve-Path samples/donors.json).Path
 node src/figma-plugin/test/native-integration.ts output/figma-plugin/new-run
 ```
 
-Каталог результата должен быть новым. Создание/чтение документа моделирует fake Figma API; экспортёр/ZIP, CLI, донор и x86 Extron writer — настоящие. Проверяются два профиля, 61/61 и сохранность ID после изменений. GUI Designer и Build тесты не запускают.
+Каталог результата должен быть новым. Создание/чтение документа моделирует fake Figma API; экспортёр/ZIP, CLI, донор и x86 Extron writer — настоящие. Проверяются два профиля, 65/65 и сохранность ID после изменений. GUI Designer и Build тесты не запускают.
 
 ## Граница подтверждения
 

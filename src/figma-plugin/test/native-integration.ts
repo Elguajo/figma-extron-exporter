@@ -21,9 +21,9 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
   const row:Record<string,unknown>={profile,input,validation,figmaBoundary:'fake API; real Figma not exercised'};
   if(registry){
     const output=path.join(out,`plugin-${suffix}.gdl`);const generation=cli(['convert-package',input,output,'--registry',registry]);
-    assert.equal(generation.checks,'61/61 passed');assert.equal(generation.GuiDesignerVerified,false);assert.equal(generation.HardwareVerified,false);
+    assert.equal(generation.checks,'65/65 passed');assert.equal(generation.GuiDesignerVerified,false);assert.equal(generation.HardwareVerified,false);
     const report=JSON.parse(await readFile(output+'.report.json','utf8'));
-    assert.ok(report.Generation.Checks.every((c:{Passed:boolean})=>c.Passed));row.generation=generation;
+    assert.equal(report.Generation.Checks.length,65);assert.ok(report.Generation.Checks.every((c:{Passed:boolean})=>c.Passed));row.generation=generation;
     const model=cli(['list-controls',output]).model;assert.equal(model.Pages[0].Controls.length,4);
     const before=model.Pages[0].Controls.map((c:any)=>[c.Comments,c.ObjectId,c.ControlId]).sort();
     (frame.children as any).reverse();for(const c of frame.children)c.x+=1;
@@ -31,7 +31,7 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
     const movedOutput=path.join(out,`plugin-${suffix}-moved.gdl`);cli(['convert-package',moved,movedOutput,'--registry',registry]);
     const after=cli(['list-controls',movedOutput]).model.Pages[0].Controls.map((c:any)=>[c.Comments,c.ObjectId,c.ControlId]).sort();assert.deepEqual(before,after);row.idsPreservedAfterMoveAndReorder=true;
   }
-  evidence.push(row);console.log(`PASS ${profile}: .exui → CLI validation${registry?' → editable .gdl, 61/61, IDs preserved':''}`);
+  evidence.push(row);console.log(`PASS ${profile}: .exui → CLI validation${registry?' → editable .gdl, 65/65, IDs preserved':''}`);
 }
 await writeFile(path.join(out,'integration.json'),JSON.stringify(evidence,null,2)+'\n',{flag:'wx'});
 console.log('Evidence: '+out);

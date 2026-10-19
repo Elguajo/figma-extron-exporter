@@ -1,0 +1,1 @@
+PASS Chromium plugin UI: both downloads, metadata form, error recovery, no page errors. C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\output\figma-plugin\merged-main-browser

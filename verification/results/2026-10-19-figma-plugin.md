@@ -52,3 +52,19 @@
 Команды: [README плагина](../../src/figma-plugin/README.md). Реальный surface proof и ограничения: [HARNESS](../../.agents-devkits/verification/HARNESS.md).
 
 Готов локальный MVP для импорта и следующего ручного прогона. Публичный/production релиз не заявляется: классический Figma runtime пока не проверен. Полный этап 7 остаётся частично выполненным; instances/variants библиотека, исторический реестр ID, desktop UI, merge ручных правок GDL и AV-логика не реализованы.
+
+## Объединение с main и сохранение поставки
+
+19.10.2026 по запросу пользователя ветка плагина объединена с `main` на `eadc86a` (страницы и popup `.exui/2`). Конфликты плана и решений разрешены с сохранением обеих разработок; решение плагина перенумеровано в D014, D012–D013 сохранены для `.exui/2`. Ядро, схемы, адаптер и реестр доноров взяты из main без изменений этой работой. Исторические результаты 90 и 61/61 выше относятся к исходной базе `6a006f5`.
+
+Повторная проверка объединённого состояния:
+
+- locked restore и сборка .NET: 0 warnings / 0 errors — [build.txt](2026-10-19-figma-plugin/merged-main/build.txt);
+- ядро: 121 passed / 0 failed — [core-tests.txt](2026-10-19-figma-plugin/merged-main/core-tests.txt);
+- плагин: типы, 32 passed / 0 failed и сборка — [plugin-checks.txt](2026-10-19-figma-plugin/merged-main/plugin-checks.txt);
+- настоящий Chromium с моделируемым Figma parent — [browser.json](2026-10-19-figma-plugin/merged-main/browser.json);
+- настоящий CLI/x86 writer на текущих закреплённых донорах основной папки: оба профиля 65/65, ID после перемещения/перестановки сохранены — [native-tests.txt](2026-10-19-figma-plugin/merged-main/native-tests.txt), [integration.json](2026-10-19-figma-plugin/merged-main/integration.json).
+
+Первый интеграционный прогон после merge остановился на устаревшем ожидаемом количестве `61/61`: CLI уже вернул успешные `65/65`. Ожидание обновлено до точных 65/65; дополнительно проверяются длина массива отчёта 65 и успех каждой проверки. Проверки генератора не ослаблялись. Повторный прогон полностью прошёл.
+
+[Установочный ZIP, инструкция и примеры](../../releases/figma-plugin/0.1.0/README.md) сохранены в Git. Runtime-файлы ZIP совпадают со свежей сборкой; [SHA/размеры](2026-10-19-figma-plugin/merged-main/file-hashes.json). Установка в Figma Desktop, реальный рендер/metadata, новый GUI Designer-цикл и оборудование остаются непроверенными — объединение их статус не меняет.

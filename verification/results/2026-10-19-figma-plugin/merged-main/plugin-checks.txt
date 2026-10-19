@@ -1,0 +1,60 @@
+
+> figma-extron-exporter-plugin@0.1.0 verify
+> npm run typecheck && npm test && npm run build
+
+
+> figma-extron-exporter-plugin@0.1.0 typecheck
+> tsc --noEmit && tsc -p tsconfig.ui.json --noEmit
+
+
+> figma-extron-exporter-plugin@0.1.0 test
+> node --test test/*.test.ts
+
+✔ Demo 1025m: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256 (43.7517ms)
+✔ Demo 300m: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256 (8.907ms)
+✔ IDs and explicit state IDs survive layer order, state order, texts and geometry edits (3.2803ms)
+✔ Export refuses duplicate object ID (1.4602ms)
+✔ Export refuses duplicate control ID (0.8645ms)
+✔ Export refuses copied node owner (1.3661ms)
+✔ Export refuses semantic key inferred from text (0.8414ms)
+✔ Export refuses fractional coordinate (0.6991ms)
+✔ Export refuses inherited rotation (0.6349ms)
+✔ Export refuses outside canvas (0.7ms)
+✔ Export refuses wrong panel size (0.5273ms)
+✔ Export refuses unknown child (0.6657ms)
+✔ Export refuses hidden control (0.4916ms)
+✔ Export refuses gradient (0.4834ms)
+✔ Export refuses effects (0.4067ms)
+✔ Export refuses mixed pressed/feedback (0.5259ms)
+✔ Export refuses missing state (0.4939ms)
+✔ Export refuses states different only in alignment (0.6277ms)
+✔ Export refuses different state fonts (0.5472ms)
+✔ Export refuses unsupported font (0.5991ms)
+✔ Export refuses unsupported label alignment (0.7039ms)
+✔ Export refuses icon wrong anchor (0.5604ms)
+✔ Export refuses invalid image path (0.6871ms)
+✔ PNG render failure is fatal; no partial bundle is returned (1.5364ms)
+✔ Changes during async rendering abort the export (1.102ms)
+✔ Identical asset key with different actual PNG bytes is refused (1.4545ms)
+✔ Package rejects unsafe paths, missing assets and oversize resource (28.5762ms)
+✔ Text validation preserves Cyrillic and surrogate pairs, rejects broken Unicode (0.553ms)
+✔ Figma plugin metadata survives cosmetic changes without rewriting (1.0904ms)
+✔ Built plugin: ready → create demo → check → export; preview retains all state roles (21.465ms)
+✔ Built plugin refuses a second command while an export is pending (3.4583ms)
+✔ Built plugin saves explicit metadata, keeps rename-independent IDs and rejects wrong node types (1.5834ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 369.4844
+
+> figma-extron-exporter-plugin@0.1.0 build
+> node build.mjs
+
+
+  dist\code.js  82.4kb
+
+Done in 8ms
