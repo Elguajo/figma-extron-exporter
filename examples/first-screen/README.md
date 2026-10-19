@@ -61,4 +61,10 @@ Build выполняет только пользователь. Для кажд�
 
    Многозаписный файл после Build читается.
 
-Результаты занести в протокол `verification/results/2026-10-19-first-screen.md`. До этого GUI-совместимость этих файлов не подтверждена.
+19.10.2026 эта проверка выполнена для обоих файлов (протокол `verification/results/2026-10-19-first-screen.md`). Собранные файлы проверяются без GUI так:
+
+```powershell
+& $dotnet run --project tests/format --no-build -- --registry samples/donors.json --gui-built-screens output/first-screen
+```
+
+При Save and Build можно выбрать удаление неиспользуемых ресурсов (Remove); ресурсы донора, не нужные экрану, тогда удаляются, это ожидаемо.

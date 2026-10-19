@@ -111,6 +111,8 @@ PASS Registry: unpinned donor refused
 PASS Registry: renaming the model is not enough - profile mismatch detected
 PASS Registry: preparation source must be an immutable manifest entry
 PASS Registry: paths escaping the registry folder refused
+PASS GUI-built 1025m: Build output present, artwork assigned, description still matches
+PASS GUI-built 300m: Build output present, artwork assigned, description still matches
 PASS Generate TLP Pro 1025M: independent verification passes, deterministic output
 PASS Generate TLP Pro 300M: independent verification passes, deterministic output
 PASS Generate: IDs survive reordering, new text and moved elements
@@ -120,4 +122,4 @@ PASS Generate: host refuses resource name already in donor (resource-conflict); 
 PASS Generate: donor element missing reported as donor-element
 PASS Generate: arbitrary external GDL never reaches the deserializer
 PASS Generate: donors and local references unchanged
-RESULT: 122 passed, 0 failed. GUI Designer validation is separate.
+RESULT: 124 passed, 0 failed. GUI Designer validation is separate.

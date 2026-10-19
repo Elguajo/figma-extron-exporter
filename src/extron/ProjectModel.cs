@@ -8,7 +8,7 @@ namespace ExtronExporter.Format;
 /// </summary>
 public sealed record ProjectModel(
     string RootType, string Name, string AppVersion, ulong? Checksum, ushort DefaultPage,
-    PlatformProfile Platform, IReadOnlyList<ContainerModel> Pages, IReadOnlyList<ContainerModel> Popups,
+    BuildInfo Build, PlatformProfile Platform, IReadOnlyList<ContainerModel> Pages, IReadOnlyList<ContainerModel> Popups,
     IReadOnlyList<ResourceModel> Resources)
 {
     public static ProjectModel Read(byte[] payload)
@@ -29,6 +29,8 @@ public sealed record ProjectModel(
             .ToArray();
         return new(root.TypeName.FullName, Nrbf.String(root, "nameField") ?? "", Nrbf.String(root, "applicationBuildVersionInfoField") ?? "",
             root.GetRawValue("checksum") as ulong?, (ushort)(Nrbf.Primitive(root, "defaultPageField") ?? 0),
+            new BuildInfo(Nrbf.EnumValue(root, "buildStatusField"), Nrbf.Primitive(root, "versionInfoField")?.ToString(),
+                Nrbf.Primitive(root, "revisionDateField") is DateTime revised ? revised : null),
             profile, ReadContainers(Nrbf.Class(root, "pagesField")), ReadContainers(Nrbf.Class(root, "popupPagesField")), resources);
     }
 
@@ -42,7 +44,7 @@ public sealed record ProjectModel(
     {
         var states = Nrbf.States(c).Select(s => new StateModel(Nrbf.String(s, "nameField") ?? "", Nrbf.ULong(s, "idField"),
             Nrbf.Int(s, "indexField"), Nrbf.String(s, "textField"), Nrbf.ImageName(s, "buttonImageField"),
-            Nrbf.Color(s, "borderFillColorField"), Nrbf.Color(s, "textColorField"))).ToArray();
+            Nrbf.Color(s, "borderFillColorField"), Nrbf.Color(s, "textColorField"), Nrbf.ImageId(s))).ToArray();
         LevelModel? level = Nrbf.ShortName(c) == "PBLevel"
             ? new(Nrbf.EnumValue(c, "displayTypeField"), Nrbf.EnumValue(c, "orientationField"),
                 (uint)(Nrbf.Primitive(c, "minValueField") ?? 0u), (uint)(Nrbf.Primitive(c, "maxValueField") ?? 0u), Nrbf.Color(c, "gaugeFillColorField"))
@@ -50,9 +52,15 @@ public sealed record ProjectModel(
         int? press = Nrbf.Has(c, "<TLPPressFeedbackStateID>k__BackingField") ? Nrbf.Int(c, "<TLPPressFeedbackStateID>k__BackingField") : null;
         return new(Nrbf.ShortName(c), Nrbf.ULong(c, "idField"), Nrbf.ControlId(c), Nrbf.String(c, "nameField") ?? "",
             Nrbf.String(c, "commentsField"), Nrbf.Int(c, "leftField"), Nrbf.Int(c, "topField"), Nrbf.Int(c, "widthField"), Nrbf.Int(c, "heightField"),
-            Nrbf.String(c, "textField"), Nrbf.Color(c, "textColorField"), states, level, press);
+            Nrbf.String(c, "textField"), Nrbf.Color(c, "textColorField"), states, level, press, Nrbf.ImageId(c));
     }
 }
+
+/// <summary>
+/// Build bookkeeping. GUI Designer's Build assigns TLPImageID artwork numbers (the generator writes -1);
+/// BuildStatusEnum is stored as a number only.
+/// </summary>
+public sealed record BuildInfo(int StatusValue, string? VersionInfo, DateTime? RevisionDate);
 
 /// <summary>Platform as stored: class name, PlatformProTypeEnum numeric value, part number and resolutions.</summary>
 public sealed record PlatformProfile(string PlatformClass, int PlatformTypeValue, string? PartNumber,
@@ -63,9 +71,9 @@ public sealed record ContainerModel(string Type, ulong ObjectId, ushort ControlI
 
 public sealed record ControlModel(string Type, ulong ObjectId, ushort ControlId, string Name, string? Comments,
     int Left, int Top, int Width, int Height, string? Text, uint? TextColor, IReadOnlyList<StateModel> States,
-    LevelModel? Level, int? PressFeedbackState);
+    LevelModel? Level, int? PressFeedbackState, int? TlpImageId);
 
-public sealed record StateModel(string Name, ulong Id, int Index, string? Text, string? Image, uint? Fill, uint? TextColor);
+public sealed record StateModel(string Name, ulong Id, int Index, string? Text, string? Image, uint? Fill, uint? TextColor, int? TlpImageId);
 
 public sealed record LevelModel(int DisplayType, int Orientation, uint Min, uint Max, uint? Fill);
 
@@ -128,6 +136,9 @@ internal static class Nrbf
         // System.Drawing.Color.state: 2 = ARGB value valid; 1 = known color.
         return Convert.ToInt16(color.GetRawValue("state")) == 2 ? unchecked((uint)Convert.ToInt64(color.GetRawValue("value"))) : null;
     }
+
+    public static int? ImageId(ClassRecord r) =>
+        Has(r, "<TLPImageID>k__BackingField") ? Int(r, "<TLPImageID>k__BackingField") : null;
 
     public static string? ImageName(ClassRecord r, string name) =>
         Find(r, name) is { } m && r.GetClassRecord(m) is { } reference ? String(reference, "resourceNameField") : null;
