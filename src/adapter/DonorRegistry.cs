@@ -11,7 +11,7 @@ public sealed record DonorElementRef(string? Page = null, string? Type = null, i
 
 /// <summary>PopupReference, StandardPopup and ModalPopup are needed only to author popups.</summary>
 public sealed record DonorElements(DonorElementRef Page, DonorElementRef Button, DonorElementRef Label, DonorElementRef Level,
-    DonorElementRef? PopupReference = null, DonorElementRef? StandardPopup = null, DonorElementRef? ModalPopup = null);
+    DonorElementRef? PopupReference = null, DonorElementRef? StandardPopup = null, DonorElementRef? ModalPopup = null, DonorElementRef? Graphic = null);
 
 public sealed record DonorPreparation(string Source, string SourceSha256, IReadOnlyList<string> KeepPages,
     IReadOnlyList<long> KeepPopupIds, string? Retarget, string ProjectName);

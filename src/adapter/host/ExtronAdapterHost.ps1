@@ -399,6 +399,20 @@ function New-Container($Project, $Donor, $Spec, [int]$Width, [int]$Height) {
 function New-PlanControl($Project, $Donors, $El, $ImageRef) {
     $c = New-Control $Project $Donors[$El.kind] $El
     switch ($El.kind) {
+        'graphic' {
+            Set-F $c 'textField' $null
+            Set-F $c 'dynamicTextField' $false
+            Set-F $c 'shapeTypeField' 'None'
+            Set-Color $Project $c 'backgroundFillColorField' '#00000000'
+            Set-Color $Project $c 'borderFillColorField' '#00000000'
+            Set-F $c 'backgroundImageKeyColorField' $null
+            Set-F $c 'buttonImageKeyColorField' $null
+            Set-ImageRef $c 'buttonImageField' $ImageRef $El.image
+            Set-F $c 'buttonImageLayoutField' 'Native'
+            Set-F $c 'buttonImageAlignmentField' 'MiddleCenter'
+            Set-F $c 'buttonImageLeftField' 0
+            Set-F $c 'buttonImageTopField' 0
+        }
         'label' {
             Set-F $c 'textField' $El.text
             Set-Color $Project $c 'textColorField' $El.textColor
@@ -453,6 +467,15 @@ function Invoke-Generate($Project, $Op) {
         $ref = $Op.donorElements.$kind
         if ($null -eq $ref) { Fail 'donor-element' "Donor registry gives no element for kind '$kind'." }
         $donors[$kind] = Find-DonorControl $Project $ref $kind
+    }
+    $usesGraphics = @(@($Op.pages) | ForEach-Object { @($_.elements) } | Where-Object { $_.kind -eq 'graphic' }).Count -gt 0
+    if ($usesGraphics) {
+        $ref = $Op.donorElements.graphic
+        if (-not $ref -or $ref.type -ne 'PBImage') { Fail 'donor-element' 'Donor registry must identify a PBImage for static graphics.' }
+        $containers = @(@(Items (Get-Pages $Project)) + @(Items (Get-Popups $Project)) | Where-Object { (Get-F $_ 'nameField') -eq $ref.page })
+        $hits = @($containers | ForEach-Object { Items (Get-F $_ 'controlsField') } | Where-Object { $_.GetType().Name -eq 'PBImage' -and (Get-F $_ 'nameField') -eq $ref.name })
+        if ($hits.Count -ne 1) { Fail 'donor-element' 'The pinned PBImage donor must be found exactly once.' }
+        $donors['graphic'] = $hits[0]
     }
     $donorPage = Find-Container $Project 'pagesField' $Op.donorElements.page.page 'page'
     $planPopups = @($Op.popups)

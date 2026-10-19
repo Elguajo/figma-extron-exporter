@@ -1,0 +1,366 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "project",
+    "page",
+    "assets",
+    "elements"
+  ],
+  "properties": {
+    "schema": {
+      "const": "exui-screen/3"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "name",
+        "background"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65534
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "background": {
+          "$ref": "#/$defs/color"
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "file",
+          "resourceName"
+        ],
+        "properties": {
+          "key": {
+            "$ref": "#/$defs/key"
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^assets/[a-z0-9][a-z0-9-]{0,63}\\.png(?![\\s\\S])"
+          },
+          "resourceName": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,95}\\.png(?![\\s\\S])"
+          }
+        }
+      }
+    },
+    "elements": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/button"
+          },
+          {
+            "$ref": "#/$defs/label"
+          },
+          {
+            "$ref": "#/$defs/level"
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*([.-][a-z0-9]+)*(?![\\s\\S])",
+      "maxLength": 100
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "color": {
+      "type": "string",
+      "pattern": "^#[A-Fa-f0-9]{6}(?![\\s\\S])"
+    },
+    "font": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family",
+        "size",
+        "bold"
+      ],
+      "properties": {
+        "family": {
+          "const": "Arial"
+        },
+        "size": {
+          "type": "number",
+          "minimum": 4,
+          "maximum": 200
+        },
+        "bold": {
+          "type": "boolean"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stateId",
+        "name",
+        "role",
+        "text",
+        "fill",
+        "textColor"
+      ],
+      "properties": {
+        "stateId": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "role": {
+          "enum": [
+            "normal",
+            "feedback",
+            "pressed"
+          ]
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "fill": {
+          "$ref": "#/$defs/color"
+        },
+        "textColor": {
+          "$ref": "#/$defs/color"
+        },
+        "image": {
+          "$ref": "#/$defs/key"
+        },
+        "imageAlign": {
+          "enum": [
+            "top-center",
+            "middle-center"
+          ]
+        },
+        "textAlign": {
+          "enum": [
+            "bottom-center",
+            "middle-center"
+          ]
+        }
+      }
+    },
+    "button": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "font",
+        "states"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "button"
+        },
+        "font": {
+          "$ref": "#/$defs/font"
+        },
+        "states": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/state"
+          }
+        },
+        "press": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "text",
+        "textColor",
+        "font"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "null"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "label"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "textColor": {
+          "$ref": "#/$defs/color"
+        },
+        "font": {
+          "$ref": "#/$defs/font"
+        }
+      }
+    },
+    "level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "display",
+        "orientation",
+        "min",
+        "max",
+        "fillColor"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "level"
+        },
+        "display": {
+          "const": "slider"
+        },
+        "orientation": {
+          "const": "left-to-right"
+        },
+        "min": {
+          "const": 0
+        },
+        "max": {
+          "const": 100
+        },
+        "fillColor": {
+          "$ref": "#/$defs/color"
+        }
+      }
+    }
+  }
+}

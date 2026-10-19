@@ -146,6 +146,86 @@ static class PackageTests
                 Check(original.Plan.Elements.OrderBy(e=>e.Key).Select(e=>(e.Key,e.ObjectId,e.ControlId)).SequenceEqual(changed.Plan.Elements.OrderBy(e=>e.Key).Select(e=>(e.Key,e.ObjectId,e.ControlId))));
                 Check(changed.Plan.Elements.Where(e=>e.Kind=="button").All(e=>e.PressState==2 && e.States!.Select(s=>s.Role).SequenceEqual(new[]{"normal","feedback","pressed"})));
             });
+            Dictionary<string, byte[]> V3(bool two = true)
+            {
+                var f=Files();
+                Edit(f,"manifest.json",n=>n["schema"]="exui/3");
+                Edit(f,"screen.json",n=>
+                {
+                    n["schema"]="exui-screen/3";
+                    if(two)foreach(var e in n["elements"]!.AsArray().Where(e=>(string?)e!["kind"]=="button"))
+                    { e!["states"]!.AsArray().RemoveAt(2);e.AsObject().Remove("press"); }
+                });
+                return f;
+            }
+            test("Package v3 two-state Off/On buttons disable press feedback; IDs preserved",()=>
+            {
+                using var p=ExuiPackage.Load(Zip(work,V3()));
+                Check(p.Contract=="exui/3");
+                Check(p.Plan.Elements.Where(e=>e.Kind=="button").All(e=>e.PressState==-1&&e.States!.Count==2&&e.States.Select(s=>s.Name).SequenceEqual(new[]{"Off","On"})));
+                using var old=ExuiPackage.Load(Zip(work,Files()));
+                Check(p.Plan.Elements.Select(e=>(e.Key,e.ObjectId,e.ControlId)).SequenceEqual(old.Plan.Elements.Select(e=>(e.Key,e.ObjectId,e.ControlId))));
+            });
+            test("Package v3 three-state plan equals v1; existing contracts remain strict",()=>
+            {
+                using var p=ExuiPackage.Load(Zip(work,V3(false)));using var old=ExuiPackage.Load(Zip(work,Files()));
+                Check(Signature(p.Plan)==Signature(old.Plan));
+                var f=V3();Edit(f,"manifest.json",n=>n["schema"]="exui/1");Edit(f,"screen.json",n=>n["schema"]="exui-screen/1");
+                Reject("package-schema",()=>{using var invalid=ExuiPackage.Load(Zip(work,f));});
+            });
+            foreach(var edit in new Action<Dictionary<string,byte[]>>[]
+            {
+                f=>Edit(f,"screen.json",n=>n["elements"]![0]!["press"]="On"),
+                f=>Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![1]!["role"]="pressed"),
+                f=>Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![1]!["stateId"]=0),
+                f=>Edit(f,"screen.json",n=>n["schema"]="exui-screen/1")
+            })test("Package v3 refuses invalid two-state press/identity/version",()=>
+            {
+                var f=V3();edit(f);bool rejected=false;
+                try{using var p=ExuiPackage.Load(Zip(work,f));}catch(ExuiException){rejected=true;}catch(ScreenSpecException){rejected=true;}
+                Check(rejected);
+            });
+            test("Package v3 still requires pressed reference when three states are present",()=>
+            {
+                var f=V3(false);Edit(f,"screen.json",n=>n["elements"]![0]!.AsObject().Remove("press"));
+                Reject("spec",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+            });
+            Dictionary<string,byte[]> V4()
+            {
+                var f=V3(false);Edit(f,"manifest.json",n=>n["schema"]="exui/4");
+                Edit(f,"screen.json",n=>
+                {
+                    n["schema"]="exui-screen/4";
+                    var b=n["elements"]![0]!;b["states"]!.AsArray().RemoveAt(1);b["states"]![1]!["stateId"]=1;
+                    n["elements"]!.AsArray().Add(new JsonObject { ["kind"]="graphic",["key"]="home.logo",["objectId"]=5,["controlId"]=null,["name"]="logo_Company",["rect"]=new JsonArray(0,0,64,64),["image"]="icon.note-dark" });
+                });return f;
+            }
+            test("Package v4 resolves passive graphic and two-state momentary press index",()=>
+            {
+                using var p=ExuiPackage.Load(Zip(work,V4()));Check(p.Contract=="exui/4");
+                var graphic=p.Plan.Elements.Single(e=>e.Kind=="graphic");Check(graphic.ControlId==0&&graphic.Image=="exui-note-dark.png"&&graphic.States==null);
+                Check(p.Plan.Elements[0].States!.Select(s=>s.Role).SequenceEqual(new[]{"normal","pressed"})&&p.Plan.Elements[0].PressState==1);
+            });
+            foreach(var edit in new Action<Dictionary<string,byte[]>>[]
+            {
+                f=>Edit(f,"screen.json",n=>n["elements"]![4]!["controlId"]=8109),
+                f=>Edit(f,"screen.json",n=>n["elements"]![4]!["image"]="icon.missing"),
+                f=>Edit(f,"screen.json",n=>n["elements"]![4]!["rect"]![2]=63),
+                f=>Edit(f,"screen.json",n=>n["elements"]![4]!["text"]="not an image"),
+                f=>Edit(f,"screen.json",n=>n["elements"]![0]!.AsObject().Remove("press")),
+                f=>Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![1]!["stateId"]=2),
+                f=>Edit(f,"screen.json",n=>n["schema"]="exui-screen/3")
+            })test("Package v4 rejects malformed graphic, press or version",()=>
+            {
+                var f=V4();edit(f);bool rejected=false;
+                try{using var p=ExuiPackage.Load(Zip(work,f));}catch(ExuiException){rejected=true;}catch(ScreenSpecException){rejected=true;}
+                Check(rejected);
+            });
+            test("Package v3 remains strict: no momentary pair or standalone graphics",()=>
+            {
+                var f=V4();Edit(f,"manifest.json",n=>n["schema"]="exui/3");Edit(f,"screen.json",n=>{n["schema"]="exui-screen/3";n["elements"]!.AsArray().RemoveAt(4);});
+                Reject("package-state",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+            });
         }
         finally { Directory.Delete(work,true); }
     }

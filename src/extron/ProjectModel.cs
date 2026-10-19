@@ -65,7 +65,8 @@ public sealed record ProjectModel(
                 Nrbf.String(id, "groupNameField"), (bool)Nrbf.Primitive(c, "modalField")!);
         return new(Nrbf.ShortName(c), Nrbf.ULong(c, "idField"), Nrbf.ControlId(c), Nrbf.String(c, "nameField") ?? "",
             Nrbf.String(c, "commentsField"), Nrbf.Int(c, "leftField"), Nrbf.Int(c, "topField"), Nrbf.Int(c, "widthField"), Nrbf.Int(c, "heightField"),
-            Nrbf.String(c, "textField"), Nrbf.Color(c, "textColorField"), states, level, press, Nrbf.ImageId(c), binding);
+            Nrbf.String(c, "textField"), Nrbf.Color(c, "textColorField"), states, level, press, Nrbf.ImageId(c), binding,
+            Nrbf.ShortName(c)=="PBImage" ? new GraphicModel(Nrbf.ImageName(c,"buttonImageField"),Nrbf.EnumValue(c,"buttonImageLayoutField"),Nrbf.EnumValue(c,"buttonImageAlignmentField"),Nrbf.Color(c,"backgroundFillColorField"),Nrbf.Color(c,"borderFillColorField"),Nrbf.EnumValue(c,"shapeTypeField")) : null);
     }
 }
 
@@ -96,7 +97,9 @@ public sealed record GroupModel(string Name, ushort Id, int ReferenceCount, int 
 
 public sealed record ControlModel(string Type, ulong ObjectId, ushort ControlId, string Name, string? Comments,
     int Left, int Top, int Width, int Height, string? Text, uint? TextColor, IReadOnlyList<StateModel> States,
-    LevelModel? Level, int? PressFeedbackState, int? TlpImageId, PopupBinding? PopupBinding = null);
+    LevelModel? Level, int? PressFeedbackState, int? TlpImageId, PopupBinding? PopupBinding = null, GraphicModel? Graphic = null);
+
+public sealed record GraphicModel(string? Image, int Layout, int Alignment, uint? Background, uint? Border, int Shape);
 
 public sealed record StateModel(string Name, ulong Id, int Index, string? Text, string? Image, uint? Fill, uint? TextColor, int? TlpImageId);
 

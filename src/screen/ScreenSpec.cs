@@ -46,7 +46,7 @@ public sealed record ElementSpec(
     string? Text, string? TextColor, FontSpec? Font,
     IReadOnlyList<StateSpec>? States, string? Press,
     string? Display, string? Orientation, int? Min, int? Max, string? FillColor,
-    string? Navigate = null, string? Popup = null, string? Group = null);
+    string? Navigate = null, string? Popup = null, string? Group = null, string? Image = null);
 
 /// <summary>Role: normal (state 0, at rest), pressed (shown while held), feedback (set by the control program).</summary>
 public sealed record StateSpec(string? Name, string? Role, string? Text, string? Fill, string? TextColor,
@@ -80,7 +80,7 @@ public sealed record PlanElement(
     string? Text = null, string? TextColor = null, PlanFont? Font = null,
     IReadOnlyList<PlanState>? States = null, int? PressState = null,
     string? Display = null, string? Orientation = null, int? Min = null, int? Max = null, string? FillColor = null,
-    string? Navigate = null, string? Popup = null, string? Group = null);
+    string? Navigate = null, string? Popup = null, string? Group = null, string? Image = null);
 
 public static class ScreenSpecReader
 {
@@ -125,7 +125,7 @@ public static class ScreenSpecReader
     /// Validate against the donor's real canvas and resolve assets relative to <paramref name="baseDir"/>.
     /// IDs are taken from the description only; nothing here depends on element order, text or geometry.
     /// </summary>
-    public static GeneratePlan Normalize(ScreenSpec spec, string expectedPanel, int canvasWidth, int canvasHeight, string baseDir)
+    public static GeneratePlan Normalize(ScreenSpec spec, string expectedPanel, int canvasWidth, int canvasHeight, string baseDir, bool allowTwoStateButtons = false, bool allowGraphics = false, bool allowMomentaryButtons = false)
     {
         var errors = new List<string>();
         void Error(string message) => errors.Add(message);
@@ -162,7 +162,7 @@ public static class ScreenSpecReader
                 images[asset.Key] = new(asset.Key, asset.ResourceName, file, w, h, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)));
         }
 
-        var ctx = new ElementContext(images, Error, Key);
+        var ctx = new ElementContext(images, Error, Key, allowTwoStateButtons, allowGraphics, allowMomentaryButtons);
         var pages = new List<PlanContainer>();
         var popups = new List<PlanContainer>();
         var groups = new List<PlanGroup>();
@@ -307,12 +307,15 @@ public static class ScreenSpecReader
             images.Values.Where(i => ctx.Used.Contains(i.Key)).OrderBy(i => i.Key, StringComparer.Ordinal).ToArray());
     }
 
-    private sealed class ElementContext(Dictionary<string, PlanImage> images, Action<string> error, Action<string?, string> key)
+    private sealed class ElementContext(Dictionary<string, PlanImage> images, Action<string> error, Action<string?, string> key, bool allowTwoStateButtons, bool allowGraphics, bool allowMomentaryButtons)
     {
         public Dictionary<string, PlanImage> Images { get; } = images;
         public Action<string> Error { get; } = error;
         public Action<string?, string> Key { get; } = key;
         public HashSet<string> Used { get; } = new(StringComparer.Ordinal);
+        public bool AllowTwoStateButtons { get; } = allowTwoStateButtons;
+        public bool AllowGraphics { get; } = allowGraphics;
+        public bool AllowMomentaryButtons { get; } = allowMomentaryButtons;
         // One control ID addresses one control in the whole project.
         public Dictionary<int, string> ControlIds { get; } = new();
     }
@@ -341,9 +344,21 @@ public static class ScreenSpecReader
             if (e.Font is { Size: { } size } && size is < 4 or > 200) Error($"{where}.font.size: 4..200.");
             if (e.Kind != "button" && e.Navigate != null) Error($"{where}.navigate: only a button can lead to a page or popup.");
             if (e.Kind != "popup-ref" && (e.Popup != null || e.Group != null)) Error($"{where}: popup and group apply to popup-ref only.");
+            if (e.Kind != "graphic" && e.Image != null) Error($"{where}.image: standalone image applies to graphic only.");
             var basis = new PlanElement(e.Kind ?? "", e.Key ?? "", (ulong)(e.ObjectId ?? 0), e.ControlId ?? 0, e.Name ?? "", e.Rect ?? [], Font: font);
             switch (e.Kind)
             {
+                case "graphic" when ctx.AllowGraphics:
+                    Forbid(e.States != null || e.Press != null || e.Text != null || e.TextColor != null || e.Font != null || e.Display != null || e.Orientation != null || e.Min != null || e.Max != null || e.FillColor != null, where, "graphic", Error);
+                    if(e.ControlId != null) Error($"{where}.controlId: a graphic is passive; use null.");
+                    if(e.Image == null || !ctx.Images.TryGetValue(e.Image,out var graphic)) Error($"{where}.image: declare a readable PNG asset.");
+                    else
+                    {
+                        ctx.Used.Add(e.Image);
+                        if(e.Rect is { Length:4 } && (e.Rect[2] != graphic.Width || e.Rect[3] != graphic.Height)) Error($"{where}.image: Native PNG dimensions must equal the graphic rectangle.");
+                        elements.Add(basis with { Image = graphic.ResourceName });
+                    }
+                    break;
                 case "label":
                     Forbid(e.States != null || e.Press != null || e.Display != null || e.Orientation != null || e.Min != null || e.Max != null || e.FillColor != null, where, "label", Error);
                     CheckText(e.Text, $"{where}.text", required: true, Error);
@@ -360,7 +375,7 @@ public static class ScreenSpecReader
                     break;
                 case "button":
                     Forbid(e.Text != null || e.TextColor != null || e.Display != null || e.Orientation != null || e.Min != null || e.Max != null || e.FillColor != null, where, "button (text lives on states)", Error);
-                    elements.Add(basis with { States = Button(e, where, ctx.Images, ctx.Used, Error, out int press), PressState = press, Navigate = e.Navigate });
+                    elements.Add(basis with { States = Button(e, where, ctx.Images, ctx.Used, Error, ctx.AllowTwoStateButtons, ctx.AllowMomentaryButtons, out int press), PressState = press, Navigate = e.Navigate });
                     break;
                 case "popup-ref" when allowPopupRef:
                     Forbid(e.States != null || e.Press != null || e.Text != null || e.TextColor != null || e.Font != null || e.Display != null ||
@@ -380,7 +395,7 @@ public static class ScreenSpecReader
     }
 
     private static IReadOnlyList<PlanState> Button(ElementSpec e, string where, Dictionary<string, PlanImage> images,
-        HashSet<string> used, Action<string> error, out int press)
+        HashSet<string> used, Action<string> error, bool allowTwoStateButtons, bool allowMomentaryButtons, out int press)
     {
         press = -1;
         var states = e.States ?? [];
@@ -407,10 +422,13 @@ public static class ScreenSpecReader
             string textAlign = Align(s.TextAlign ?? "middle-center", $"{at}.textAlign", error);
             result.Add(new(s.Name ?? "", s.Role ?? "", s.Text ?? "", s.Fill ?? "", s.TextColor ?? "", resource, imageAlign, textAlign));
         }
-        if (states.Count(s => s.Role == "pressed") != 1) error($"{where}.states: exactly one \"pressed\" state (press feedback), kept apart from program feedback.");
-        if (!states.Any(s => s.Role == "feedback")) error($"{where}.states: at least one \"feedback\" state, set by the control program.");
+        bool two = allowTwoStateButtons && states.Count == 2 && states.Select(s => s.Role).SequenceEqual(new[] { "normal", "feedback" });
+        bool momentary = allowMomentaryButtons && states.Count == 2 && states.Select(s => s.Role).SequenceEqual(new[] { "normal", "pressed" });
+        if (!two && states.Count(s => s.Role == "pressed") != 1) error($"{where}.states: exactly one \"pressed\" state (press feedback), kept apart from program feedback.");
+        if (!momentary && !states.Any(s => s.Role == "feedback")) error($"{where}.states: at least one \"feedback\" state, set by the control program.");
         int index = states.Select((s, i) => (s, i)).FirstOrDefault(x => x.s.Name == e.Press && e.Press != null, (null!, -1)).Item2;
-        if (index < 0) error($"{where}.press: must name one of the states.");
+        if (two) { if (e.Press != null) error($"{where}.press: omit for a two-state button without press feedback."); }
+        else if (index < 0) error($"{where}.press: must name one of the states.");
         else if (states[index].Role != "pressed") error($"{where}.press: \"{e.Press}\" is not the pressed state.");
         press = index;
         // Identical looks would make feedback invisible on the panel.

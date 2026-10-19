@@ -18,6 +18,10 @@
 Результат конвертера — редактируемый `.gdl`. Build выполняет пользователь в GUI Designer; собственной функции Build в конвертере нет, автоматизации Build тоже. Запуск штатной сборки в протоколе служит проверкой совместимости.
 
 - [Плагин Figma: установка и первый экспорт](src/figma-plugin/README.md)
+- [Таблица префиксов с объяснениями: кнопки, громкость, логотипы](src/figma-plugin/PREFIXES.md)
+- [Стандарт подготовки собственного макета Figma, v1.2](src/figma-plugin/AUTHORING_STANDARD.md)
+- [Контракт `.exui/3`: кнопки без отдельного Pressed](docs/exui-v3.md)
+- [Контракт `.exui/4`: логотипы и кнопки Normal/Pressed](docs/exui-v4.md)
 - [Протокол плагина 0.1.0](verification/results/2026-10-19-figma-plugin.md)
 - [Исправление обмена сообщениями 0.1.1](verification/results/2026-10-19-figma-ui-messages.md)
 - [PNG скрытых состояний: исправление 0.1.2](verification/results/2026-10-19-figma-png-export.md)
@@ -60,7 +64,7 @@
 
 ## Плагин Figma
 
-[Скачать готовый плагин 0.1.2](releases/figma-plugin/0.1.2/figma-extron-plugin-0.1.2.zip) · [Установка и SHA-256](releases/figma-plugin/0.1.2/README.md). Архив сохранён в репозитории; сборка нужна только при изменении исходников.
+[Скачать готовый плагин 0.1.5](releases/figma-plugin/0.1.5/figma-extron-plugin-0.1.5.zip) · [Установка и проверки](releases/figma-plugin/0.1.5/README.md). Поддержаны короткие/полные префиксы без учёта регистра, логотипы и картинки, Normal/Pressed для «+»/«−», Off/On и трёхсостояниевые кнопки. Для новых типов нужен текущий CLI с `.exui/4`.
 
 В Figma Desktop импортировать `src/figma-plugin/manifest.json` после сборки:
 

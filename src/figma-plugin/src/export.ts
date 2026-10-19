@@ -2,8 +2,9 @@ import { DATA_KEY, PROFILES, ROLE_ID, fail, integer, key, readMetadata, text, ty
 import { color, exportPng, plain, readText, rect } from './read-node.ts';
 
 interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode }[]; signature: string }
-function meta(node: SceneNode, kind?: string): Metadata {
-  const m=readMetadata(node);
+type MetadataReader = (node: SceneNode) => Metadata | null;
+function meta(node: SceneNode, kind: string | undefined, read: MetadataReader): Metadata {
+  const m=read(node);
   if (!m || kind && m.kind!==kind) fail('unmapped', `${node.name}: назначьте тип ${kind ?? 'элемента'} в плагине.`);
   return m;
 }
@@ -18,9 +19,10 @@ function snapshot(node: SceneNode): unknown {
   if('children' in node) props.children=node.children.map(snapshot);
   return props;
 }
-export function capture(root: SceneNode): Capture {
+export function designSignature(root: SceneNode): string { return JSON.stringify(snapshot(root)); }
+export function capture(root: SceneNode, read: MetadataReader = readMetadata): Capture {
   frame(root); plain(root);
-  const pm=meta(root,'page');
+  const pm=meta(root,'page',read);
   if(!pm.profile || !(pm.profile in PROFILES)) fail('profile','Выберите один из двух профилей панели.');
   const profile=pm.profile, canvas=PROFILES[profile];
   if(root.width!==canvas.width || root.height!==canvas.height) fail('profile',`Холст должен быть ${canvas.width}×${canvas.height}; масштабирование не выполняется.`);
@@ -29,20 +31,32 @@ export function capture(root: SceneNode): Capture {
   const images: Capture['images']=[];
   const assets=new Map<string,Asset>();
   const paths=new Set<string>(), resourceNames=new Set<string>();
+  const addImage=(node:SceneNode,m:Metadata,k:string)=>{
+    key(k,node.name);
+    if(!m.file||!/^assets\/[a-z0-9][a-z0-9-]{0,63}\.png$/.test(m.file)||/[\r\n]/.test(m.file))fail('image',`${node.name}: нужен путь assets/name.png.`);
+    if(!m.resourceName||!/^[A-Za-z0-9][A-Za-z0-9._-]{0,95}\.png$/.test(m.resourceName)||/[\r\n]/.test(m.resourceName))fail('image',`${node.name}: нужно ASCII resourceName.png.`);
+    const asset:Asset={key:k,file:m.file,resourceName:m.resourceName},previous=assets.get(k);
+    if(previous&&JSON.stringify(previous)!==JSON.stringify(asset))fail('image',`${k}: несовместимые объявления ресурса.`);
+    if(!previous){addKey(k,node.name);if(paths.has(asset.file)||resourceNames.has(asset.resourceName.toLowerCase()))fail('image',`${k}: повтор пути или имени ресурса.`);paths.add(asset.file);resourceNames.add(asset.resourceName.toLowerCase());assets.set(k,asset);}
+    images.push({asset,node});return k;
+  };
   const screen: Screen={schema:'exui-screen/1',project:{name:text(pm.projectName,'Имя проекта')},page:{key:addKey(pm.key,root.name),objectId:integer(pm.objectId,1,65534,'ID страницы'),name:text(root.name,'Имя страницы'),background:color(root)},assets:[],elements:[]};
   if(root.children.length<1 || root.children.length>64) fail('elements','На странице должно быть 1..64 элемента.');
   for(const node of root.children) {
-    plain(node); const m=meta(node);
-    if(!['button','label','level'].includes(m.kind)) fail('kind',`${node.name}: на странице допустимы button, label, level.`);
+    plain(node); const m=meta(node,undefined,read);
+    if(!['button','label','level','graphic'].includes(m.kind)) fail('kind',`${node.name}: на странице допустимы button, label, level, graphic.`);
     const objectId=integer(m.objectId,1,1000000,node.name+'.objectId');
     if(ids.has(objectId)) fail('duplicate-id',`${node.name}: objectId ${objectId} уже используется.`); ids.add(objectId);
-    const controlId=m.kind==='label'?null:integer(m.controlId,1,65535,node.name+'.controlId');
-    if(m.kind==='label' && m.controlId!==null) fail('id',`${node.name}: у label controlId должен быть null.`);
+    const passive=m.kind==='label'||m.kind==='graphic';
+    const controlId=passive?null:integer(m.controlId,1,65535,node.name+'.controlId');
+    if(passive && m.controlId!==null) fail('id',`${node.name}: у ${m.kind} controlId должен быть null.`);
     if(controlId!==null) {if(controls.has(controlId)) fail('duplicate-id',`${node.name}: controlId ${controlId} уже используется.`);controls.add(controlId);}
     const bounds=rect(node,root), [x,y,w,h]=bounds;
     if(x<0||y<0||w<1||h<1||x+w>canvas.width||y+h>canvas.height) fail('bounds',`${node.name}: элемент выходит за холст.`);
     const e: Element={key:addKey(m.key,node.name),kind:m.kind as Element['kind'],objectId,controlId,name:text(node.name,'Имя элемента'),rect:bounds};
-    if(m.kind==='label') {
+    if(m.kind==='graphic') {
+      frame(node);e.image=addImage(node,m,key('image.'+e.key,'Ключ изображения'));
+    }else if(m.kind==='label') {
       if(node.type!=='TEXT') fail('node-type',`${node.name}: label должен быть Text.`);
       if(node.textAlignHorizontal!=='LEFT'||node.textAlignVertical!=='CENTER') fail('alignment',`${node.name}: для текущего профиля Label используйте LEFT / CENTER.`);
       Object.assign(e,readText(node));
@@ -52,12 +66,12 @@ export function capture(root: SceneNode): Capture {
     } else {
       frame(node);
       if(!Array.isArray(node.fills)||node.fills.some(f=>f.visible!==false)) fail('appearance',`${node.name}: фон кнопки задаётся на состояниях; у внешнего Frame fills должны быть пусты.`);
-      if(node.children.length!==3) fail('states',`${node.name}: нужны три Frame состояния.`);
+      if(![2,3].includes(node.children.length)) fail('states',`${node.name}: нужны Normal/Pressed, Off/On либо Off/On/Pressed.`);
       if(node.children.filter(n=>n.visible).length!==1) fail('states',`${node.name}: для предпросмотра должно быть видно ровно одно состояние.`);
       const states: State[]=[];let commonFont:Font|undefined;
       for(const stateNode of node.children) {
-        frame(stateNode);plain(stateNode,true);const sm=meta(stateNode,'state');
-        if(!sm.role||!(sm.role in ROLE_ID)||sm.stateId!==ROLE_ID[sm.role]) fail('states',`${stateNode.name}: нужны явные 0/normal, 1/feedback, 2/pressed.`);
+        frame(stateNode);plain(stateNode,true);const sm=meta(stateNode,'state',read);
+        if(!sm.role||!(sm.role in ROLE_ID)||sm.stateId!==ROLE_ID[sm.role]) fail('states',`${stateNode.name}: нужны явные 0/normal, 1/feedback и необязательный 2/pressed.`);
         if(JSON.stringify(rect(stateNode,node))!==JSON.stringify([0,0,w,h])) fail('states',`${stateNode.name}: состояние должно занимать весь Frame кнопки.`);
         const labels=stateNode.children.filter(n=>n.type==='TEXT');
         if(labels.length!==1) fail('states',`${stateNode.name}: нужна ровно одна текстовая подпись.`);
@@ -71,35 +85,32 @@ export function capture(root: SceneNode): Capture {
         const icons=stateNode.children.filter(n=>n!==label);
         if(icons.length>1) fail('states',`${stateNode.name}: допустима одна иконка.`);
         if(icons.length) {
-          const icon=icons[0], im=meta(icon,'image');
+          const icon=icons[0], im=meta(icon,'image',read);
           if(!icon.visible || ('opacity' in icon && icon.opacity!==1)) fail('image',`${icon.name}: иконка должна быть видимой и непрозрачной.`);
           const [ix,iy,iw,ih]=rect(icon,stateNode);
           if(iw<1||ih<1||iw>4096||ih>4096||iw>w||ih>h||ix!==(w-iw)/2||![0,(h-ih)/2].includes(iy)) fail('alignment',`${icon.name}: иконка должна быть по центру, сверху или посередине, в Native размере.`);
           state.imageAlign=iy===0?'top-center':'middle-center';
-          const k=key(im.key,icon.name);
-          if(!im.file||!/^assets\/[a-z0-9][a-z0-9-]{0,63}\.png$/.test(im.file)||/[\r\n]/.test(im.file)) fail('image',`${icon.name}: нужен путь assets/name.png.`);
-          if(!im.resourceName||!/^[A-Za-z0-9][A-Za-z0-9._-]{0,95}\.png$/.test(im.resourceName)||/[\r\n]/.test(im.resourceName)) fail('image',`${icon.name}: нужно ASCII resourceName.png.`);
-          const asset={key:k,file:im.file,resourceName:im.resourceName};const previous=assets.get(k);
-          if(previous&&JSON.stringify(previous)!==JSON.stringify(asset)) fail('image',`${k}: несовместимые объявления ресурса.`);
-          if(!previous) {
-            addKey(k,icon.name);
-            if(paths.has(asset.file)||resourceNames.has(asset.resourceName.toLowerCase())) fail('image',`${k}: повтор пути или имени ресурса.`);
-            paths.add(asset.file);resourceNames.add(asset.resourceName.toLowerCase());assets.set(k,asset);
-          }
-          images.push({asset,node:icon});state.image=k;
+          state.image=addImage(icon,im,key(im.key,icon.name));
         }
         states.push(state);
       }
       states.sort((a,b)=>a.stateId-b.stateId);
-      if(states.map(s=>s.role).join(',')!=='normal,feedback,pressed'||new Set(states.map(s=>s.name)).size!==3) fail('states',`${node.name}: роли и имена состояний должны быть уникальны.`);
-      if(new Set(states.map(s=>JSON.stringify([s.text,s.fill,s.textColor,s.image??null]))).size!==3) fail('states',`${node.name}: состояния должны различаться текстом, цветом или изображением; одного выравнивания недостаточно.`);
-      Object.assign(e,{font:commonFont,states,press:states[2].name});
+      const roles=states.map(s=>s.role).join(',');
+      if(!['normal,feedback','normal,pressed','normal,feedback,pressed'].includes(roles)||new Set(states.map(s=>s.name)).size!==states.length) fail('states',`${node.name}: нужны Normal/Pressed, Off/On либо Off/On/Pressed; роли и имена уникальны.`);
+      if(new Set(states.map(s=>JSON.stringify([s.text,s.fill,s.textColor,s.image??null]))).size!==states.length) fail('states',`${node.name}: состояния должны различаться текстом, цветом или изображением; одного выравнивания недостаточно.`);
+      // Metadata keeps canonical role IDs (pressed=2). A two-state momentary
+      // button has dense package/GDL state IDs 0/normal, 1/pressed.
+      if(roles==='normal,pressed'){states[1].stateId=1;screen.schema='exui-screen/4';}
+      const pressed=states.find(s=>s.role==='pressed');
+      Object.assign(e,{font:commonFont,states,...(pressed?{press:pressed.name}:{})});
     }
     screen.elements.push(e);
   }
   if(assets.size>16) fail('images','Допустимо до 16 PNG ресурсов.');
+  if(screen.elements.some(e=>e.kind==='graphic'||e.states?.map(s=>s.role).join(',')==='normal,pressed'))screen.schema='exui-screen/4';
+  else if(screen.elements.some(e=>e.states?.length===2))screen.schema='exui-screen/3';
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
-  return {profile,screen,images,signature:JSON.stringify(snapshot(root))};
+  return {profile,screen,images,signature:designSignature(root)};
 }
 
 export async function exportFrame(root:SceneNode, progress:(message:string)=>void=()=>{}):Promise<Bundle> {

@@ -24,7 +24,7 @@ public sealed class ExuiPackage : IDisposable
     public string ScreenSha256 { get; }
     public ExuiProfile Profile { get; }
     public GeneratePlan Plan { get; }
-    /// <summary>"exui/1" (one page) or "exui/2" (pages, popups, groups, navigation intent).</summary>
+    /// <summary>exui/1: one page; exui/2: containers/navigation; exui/3: optional press feedback; exui/4: graphics and momentary buttons.</summary>
     public string Contract { get; }
 
     private ExuiPackage(string work, string sha, string screenSha, ExuiProfile profile, GeneratePlan plan, string contract)
@@ -74,8 +74,8 @@ public sealed class ExuiPackage : IDisposable
             var screen = ContractJson.Read(screenBytes, "screen.json");
             // The manifest marker selects the contract; there is no fallback between versions.
             int version = manifest.ValueKind == JsonValueKind.Object && manifest.TryGetProperty("schema", out var marker) && marker.ValueKind == JsonValueKind.String
-                ? marker.GetString() switch { "exui/1" => 1, "exui/2" => 2, _ => 0 } : 0;
-            if (version == 0) throw new ExuiException("package-schema", "manifest.json: schema must be \"exui/1\" or \"exui/2\".");
+                ? marker.GetString() switch { "exui/1" => 1, "exui/2" => 2, "exui/3" => 3, "exui/4" => 4, _ => 0 } : 0;
+            if (version == 0) throw new ExuiException("package-schema", "manifest.json: schema must be exui/1, exui/2, exui/3 or exui/4.");
             ContractJson.Validate(manifest, version, "manifest");
             ContractJson.Validate(screen, version, "screen");
             var profile = GetProfile(manifest.GetProperty("profile").GetString()!);
@@ -100,15 +100,15 @@ public sealed class ExuiPackage : IDisposable
             var lowered = ContractJson.LowerNumbers(screen)!.AsObject();
             lowered["schema"] = ScreenSpecReader.Schema;
             lowered["panel"] = profile.Panel;
-            var elementLists = version == 1
+            var elementLists = version != 2
                 ? new[] { lowered["elements"]!.AsArray() }
                 : lowered["pages"]!.AsArray().Concat(lowered["popups"]!.AsArray()).Select(c => c!["elements"]!.AsArray()).ToArray();
-            foreach (var list in elementLists) SortStates(list);
+            foreach (var list in elementLists) SortStates(list, version >= 3, version == 4);
             work = Directory.CreateTempSubdirectory("exui-package-").FullName;
             Directory.CreateDirectory(Path.Combine(work, "assets"));
             foreach (string file in declared) File.WriteAllBytes(Path.Combine(work, file), files[file]);
             var spec = JsonSerializer.Deserialize<ScreenSpec>(lowered.ToJsonString(), ScreenSpecReader.Json)!;
-            var plan = ScreenSpecReader.Normalize(spec, profile.Panel, profile.Width, profile.Height, work);
+            var plan = ScreenSpecReader.Normalize(spec, profile.Panel, profile.Width, profile.Height, work, allowTwoStateButtons: version >= 3, allowGraphics: version == 4, allowMomentaryButtons: version == 4);
             return new(work, Hash(bytes), Hash(screenBytes), profile, plan, $"exui/{version}");
         }
         catch (Exception e)
@@ -119,16 +119,18 @@ public sealed class ExuiPackage : IDisposable
         }
     }
 
-    private static void SortStates(JsonArray elements)
+    private static void SortStates(JsonArray elements, bool allowTwoStateButtons, bool allowMomentaryButtons)
     {
         foreach (var element in elements)
         {
             if ((string?)element!["kind"] != "button") continue;
             var states = element["states"]!.AsArray();
             var sorted = states.Select(s => s!.AsObject()).OrderBy(s => (int)s["stateId"]!).ToArray();
-            if (!sorted.Select(s => (int)s["stateId"]!).SequenceEqual(new[] { 0, 1, 2 }) ||
-                !sorted.Select(s => (string)s["role"]!).SequenceEqual(new[] { "normal", "feedback", "pressed" }))
-                throw new ExuiException("package-state", $"{element["key"]}: explicit stateId/role must be 0/normal, 1/feedback, 2/pressed.");
+            bool two = allowTwoStateButtons && sorted.Length == 2;
+            bool momentary = allowMomentaryButtons && sorted.Length == 2 && (string?)sorted[1]["role"] == "pressed";
+            if (!sorted.Select(s => (int)s["stateId"]!).SequenceEqual(two ? new[] { 0, 1 } : new[] { 0, 1, 2 }) ||
+                !sorted.Select(s => (string)s["role"]!).SequenceEqual(momentary ? new[] { "normal", "pressed" } : two ? new[] { "normal", "feedback" } : new[] { "normal", "feedback", "pressed" }))
+                throw new ExuiException("package-state", $"{element["key"]}: explicit stateId/role must be {(allowMomentaryButtons ? "0/normal + 1/pressed, or " : "")}0/normal, 1/feedback{(allowTwoStateButtons ? ", and optional 2/pressed" : ", 2/pressed")}.");
             states.Clear();
             foreach (var state in sorted) { state.Remove("stateId"); states.Add(state); }
         }

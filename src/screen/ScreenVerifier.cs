@@ -19,7 +19,7 @@ public static class ScreenVerifier
     public static readonly IReadOnlyDictionary<string, int> LevelOrientation = new Dictionary<string, int>
     { ["LeftToRight"] = 0, ["RightToLeft"] = 1, ["BottomToTop"] = 2, ["TopToBottom"] = 3 };
 
-    private static readonly Dictionary<string, string> Types = new() { ["button"] = "PBButton", ["label"] = "PBLabel", ["level"] = "PBLevel", ["popup-ref"] = "PBPopupPageReference" };
+    private static readonly Dictionary<string, string> Types = new() { ["button"] = "PBButton", ["label"] = "PBLabel", ["level"] = "PBLevel", ["popup-ref"] = "PBPopupPageReference", ["graphic"] = "PBImage" };
 
     public static IReadOnlyList<CheckResult> ProfileChecks(ProjectModel model, ExpectedProfile expected)
     {
@@ -119,7 +119,7 @@ public static class ScreenVerifier
             Check($"resource.{image.Key}", hits.Length == 1 && hits[0].Width == image.Width && hits[0].Height == image.Height && !donorImages.Contains(image.ResourceName),
                 $"{image.ResourceName}: {hits.Length} found, {hits.FirstOrDefault()?.Width}x{hits.FirstOrDefault()?.Height}");
         }
-        var referenced = models.SelectMany(p => p.Controls).SelectMany(c => c.States).Select(s => s.Image).Where(n => n != null).Distinct();
+        var referenced = models.SelectMany(p => p.Controls).SelectMany(c => c.States.Select(s => s.Image).Append(c.Graphic?.Image)).Where(n => n != null).Distinct();
         Check("resource.references", referenced.All(n => names.Contains(n!)), "every state image names an existing image resource");
         if (!afterGuiBuild)
             Check("resource.donor-kept", donor.Resources.All(d => model.Resources.Any(r => r.Type == d.Type && r.Name == d.Name)), "donor resources retained");
@@ -137,6 +137,11 @@ public static class ScreenVerifier
             Check($"{at}.rect", c.Left == e.Rect[0] && c.Top == e.Rect[1] && c.Width == e.Rect[2] && c.Height == e.Rect[3], $"{c.Left},{c.Top},{c.Width},{c.Height}");
             switch (e.Kind)
             {
+                case "graphic":
+                    Check($"{at}.image", c.Graphic?.Image == e.Image && names.Contains(e.Image!), c.Graphic?.Image ?? "none");
+                    Check($"{at}.native-layout", c.Graphic?.Layout == 3 && c.Graphic.Alignment == 3, $"layout {c.Graphic?.Layout}, alignment {c.Graphic?.Alignment}");
+                    Check($"{at}.passive-transparent", c.ControlId == 0 && c.States.Count == 0 && string.IsNullOrEmpty(c.Text) && c.Graphic?.Background == 0 && c.Graphic.Border == 0 && c.Graphic.Shape == 0, "passive PBImage, no states/text/shape/background");
+                    break;
                 case "label":
                     Check($"{at}.text", c.Text == e.Text, c.Text ?? "null");
                     if (e.TextColor != null) Check($"{at}.text-color", c.TextColor == Argb(e.TextColor), Hex(c.TextColor));

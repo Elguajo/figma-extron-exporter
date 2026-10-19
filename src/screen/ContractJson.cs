@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace ExtronExporter.Screen;
 
-// Evaluates ONLY the keywords in our two embedded, trusted schemas. Never loads a package-supplied
+// Evaluates ONLY the keywords in the embedded, trusted schemas. Never loads a package-supplied
 // schema or remote reference. This is not a general-purpose JSON Schema implementation.
 internal static class ContractJson
 {

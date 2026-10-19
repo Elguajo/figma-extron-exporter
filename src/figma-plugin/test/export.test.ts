@@ -44,7 +44,7 @@ for(const [name,change,code] of [
   ['gradient',(r:any)=>r.fills=[{type:'GRADIENT_LINEAR'}],'color'],
   ['effects',(r:any)=>r.effects=[{type:'DROP_SHADOW'}],'appearance'],
   ['mixed pressed/feedback',(r:any)=>edit(r.children[0].children[2],{role:'feedback'}),'states'],
-  ['missing state',(r:any)=>r.children[0].children.pop(),'states'],
+  ['missing normal state',(r:any)=>r.children[0].children.splice(0,1),'states'],
   ['states different only in alignment',(r:any)=>r.children[0].children[2].fills=structuredClone(r.children[0].children[0].fills),'states'],
   ['different state fonts',(r:any)=>r.children[0].children[1].children[0].fontSize=12,'font'],
   ['unsupported font',(r:any)=>r.children[1].fontName={family:'Inter',style:'Regular'},'font'],

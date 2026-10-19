@@ -1,5 +1,5 @@
 export type Role = 'normal' | 'feedback' | 'pressed';
-export type Kind = 'page' | 'button' | 'label' | 'level' | 'state' | 'image';
+export type Kind = 'page' | 'button' | 'label' | 'level' | 'state' | 'image' | 'graphic';
 export type Profile = 'tlp-pro-1025m' | 'tlp-pro-300m-portrait';
 export const DATA_KEY = 'exui';
 export const PROFILES = {
@@ -20,13 +20,14 @@ export interface State {
   image?: string; imageAlign?: 'top-center' | 'middle-center'; textAlign?: 'bottom-center' | 'middle-center';
 }
 export interface Element {
-  key: string; kind: 'button' | 'label' | 'level'; objectId: number; controlId: number | null; name: string; rect: number[];
+  key: string; kind: 'button' | 'label' | 'level' | 'graphic'; objectId: number; controlId: number | null; name: string; rect: number[];
   text?: string; textColor?: string; font?: Font; states?: State[]; press?: string;
   display?: 'slider'; orientation?: 'left-to-right'; min?: 0; max?: 100; fillColor?: string;
+  image?: string;
 }
 export interface Asset { key: string; file: string; resourceName: string }
 export interface Screen {
-  schema: 'exui-screen/1'; project: { name: string };
+  schema: 'exui-screen/1' | 'exui-screen/3' | 'exui-screen/4'; project: { name: string };
   page: { key: string; objectId: number; name: string; background: string };
   assets: Asset[]; elements: Element[];
 }
@@ -56,7 +57,7 @@ export function readMetadata(node: { id: string; name: string; getPluginData(k: 
   if (!raw) return null;
   let data: Metadata;
   try { data = JSON.parse(raw); } catch { return fail('metadata', `${node.name}: повреждены данные Extron.`); }
-  if (!data || data.schema !== 'exui-node/1' || !['page','button','label','level','state','image'].includes(data.kind))
+  if (!data || data.schema !== 'exui-node/1' || !['page','button','label','level','state','image','graphic'].includes(data.kind))
     fail('metadata', `${node.name}: неизвестная версия или тип данных Extron.`);
   if (data.ownerNodeId !== node.id) fail('copied-node', `${node.name}: это копия. Явно назначьте ей собственные ключ и ID через «Сохранить назначение».`);
   return data;
