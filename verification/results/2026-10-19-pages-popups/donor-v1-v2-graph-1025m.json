@@ -1,0 +1,14 @@
+{
+  "left": "C:\\Users\\Khusan Turaev\\AppData\\Local\\Temp\\claude\\D--PROJECTS-Tashkent-2026-10---Trilliant-figma-extron-exporter\\bc667e01-a857-4893-b410-8b9d64f35fe2\\scratchpad\\v1reg\\v1-1025m.gdl",
+  "right": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\regress\\1025m.gdl",
+  "payloadIdentical": false,
+  "differences": [
+    {
+      "Path": "PBProject.pagesField._version",
+      "Left": "27",
+      "Right": "26"
+    }
+  ],
+  "differencesIgnoringListVersion": [],
+  "note": "Record IDs are ignored; List<T>._version is a .NET mutation counter with no project meaning. At most 50 differences are listed."
+}

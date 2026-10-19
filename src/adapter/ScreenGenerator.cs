@@ -63,11 +63,17 @@ public static class ScreenGenerator
         var run = adapter.Run("generate", donor.Container.Payload, "generate", new
         {
             projectName = plan.ProjectName,
-            page = plan.Page,
+            startPage = plan.StartPage,
+            pages = plan.Pages,
+            popups = plan.Popups,
+            groups = plan.Groups,
             images = plan.Images,
-            elements = plan.Elements,
             expectedProfile = new { platformType = e.Profile.PlatformType, partNumber = e.Profile.PartNumber, width = e.Profile.Width, height = e.Profile.Height },
-            donorElements = new { page = e.Elements.Page, button = e.Elements.Button, label = e.Elements.Label, level = e.Elements.Level }
+            donorElements = new
+            {
+                page = e.Elements.Page, button = e.Elements.Button, label = e.Elements.Label, level = e.Elements.Level,
+                popupReference = e.Elements.PopupReference, standardPopup = e.Elements.StandardPopup, modalPopup = e.Elements.ModalPopup
+            }
         });
         CheckHostEnums(run.Result, e.Profile);
         var model = ProjectModel.Read(run.Output);

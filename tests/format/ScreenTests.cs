@@ -143,10 +143,9 @@ static class ScreenTests
                 var donor = registry.LoadDonor(donorId);
                 var plan = ScreenSpecReader.Normalize(ScreenSpecReader.Load(Path.Combine(examples, $"screen-{example}.json")),
                     donor.Entry.Panel, donor.Entry.Profile.Width, donor.Entry.Profile.Height, examples);
-                // Save and Build offers to remove unused resources (chosen in the 19.10.2026 check), so the
-                // generator-time "donor resources retained" invariant does not apply after a GUI save.
-                var failed = ScreenVerifier.Verify(plan, model, donor.Model, donor.Entry.Profile)
-                    .Concat(ScreenGenerator.BoundsChecks(model)).Where(x => !x.Passed && x.Id != "resource.donor-kept").ToArray();
+                // afterGuiBuild: Build-owned differences (modal references, project ID, removed unused resources).
+                var failed = ScreenVerifier.Verify(plan, model, donor.Model, donor.Entry.Profile, afterGuiBuild: true)
+                    .Concat(ScreenGenerator.BoundsChecks(model)).Where(x => !x.Passed).ToArray();
                 Check(failed.Length == 0, string.Join("; ", failed.Select(x => $"{x.Id}: {x.Detail}")));
                 var controls = model.Pages.Single().Controls;
                 Check(controls.All(x => x.TlpImageId > 0), "every control has Build artwork");
@@ -329,7 +328,8 @@ static class ScreenTests
             test($"Donor {d.Id}: hash pinned, profile {d.Profile.PlatformClass} {d.Profile.Width}x{d.Profile.Height} read independently", () =>
             {
                 var donor = registry.LoadDonor(d.Id);
-                Check(donor.Model.Platform.PartNumber == d.Profile.PartNumber && donor.Model.Pages.Count == 1);
+                Check(donor.Model.Platform.PartNumber == d.Profile.PartNumber && donor.Model.Pages.Select(p => p.Name).SequenceEqual(d.Preparation.KeepPages)
+                    && donor.Model.Popups.Select(p => (long)p.ObjectId).OrderBy(x => x).SequenceEqual(d.Preparation.KeepPopupIds.OrderBy(x => x)));
                 Check(ScreenGenerator.BoundsChecks(donor.Model).All(c => c.Passed), "every donor control inside the canvas");
             });
         test("Registry: unknown donor refused", () => Code("donor-unknown", () => registry.LoadDonor("tlp-pro-9999")));
@@ -431,7 +431,7 @@ static class ScreenTests
                 var model = ProjectModel.Read(ExtronContainer.ReadFile(Path.Combine(work, "1025m-a.gdl")).Payload);
                 var donor = registry.LoadDonor("tlp-pro-1025m");
                 var plan = ScreenSpecReader.Normalize(ScreenSpecReader.Load(Path.Combine(examples, "screen-1025m.json")), "TLP Pro 1025M", 1280, 800, examples);
-                var wrong = plan with { Elements = plan.Elements.Select(e => e.Key == "volume.mute" ? e with { ControlId = 8105 } : e).ToArray() };
+                var wrong = plan with { Pages = plan.Pages.Select(p => p with { Elements = p.Elements.Select(e => e.Key == "volume.mute" ? e with { ControlId = 8105 } : e).ToArray() }).ToArray() };
                 Check(ScreenVerifier.Verify(plan, model, donor.Model, donor.Entry.Profile).All(c => c.Passed));
                 Check(ScreenVerifier.Verify(wrong, model, donor.Model, donor.Entry.Profile).Single(c => !c.Passed).Id == "element.volume.mute.control-id");
             });

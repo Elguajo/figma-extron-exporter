@@ -1,0 +1,38 @@
+[
+  {
+    "file": "1025m-gui-8112-volume.png",
+    "sha256": "37ad21359b12cf621636f21ac9d75aa5a1f6c64ebba69a86971c99d705583e2a",
+    "bytes": 306812,
+    "source": "User attachment; GUI Designer 1025M screenshot"
+  },
+  {
+    "file": "1025m-gui-8113-power.png",
+    "sha256": "eef0cbe98beda6f8dbcf4cb8a4c6764f7ca1eb944b272dd6027fab1a7a4ab8cf",
+    "bytes": 306982,
+    "source": "User attachment; GUI Designer 1025M screenshot"
+  },
+  {
+    "file": "1025m-gui-8101-music.png",
+    "sha256": "32dbe969655eb6c3967d18d71c078225901aade47e23e7b2b49ce005e96882f8",
+    "bytes": 292854,
+    "source": "User attachment; GUI Designer 1025M screenshot"
+  },
+  {
+    "file": "1025m-gui-8121-yes.png",
+    "sha256": "62b8aa0fdf35c25ce8744909c9aeb997442b175e30c82e22df7e0541b838d184",
+    "bytes": 301043,
+    "source": "User attachment; GUI Designer 1025M screenshot"
+  },
+  {
+    "file": "1025m-gui-8122-no.png",
+    "sha256": "a853d096ee57fdb85dfd755a8474e82c3bddf2d3d8dde67c223e05151910dece",
+    "bytes": 300131,
+    "source": "User attachment; GUI Designer 1025M screenshot"
+  },
+  {
+    "file": "1025m-build-complete.png",
+    "sha256": "df8906733e66fc2941e3b43790629793d6a089ab39166486349309041318e848",
+    "bytes": 38268,
+    "source": "User attachment; Build Manager 1025M: 0 errors, 0 warnings"
+  }
+]

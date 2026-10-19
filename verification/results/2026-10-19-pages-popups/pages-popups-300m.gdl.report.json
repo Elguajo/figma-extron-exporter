@@ -1,0 +1,1461 @@
+{
+  "PackageSha256": "D961950AE8264DA53D8615104410AC9B229082328DCEF8BB55F9F454E546F8A5",
+  "Contract": "exui/2",
+  "Profile": "tlp-pro-300m-portrait",
+  "Generation": {
+    "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\exui-v2\\pages-popups-300m.gdl",
+    "OutputSha256": "C593EDB7AF623440074C474818C06D38706CFCB2A23B7DCEDB3C7B6A62CB36A9",
+    "OutputBytes": 1568701,
+    "DonorId": "tlp-pro-300m-portrait",
+    "DonorSha256": "10D9BAA98CA65BEBBDE0DF6F5ACA970CF2FBBBEA0003E5350A2FCA498B59D636",
+    "Panel": "TLP Pro 300M",
+    "SpecSha256": "2BF242D9AD74C9F108FF3581B793BDAFB704AAE7434E4531CBA8D4531F4054CA",
+    "Checks": [
+      {
+        "Id": "profile.platform-class",
+        "Passed": true,
+        "Detail": "PBTLP300MPlatform (expected PBTLP300MPlatform)"
+      },
+      {
+        "Id": "profile.platform-type",
+        "Passed": true,
+        "Detail": "PlatformProTypeEnum value 44 (expected 44 = TLP300M)"
+      },
+      {
+        "Id": "profile.part-number",
+        "Passed": true,
+        "Detail": "60-1667-02 (expected 60-1667-02)"
+      },
+      {
+        "Id": "profile.screen",
+        "Passed": true,
+        "Detail": "screen 320x480, platform 320x480 (expected 320x480)"
+      },
+      {
+        "Id": "profile.app-version",
+        "Passed": true,
+        "Detail": "1.28.0.7"
+      },
+      {
+        "Id": "profile.checksum",
+        "Passed": true,
+        "Detail": "checksum 0"
+      },
+      {
+        "Id": "project.name",
+        "Passed": true,
+        "Detail": "exui страницы и popup TLP Pro 300M"
+      },
+      {
+        "Id": "page.count",
+        "Passed": true,
+        "Detail": "2 page(s), expected 2"
+      },
+      {
+        "Id": "page.default",
+        "Passed": true,
+        "Detail": "defaultPage 100"
+      },
+      {
+        "Id": "page.order",
+        "Passed": true,
+        "Detail": "pages in plan order"
+      },
+      {
+        "Id": "popup.set",
+        "Passed": true,
+        "Detail": "65535:Offline Page, 201:Громкость, 202:Источники 1, 203:Источники 2, 204:Выключение"
+      },
+      {
+        "Id": "popup.offline",
+        "Passed": true,
+        "Detail": "Offline Page 320x480, 2 control(s)"
+      },
+      {
+        "Id": "page.page.home.ids",
+        "Passed": true,
+        "Detail": "id 100, userId 100"
+      },
+      {
+        "Id": "page.page.home.name",
+        "Passed": true,
+        "Detail": "Главная"
+      },
+      {
+        "Id": "page.page.home.key",
+        "Passed": true,
+        "Detail": "exui-key=page.home"
+      },
+      {
+        "Id": "page.page.home.size",
+        "Passed": true,
+        "Detail": "320x480"
+      },
+      {
+        "Id": "page.page.home.background",
+        "Passed": true,
+        "Detail": "#FF14151C"
+      },
+      {
+        "Id": "page.page.home.controls",
+        "Passed": true,
+        "Detail": "5 control(s), expected 5"
+      },
+      {
+        "Id": "page.page.home.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "element.home.title.type",
+        "Passed": true,
+        "Detail": "PBLabel"
+      },
+      {
+        "Id": "element.home.title.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.home.title.key",
+        "Passed": true,
+        "Detail": "exui-key=home.title"
+      },
+      {
+        "Id": "element.home.title.name",
+        "Passed": true,
+        "Detail": "Заголовок главной"
+      },
+      {
+        "Id": "element.home.title.rect",
+        "Passed": true,
+        "Detail": "20,10,280,40"
+      },
+      {
+        "Id": "element.home.title.text",
+        "Passed": true,
+        "Detail": "Главная"
+      },
+      {
+        "Id": "element.home.title.text-color",
+        "Passed": true,
+        "Detail": "#FFFFFFFF"
+      },
+      {
+        "Id": "element.nav.sources.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.nav.sources.control-id",
+        "Passed": true,
+        "Detail": "userId 8111 (expected 8111)"
+      },
+      {
+        "Id": "element.nav.sources.key",
+        "Passed": true,
+        "Detail": "exui-key=nav.sources"
+      },
+      {
+        "Id": "element.nav.sources.name",
+        "Passed": true,
+        "Detail": "К источникам"
+      },
+      {
+        "Id": "element.nav.sources.rect",
+        "Passed": true,
+        "Detail": "20,60,280,70"
+      },
+      {
+        "Id": "element.nav.sources.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.nav.sources.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Источники', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.nav.sources.state1",
+        "Passed": true,
+        "Detail": "On: text 'Источники', fill #FFF28C28, text #FF1B1B1F, image none, id 1/1"
+      },
+      {
+        "Id": "element.nav.sources.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Источники', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.nav.sources.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.nav.sources.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.nav.volume.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.nav.volume.control-id",
+        "Passed": true,
+        "Detail": "userId 8112 (expected 8112)"
+      },
+      {
+        "Id": "element.nav.volume.key",
+        "Passed": true,
+        "Detail": "exui-key=nav.volume"
+      },
+      {
+        "Id": "element.nav.volume.name",
+        "Passed": true,
+        "Detail": "Открыть громкость"
+      },
+      {
+        "Id": "element.nav.volume.rect",
+        "Passed": true,
+        "Detail": "20,140,135,70"
+      },
+      {
+        "Id": "element.nav.volume.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.nav.volume.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Громкость', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.nav.volume.state1",
+        "Passed": true,
+        "Detail": "On: text 'Громкость', fill #FFF28C28, text #FF1B1B1F, image none, id 1/1"
+      },
+      {
+        "Id": "element.nav.volume.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Громкость', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.nav.volume.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.nav.volume.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.nav.power.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.nav.power.control-id",
+        "Passed": true,
+        "Detail": "userId 8113 (expected 8113)"
+      },
+      {
+        "Id": "element.nav.power.key",
+        "Passed": true,
+        "Detail": "exui-key=nav.power"
+      },
+      {
+        "Id": "element.nav.power.name",
+        "Passed": true,
+        "Detail": "Выключение"
+      },
+      {
+        "Id": "element.nav.power.rect",
+        "Passed": true,
+        "Detail": "165,140,135,70"
+      },
+      {
+        "Id": "element.nav.power.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.nav.power.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Выключить', fill #FF3A2020, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.nav.power.state1",
+        "Passed": true,
+        "Detail": "On: text 'Выключить', fill #FFC0392B, text #FFFFFFFF, image none, id 1/1"
+      },
+      {
+        "Id": "element.nav.power.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Выключить', fill #FF5A3030, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.nav.power.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.nav.power.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.home.volume-ref.type",
+        "Passed": true,
+        "Detail": "PBPopupPageReference"
+      },
+      {
+        "Id": "element.home.volume-ref.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.home.volume-ref.key",
+        "Passed": true,
+        "Detail": "exui-key=home.volume-ref"
+      },
+      {
+        "Id": "element.home.volume-ref.name",
+        "Passed": true,
+        "Detail": "Место popup громкости"
+      },
+      {
+        "Id": "element.home.volume-ref.rect",
+        "Passed": true,
+        "Detail": "0,300,320,170"
+      },
+      {
+        "Id": "element.home.volume-ref.binding",
+        "Passed": true,
+        "Detail": "popup 201 'Громкость', group 0, modal False"
+      },
+      {
+        "Id": "page.page.sources.ids",
+        "Passed": true,
+        "Detail": "id 101, userId 101"
+      },
+      {
+        "Id": "page.page.sources.name",
+        "Passed": true,
+        "Detail": "Источники"
+      },
+      {
+        "Id": "page.page.sources.key",
+        "Passed": true,
+        "Detail": "exui-key=page.sources"
+      },
+      {
+        "Id": "page.page.sources.size",
+        "Passed": true,
+        "Detail": "320x480"
+      },
+      {
+        "Id": "page.page.sources.background",
+        "Passed": true,
+        "Detail": "#FF14151C"
+      },
+      {
+        "Id": "page.page.sources.controls",
+        "Passed": true,
+        "Detail": "5 control(s), expected 5"
+      },
+      {
+        "Id": "page.page.sources.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "element.sources.title.type",
+        "Passed": true,
+        "Detail": "PBLabel"
+      },
+      {
+        "Id": "element.sources.title.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.sources.title.key",
+        "Passed": true,
+        "Detail": "exui-key=sources.title"
+      },
+      {
+        "Id": "element.sources.title.name",
+        "Passed": true,
+        "Detail": "Заголовок источников"
+      },
+      {
+        "Id": "element.sources.title.rect",
+        "Passed": true,
+        "Detail": "20,10,280,40"
+      },
+      {
+        "Id": "element.sources.title.text",
+        "Passed": true,
+        "Detail": "Источники"
+      },
+      {
+        "Id": "element.sources.title.text-color",
+        "Passed": true,
+        "Detail": "#FFFFFFFF"
+      },
+      {
+        "Id": "element.nav.list-1.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.nav.list-1.control-id",
+        "Passed": true,
+        "Detail": "userId 8114 (expected 8114)"
+      },
+      {
+        "Id": "element.nav.list-1.key",
+        "Passed": true,
+        "Detail": "exui-key=nav.list-1"
+      },
+      {
+        "Id": "element.nav.list-1.name",
+        "Passed": true,
+        "Detail": "Список 1"
+      },
+      {
+        "Id": "element.nav.list-1.rect",
+        "Passed": true,
+        "Detail": "20,60,135,50"
+      },
+      {
+        "Id": "element.nav.list-1.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.nav.list-1.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Список 1', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.nav.list-1.state1",
+        "Passed": true,
+        "Detail": "On: text 'Список 1', fill #FFF28C28, text #FF1B1B1F, image none, id 1/1"
+      },
+      {
+        "Id": "element.nav.list-1.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Список 1', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.nav.list-1.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.nav.list-1.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.nav.list-2.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.nav.list-2.control-id",
+        "Passed": true,
+        "Detail": "userId 8115 (expected 8115)"
+      },
+      {
+        "Id": "element.nav.list-2.key",
+        "Passed": true,
+        "Detail": "exui-key=nav.list-2"
+      },
+      {
+        "Id": "element.nav.list-2.name",
+        "Passed": true,
+        "Detail": "Список 2"
+      },
+      {
+        "Id": "element.nav.list-2.rect",
+        "Passed": true,
+        "Detail": "165,60,135,50"
+      },
+      {
+        "Id": "element.nav.list-2.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.nav.list-2.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Список 2', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.nav.list-2.state1",
+        "Passed": true,
+        "Detail": "On: text 'Список 2', fill #FFF28C28, text #FF1B1B1F, image none, id 1/1"
+      },
+      {
+        "Id": "element.nav.list-2.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Список 2', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.nav.list-2.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.nav.list-2.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.sources.group-ref.type",
+        "Passed": true,
+        "Detail": "PBPopupPageReference"
+      },
+      {
+        "Id": "element.sources.group-ref.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.sources.group-ref.key",
+        "Passed": true,
+        "Detail": "exui-key=sources.group-ref"
+      },
+      {
+        "Id": "element.sources.group-ref.name",
+        "Passed": true,
+        "Detail": "Место группы источников"
+      },
+      {
+        "Id": "element.sources.group-ref.rect",
+        "Passed": true,
+        "Detail": "0,120,320,240"
+      },
+      {
+        "Id": "element.sources.group-ref.binding",
+        "Passed": true,
+        "Detail": "popup 18446744073709551615, group 1 'Источники', modal False"
+      },
+      {
+        "Id": "element.nav.back.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.nav.back.control-id",
+        "Passed": true,
+        "Detail": "userId 8116 (expected 8116)"
+      },
+      {
+        "Id": "element.nav.back.key",
+        "Passed": true,
+        "Detail": "exui-key=nav.back"
+      },
+      {
+        "Id": "element.nav.back.name",
+        "Passed": true,
+        "Detail": "Назад"
+      },
+      {
+        "Id": "element.nav.back.rect",
+        "Passed": true,
+        "Detail": "20,400,280,60"
+      },
+      {
+        "Id": "element.nav.back.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.nav.back.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Назад', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.nav.back.state1",
+        "Passed": true,
+        "Detail": "On: text 'Назад', fill #FFF28C28, text #FF1B1B1F, image none, id 1/1"
+      },
+      {
+        "Id": "element.nav.back.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Назад', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.nav.back.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.nav.back.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "popup.popup.volume.ids",
+        "Passed": true,
+        "Detail": "id 201, userId 201"
+      },
+      {
+        "Id": "popup.popup.volume.name",
+        "Passed": true,
+        "Detail": "Громкость"
+      },
+      {
+        "Id": "popup.popup.volume.key",
+        "Passed": true,
+        "Detail": "exui-key=popup.volume"
+      },
+      {
+        "Id": "popup.popup.volume.size",
+        "Passed": true,
+        "Detail": "320x170"
+      },
+      {
+        "Id": "popup.popup.volume.background",
+        "Passed": true,
+        "Detail": "#FF202230"
+      },
+      {
+        "Id": "popup.popup.volume.controls",
+        "Passed": true,
+        "Detail": "3 control(s), expected 3"
+      },
+      {
+        "Id": "popup.popup.volume.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "popup.popup.volume.kind",
+        "Passed": true,
+        "Detail": "modal False"
+      },
+      {
+        "Id": "popup.popup.volume.group",
+        "Passed": true,
+        "Detail": "group 0 ''"
+      },
+      {
+        "Id": "popup.popup.volume.back-references",
+        "Passed": true,
+        "Detail": "1 back-reference(s), expected 1; hasReferences True"
+      },
+      {
+        "Id": "element.volume.caption.type",
+        "Passed": true,
+        "Detail": "PBLabel"
+      },
+      {
+        "Id": "element.volume.caption.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.volume.caption.key",
+        "Passed": true,
+        "Detail": "exui-key=volume.caption"
+      },
+      {
+        "Id": "element.volume.caption.name",
+        "Passed": true,
+        "Detail": "Подпись громкости"
+      },
+      {
+        "Id": "element.volume.caption.rect",
+        "Passed": true,
+        "Detail": "10,5,300,40"
+      },
+      {
+        "Id": "element.volume.caption.text",
+        "Passed": true,
+        "Detail": "Громкость"
+      },
+      {
+        "Id": "element.volume.caption.text-color",
+        "Passed": true,
+        "Detail": "#FFFFFFFF"
+      },
+      {
+        "Id": "element.volume.level.type",
+        "Passed": true,
+        "Detail": "PBLevel"
+      },
+      {
+        "Id": "element.volume.level.control-id",
+        "Passed": true,
+        "Detail": "userId 8103 (expected 8103)"
+      },
+      {
+        "Id": "element.volume.level.key",
+        "Passed": true,
+        "Detail": "exui-key=volume.level"
+      },
+      {
+        "Id": "element.volume.level.name",
+        "Passed": true,
+        "Detail": "Громкость"
+      },
+      {
+        "Id": "element.volume.level.rect",
+        "Passed": true,
+        "Detail": "10,50,300,36"
+      },
+      {
+        "Id": "element.volume.level.level",
+        "Passed": true,
+        "Detail": "display 1, orientation 0, 0..100"
+      },
+      {
+        "Id": "element.volume.level.fill",
+        "Passed": true,
+        "Detail": "#FFF28C28"
+      },
+      {
+        "Id": "element.volume.mute.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.volume.mute.control-id",
+        "Passed": true,
+        "Detail": "userId 8104 (expected 8104)"
+      },
+      {
+        "Id": "element.volume.mute.key",
+        "Passed": true,
+        "Detail": "exui-key=volume.mute"
+      },
+      {
+        "Id": "element.volume.mute.name",
+        "Passed": true,
+        "Detail": "Mute"
+      },
+      {
+        "Id": "element.volume.mute.rect",
+        "Passed": true,
+        "Detail": "80,95,160,65"
+      },
+      {
+        "Id": "element.volume.mute.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.volume.mute.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Без звука', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.volume.mute.state1",
+        "Passed": true,
+        "Detail": "On: text 'Без звука', fill #FFC0392B, text #FFFFFFFF, image none, id 1/1"
+      },
+      {
+        "Id": "element.volume.mute.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Без звука', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.volume.mute.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.volume.mute.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "popup.popup.sources-1.ids",
+        "Passed": true,
+        "Detail": "id 202, userId 202"
+      },
+      {
+        "Id": "popup.popup.sources-1.name",
+        "Passed": true,
+        "Detail": "Источники 1"
+      },
+      {
+        "Id": "popup.popup.sources-1.key",
+        "Passed": true,
+        "Detail": "exui-key=popup.sources-1"
+      },
+      {
+        "Id": "popup.popup.sources-1.size",
+        "Passed": true,
+        "Detail": "320x240"
+      },
+      {
+        "Id": "popup.popup.sources-1.background",
+        "Passed": true,
+        "Detail": "#FF202230"
+      },
+      {
+        "Id": "popup.popup.sources-1.controls",
+        "Passed": true,
+        "Detail": "2 control(s), expected 2"
+      },
+      {
+        "Id": "popup.popup.sources-1.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "popup.popup.sources-1.kind",
+        "Passed": true,
+        "Detail": "modal False"
+      },
+      {
+        "Id": "popup.popup.sources-1.group",
+        "Passed": true,
+        "Detail": "group 1 'Источники'"
+      },
+      {
+        "Id": "popup.popup.sources-1.back-references",
+        "Passed": true,
+        "Detail": "1 back-reference(s), expected 1; hasReferences True"
+      },
+      {
+        "Id": "element.source.music.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.source.music.control-id",
+        "Passed": true,
+        "Detail": "userId 8101 (expected 8101)"
+      },
+      {
+        "Id": "element.source.music.key",
+        "Passed": true,
+        "Detail": "exui-key=source.music"
+      },
+      {
+        "Id": "element.source.music.name",
+        "Passed": true,
+        "Detail": "Источник Музыка"
+      },
+      {
+        "Id": "element.source.music.rect",
+        "Passed": true,
+        "Detail": "10,10,300,105"
+      },
+      {
+        "Id": "element.source.music.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.source.music.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Музыка', fill #FF242634, text #FFFFFFFF, image exui-note-light.png, id 0/0"
+      },
+      {
+        "Id": "element.source.music.state1",
+        "Passed": true,
+        "Detail": "On: text 'Музыка', fill #FFF28C28, text #FF1B1B1F, image exui-note-dark.png, id 1/1"
+      },
+      {
+        "Id": "element.source.music.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Музыка', fill #FF3A3D52, text #FFFFFFFF, image exui-note-light.png, id 2/2"
+      },
+      {
+        "Id": "element.source.music.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.source.music.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.source.radio.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.source.radio.control-id",
+        "Passed": true,
+        "Detail": "userId 8102 (expected 8102)"
+      },
+      {
+        "Id": "element.source.radio.key",
+        "Passed": true,
+        "Detail": "exui-key=source.radio"
+      },
+      {
+        "Id": "element.source.radio.name",
+        "Passed": true,
+        "Detail": "Источник Радио"
+      },
+      {
+        "Id": "element.source.radio.rect",
+        "Passed": true,
+        "Detail": "10,125,300,105"
+      },
+      {
+        "Id": "element.source.radio.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.source.radio.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Радио', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.source.radio.state1",
+        "Passed": true,
+        "Detail": "On: text 'Радио', fill #FFF28C28, text #FF1B1B1F, image none, id 1/1"
+      },
+      {
+        "Id": "element.source.radio.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Радио', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.source.radio.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.source.radio.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "popup.popup.sources-2.ids",
+        "Passed": true,
+        "Detail": "id 203, userId 203"
+      },
+      {
+        "Id": "popup.popup.sources-2.name",
+        "Passed": true,
+        "Detail": "Источники 2"
+      },
+      {
+        "Id": "popup.popup.sources-2.key",
+        "Passed": true,
+        "Detail": "exui-key=popup.sources-2"
+      },
+      {
+        "Id": "popup.popup.sources-2.size",
+        "Passed": true,
+        "Detail": "320x240"
+      },
+      {
+        "Id": "popup.popup.sources-2.background",
+        "Passed": true,
+        "Detail": "#FF202230"
+      },
+      {
+        "Id": "popup.popup.sources-2.controls",
+        "Passed": true,
+        "Detail": "2 control(s), expected 2"
+      },
+      {
+        "Id": "popup.popup.sources-2.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "popup.popup.sources-2.kind",
+        "Passed": true,
+        "Detail": "modal False"
+      },
+      {
+        "Id": "popup.popup.sources-2.group",
+        "Passed": true,
+        "Detail": "group 1 'Источники'"
+      },
+      {
+        "Id": "popup.popup.sources-2.back-references",
+        "Passed": true,
+        "Detail": "1 back-reference(s), expected 1; hasReferences True"
+      },
+      {
+        "Id": "element.source.tv.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.source.tv.control-id",
+        "Passed": true,
+        "Detail": "userId 8105 (expected 8105)"
+      },
+      {
+        "Id": "element.source.tv.key",
+        "Passed": true,
+        "Detail": "exui-key=source.tv"
+      },
+      {
+        "Id": "element.source.tv.name",
+        "Passed": true,
+        "Detail": "Источник ТВ"
+      },
+      {
+        "Id": "element.source.tv.rect",
+        "Passed": true,
+        "Detail": "10,10,300,105"
+      },
+      {
+        "Id": "element.source.tv.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.source.tv.state0",
+        "Passed": true,
+        "Detail": "Off: text 'ТВ', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.source.tv.state1",
+        "Passed": true,
+        "Detail": "On: text 'ТВ', fill #FFF28C28, text #FF1B1B1F, image none, id 1/1"
+      },
+      {
+        "Id": "element.source.tv.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'ТВ', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.source.tv.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.source.tv.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.source.mic.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.source.mic.control-id",
+        "Passed": true,
+        "Detail": "userId 8106 (expected 8106)"
+      },
+      {
+        "Id": "element.source.mic.key",
+        "Passed": true,
+        "Detail": "exui-key=source.mic"
+      },
+      {
+        "Id": "element.source.mic.name",
+        "Passed": true,
+        "Detail": "Источник Микрофон"
+      },
+      {
+        "Id": "element.source.mic.rect",
+        "Passed": true,
+        "Detail": "10,125,300,105"
+      },
+      {
+        "Id": "element.source.mic.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.source.mic.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Микрофон', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.source.mic.state1",
+        "Passed": true,
+        "Detail": "On: text 'Микрофон', fill #FFF28C28, text #FF1B1B1F, image none, id 1/1"
+      },
+      {
+        "Id": "element.source.mic.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Микрофон', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.source.mic.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.source.mic.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "popup.popup.confirm.ids",
+        "Passed": true,
+        "Detail": "id 204, userId 204"
+      },
+      {
+        "Id": "popup.popup.confirm.name",
+        "Passed": true,
+        "Detail": "Выключение"
+      },
+      {
+        "Id": "popup.popup.confirm.key",
+        "Passed": true,
+        "Detail": "exui-key=popup.confirm"
+      },
+      {
+        "Id": "popup.popup.confirm.size",
+        "Passed": true,
+        "Detail": "320x480"
+      },
+      {
+        "Id": "popup.popup.confirm.background",
+        "Passed": true,
+        "Detail": "#FF000000"
+      },
+      {
+        "Id": "popup.popup.confirm.controls",
+        "Passed": true,
+        "Detail": "3 control(s), expected 3"
+      },
+      {
+        "Id": "popup.popup.confirm.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "popup.popup.confirm.kind",
+        "Passed": true,
+        "Detail": "modal True"
+      },
+      {
+        "Id": "popup.popup.confirm.group",
+        "Passed": true,
+        "Detail": "group 0 ''"
+      },
+      {
+        "Id": "popup.popup.confirm.back-references",
+        "Passed": true,
+        "Detail": "0 back-reference(s), expected 0; hasReferences False"
+      },
+      {
+        "Id": "element.confirm.text.type",
+        "Passed": true,
+        "Detail": "PBLabel"
+      },
+      {
+        "Id": "element.confirm.text.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.confirm.text.key",
+        "Passed": true,
+        "Detail": "exui-key=confirm.text"
+      },
+      {
+        "Id": "element.confirm.text.name",
+        "Passed": true,
+        "Detail": "Вопрос выключения"
+      },
+      {
+        "Id": "element.confirm.text.rect",
+        "Passed": true,
+        "Detail": "20,120,280,80"
+      },
+      {
+        "Id": "element.confirm.text.text",
+        "Passed": true,
+        "Detail": "Выключить систему?"
+      },
+      {
+        "Id": "element.confirm.text.text-color",
+        "Passed": true,
+        "Detail": "#FFFFFFFF"
+      },
+      {
+        "Id": "element.confirm.yes.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.confirm.yes.control-id",
+        "Passed": true,
+        "Detail": "userId 8121 (expected 8121)"
+      },
+      {
+        "Id": "element.confirm.yes.key",
+        "Passed": true,
+        "Detail": "exui-key=confirm.yes"
+      },
+      {
+        "Id": "element.confirm.yes.name",
+        "Passed": true,
+        "Detail": "Подтвердить выключение"
+      },
+      {
+        "Id": "element.confirm.yes.rect",
+        "Passed": true,
+        "Detail": "20,240,135,80"
+      },
+      {
+        "Id": "element.confirm.yes.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.confirm.yes.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Да', fill #FF3A2020, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.confirm.yes.state1",
+        "Passed": true,
+        "Detail": "On: text 'Да', fill #FFC0392B, text #FFFFFFFF, image none, id 1/1"
+      },
+      {
+        "Id": "element.confirm.yes.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Да', fill #FF5A3030, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.confirm.yes.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.confirm.yes.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.confirm.no.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.confirm.no.control-id",
+        "Passed": true,
+        "Detail": "userId 8122 (expected 8122)"
+      },
+      {
+        "Id": "element.confirm.no.key",
+        "Passed": true,
+        "Detail": "exui-key=confirm.no"
+      },
+      {
+        "Id": "element.confirm.no.name",
+        "Passed": true,
+        "Detail": "Отменить выключение"
+      },
+      {
+        "Id": "element.confirm.no.rect",
+        "Passed": true,
+        "Detail": "165,240,135,80"
+      },
+      {
+        "Id": "element.confirm.no.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.confirm.no.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Нет', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.confirm.no.state1",
+        "Passed": true,
+        "Detail": "On: text 'Нет', fill #FFF28C28, text #FF1B1B1F, image none, id 1/1"
+      },
+      {
+        "Id": "element.confirm.no.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Нет', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.confirm.no.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.confirm.no.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "groups.registry",
+        "Passed": true,
+        "Detail": "1:Источники"
+      },
+      {
+        "Id": "groups.reference-count",
+        "Passed": true,
+        "Detail": "referenceCountField as written"
+      },
+      {
+        "Id": "resource.icon.note-dark",
+        "Passed": true,
+        "Detail": "exui-note-dark.png: 1 found, 64x64"
+      },
+      {
+        "Id": "resource.icon.note-light",
+        "Passed": true,
+        "Detail": "exui-note-light.png: 1 found, 64x64"
+      },
+      {
+        "Id": "resource.references",
+        "Passed": true,
+        "Detail": "every state image names an existing image resource"
+      },
+      {
+        "Id": "resource.donor-kept",
+        "Passed": true,
+        "Detail": "donor resources retained"
+      },
+      {
+        "Id": "bounds.Главная",
+        "Passed": true,
+        "Detail": "5 control(s) inside 320x480"
+      },
+      {
+        "Id": "bounds.Источники",
+        "Passed": true,
+        "Detail": "5 control(s) inside 320x480"
+      },
+      {
+        "Id": "bounds.Offline Page",
+        "Passed": true,
+        "Detail": "2 control(s) inside 320x480"
+      },
+      {
+        "Id": "bounds.Громкость",
+        "Passed": true,
+        "Detail": "3 control(s) inside 320x170"
+      },
+      {
+        "Id": "bounds.Источники 1",
+        "Passed": true,
+        "Detail": "2 control(s) inside 320x240"
+      },
+      {
+        "Id": "bounds.Источники 2",
+        "Passed": true,
+        "Detail": "2 control(s) inside 320x240"
+      },
+      {
+        "Id": "bounds.Выключение",
+        "Passed": true,
+        "Detail": "3 control(s) inside 320x480"
+      },
+      {
+        "Id": "container.payload-roundtrip",
+        "Passed": true,
+        "Detail": "packed payload decodes back unchanged"
+      },
+      {
+        "Id": "donor.unchanged",
+        "Passed": true,
+        "Detail": "10D9BAA98CA65BEBBDE0DF6F5ACA970CF2FBBBEA0003E5350A2FCA498B59D636"
+      }
+    ],
+    "AdapterResult": {
+      "ok": true,
+      "code": "ok",
+      "message": "written",
+      "warnings": [],
+      "extron": {
+        "installDir": "C:\\Program Files (x86)\\Extron\\GUI Designer",
+        "guiDesignerVersion": "1.28.0.7",
+        "assemblies": 40
+      },
+      "profile": {
+        "platformClass": "PBTLP300MPlatform",
+        "platformType": "TLP300M",
+        "platformTypeValue": 44,
+        "partNumber": "60-1667-02",
+        "width": 320,
+        "height": 480
+      },
+      "containers": [
+        {
+          "type": "PBPage",
+          "objectId": "100",
+          "name": "Главная",
+          "controls": 5
+        },
+        {
+          "type": "PBPage",
+          "objectId": "101",
+          "name": "Источники",
+          "controls": 5
+        },
+        {
+          "type": "PBPopupPage",
+          "objectId": "65535",
+          "name": "Offline Page",
+          "controls": 2
+        },
+        {
+          "type": "PBPopupPage",
+          "objectId": "201",
+          "name": "Громкость",
+          "controls": 3
+        },
+        {
+          "type": "PBPopupPage",
+          "objectId": "202",
+          "name": "Источники 1",
+          "controls": 2
+        },
+        {
+          "type": "PBPopupPage",
+          "objectId": "203",
+          "name": "Источники 2",
+          "controls": 2
+        },
+        {
+          "type": "PBPopupPage",
+          "objectId": "204",
+          "name": "Выключение",
+          "controls": 3
+        }
+      ],
+      "groups": [
+        {
+          "id": 1,
+          "name": "Источники"
+        }
+      ],
+      "enumValues": {
+        "platformType": 44,
+        "levelDisplay": {
+          "Gauge": 0,
+          "Slider": 1,
+          "MultistateLevel": 2,
+          "None": 3,
+          "VolumeLED": 4
+        },
+        "levelOrientation": {
+          "LeftToRight": 0,
+          "RightToLeft": 1,
+          "BottomToTop": 2,
+          "TopToBottom": 3
+        }
+      },
+      "outputBytes": 2441173
+    },
+    "HostOutput": "The system cannot find the file specified. (Exception from HRESULT: 0x80070002)",
+    "GuiDesignerVerified": false
+  },
+  "GuiDesignerVerified": false,
+  "HardwareVerified": false
+}

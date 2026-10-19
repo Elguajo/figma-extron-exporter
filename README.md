@@ -8,7 +8,8 @@
 - пересборка контейнера;
 - изменение подписи существующей кнопки с сохранением ID;
 - экспериментальная генерация **нового** экрана из JSON-описания через локальный адаптер к установленному GUI Designer;
-- проверка версионируемого ZIP-пакета `.exui/1` без Extron и преобразование в новый редактируемый `.gdl`.
+- проверка версионируемого ZIP-пакета `.exui/1` без Extron и преобразование в новый редактируемый `.gdl`;
+- `.exui/2`: несколько страниц, обычные и модальные popup, группы popup, ссылки на popup, указание навигации и карта ID для программиста.
 
 Пересобранный проект и вариант с «Музыка» прошли открытие, редактирование, Verify, штатный Save and Build и повторное открытие в GUI Designer 1.28.0.7.
 
@@ -19,6 +20,9 @@
 - [Контракт `.exui/1`](docs/exui-v1.md)
 - [Пакеты и воспроизведение](examples/exui-v1/README.md)
 - [Протокол этапа 5](verification/results/2026-10-19-exui-v1.md)
+- [Контракт `.exui/2`: страницы и popup](docs/exui-v2.md)
+- [Пакеты `.exui/2` и ручная проверка](examples/exui-v2/README.md)
+- [Протокол страниц и popup](verification/results/2026-10-19-pages-popups.md)
 - [План разработки](DEVELOPMENT_PLAN.md)
 - [Подтверждённый формат](docs/extron-format.md)
 - [Технические решения](docs/decisions.md)
@@ -43,7 +47,7 @@
 | Папка | Назначение | Зависит от Extron |
 |---|---|---|
 | `src/extron` | Контейнер, NRBF-инвентаризация, редактор подписи, read-only модель проекта | нет |
-| `src/screen` | Контракт `.exui/1`, проверка ZIP/JSON, экспериментальная модель и независимый верификатор | нет |
+| `src/screen` | Контракты `.exui/1` и `.exui/2`, проверка ZIP/JSON, экспериментальная модель, карта ID и независимый верификатор | нет |
 | `src/adapter` | Реестр доноров, граница процесса, x86-хост `host/ExtronAdapterHost.ps1` | только в дочернем процессе |
 | `src/cli` | Консольные команды | через adapter |
 
@@ -64,6 +68,7 @@ $dotnet = '.\.tools\dotnet\dotnet.exe'
 ```powershell
 & $dotnet run --project src/cli --no-build -- inspect samples/original/Full-Test-Project.gdl
 & $dotnet run --project src/cli --no-build -- list-controls output/first-screen/first-screen-1025m.gdl
+& $dotnet run --project src/cli --no-build -- compare-graph <a.gdl> <b.gdl>
 ```
 
 `inspect` выводит JSON:
@@ -77,9 +82,13 @@ $dotnet = '.\.tools\dotnet\dotnet.exe'
 - профиль панели (класс платформы, part number, размер);
 - страницы и popup;
 - элементы с objectId и controlId, геометрию и текст;
-- состояния и ресурсы.
+- состояния и ресурсы;
+- у popup — модальность, группу и обратные ссылки, у ссылок на popup — привязку, реестр групп проекта;
+- статус Build, VersionInfo и номера изображений Build (TLPImageID).
 
-Обе команды читают и файл после Save and Build. Открытие в GUI Designer они не проверяют.
+`compare-graph` сравнивает два проекта по графу объектов NRBF без учёта ID записей и выводит до 50 различий с путями. Отдельно приводятся различия без `List<T>._version` — счётчика изменений .NET без значения для проекта.
+
+Эти команды читают и файл после Save and Build. Открытие в GUI Designer они не проверяют.
 
 ## Пересобрать контейнер
 
@@ -101,6 +110,23 @@ New-Item -ItemType Directory -Force output/exui-v1 | Out-Null
 ```
 
 Доноры должны быть подготовлены (команды ниже). `validate-package` не требует Extron. `convert-package` выбирает локального закреплённого донора по профилю, проверяет ZIP, встроенные схемы, ссылки, ID и ресурсы; затем использует существующий генератор и независимый NRBF verifier. Одновременно создаётся `<output>.report.json`; существующий GDL или report не перезаписывается. Каждый повтор — новый файл; сохранение ручных правок GDL не обещается. Поддержано строго ограниченное подмножество: одна страница, button, label, PBLevel/Slider слева направо 0..100, три роли состояний, Arial, PNG. [Полные правила и диагностика](docs/exui-v1.md).
+
+## Пакет `.exui/2`: страницы и popup
+
+```powershell
+& $dotnet run --project src/cli --no-build -- validate-package examples/exui-v2/pages-popups-1025m.exui
+& $dotnet run --project src/cli --no-build -- id-map examples/exui-v2/pages-popups-1025m.exui
+& $dotnet run --project src/cli --no-build -- convert-package examples/exui-v2/pages-popups-1025m.exui output/exui-v2/new-1025m.gdl
+```
+
+Версия выбирается маркером манифеста. К элементам v1 добавлены:
+- несколько страниц со способом показа: стартовая, по кнопке или программой;
+- обычные popup — свой размер, прямая ссылка или группа;
+- модальные popup — полный холст; ссылки на них Build создаёт сам;
+- группы popup и элемент `popup-ref`;
+- поле `navigate` у кнопок.
+
+Переходы в GDL не хранятся — их выполняет программа управления. `id-map` выдаёт карту ID: страницы и popup, как они показываются, все ID с состояниями и целями переходов. Связь popup пишется и проверяется во всех четырёх местах проекта. [Контракт](docs/exui-v2.md). GUI-проверка результатов `exui/2` ещё не выполнена.
 
 ## Экспериментальная генерация собственного экрана
 
@@ -157,12 +183,13 @@ New-Item -ItemType Directory -Force output/exui-v1 | Out-Null
 & $dotnet run --project tests/format --no-build -- samples/original/Full-Test-Project.gdl 'C:\Users\Public\Documents\Extron\GUI Designer Templates\TouchLink Templates' --built output/Full-Test-Project-music.gdl --registry samples/donors.json --integration
 ```
 
-Без аргументов выполняются 90 проверок без Extron и без локальных образцов:
+Без аргументов выполняются 121 проверка без Extron и без локальных образцов:
 - контейнер, включая многозаписный;
 - редактор подписи;
 - описание экрана и его ошибки;
 - граница адаптера;
-- `.exui/1`: схемы, ресурсы, состояния, ID, отказы ZIP/JSON, пути и целостность.
+- `.exui/1`: схемы, ресурсы, состояния, ID, отказы ZIP/JSON, пути и целостность;
+- `.exui/2`: страницы, popup, группы, ссылки, навигация, карта ID и 25 видов отказа.
 
 Дополнительные аргументы:
 - первый позиционный — 10 проверок реального Full-Test-Project;
@@ -170,9 +197,10 @@ New-Item -ItemType Directory -Force output/exui-v1 | Out-Null
 - `--built <файл>` — файл после ручного Save and Build;
 - `--registry samples/donors.json` — доноры и отказы реестра;
 - `--gui-built-screens <папка>` — файлы `first-screen-*.gdl` после ручного Save and Build: запись `.tgz4`, TLPImageID, совпадение с описанием (нужен `--registry`);
+- `--gui-built-pages <папка>` — файлы `pages-popups-*.gdl` после ручного Save and Build: дополнительно ссылки Build на модальные popup и сохранность привязок (нужен `--registry`);
 - `--integration` — реальная генерация обеих панелей через GUI Designer, детерминированность, сохранность ID, отказы хоста и неизменность исходников.
 
-Полный прогон этапа 5: 167 passed, 0 failed (`verification/results/2026-10-19-exui-v1-tests.txt`), включая `--gui-built-screens output/first-screen`. Дополнительные интеграционные проверки сравнивают пакетный результат с экспериментальным GDL побайтово для обеих панелей, проверяют детерминированность, ID после изменений и отсутствие конечных файлов при отказе. Исторический прогон этапа 4: 124 passed, 0 failed. Набор возвращает ненулевой код при ошибке.
+Полный прогон со страницами и popup: 203 passed, 0 failed (`verification/results/2026-10-19-pages-popups-tests.txt`). Полный прогон этапа 5: 167 passed, 0 failed (`verification/results/2026-10-19-exui-v1-tests.txt`), включая `--gui-built-screens output/first-screen`. Дополнительные интеграционные проверки сравнивают пакетный результат с экспериментальным GDL побайтово для обеих панелей, проверяют детерминированность, ID после изменений и отсутствие конечных файлов при отказе. Исторический прогон этапа 4: 124 passed, 0 failed. Набор возвращает ненулевой код при ошибке.
 
 Исходный GDL скопирован из родительской папки; SHA-256 указан в `samples/manifest.json`. Доноры закреплены SHA-256 в `samples/donors.json`. Крупные сторонние образцы, доноры и сгенерированные проекты исключены из Git. При переносе репозитория образцы нужно предоставить отдельно и сверить с манифестом; доноры воспроизводятся командой `prepare-donor`.
 

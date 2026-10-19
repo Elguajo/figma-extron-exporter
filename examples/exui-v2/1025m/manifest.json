@@ -1,0 +1,15 @@
+{
+  "schema": "exui/2",
+  "profile": "tlp-pro-1025m",
+  "screen": "screen.json",
+  "resources": [
+    {
+      "path": "assets/note-light.png",
+      "sha256": "68F16410752C4B7573A298A29066F2D9B65427599B3F243A1CEECFB901FF485B"
+    },
+    {
+      "path": "assets/note-dark.png",
+      "sha256": "D81BFB923B2464BDD82FC6F9DF8FBF21998B733B4F71C1EF095299F53ACA87B7"
+    }
+  ]
+}

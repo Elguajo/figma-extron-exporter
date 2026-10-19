@@ -131,3 +131,17 @@ SDK 10.0.402 получен официальным dotnet-install по кана�
 ## Входной пакет экспортёра
 
 Этап 5 не расширяет заявленный формат Extron. Контракт нашего ZIP `.exui/1` описан отдельно в [exui-v1.md](exui-v1.md); он понижается до прежнего плана генерации. Для обоих профилей пакетный результат побайтово совпал с экспериментальным путём; [протокол](../verification/results/2026-10-19-exui-v1.md). Build остаётся ручным действием пользователя.
+
+## Popup, группы и ссылки (19.10.2026)
+
+Наблюдения на Full-Test-Project и его копии после Save and Build; протокол `../verification/results/2026-10-19-pages-popups.md`.
+
+- `PBPopupPage`: `modalField`, `groupIDField` (UInt16, 0 — без группы), `groupNameField`, `hasReferencesField`, `popupReferencesField` (`List<PBPopupReference>`), `timeoutField`.
+- `PBPopupPageReference` (элемент страницы): `modalField` и `popupPageIDField` → `PBPopupPageID` {`popupIDField` UInt64, `groupIDField` UInt16, `popupNameField`, `groupNameField`}.
+  - Прямая привязка: popupID — ID popup, groupID 0. Так в эталоне привязан «Volume Level».
+  - Привязка к группе: popupID = UInt64.Max, groupID — ID группы.
+- `PBPopupReference` (наследует `PBObjectReference`): `projectIDField` (= `PBProject.idField`, строка GUID), `pageIDField`, `popupPageIDField` (UInt64.Max для элемента на странице), `objectIDField`, `objectTypeField` (Control = 3).
+- `PBProject.popupPageGroupsField` — `List<PBControlGroup>` {name, id, referenceCount, index}. В эталоне пуст.
+- Save and Build добавляет на каждую страницу полноэкранную ссылку (Modal = true) на каждый модальный popup и обратные ссылки к ним. При выключенной Offline-странице Offline popup ссылок не получает.
+- После сохранения в GUI `PBProject.idField` получает новое значение.
+- Действия кнопок (`PanelBuilder.PBActionShowPage` и другие) присутствуют в сборке только как типы; в сериализуемых полях элементов их нет. Переходы между страницами в GDL не хранятся.

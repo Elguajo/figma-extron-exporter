@@ -24,9 +24,11 @@ public sealed class ExuiPackage : IDisposable
     public string ScreenSha256 { get; }
     public ExuiProfile Profile { get; }
     public GeneratePlan Plan { get; }
+    /// <summary>"exui/1" (one page) or "exui/2" (pages, popups, groups, navigation intent).</summary>
+    public string Contract { get; }
 
-    private ExuiPackage(string work, string sha, string screenSha, ExuiProfile profile, GeneratePlan plan)
-    { this.work = work; Sha256 = sha; ScreenSha256 = screenSha; Profile = profile; Plan = plan; }
+    private ExuiPackage(string work, string sha, string screenSha, ExuiProfile profile, GeneratePlan plan, string contract)
+    { this.work = work; Sha256 = sha; ScreenSha256 = screenSha; Profile = profile; Plan = plan; Contract = contract; }
 
     public static ExuiProfile GetProfile(string id) => id switch
     {
@@ -70,8 +72,12 @@ public sealed class ExuiPackage : IDisposable
                 throw new ExuiException("package-entries", "manifest.json and screen.json are required at ZIP root.");
             var manifest = ContractJson.Read(manifestBytes, "manifest.json");
             var screen = ContractJson.Read(screenBytes, "screen.json");
-            ContractJson.Validate(manifest, "manifest");
-            ContractJson.Validate(screen, "screen");
+            // The manifest marker selects the contract; there is no fallback between versions.
+            int version = manifest.ValueKind == JsonValueKind.Object && manifest.TryGetProperty("schema", out var marker) && marker.ValueKind == JsonValueKind.String
+                ? marker.GetString() switch { "exui/1" => 1, "exui/2" => 2, _ => 0 } : 0;
+            if (version == 0) throw new ExuiException("package-schema", "manifest.json: schema must be \"exui/1\" or \"exui/2\".");
+            ContractJson.Validate(manifest, version, "manifest");
+            ContractJson.Validate(screen, version, "screen");
             var profile = GetProfile(manifest.GetProperty("profile").GetString()!);
             var declared = new HashSet<string>(StringComparer.Ordinal);
             foreach (var resource in manifest.GetProperty("resources").EnumerateArray())
@@ -89,34 +95,42 @@ public sealed class ExuiPackage : IDisposable
             if (assetPaths.Distinct(StringComparer.Ordinal).Count() != assetPaths.Length || !declared.SetEquals(assetPaths))
                 throw new ExuiException("package-resource", "screen.assets must reference each manifest resource exactly once.");
 
-            // Lower v1 to the proven experimental model. State identity is explicit and independent of
-            // input order: v1 fixes normal=0, feedback=1, pressed=2; no IDs are inferred from array order.
+            // Lower to the proven experimental model. State identity is explicit and independent of
+            // input order: normal=0, feedback=1, pressed=2; no IDs are inferred from array order.
             var lowered = ContractJson.LowerNumbers(screen)!.AsObject();
             lowered["schema"] = ScreenSpecReader.Schema;
             lowered["panel"] = profile.Panel;
-            foreach (var element in lowered["elements"]!.AsArray())
-            {
-                if ((string?)element!["kind"] != "button") continue;
-                var states = element["states"]!.AsArray();
-                var sorted = states.Select(s => s!.AsObject()).OrderBy(s => (int)s["stateId"]!).ToArray();
-                if (!sorted.Select(s => (int)s["stateId"]!).SequenceEqual(new[] { 0, 1, 2 }) ||
-                    !sorted.Select(s => (string)s["role"]!).SequenceEqual(new[] { "normal", "feedback", "pressed" }))
-                    throw new ExuiException("package-state", $"{element["key"]}: explicit stateId/role must be 0/normal, 1/feedback, 2/pressed.");
-                states.Clear();
-                foreach (var state in sorted) { state.Remove("stateId"); states.Add(state); }
-            }
+            var elementLists = version == 1
+                ? new[] { lowered["elements"]!.AsArray() }
+                : lowered["pages"]!.AsArray().Concat(lowered["popups"]!.AsArray()).Select(c => c!["elements"]!.AsArray()).ToArray();
+            foreach (var list in elementLists) SortStates(list);
             work = Directory.CreateTempSubdirectory("exui-package-").FullName;
             Directory.CreateDirectory(Path.Combine(work, "assets"));
             foreach (string file in declared) File.WriteAllBytes(Path.Combine(work, file), files[file]);
             var spec = JsonSerializer.Deserialize<ScreenSpec>(lowered.ToJsonString(), ScreenSpecReader.Json)!;
             var plan = ScreenSpecReader.Normalize(spec, profile.Panel, profile.Width, profile.Height, work);
-            return new(work, Hash(bytes), Hash(screenBytes), profile, plan);
+            return new(work, Hash(bytes), Hash(screenBytes), profile, plan, $"exui/{version}");
         }
         catch (Exception e)
         {
             if (work != null) Directory.Delete(work, true);
             if (e is InvalidDataException) throw new ExuiException("package-zip", e.Message);
             throw;
+        }
+    }
+
+    private static void SortStates(JsonArray elements)
+    {
+        foreach (var element in elements)
+        {
+            if ((string?)element!["kind"] != "button") continue;
+            var states = element["states"]!.AsArray();
+            var sorted = states.Select(s => s!.AsObject()).OrderBy(s => (int)s["stateId"]!).ToArray();
+            if (!sorted.Select(s => (int)s["stateId"]!).SequenceEqual(new[] { 0, 1, 2 }) ||
+                !sorted.Select(s => (string)s["role"]!).SequenceEqual(new[] { "normal", "feedback", "pressed" }))
+                throw new ExuiException("package-state", $"{element["key"]}: explicit stateId/role must be 0/normal, 1/feedback, 2/pressed.");
+            states.Clear();
+            foreach (var state in sorted) { state.Remove("stateId"); states.Add(state); }
         }
     }
 

@@ -1,0 +1,545 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "project",
+    "groups",
+    "pages",
+    "popups",
+    "assets"
+  ],
+  "properties": {
+    "schema": {
+      "const": "exui-screen/2"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/$defs/group"
+      }
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/$defs/page"
+      }
+    },
+    "popups": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/popup"
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "file",
+          "resourceName"
+        ],
+        "properties": {
+          "key": {
+            "$ref": "#/$defs/key"
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^assets/[a-z0-9][a-z0-9-]{0,63}\\.png(?![\\s\\S])"
+          },
+          "resourceName": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,95}\\.png(?![\\s\\S])"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*([.-][a-z0-9]+)*(?![\\s\\S])",
+      "maxLength": 100
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "color": {
+      "type": "string",
+      "pattern": "^#[A-Fa-f0-9]{6}(?![\\s\\S])"
+    },
+    "font": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family",
+        "size",
+        "bold"
+      ],
+      "properties": {
+        "family": {
+          "const": "Arial"
+        },
+        "size": {
+          "type": "number",
+          "minimum": 4,
+          "maximum": 200
+        },
+        "bold": {
+          "type": "boolean"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stateId",
+        "name",
+        "role",
+        "text",
+        "fill",
+        "textColor"
+      ],
+      "properties": {
+        "stateId": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "role": {
+          "enum": [
+            "normal",
+            "feedback",
+            "pressed"
+          ]
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "fill": {
+          "$ref": "#/$defs/color"
+        },
+        "textColor": {
+          "$ref": "#/$defs/color"
+        },
+        "image": {
+          "$ref": "#/$defs/key"
+        },
+        "imageAlign": {
+          "enum": [
+            "top-center",
+            "middle-center"
+          ]
+        },
+        "textAlign": {
+          "enum": [
+            "bottom-center",
+            "middle-center"
+          ]
+        }
+      }
+    },
+    "button": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "font",
+        "states",
+        "press"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "button"
+        },
+        "font": {
+          "$ref": "#/$defs/font"
+        },
+        "states": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/state"
+          }
+        },
+        "press": {
+          "$ref": "#/$defs/text"
+        },
+        "navigate": {
+          "$ref": "#/$defs/key"
+        }
+      }
+    },
+    "label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "text",
+        "textColor",
+        "font"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "null"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "label"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "textColor": {
+          "$ref": "#/$defs/color"
+        },
+        "font": {
+          "$ref": "#/$defs/font"
+        }
+      }
+    },
+    "level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "display",
+        "orientation",
+        "min",
+        "max",
+        "fillColor"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "level"
+        },
+        "display": {
+          "const": "slider"
+        },
+        "orientation": {
+          "const": "left-to-right"
+        },
+        "min": {
+          "const": 0
+        },
+        "max": {
+          "const": 100
+        },
+        "fillColor": {
+          "$ref": "#/$defs/color"
+        }
+      }
+    },
+    "popupRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "null"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "popup-ref"
+        },
+        "popup": {
+          "$ref": "#/$defs/key"
+        },
+        "group": {
+          "$ref": "#/$defs/key"
+        }
+      }
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "name",
+        "background",
+        "shownBy",
+        "elements"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65534
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "background": {
+          "$ref": "#/$defs/color"
+        },
+        "shownBy": {
+          "enum": [
+            "start",
+            "navigation",
+            "program"
+          ]
+        },
+        "elements": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/button"
+              },
+              {
+                "$ref": "#/$defs/label"
+              },
+              {
+                "$ref": "#/$defs/level"
+              },
+              {
+                "$ref": "#/$defs/popupRef"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "popup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "name",
+        "background",
+        "modal",
+        "shownBy",
+        "elements"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65534
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "background": {
+          "$ref": "#/$defs/color"
+        },
+        "modal": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1280
+          }
+        },
+        "group": {
+          "$ref": "#/$defs/key"
+        },
+        "shownBy": {
+          "enum": [
+            "navigation",
+            "program"
+          ]
+        },
+        "elements": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/button"
+              },
+              {
+                "$ref": "#/$defs/label"
+              },
+              {
+                "$ref": "#/$defs/level"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "groupId",
+        "name"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "groupId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    }
+  }
+}
