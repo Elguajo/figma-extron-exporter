@@ -1,0 +1,108 @@
+
+> figma-extron-exporter-plugin@0.1.1 test
+> node --test test/*.test.ts
+
+✔ Demo 1025m: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256 (22.9741ms)
+✔ Demo 300m: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256 (6.2776ms)
+✔ IDs and explicit state IDs survive layer order, state order, texts and geometry edits (2.1293ms)
+✔ Export refuses duplicate object ID (1.2443ms)
+✔ Export refuses duplicate control ID (0.6754ms)
+✔ Export refuses copied node owner (1.0985ms)
+✔ Export refuses semantic key inferred from text (0.4983ms)
+✔ Export refuses fractional coordinate (0.4618ms)
+✔ Export refuses inherited rotation (0.4194ms)
+✔ Export refuses outside canvas (0.4756ms)
+✔ Export refuses wrong panel size (0.379ms)
+✔ Export refuses unknown child (0.5066ms)
+✔ Export refuses hidden control (0.373ms)
+✔ Export refuses gradient (0.362ms)
+✔ Export refuses effects (0.3616ms)
+✔ Export refuses mixed pressed/feedback (0.5654ms)
+✔ Export refuses missing state (0.4931ms)
+✔ Export refuses states different only in alignment (0.8962ms)
+✔ Export refuses different state fonts (0.7532ms)
+✔ Export refuses unsupported font (1.1807ms)
+✔ Export refuses unsupported label alignment (0.7852ms)
+✔ Export refuses icon wrong anchor (0.5455ms)
+✔ Export refuses invalid image path (0.4751ms)
+✔ PNG render failure is fatal; no partial bundle is returned (2.5135ms)
+✖ PNG tlp-pro-1025m: hidden preview ancestors never reach rendering; source and selection stay intact (2.8373ms)
+✖ PNG tlp-pro-300m-portrait: hidden preview ancestors never reach rendering; source and selection stay intact (1.007ms)
+✖ PNG exports retain transparent Frame margins at Native 1x (1.4205ms)
+✖ Failed isolated PNG rendering leaves no temporary nodes or changed preview (59.7586ms)
+✔ Changes during async rendering abort the export (2.2333ms)
+✔ Identical asset key with different actual PNG bytes is refused (1.2093ms)
+✔ Package rejects unsafe paths, missing assets and oversize resource (24.758ms)
+✔ Text validation preserves Cyrillic and surrogate pairs, rejects broken Unicode (0.4005ms)
+✔ Figma plugin metadata survives cosmetic changes without rewriting (2.2957ms)
+✔ Built plugin: ready → create demo → check → export; preview retains all state roles (13.1778ms)
+✔ Built plugin refuses a second command while an export is pending (2.6057ms)
+✔ Built plugin saves explicit metadata, keeps rename-independent IDs and rejects wrong node types (1.339ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 32
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 560.2561
+
+✖ failing tests:
+
+test at test\export.test.ts:57:64
+✖ PNG tlp-pro-1025m: hidden preview ancestors never reach rendering; source and selection stay intact (2.8373ms)
+  Error [ExportError]: icon.note-dark: PNG не экспортирован: Error: Renderer cannot paint a hidden ancestor
+      at fail (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/src/model.ts:38:68)
+      at exportPng (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/src/read-node.ts:52:24)
+      at async exportFrame (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/src/export.ts:109:17)
+      at async TestContext.<anonymous> (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/test/export.test.ts:60:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    code: 'image-export'
+  }
+
+test at test\export.test.ts:57:64
+✖ PNG tlp-pro-300m-portrait: hidden preview ancestors never reach rendering; source and selection stay intact (1.007ms)
+  Error [ExportError]: icon.note-dark: PNG не экспортирован: Error: Renderer cannot paint a hidden ancestor
+      at fail (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/src/model.ts:38:68)
+      at exportPng (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/src/read-node.ts:52:24)
+      at async exportFrame (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/src/export.ts:109:17)
+      at async TestContext.<anonymous> (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/test/export.test.ts:60:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    code: 'image-export'
+  }
+
+test at test\export.test.ts:64:1
+✖ PNG exports retain transparent Frame margins at Native 1x (1.4205ms)
+  Error [ExportError]: icon.note-light: PNG не экспортирован: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - true
+
+      at fail (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/src/model.ts:38:68)
+      at exportPng (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/src/read-node.ts:52:24)
+      at async exportFrame (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/src/export.ts:109:17)
+      at async TestContext.<anonymous> (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/test/export.test.ts:67:3)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    code: 'image-export'
+  }
+
+test at test\export.test.ts:70:1
+✖ Failed isolated PNG rendering leaves no temporary nodes or changed preview (59.7586ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  0 !== 2
+
+      at TestContext.<anonymous> (file:///D:/PROJECTS/Tashkent/2026-10%20-%20Trilliant/figma-extron-exporter/src/figma-plugin/test/export.test.ts:73:83)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

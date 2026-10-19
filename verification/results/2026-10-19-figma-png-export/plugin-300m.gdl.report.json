@@ -1,0 +1,396 @@
+{
+  "PackageSha256": "308D0BD536D7192779AA7084FD0A6C5643823BDD95BAB3A8AC183C01CBE9823F",
+  "Contract": "exui/1",
+  "Profile": "tlp-pro-300m-portrait",
+  "Generation": {
+    "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-plugin\\png-fix\\native\\plugin-300m.gdl",
+    "OutputSha256": "72B769A72686D78A2B984A5C4D632AC4BEF5BBDD21FB736E8E0205C29CA7965A",
+    "OutputBytes": 1559360,
+    "DonorId": "tlp-pro-300m-portrait",
+    "DonorSha256": "10D9BAA98CA65BEBBDE0DF6F5ACA970CF2FBBBEA0003E5350A2FCA498B59D636",
+    "Panel": "TLP Pro 300M",
+    "SpecSha256": "E05681426E30F5D521CD6124AB9D194CCE7F7B4A5FE3D071E85019691D720E76",
+    "Checks": [
+      {
+        "Id": "profile.platform-class",
+        "Passed": true,
+        "Detail": "PBTLP300MPlatform (expected PBTLP300MPlatform)"
+      },
+      {
+        "Id": "profile.platform-type",
+        "Passed": true,
+        "Detail": "PlatformProTypeEnum value 44 (expected 44 = TLP300M)"
+      },
+      {
+        "Id": "profile.part-number",
+        "Passed": true,
+        "Detail": "60-1667-02 (expected 60-1667-02)"
+      },
+      {
+        "Id": "profile.screen",
+        "Passed": true,
+        "Detail": "screen 320x480, platform 320x480 (expected 320x480)"
+      },
+      {
+        "Id": "profile.app-version",
+        "Passed": true,
+        "Detail": "1.28.0.7"
+      },
+      {
+        "Id": "profile.checksum",
+        "Passed": true,
+        "Detail": "checksum 0"
+      },
+      {
+        "Id": "project.name",
+        "Passed": true,
+        "Detail": "exui первый экран TLP Pro 300M"
+      },
+      {
+        "Id": "page.count",
+        "Passed": true,
+        "Detail": "1 page(s), expected 1"
+      },
+      {
+        "Id": "page.default",
+        "Passed": true,
+        "Detail": "defaultPage 100"
+      },
+      {
+        "Id": "page.order",
+        "Passed": true,
+        "Detail": "pages in plan order"
+      },
+      {
+        "Id": "popup.set",
+        "Passed": true,
+        "Detail": "65535:Offline Page"
+      },
+      {
+        "Id": "popup.offline",
+        "Passed": true,
+        "Detail": "Offline Page 320x480, 2 control(s)"
+      },
+      {
+        "Id": "page.page.home.ids",
+        "Passed": true,
+        "Detail": "id 100, userId 100"
+      },
+      {
+        "Id": "page.page.home.name",
+        "Passed": true,
+        "Detail": "Главная"
+      },
+      {
+        "Id": "page.page.home.key",
+        "Passed": true,
+        "Detail": "exui-key=page.home"
+      },
+      {
+        "Id": "page.page.home.size",
+        "Passed": true,
+        "Detail": "320x480"
+      },
+      {
+        "Id": "page.page.home.background",
+        "Passed": true,
+        "Detail": "#FF14151C"
+      },
+      {
+        "Id": "page.page.home.controls",
+        "Passed": true,
+        "Detail": "4 control(s), expected 4"
+      },
+      {
+        "Id": "page.page.home.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "element.source.music.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.source.music.control-id",
+        "Passed": true,
+        "Detail": "userId 8101 (expected 8101)"
+      },
+      {
+        "Id": "element.source.music.key",
+        "Passed": true,
+        "Detail": "exui-key=source.music"
+      },
+      {
+        "Id": "element.source.music.name",
+        "Passed": true,
+        "Detail": "Источник Музыка"
+      },
+      {
+        "Id": "element.source.music.rect",
+        "Passed": true,
+        "Detail": "40,40,240,120"
+      },
+      {
+        "Id": "element.source.music.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.source.music.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Музыка', fill #FF242634, text #FFFFFFFF, image exui-note-light.png, id 0/0"
+      },
+      {
+        "Id": "element.source.music.state1",
+        "Passed": true,
+        "Detail": "On: text 'Музыка', fill #FFF28C28, text #FF1B1B1F, image exui-note-dark.png, id 1/1"
+      },
+      {
+        "Id": "element.source.music.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Музыка', fill #FF3A3D52, text #FFFFFFFF, image exui-note-light.png, id 2/2"
+      },
+      {
+        "Id": "element.source.music.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.source.music.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.volume.caption.type",
+        "Passed": true,
+        "Detail": "PBLabel"
+      },
+      {
+        "Id": "element.volume.caption.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.volume.caption.key",
+        "Passed": true,
+        "Detail": "exui-key=volume.caption"
+      },
+      {
+        "Id": "element.volume.caption.name",
+        "Passed": true,
+        "Detail": "Подпись громкости"
+      },
+      {
+        "Id": "element.volume.caption.rect",
+        "Passed": true,
+        "Detail": "40,190,240,40"
+      },
+      {
+        "Id": "element.volume.caption.text",
+        "Passed": true,
+        "Detail": "Громкость"
+      },
+      {
+        "Id": "element.volume.caption.text-color",
+        "Passed": true,
+        "Detail": "#FFFFFFFF"
+      },
+      {
+        "Id": "element.volume.level.type",
+        "Passed": true,
+        "Detail": "PBLevel"
+      },
+      {
+        "Id": "element.volume.level.control-id",
+        "Passed": true,
+        "Detail": "userId 8103 (expected 8103)"
+      },
+      {
+        "Id": "element.volume.level.key",
+        "Passed": true,
+        "Detail": "exui-key=volume.level"
+      },
+      {
+        "Id": "element.volume.level.name",
+        "Passed": true,
+        "Detail": "Громкость"
+      },
+      {
+        "Id": "element.volume.level.rect",
+        "Passed": true,
+        "Detail": "40,240,240,36"
+      },
+      {
+        "Id": "element.volume.level.level",
+        "Passed": true,
+        "Detail": "display 1, orientation 0, 0..100"
+      },
+      {
+        "Id": "element.volume.level.fill",
+        "Passed": true,
+        "Detail": "#FFF28C28"
+      },
+      {
+        "Id": "element.volume.mute.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.volume.mute.control-id",
+        "Passed": true,
+        "Detail": "userId 8104 (expected 8104)"
+      },
+      {
+        "Id": "element.volume.mute.key",
+        "Passed": true,
+        "Detail": "exui-key=volume.mute"
+      },
+      {
+        "Id": "element.volume.mute.name",
+        "Passed": true,
+        "Detail": "Mute"
+      },
+      {
+        "Id": "element.volume.mute.rect",
+        "Passed": true,
+        "Detail": "80,310,160,80"
+      },
+      {
+        "Id": "element.volume.mute.state-count",
+        "Passed": true,
+        "Detail": "3 state(s)"
+      },
+      {
+        "Id": "element.volume.mute.state0",
+        "Passed": true,
+        "Detail": "Off: text 'Без звука', fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.volume.mute.state1",
+        "Passed": true,
+        "Detail": "On: text 'Без звука', fill #FFC0392B, text #FFFFFFFF, image none, id 1/1"
+      },
+      {
+        "Id": "element.volume.mute.state2",
+        "Passed": true,
+        "Detail": "Pressed: text 'Без звука', fill #FF3A3D52, text #FFFFFFFF, image none, id 2/2"
+      },
+      {
+        "Id": "element.volume.mute.press-feedback",
+        "Passed": true,
+        "Detail": "press state 2"
+      },
+      {
+        "Id": "element.volume.mute.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "groups.registry",
+        "Passed": true,
+        "Detail": ""
+      },
+      {
+        "Id": "groups.reference-count",
+        "Passed": true,
+        "Detail": "referenceCountField as written"
+      },
+      {
+        "Id": "resource.icon.note-dark",
+        "Passed": true,
+        "Detail": "exui-note-dark.png: 1 found, 64x64"
+      },
+      {
+        "Id": "resource.icon.note-light",
+        "Passed": true,
+        "Detail": "exui-note-light.png: 1 found, 64x64"
+      },
+      {
+        "Id": "resource.references",
+        "Passed": true,
+        "Detail": "every state image names an existing image resource"
+      },
+      {
+        "Id": "resource.donor-kept",
+        "Passed": true,
+        "Detail": "donor resources retained"
+      },
+      {
+        "Id": "bounds.Главная",
+        "Passed": true,
+        "Detail": "4 control(s) inside 320x480"
+      },
+      {
+        "Id": "bounds.Offline Page",
+        "Passed": true,
+        "Detail": "2 control(s) inside 320x480"
+      },
+      {
+        "Id": "container.payload-roundtrip",
+        "Passed": true,
+        "Detail": "packed payload decodes back unchanged"
+      },
+      {
+        "Id": "donor.unchanged",
+        "Passed": true,
+        "Detail": "10D9BAA98CA65BEBBDE0DF6F5ACA970CF2FBBBEA0003E5350A2FCA498B59D636"
+      }
+    ],
+    "AdapterResult": {
+      "ok": true,
+      "code": "ok",
+      "message": "written",
+      "warnings": [],
+      "extron": {
+        "installDir": "C:\\Program Files (x86)\\Extron\\GUI Designer",
+        "guiDesignerVersion": "1.28.0.7",
+        "assemblies": 40
+      },
+      "profile": {
+        "platformClass": "PBTLP300MPlatform",
+        "platformType": "TLP300M",
+        "platformTypeValue": 44,
+        "partNumber": "60-1667-02",
+        "width": 320,
+        "height": 480
+      },
+      "containers": [
+        {
+          "type": "PBPage",
+          "objectId": "100",
+          "name": "Главная",
+          "controls": 4
+        },
+        {
+          "type": "PBPopupPage",
+          "objectId": "65535",
+          "name": "Offline Page",
+          "controls": 2
+        }
+      ],
+      "groups": [],
+      "enumValues": {
+        "platformType": 44,
+        "levelDisplay": {
+          "Gauge": 0,
+          "Slider": 1,
+          "MultistateLevel": 2,
+          "None": 3,
+          "VolumeLED": 4
+        },
+        "levelOrientation": {
+          "LeftToRight": 0,
+          "RightToLeft": 1,
+          "BottomToTop": 2,
+          "TopToBottom": 3
+        }
+      },
+      "outputBytes": 2400028
+    },
+    "HostOutput": "The system cannot find the file specified. (Exception from HRESULT: 0x80070002)",
+    "GuiDesignerVerified": false
+  },
+  "GuiDesignerVerified": false,
+  "HardwareVerified": false
+}

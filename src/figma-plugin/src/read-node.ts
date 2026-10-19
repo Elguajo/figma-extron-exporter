@@ -46,8 +46,14 @@ export function readText(node: TextNode) {
   return { text: text(node.characters,node.name), textColor: color(node), font: font(node) };
 }
 export async function exportPng(node: SceneNode): Promise<Uint8Array> {
+  let temporary:SceneNode|undefined;
   try {
-    // Keep the upstream native PNG path; never silently skip a required resource.
-    return await node.exportAsync({ format:'PNG', constraint:{ type:'SCALE', value:1 } });
+    // Export independently of hidden/clipping State ancestors. The original
+    // preview, identity and geometry are never toggled or reparented.
+    temporary=node.clone();figma.currentPage.appendChild(temporary);temporary.visible=true;
+    const right=Math.max(0,...figma.currentPage.children.filter(n=>n!==temporary).map(n=>n.x+n.width));
+    temporary.x=Math.ceil(right)+128;temporary.y=0;
+    return await temporary.exportAsync({ format:'PNG', constraint:{ type:'SCALE', value:1 }, useAbsoluteBounds:true, contentsOnly:true });
   } catch (e) { return fail('image-export', `${node.name}: PNG не экспортирован: ${String(e)}`); }
+  finally {if(temporary&&!temporary.removed)temporary.remove();}
 }

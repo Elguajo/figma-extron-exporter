@@ -1,0 +1,65 @@
+
+> figma-extron-exporter-plugin@0.1.2 verify
+> npm run typecheck && npm test && npm run build
+
+
+> figma-extron-exporter-plugin@0.1.2 typecheck
+> tsc --noEmit && tsc -p tsconfig.ui.json --noEmit
+
+
+> figma-extron-exporter-plugin@0.1.2 test
+> node --test test/*.test.ts
+
+✔ Demo 1025m: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256 (19.3719ms)
+✔ Demo 300m: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256 (8.1674ms)
+✔ IDs and explicit state IDs survive layer order, state order, texts and geometry edits (6.7722ms)
+✔ Export refuses duplicate object ID (1.2114ms)
+✔ Export refuses duplicate control ID (0.7406ms)
+✔ Export refuses copied node owner (0.5098ms)
+✔ Export refuses semantic key inferred from text (0.5773ms)
+✔ Export refuses fractional coordinate (0.5376ms)
+✔ Export refuses inherited rotation (0.5045ms)
+✔ Export refuses outside canvas (0.5075ms)
+✔ Export refuses wrong panel size (0.3986ms)
+✔ Export refuses unknown child (0.5145ms)
+✔ Export refuses hidden control (0.4339ms)
+✔ Export refuses gradient (0.4348ms)
+✔ Export refuses effects (0.3641ms)
+✔ Export refuses mixed pressed/feedback (0.4195ms)
+✔ Export refuses missing state (0.4034ms)
+✔ Export refuses states different only in alignment (0.5838ms)
+✔ Export refuses different state fonts (0.454ms)
+✔ Export refuses unsupported font (0.5059ms)
+✔ Export refuses unsupported label alignment (1.4392ms)
+✔ Export refuses icon wrong anchor (0.6618ms)
+✔ Export refuses invalid image path (0.5054ms)
+✔ PNG render failure is fatal; no partial bundle is returned (1.0353ms)
+✔ PNG tlp-pro-1025m: hidden preview ancestors never reach rendering; source and selection stay intact (1.4772ms)
+✔ PNG tlp-pro-300m-portrait: hidden preview ancestors never reach rendering; source and selection stay intact (1.7718ms)
+✔ PNG exports retain transparent Frame margins at Native 1x (1.6503ms)
+✔ Failed isolated PNG rendering leaves no temporary nodes or changed preview (2.8735ms)
+✔ Native PNG size mismatch remains fatal and reports received versus expected dimensions (1.0347ms)
+✔ Changes during async rendering abort the export (2.2858ms)
+✔ Identical asset key with different actual PNG bytes is refused (2.7677ms)
+✔ Package rejects unsafe paths, missing assets and oversize resource (20.8615ms)
+✔ Text validation preserves Cyrillic and surrogate pairs, rejects broken Unicode (0.2675ms)
+✔ Figma plugin metadata survives cosmetic changes without rewriting (0.7848ms)
+✔ Built plugin: ready → create demo → check → export; preview retains all state roles (14.1938ms)
+✔ Built plugin refuses a second command while an export is pending (2.1484ms)
+✔ Built plugin saves explicit metadata, keeps rename-independent IDs and rejects wrong node types (1.1855ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 242.1774
+
+> figma-extron-exporter-plugin@0.1.2 build
+> node build.mjs
+
+
+  dist\code.js  82.7kb
+
+Done in 4ms

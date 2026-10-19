@@ -18,11 +18,10 @@ test('Built plugin: ready → create demo → check → export; preview retains 
 });
 test('Built plugin refuses a second command while an export is pending',async()=>{
   const p=plugin();await p.send({type:'demo',profile:'tlp-pro-1025m'});
-  let resolve!:()=>void;const gate=new Promise<void>(r=>resolve=r);const icon=p.page.selection[0].children[0].children[0].children[1];const original=icon.exportAsync.bind(icon);
-  icon.exportAsync=async()=>{await gate;return original();};
+  let resolve!:()=>void;const gate=new Promise<void>(r=>resolve=r);p.setRenderHook(async()=>{await gate;});
   const pending=p.send({type:'export'});await p.send({type:'demo',profile:'tlp-pro-300m-portrait'});
-  assert.ok(p.messages.some(m=>m.type==='error'&&String(m.message).includes('Дождитесь')));assert.equal(p.page.children.length,1);
-  resolve();await pending;
+  assert.ok(p.messages.some(m=>m.type==='error'&&String(m.message).includes('Дождитесь')));assert.equal(p.page.children.filter(n=>JSON.parse(n.getPluginData('exui')||'null')?.kind==='page').length,1);
+  resolve();await pending;assert.equal(p.page.children.length,1);
 });
 test('Built plugin saves explicit metadata, keeps rename-independent IDs and rejects wrong node types',async()=>{
   const p=plugin();await p.send({type:'demo',profile:'tlp-pro-300m-portrait'});const root=p.page.selection[0];p.page.selection=[root.children[1]];

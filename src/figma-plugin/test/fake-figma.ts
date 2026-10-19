@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 export function fakeFigma() {
   let counter=0;
   const images=new Map<string,Uint8Array>();
-  let renderHook:(node:FakeNode)=>void=()=>{};
+  let renderHook:(node:FakeNode,settings:any)=>void|Promise<void>=()=>{};
   const listeners=new Map<string,(()=>void)[]>();
   class FakeNode {
     id=String(++counter);name='';type:string;parent:FakeNode|null=null;children:FakeNode[]=[];width=1;height=1;x=0;y=0;removed=false;
@@ -19,7 +19,11 @@ export function fakeFigma() {
     getPluginData(k:string){return this.data.get(k)??'';}
     setPluginData(k:string,v:string){this.data.set(k,v);}
     remove(){for(const c of [...this.children])c.remove();if(this.parent)this.parent.children.splice(this.parent.children.indexOf(this),1);this.removed=true;}
-    async exportAsync(){renderHook(this);const fill=this.fills[0] as {imageHash?:string};if(!fill?.imageHash)throw new Error('Fixture exports only image fills');return new Uint8Array(images.get(fill.imageHash)!);}
+    clone():FakeNode {
+      const copyTree=(source:FakeNode):FakeNode=>{const copy=new FakeNode(source.type);for(const [key,value]of Object.entries(source))if(!['id','parent','children','removed'].includes(key)&&typeof value!=='function')(copy as any)[key]=structuredClone(value);for(const child of source.children)copy.appendChild(copyTree(child));return copy;};
+      const copy=copyTree(this);this.parent?.appendChild(copy);return copy;
+    }
+    async exportAsync(settings?:unknown){await renderHook(this,settings);const fill=this.fills[0] as {imageHash?:string};if(!fill?.imageHash)throw new Error('Fixture exports only image fills');return new Uint8Array(images.get(fill.imageHash)!);}
   }
   const page=new FakeNode('PAGE') as FakeNode&{selection:FakeNode[]};page.selection=[];
   const messages:Record<string,unknown>[]=[];

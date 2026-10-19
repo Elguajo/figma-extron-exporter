@@ -1,0 +1,58 @@
+{
+  "verification/results/2026-10-19-figma-png-export/before.txt": {
+    "bytes": 6404,
+    "sha256": "8598832D9C3262CC20E5252D2BCDB8F57552A1C9B341A12D7998FC0B7E61B3EC"
+  },
+  "verification/results/2026-10-19-figma-png-export/browser-tests.txt": {
+    "bytes": 187,
+    "sha256": "BEAB0A2ABB98DC2F7912304F5D4E2D2FAFFC9A4A429D1CC73019478B3C8C807A"
+  },
+  "verification/results/2026-10-19-figma-png-export/browser.json": {
+    "bytes": 419,
+    "sha256": "E89C8D1055CC68D5F80AC9CC11BC697332EB43EAD630A84E3FEF866694DD779A"
+  },
+  "verification/results/2026-10-19-figma-png-export/integration.json": {
+    "bytes": 3060,
+    "sha256": "DA45404AEB5EF511EAEC220F94A8BC3FBDFCC7F221434DE8EDCF8A0513003E27"
+  },
+  "verification/results/2026-10-19-figma-png-export/native-tests.txt": {
+    "bytes": 288,
+    "sha256": "4D9CBA2965C15DF608FDFE8D69A345533B6EB84897EF199C31293E3A677E6FD6"
+  },
+  "verification/results/2026-10-19-figma-png-export/plugin-1025m-moved.gdl.report.json": {
+    "bytes": 11110,
+    "sha256": "57645F9D86470A1DC324DC9185301EDED429E05ED86D4C1D626E896337978BD0"
+  },
+  "verification/results/2026-10-19-figma-png-export/plugin-1025m.gdl.report.json": {
+    "bytes": 11104,
+    "sha256": "66A9E765CF1DD5753CBC473A8EAD23B8F859CC8875398C6CE55AB957ECA7794D"
+  },
+  "verification/results/2026-10-19-figma-png-export/plugin-300m-moved.gdl.report.json": {
+    "bytes": 11106,
+    "sha256": "5BC2999EF1C2E07BB1CB9D39B4D50EAA9677B83C9C42E564284E96F01CABA6BC"
+  },
+  "verification/results/2026-10-19-figma-png-export/plugin-300m.gdl.report.json": {
+    "bytes": 11100,
+    "sha256": "020E43A93A9A35BF9EE1D98CAB18D76311CCE9252D415D9F4E47B9D1229AFDC7"
+  },
+  "verification/results/2026-10-19-figma-png-export/plugin-checks.txt": {
+    "bytes": 3123,
+    "sha256": "6194C4D7962917D89DF3E19AAD42629E03C9CD22E443CF9FD45B8F8C50F7CC4B"
+  },
+  "verification/results/2026-10-19-figma-png-export/user-figma-before.png": {
+    "bytes": 91635,
+    "sha256": "5193CD194828AAEDC63DA9A3B9EA708A6587E137FE694B3B24668E0453EEB0CD"
+  },
+  "releases/figma-plugin/0.1.2/figma-extron-plugin-0.1.2.zip": {
+    "bytes": 45190,
+    "sha256": "D1BA5CADEE3EDFD29323BF8AF9AB95E88648DBDD61A090FE9B8A04E2FBC58AB3"
+  },
+  "src/figma-plugin/dist/code.js": {
+    "bytes": 84712,
+    "sha256": "E36BEBD849DFEEFED7CA14F5DEBB4AB301EF8E708885E3CEFB8CFFF222667385"
+  },
+  "src/figma-plugin/dist/ui.html": {
+    "bytes": 27308,
+    "sha256": "A08FFDAFBAE243077085A734A5873D8D8EB90510E010DADBEC1D171BD30A9F1A"
+  }
+}

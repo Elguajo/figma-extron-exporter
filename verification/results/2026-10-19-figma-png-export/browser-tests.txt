@@ -1,0 +1,1 @@
+PASS Chromium plugin UI: both downloads, metadata form, error recovery, no page errors. D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\output\figma-plugin\png-fix\browser

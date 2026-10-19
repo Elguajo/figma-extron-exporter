@@ -13,7 +13,7 @@ function frame(node: SceneNode): asserts node is FrameNode {
 function snapshot(node: SceneNode): unknown {
   // Detect edits across async PNG exports; no package may silently combine two design revisions.
   const props: Record<string,unknown>={ metadata:node.getPluginData(DATA_KEY) };
-  for(const field of ['id','type','name','visible','opacity','relativeTransform','width','height','fills','strokes','strokeWeight','effects','cornerRadius','blendMode','isMask','reactions','characters','fontName','fontSize','fontWeight','lineHeight','letterSpacing','textCase','textDecoration','textAlignHorizontal','textAlignVertical','vectorPaths','vectorNetwork','arcData','pointCount','innerRadius'])
+  for(const field of ['id','type','name','visible','opacity','clipsContent','relativeTransform','width','height','fills','strokes','strokeWeight','effects','cornerRadius','blendMode','isMask','reactions','characters','fontName','fontSize','fontWeight','lineHeight','letterSpacing','textCase','textDecoration','textAlignHorizontal','textAlignVertical','vectorPaths','vectorNetwork','arcData','pointCount','innerRadius'])
     if(field in node) props[field]=(node as unknown as Record<string,unknown>)[field];
   if('children' in node) props.children=node.children.map(snapshot);
   return props;
@@ -110,7 +110,7 @@ export async function exportFrame(root:SceneNode, progress:(message:string)=>voi
     if(bytes.length>4*1024*1024) fail('image-size',`${asset.key}: PNG больше 4 MiB.`);
     if(bytes.length<33) fail('image-size',`${asset.key}: PNG повреждён.`);
     const size=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
-    if(size.getUint32(16)!==Math.round(node.width)||size.getUint32(20)!==Math.round(node.height)) fail('image-size',`${asset.key}: PNG должен совпадать с Native размером Frame. Уберите эффекты за его границами.`);
+    if(size.getUint32(16)!==Math.round(node.width)||size.getUint32(20)!==Math.round(node.height)) fail('image-size',`${asset.key}: PNG ${size.getUint32(16)}×${size.getUint32(20)}, ожидался Native размер Frame ${Math.round(node.width)}×${Math.round(node.height)}.`);
     const previous=byPath.get(asset.file);
     if(previous&&(previous.length!==bytes.length||previous.some((v,i)=>v!==bytes[i]))) fail('image-conflict',`${asset.key}: один ключ использован для разных изображений.`);
     byPath.set(asset.file,bytes);

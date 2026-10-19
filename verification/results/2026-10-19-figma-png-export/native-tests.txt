@@ -1,0 +1,3 @@
+PASS tlp-pro-1025m: .exui → CLI validation → editable .gdl, 65/65, IDs preserved
+PASS tlp-pro-300m-portrait: .exui → CLI validation → editable .gdl, 65/65, IDs preserved
+Evidence: D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\output\figma-plugin\png-fix\native

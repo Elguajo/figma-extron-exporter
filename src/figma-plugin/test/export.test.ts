@@ -53,6 +53,33 @@ for(const [name,change,code] of [
   ['invalid image path',(r:any)=>edit(r.children[0].children[0].children[1],{file:'../escape.png'}),'image'],
 ] as const)test(`Export refuses ${name}`,async()=>{const {root}=await fixture();change(root);assert.throws(()=>capture(root),(e:any)=>e.code===code);});
 test('PNG render failure is fatal; no partial bundle is returned',async()=>{const {fake,root}=await fixture();fake.setRenderHook(()=>{throw new Error('render failed');});await assert.rejects(exportFrame(root),(e:any)=>e.code==='image-export');});
+
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'])test(`PNG ${profile}: hidden preview ancestors never reach rendering; source and selection stay intact`,async()=>{
+  const {fake,root}=await fixture(profile),before=capture(root).signature;
+  fake.setRenderHook(node=>{for(let parent=node.parent;parent;parent=parent.parent)if(!parent.visible)throw new Error('Renderer cannot paint a hidden ancestor');});
+  const bundle=await exportFrame(root);assert.equal(bundle.resources.length,2);
+  assert.equal(capture(root).signature,before);assert.deepEqual(fake.page.children,[root]);assert.deepEqual(fake.page.selection,[root]);
+});
+
+test('PNG exports retain transparent Frame margins at Native 1x',async()=>{
+  const {fake,root}=await fixture();let renders=0;
+  fake.setRenderHook((_node,settings)=>{assert.equal(settings.useAbsoluteBounds,true);assert.equal(settings.contentsOnly,true);assert.deepEqual(settings.constraint,{type:'SCALE',value:1});renders++;});
+  await exportFrame(root);assert.equal(renders,3);
+});
+
+test('Failed isolated PNG rendering leaves no temporary nodes or changed preview',async()=>{
+  const {fake,root}=await fixture(),before=capture(root).signature;let renders=0;
+  fake.setRenderHook(node=>{assert.equal(node.parent,fake.page);assert.notEqual(node,root);if(++renders===2)throw new Error('Render failed on feedback');});
+  await assert.rejects(exportFrame(root),(e:any)=>e.code==='image-export');assert.equal(renders,2);
+  assert.equal(capture(root).signature,before);assert.deepEqual(fake.page.children,[root]);assert.deepEqual(fake.page.selection,[root]);
+});
+
+test('Native PNG size mismatch remains fatal and reports received versus expected dimensions',async()=>{
+  const {fake,root}=await fixture();const bad=new Uint8Array(icons()['icon.note-light']);new DataView(bad.buffer).setUint32(16,63);
+  const hash=fake.api.createImage(bad).hash;fake.setRenderHook(node=>{node.fills=[{type:'IMAGE',imageHash:hash}];});
+  await assert.rejects(exportFrame(root),(e:any)=>e.code==='image-size'&&e.message.includes('63×64')&&e.message.includes('64×64'));
+  assert.deepEqual(fake.page.children,[root]);
+});
 test('Changes during async rendering abort the export',async()=>{const {fake,root}=await fixture();let changed=false;fake.setRenderHook(()=>{if(!changed){root.children[1].name='Изменение';changed=true;}});await assert.rejects(exportFrame(root),(e:any)=>e.code==='design-changed');});
 test('Identical asset key with different actual PNG bytes is refused',async()=>{const {fake,root}=await fixture();let rendered=0;fake.setRenderHook((n:any)=>{if(++rendered===3){const hash=fake.api.createImage(new Uint8Array([...icons()['icon.note-light'],0])).hash;n.fills=[{type:'IMAGE',imageHash:hash}];}});await assert.rejects(exportFrame(root),(e:any)=>e.code==='image-conflict');});
 test('Package rejects unsafe paths, missing assets and oversize resource',async()=>{const {root}=await fixture();const bundle=await exportFrame(root);const bad=structuredClone(bundle);bad.resources[0].path='../escape.png';assert.throws(()=>packageExui(bad));bad.resources=[];assert.throws(()=>packageExui(bad));const large=structuredClone(bundle);large.resources[0].bytes=new Uint8Array(4*1024*1024+1);assert.throws(()=>packageExui(large));});
