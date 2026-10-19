@@ -9,3 +9,4 @@ samples/donors/*
 !samples/donors/.gitkeep
 **/node_modules/
 src/figma-plugin/dist/
+releases/figma-plugin/*/unpacked/

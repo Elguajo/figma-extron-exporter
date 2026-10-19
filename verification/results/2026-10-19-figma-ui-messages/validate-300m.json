@@ -1,0 +1,16 @@
+{
+  "contract": "exui/1",
+  "Sha256": "308D0BD536D7192779AA7084FD0A6C5643823BDD95BAB3A8AC183C01CBE9823F",
+  "Profile": {
+    "Id": "tlp-pro-300m-portrait",
+    "Panel": "TLP Pro 300M",
+    "Width": 320,
+    "Height": 480
+  },
+  "pages": 1,
+  "popups": 0,
+  "groups": 0,
+  "elements": 4,
+  "resources": 2,
+  "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+}

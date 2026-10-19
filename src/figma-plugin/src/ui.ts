@@ -25,8 +25,9 @@ $('mapping').onsubmit=event=>{
   send('apply',{data});
 };
 window.onmessage=async(event:MessageEvent)=>{
-  if(event.source!==parent)return;
-  const msg=event.data?.pluginMessage;if(!msg)return;
+  // Figma's bridge guarantees pluginMessage, not a parent Window as source.
+  // In particular, platform-dispatched MessageEvent can have source === null.
+  const msg=event.data?.pluginMessage;if(!msg||typeof msg!=='object'||typeof msg.type!=='string')return;
   if(msg.type==='selection') {
     if(selectedId!==msg.id)revokeDownload();
     selectedId=msg.id;$('selection').textContent=msg.name+(msg.nodeType?' · '+msg.nodeType:'');

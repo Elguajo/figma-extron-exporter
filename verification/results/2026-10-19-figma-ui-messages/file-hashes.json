@@ -1,0 +1,54 @@
+{
+  "verification/results/2026-10-19-figma-ui-messages/before.txt": {
+    "bytes": 560,
+    "sha256": "7E599E69654C076CEE8AD4A321543E9C42FE5EA154609204609608DDC41CF9E9"
+  },
+  "verification/results/2026-10-19-figma-ui-messages/bridge-ui.png": {
+    "bytes": 28292,
+    "sha256": "EE24A1AD1332FAB9698B132D62EEC458179BB1748952904561FFCC0215F60ACC"
+  },
+  "verification/results/2026-10-19-figma-ui-messages/browser-tests.txt": {
+    "bytes": 200,
+    "sha256": "D7ACA8995AE2ABCD59BC9A7A0B4013BFB42DB5E9C5FD1CA36F0649D7EC933F65"
+  },
+  "verification/results/2026-10-19-figma-ui-messages/browser.json": {
+    "bytes": 419,
+    "sha256": "E89C8D1055CC68D5F80AC9CC11BC697332EB43EAD630A84E3FEF866694DD779A"
+  },
+  "verification/results/2026-10-19-figma-ui-messages/npm-ci.txt": {
+    "bytes": 142,
+    "sha256": "2DC04AD7E25CEBFFCC74B134701AE66DFEA6DE3D970D46C2DBEB898D442BE9D4"
+  },
+  "verification/results/2026-10-19-figma-ui-messages/plugin-checks.txt": {
+    "bytes": 2614,
+    "sha256": "C0192692DF82C63D83C175C22B4135A72670149DD51D30572CE207FFC9FD4F13"
+  },
+  "verification/results/2026-10-19-figma-ui-messages/user-figma-before.png": {
+    "bytes": 98540,
+    "sha256": "60DF0391C21588DBFFF4EB240F4EDCC7605AD49CF70E97BDEFEB9FB4B5EF73FF"
+  },
+  "verification/results/2026-10-19-figma-ui-messages/validate-1025m.json": {
+    "bytes": 394,
+    "sha256": "ED5D03C1847DACA7C9A977C2B0E3F3911480A88C510114910E70DD6F50D1CF64"
+  },
+  "verification/results/2026-10-19-figma-ui-messages/validate-300m.json": {
+    "bytes": 400,
+    "sha256": "4D6E1F53B5048C7FEF203A81D3C99895A7A8B04AE8E5311710176C669083993B"
+  },
+  "verification/results/2026-10-19-figma-ui-messages/validate-bridge.json": {
+    "bytes": 394,
+    "sha256": "ED5D03C1847DACA7C9A977C2B0E3F3911480A88C510114910E70DD6F50D1CF64"
+  },
+  "releases/figma-plugin/0.1.1/figma-extron-plugin-0.1.1.zip": {
+    "bytes": 44921,
+    "sha256": "82B4925EED379163C3BABC20D46484E626E20FEAFED3C737D1FB30454FE30781"
+  },
+  "src/figma-plugin/dist/code.js": {
+    "bytes": 84380,
+    "sha256": "B231440C61D3631133BAE669CC6F6FD7C2D382C7B33BB3DE46BDEFD107C86C1E"
+  },
+  "src/figma-plugin/dist/ui.html": {
+    "bytes": 27308,
+    "sha256": "422CD4DC497D1DFC5E1B8082985AB76FDFED01F237C7502426ED1A5AF86068AD"
+  }
+}

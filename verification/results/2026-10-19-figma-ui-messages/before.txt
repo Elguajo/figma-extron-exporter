@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 3000ms exceeded.
+Call log:
+  - waiting for locator('iframe').contentFrame().getByText('Главная · FRAME', { exact: true }) to be visible
+
+    at C:\Users\Khusan Turaev\.codex\worktrees\figma-plugin\figma-extron-exporter\src\figma-plugin\test\browser.ts:62:56 {
+  log: [
+    "  - waiting for locator('iframe').contentFrame().getByText('Главная · FRAME', { exact: true }) to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.21.0

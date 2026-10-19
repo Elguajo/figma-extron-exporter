@@ -1,0 +1,16 @@
+{
+  "contract": "exui/1",
+  "Sha256": "79DBA891F568C2A45EE5FFB1D7C0597B2A360601E3416C831AC28D8790D0E09A",
+  "Profile": {
+    "Id": "tlp-pro-1025m",
+    "Panel": "TLP Pro 1025M",
+    "Width": 1280,
+    "Height": 800
+  },
+  "pages": 1,
+  "popups": 0,
+  "groups": 0,
+  "elements": 4,
+  "resources": 2,
+  "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+}

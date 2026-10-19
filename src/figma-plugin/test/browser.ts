@@ -16,7 +16,8 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){fakeFig
 const ui=await readFile(path.join(root,'src/figma-plugin/dist/ui.html'));
 const host=`<!doctype html><meta charset=utf-8><title>Extron plugin UI harness — Figma host mocked</title><style>body{margin:0}iframe{width:420px;height:900px;border:0}</style><script>
 const bundles=${JSON.stringify(bundles).replace(/</g,'\\u003c')};let profile='tlp-pro-1025m';window.failExport=false;window.lastMapping=null;
-const send=m=>document.querySelector('iframe').contentWindow.postMessage({pluginMessage:m},location.origin);
+window.bridgeMessages=0;
+const send=m=>{const target=document.querySelector('iframe').contentWindow;if(new URLSearchParams(location.search).get('transport')==='bridge'){target.dispatchEvent(new target.MessageEvent('message',{data:{pluginMessage:m}}));window.bridgeMessages++;}else target.postMessage({pluginMessage:m},location.origin);};
 window.onmessage=e=>{if(e.source!==document.querySelector('iframe').contentWindow)return;const m=e.data.pluginMessage;if(!m)return;
 if(m.type==='ready')send({type:'selection',id:null,name:'Выберите один элемент или Frame экрана'});
 if(m.type==='demo'){profile=m.profile;send({type:'selection',id:'demo',name:'Главная',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Демо',profile}});send({type:'success',message:'Демо создано. Можно редактировать и экспортировать выбранный экран.'});}
@@ -24,7 +25,7 @@ if(m.type==='check')send({type:'success',message:'Экран проверен: 4
 if(m.type==='apply'){window.lastMapping=m.data;send({type:'success',message:'Назначение сохранено в Figma-узле.'});}
 if(m.type==='export'){if(window.failExport)send({type:'error',message:'PNG не экспортирован: тестовый отказ рендера'});else {const bundle=structuredClone(bundles[profile]);bundle.resources.forEach(r=>r.bytes=new Uint8Array(r.bytes));send({type:'bundle',bundle});}}
 send({type:'idle'});};</script><iframe title="Figma → Extron" src="/ui.html"></iframe>`;
-const server=createServer((req,res)=>{if(req.url==='/ui.html'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(ui);}else if(req.url==='/'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(host);}else{res.statusCode=404;res.end();}});
+const server=createServer((req,res)=>{const route=req.url?.split('?')[0];if(route==='/ui.html'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(ui);}else if(route==='/'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(host);}else{res.statusCode=404;res.end();}});
 await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));const address=server.address() as {port:number};
 let browser;
 try{
@@ -52,7 +53,22 @@ try{
  await frame.getByText('<img src=x onerror=alert(1)> · FRAME',{exact:true}).waitFor();assert.equal(await frame.locator('img').count(),0);
  await page.evaluate(()=>{const w=document.querySelector('iframe')!.contentWindow!;w.postMessage({pluginMessage:{type:'selection',id:'demo',name:'Главная',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Демо',profile:'tlp-pro-300m-portrait'}}},location.origin);w.postMessage({pluginMessage:{type:'success',message:'Экран проверен: 4 элемента, 2 PNG. Готов к экспорту.'}},location.origin);});
  await frame.getByRole('status').filter({hasText:'Готов к экспорту'}).waitFor();
- await page.screenshot({path:path.join(out,'ui.png'),fullPage:true});assert.deepEqual(failures,[]);
- await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,browser:browser.version(),checks:['empty selection','keyboard navigation','both profile downloads','ZIP payload','explicit metadata form','render error recovery','text injection'],boundary:'actual Chromium UI; Figma parent messages mocked',pageErrors:failures},null,2)+'\n');
+ await page.screenshot({path:path.join(out,'ui.png'),fullPage:true});
+ // A platform bridge can dispatch MessageEvent without a Window source. The API
+ // guarantees event.data.pluginMessage, not event.source === parent.
+ await page.goto(`http://127.0.0.1:${address.port}/?transport=bridge`);
+ await frame.getByRole('button',{name:'Создать демо для этого профиля'}).click();
+ await page.waitForFunction(()=> (window as any).bridgeMessages>=4);
+ await frame.getByText('Главная · FRAME',{exact:true}).waitFor({timeout:3000});
+ assert.equal(await frame.getByRole('button',{name:'Создать демо для этого профиля'}).isEnabled(),true);
+ assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isEnabled(),true);
+ await frame.getByRole('button',{name:'Проверить экран'}).click();
+ await frame.getByRole('status').filter({hasText:'Экран проверен'}).waitFor();
+ const bridgePending=page.waitForEvent('download');await frame.getByRole('button',{name:'Скачать .exui',exact:true}).click();
+ const bridgeDownload=await bridgePending;await bridgeDownload.saveAs(path.join(out,'bridge-'+bridgeDownload.suggestedFilename()));
+ assert.deepEqual(await readFile(path.join(out,'bridge-'+bridgeDownload.suggestedFilename())),await readFile(path.join(out,bridgeDownload.suggestedFilename())));
+ await frame.getByRole('status').filter({hasText:'Пакет готов'}).waitFor();
+ await page.screenshot({path:path.join(out,'bridge-ui.png'),fullPage:true});assert.deepEqual(failures,[]);
+ await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,browser:browser.version(),checks:['empty selection','keyboard navigation','both profile downloads','ZIP payload','explicit metadata form','render error recovery','text injection','null-source bridge selection, idle, check and download'],boundary:'actual Chromium UI; Figma parent and null-source bridge messages mocked',pageErrors:failures},null,2)+'\n');
  console.log('PASS Chromium plugin UI: both downloads, metadata form, error recovery, no page errors. '+out);
 }finally{await browser?.close();await new Promise<void>((resolve,reject)=>server.close(e=>e?reject(e):resolve()));}

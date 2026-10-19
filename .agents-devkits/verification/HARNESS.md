@@ -36,6 +36,8 @@ Use a separate worktree if main has parallel edits. Current implementation start
 
 ## Known limitations
 
+Current work is directly on main by user instruction; do not create another branch/worktree without a new request. Plugin 0.1.1 additionally tests platform-style messages with a null Window source: run the same Chromium harness, which covers both transports. User screenshot confirms plugin import and demo creation, but real Figma export after this fix remains pending. See `verification/results/2026-10-19-figma-ui-messages.md`.
+
 Status is an MVP awaiting actual Figma Desktop import/render/persistence verification. Figma MCP use_figma cannot validate our private pluginData path, so it was not substituted for the classic-plugin proof. Browser/API fixtures prove their own boundaries only. Component instances/sets, history-based ID allocation, merge of manual GDL edits, navigation and hardware are unsupported/unverified. Hidden-state PNG rendering, font unit fidelity and label layout must be checked on the real surface.
 
 ## Feature map
