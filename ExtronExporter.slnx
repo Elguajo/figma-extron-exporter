@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/cli/">
+    <Project Path="src/cli/Extron.Cli.csproj" />
+  </Folder>
+  <Folder Name="/src/extron/">
+    <Project Path="src/extron/Extron.Format.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/format/">
+    <Project Path="tests/format/Extron.Format.Tests.csproj" />
+  </Folder>
+</Solution>

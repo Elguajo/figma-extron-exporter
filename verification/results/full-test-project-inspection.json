@@ -1,0 +1,2495 @@
+{
+  "input": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\samples\\original\\Full-Test-Project.gdl",
+  "container": "KP-single-entry-v1",
+  "entry": "ProjectGCP",
+  "compression": 8,
+  "payloadBytes": 2652133,
+  "payloadSha256": "03B8AF83B00EB9F45C85AD6A7CC3E6C7F52EDD5B78D11368AFD0FE4723D1E14C",
+  "project": {
+    "rootType": "Extron.GUICPro.PBProject",
+    "rootMembers": [
+      "nameField",
+      "commentsField",
+      "versionInfoField",
+      "jobNumberField",
+      "purchaseOrderNumberField",
+      "creationDateField",
+      "revisionDateField",
+      "applicationBuildVersionInfoField",
+      "resourceSetField",
+      "languageField",
+      "paletteField",
+      "contactsField",
+      "popupPageGroupsField",
+      "defaultPageField",
+      "defaultLevelField",
+      "platformField",
+      "platformTypeField",
+      "platformDpiField",
+      "platformResolutionNameField",
+      "pagesField",
+      "popupPagesField",
+      "buildStatusField",
+      "buildTypeField",
+      "buildPathField",
+      "idField",
+      "isVersionFormattedField",
+      "applicationCategoryField",
+      "numberOfInputsField",
+      "skinField",
+      "previewImageStreamField",
+      "enableOfflineField",
+      "scaleLayouttoFit",
+      "isExtronModeLayoutField",
+      "screenSizeField",
+      "applicationName",
+      "author",
+      "bezelPageLeft",
+      "bezelPageTop",
+      "bezelPageWidth",
+      "bezelPageHeight",
+      "isBezel",
+      "projectFont",
+      "checksum",
+      "\u003CTLPImageFileExtension\u003Ek__BackingField",
+      "PBObject\u002BmLocked",
+      "PBObject\u002BtypeField"
+    ],
+    "recordCount": 12693,
+    "classCounts": {
+      "Extron.GUICPro.BorderStyleEnum": 69,
+      "Extron.GUICPro.BuildStatusEnum": 1,
+      "Extron.GUICPro.BuildTypeEnum": 1,
+      "Extron.GUICPro.ControlLineCapEnum": 4,
+      "Extron.GUICPro.ControlLinePositionEnum": 4,
+      "Extron.GUICPro.ImageLayoutEnum": 674,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.AlignmentEnum": 1011,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.BlinkingEnum": 337,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.LevelDisplayTypeEnum": 5,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.LevelOrientationEnum": 5,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.ObjectTypeEnum": 1587,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.PlatformProTypeEnum": 2,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.ResourceAuthorEnum": 73,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.ResourceTypeEnum": 1070,
+      "Extron.GUICPro.LevelGaugeFillTypeEnum": 5,
+      "Extron.GUICPro.LevelSliderIndicatorTypeEnum": 5,
+      "Extron.GUICPro.PBBorderInfo": 31,
+      "Extron.GUICPro.PBBorderResource": 31,
+      "Extron.GUICPro.PBButton": 88,
+      "Extron.GUICPro.PBColor": 1420,
+      "Extron.GUICPro.PBControlBase\u002BCreateWidgetFlag": 159,
+      "Extron.GUICPro.PBDateTime": 1,
+      "Extron.GUICPro.PBFont": 250,
+      "Extron.GUICPro.PBFontResource": 3,
+      "Extron.GUICPro.PBFontStyle": 250,
+      "Extron.GUICPro.PBImage": 4,
+      "Extron.GUICPro.PBImageResource": 39,
+      "Extron.GUICPro.PBKeyColor": 496,
+      "Extron.GUICPro.PBLabel": 33,
+      "Extron.GUICPro.PBLevel": 5,
+      "Extron.GUICPro.PBLine": 2,
+      "Extron.GUICPro.PBObjectReference": 1,
+      "Extron.GUICPro.PBPage": 13,
+      "Extron.GUICPro.PBPalette": 1,
+      "Extron.GUICPro.PBPaletteEntry": 141,
+      "Extron.GUICPro.PBPopupPage": 6,
+      "Extron.GUICPro.PBPopupPageID": 1,
+      "Extron.GUICPro.PBPopupPageReference": 1,
+      "Extron.GUICPro.PBPopupReference": 1,
+      "Extron.GUICPro.PBProject": 1,
+      "Extron.GUICPro.PBResourceReferenceBorder": 245,
+      "Extron.GUICPro.PBResourceReferenceFont": 250,
+      "Extron.GUICPro.PBResourceReferenceImage": 502,
+      "Extron.GUICPro.PBResourceSet": 1,
+      "Extron.GUICPro.PBShape": 6,
+      "Extron.GUICPro.PBSlider\u002BSliderBitmap": 1,
+      "Extron.GUICPro.PBState": 178,
+      "Extron.GUICPro.PBStates": 159,
+      "Extron.GUICPro.PBTLP300MPlatform": 1,
+      "Extron.GUICPro.Resolution": 2,
+      "Extron.GUICPro.ShapeTypeEnum": 69,
+      "Extron.GUICPro.TransparentPixelsEnum": 159,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.PBContact, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.PBControl, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 19,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.PBControlGroup, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.PBPage, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.PBPaletteEntry, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.PBPopupPage, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.PBPopupReference, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 6,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.PBResource, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.PBState, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 159,
+      "System.Collections.Generic.List\u00601[[Extron.GUICPro.Resolution, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List\u00601[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]": 6,
+      "System.Collections.Generic.List\u00601[[System.UInt64, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]": 20,
+      "System.Drawing.Bitmap": 40,
+      "System.Drawing.Color": 1420,
+      "System.Drawing.Size": 13
+    },
+    "controls": [
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 0,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Main",
+          "PBControlBase\u002BuserIdField": 0,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 9201,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 9201,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Recording Controls",
+          "PBControlBase\u002BuserIdField": 9201,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 9200,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 9200,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Main Recording",
+          "PBControlBase\u002BuserIdField": 9200,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 14,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 14,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Audio Settings",
+          "PBControlBase\u002BuserIdField": 14,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 13,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 13,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Computer",
+          "PBControlBase\u002BuserIdField": 13,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 11,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 11,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Help",
+          "PBControlBase\u002BuserIdField": 11,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 10,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 10,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Blinds Settings",
+          "PBControlBase\u002BuserIdField": 10,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 9,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 9,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Lights Settings",
+          "PBControlBase\u002BuserIdField": 9,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 6,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 6,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Screen Settings",
+          "PBControlBase\u002BuserIdField": 6,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 5,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 5,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Settings",
+          "PBControlBase\u002BuserIdField": 5,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 8,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 8,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Start",
+          "PBControlBase\u002BuserIdField": 8,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 7,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 7,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Video",
+          "PBControlBase\u002BuserIdField": 7,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 12,
+          "widthField": 320,
+          "heightField": 480,
+          "PBControl\u002BuserIdField": 12,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 480,
+          "PBControlBase\u002BnameField": "Display Settings",
+          "PBControlBase\u002BuserIdField": 12,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 480,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 480
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 6072,
+          "widthField": 269,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 6072,
+          "PBControl\u002BwidthField": 269,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Select Source Label",
+          "PBControlBase\u002BuserIdField": 6072,
+          "PBControlBase\u002BwidthField": 269,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 269,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8120,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8120,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Main Volume Up",
+          "PBControlBase\u002BuserIdField": 8120,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8121,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8121,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Main Volume Down",
+          "PBControlBase\u002BuserIdField": 8121,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8021,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8021,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Main Volume Mute",
+          "PBControlBase\u002BuserIdField": 8021,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8040,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8040,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Settings",
+          "PBControlBase\u002BuserIdField": 8040,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8022,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8022,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Power Down",
+          "PBControlBase\u002BuserIdField": 8022,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8117,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8117,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Help",
+          "PBControlBase\u002BuserIdField": 8117,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4052,
+          "widthField": 269,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4052,
+          "PBControl\u002BwidthField": 269,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Main Volume Label",
+          "PBControlBase\u002BuserIdField": 4052,
+          "PBControlBase\u002BwidthField": 269,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 269,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLevel",
+        "fields": {
+          "userIdField": 8023,
+          "widthField": 249,
+          "heightField": 15,
+          "PBControl\u002BuserIdField": 8023,
+          "PBControl\u002BwidthField": 249,
+          "PBControl\u002BheightField": 15,
+          "PBControlBase\u002BnameField": "Main Volume Level",
+          "PBControlBase\u002BuserIdField": 8023,
+          "PBControlBase\u002BwidthField": 249,
+          "PBControlBase\u002BheightField": 15,
+          "PBDrawObject\u002BwidthField": 249,
+          "PBDrawObject\u002BheightField": 15
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8065,
+          "widthField": 100,
+          "heightField": 100,
+          "PBControl\u002BuserIdField": 8065,
+          "PBControl\u002BwidthField": 100,
+          "PBControl\u002BheightField": 100,
+          "PBControlBase\u002BnameField": "Main Computer",
+          "PBControlBase\u002BuserIdField": 8065,
+          "PBControlBase\u002BwidthField": 100,
+          "PBControlBase\u002BheightField": 100,
+          "PBDrawObject\u002BwidthField": 100,
+          "PBDrawObject\u002BheightField": 100
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8067,
+          "widthField": 100,
+          "heightField": 100,
+          "PBControl\u002BuserIdField": 8067,
+          "PBControl\u002BwidthField": 100,
+          "PBControl\u002BheightField": 100,
+          "PBControlBase\u002BnameField": "Main Video",
+          "PBControlBase\u002BuserIdField": 8067,
+          "PBControlBase\u002BwidthField": 100,
+          "PBControlBase\u002BheightField": 100,
+          "PBDrawObject\u002BwidthField": 100,
+          "PBDrawObject\u002BheightField": 100
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 9219,
+          "widthField": 245,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 9219,
+          "PBControl\u002BwidthField": 245,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Recording Controls Label",
+          "PBControlBase\u002BuserIdField": 9219,
+          "PBControlBase\u002BwidthField": 245,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 245,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9206,
+          "widthField": 79,
+          "heightField": 60,
+          "PBControl\u002BuserIdField": 9206,
+          "PBControl\u002BwidthField": 79,
+          "PBControl\u002BheightField": 60,
+          "PBControlBase\u002BnameField": "Record - Mark",
+          "PBControlBase\u002BuserIdField": 9206,
+          "PBControlBase\u002BwidthField": 79,
+          "PBControlBase\u002BheightField": 60,
+          "PBDrawObject\u002BwidthField": 79,
+          "PBDrawObject\u002BheightField": 60
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9216,
+          "widthField": 79,
+          "heightField": 29,
+          "PBControl\u002BuserIdField": 9216,
+          "PBControl\u002BwidthField": 79,
+          "PBControl\u002BheightField": 29,
+          "PBControlBase\u002BnameField": "Record - Mark - Label",
+          "PBControlBase\u002BuserIdField": 9216,
+          "PBControlBase\u002BwidthField": 79,
+          "PBControlBase\u002BheightField": 29,
+          "PBDrawObject\u002BwidthField": 79,
+          "PBDrawObject\u002BheightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9212,
+          "widthField": 79,
+          "heightField": 29,
+          "PBControl\u002BuserIdField": 9212,
+          "PBControl\u002BwidthField": 79,
+          "PBControl\u002BheightField": 29,
+          "PBControlBase\u002BnameField": "Record - Start - Label",
+          "PBControlBase\u002BuserIdField": 9212,
+          "PBControlBase\u002BwidthField": 79,
+          "PBControlBase\u002BheightField": 29,
+          "PBDrawObject\u002BwidthField": 79,
+          "PBDrawObject\u002BheightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9203,
+          "widthField": 79,
+          "heightField": 60,
+          "PBControl\u002BuserIdField": 9203,
+          "PBControl\u002BwidthField": 79,
+          "PBControl\u002BheightField": 60,
+          "PBControlBase\u002BnameField": "Record - Stop",
+          "PBControlBase\u002BuserIdField": 9203,
+          "PBControlBase\u002BwidthField": 79,
+          "PBControlBase\u002BheightField": 60,
+          "PBDrawObject\u002BwidthField": 79,
+          "PBDrawObject\u002BheightField": 60
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9213,
+          "widthField": 79,
+          "heightField": 29,
+          "PBControl\u002BuserIdField": 9213,
+          "PBControl\u002BwidthField": 79,
+          "PBControl\u002BheightField": 29,
+          "PBControlBase\u002BnameField": "Record - Stop - Label",
+          "PBControlBase\u002BuserIdField": 9213,
+          "PBControlBase\u002BwidthField": 79,
+          "PBControlBase\u002BheightField": 29,
+          "PBDrawObject\u002BwidthField": 79,
+          "PBDrawObject\u002BheightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9215,
+          "widthField": 79,
+          "heightField": 29,
+          "PBControl\u002BuserIdField": 9215,
+          "PBControl\u002BwidthField": 79,
+          "PBControl\u002BheightField": 29,
+          "PBControlBase\u002BnameField": "Record - Pause - Label",
+          "PBControlBase\u002BuserIdField": 9215,
+          "PBControlBase\u002BwidthField": 79,
+          "PBControlBase\u002BheightField": 29,
+          "PBDrawObject\u002BwidthField": 79,
+          "PBDrawObject\u002BheightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9205,
+          "widthField": 79,
+          "heightField": 60,
+          "PBControl\u002BuserIdField": 9205,
+          "PBControl\u002BwidthField": 79,
+          "PBControl\u002BheightField": 60,
+          "PBControlBase\u002BnameField": "Record - Pause",
+          "PBControlBase\u002BuserIdField": 9205,
+          "PBControlBase\u002BwidthField": 79,
+          "PBControlBase\u002BheightField": 60,
+          "PBDrawObject\u002BwidthField": 79,
+          "PBDrawObject\u002BheightField": 60
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 9210,
+          "widthField": 292,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 9210,
+          "PBControl\u002BwidthField": 292,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Recording Controls Label",
+          "PBControlBase\u002BuserIdField": 9210,
+          "PBControlBase\u002BwidthField": 292,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 292,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9202,
+          "widthField": 79,
+          "heightField": 60,
+          "PBControl\u002BuserIdField": 9202,
+          "PBControl\u002BwidthField": 79,
+          "PBControl\u002BheightField": 60,
+          "PBControlBase\u002BnameField": "Record - Start",
+          "PBControlBase\u002BuserIdField": 9202,
+          "PBControlBase\u002BwidthField": 79,
+          "PBControlBase\u002BheightField": 60,
+          "PBDrawObject\u002BwidthField": 79,
+          "PBDrawObject\u002BheightField": 60
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 6072,
+          "widthField": 269,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 6072,
+          "PBControl\u002BwidthField": 269,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Select Source Label",
+          "PBControlBase\u002BuserIdField": 6072,
+          "PBControlBase\u002BwidthField": 269,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 269,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8120,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8120,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Main Volume Up",
+          "PBControlBase\u002BuserIdField": 8120,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8121,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8121,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Main Volume Down",
+          "PBControlBase\u002BuserIdField": 8121,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8021,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8021,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Main Volume Mute",
+          "PBControlBase\u002BuserIdField": 8021,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8040,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8040,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Settings",
+          "PBControlBase\u002BuserIdField": 8040,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8022,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8022,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Power Down",
+          "PBControlBase\u002BuserIdField": 8022,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8117,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8117,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Help",
+          "PBControlBase\u002BuserIdField": 8117,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4052,
+          "widthField": 269,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4052,
+          "PBControl\u002BwidthField": 269,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Main Volume Label",
+          "PBControlBase\u002BuserIdField": 4052,
+          "PBControlBase\u002BwidthField": 269,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 269,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLevel",
+        "fields": {
+          "userIdField": 8023,
+          "widthField": 249,
+          "heightField": 15,
+          "PBControl\u002BuserIdField": 8023,
+          "PBControl\u002BwidthField": 249,
+          "PBControl\u002BheightField": 15,
+          "PBControlBase\u002BnameField": "Main Volume Level",
+          "PBControlBase\u002BuserIdField": 8023,
+          "PBControlBase\u002BwidthField": 249,
+          "PBControlBase\u002BheightField": 15,
+          "PBDrawObject\u002BwidthField": 249,
+          "PBDrawObject\u002BheightField": 15
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8065,
+          "widthField": 100,
+          "heightField": 100,
+          "PBControl\u002BuserIdField": 8065,
+          "PBControl\u002BwidthField": 100,
+          "PBControl\u002BheightField": 100,
+          "PBControlBase\u002BnameField": "Main Computer",
+          "PBControlBase\u002BuserIdField": 8065,
+          "PBControlBase\u002BwidthField": 100,
+          "PBControlBase\u002BheightField": 100,
+          "PBDrawObject\u002BwidthField": 100,
+          "PBDrawObject\u002BheightField": 100
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8067,
+          "widthField": 100,
+          "heightField": 100,
+          "PBControl\u002BuserIdField": 8067,
+          "PBControl\u002BwidthField": 100,
+          "PBControl\u002BheightField": 100,
+          "PBControlBase\u002BnameField": "Main Video",
+          "PBControlBase\u002BuserIdField": 8067,
+          "PBControlBase\u002BwidthField": 100,
+          "PBControlBase\u002BheightField": 100,
+          "PBDrawObject\u002BwidthField": 100,
+          "PBDrawObject\u002BheightField": 100
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9202,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9202,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Record",
+          "PBControlBase\u002BuserIdField": 9202,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4000,
+          "widthField": 231,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4000,
+          "PBControl\u002BwidthField": 231,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Audio Settings Label",
+          "PBControlBase\u002BuserIdField": 4000,
+          "PBControlBase\u002BwidthField": 231,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 231,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9019,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9019,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Program Vol Up",
+          "PBControlBase\u002BuserIdField": 9019,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9020,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9020,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Program Vol Down",
+          "PBControlBase\u002BuserIdField": 9020,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9021,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9021,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Program Mute",
+          "PBControlBase\u002BuserIdField": 9021,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4051,
+          "widthField": 249,
+          "heightField": 45,
+          "PBControl\u002BuserIdField": 4051,
+          "PBControl\u002BwidthField": 249,
+          "PBControl\u002BheightField": 45,
+          "PBControlBase\u002BnameField": "Program Label",
+          "PBControlBase\u002BuserIdField": 4051,
+          "PBControlBase\u002BwidthField": 249,
+          "PBControlBase\u002BheightField": 45,
+          "PBDrawObject\u002BwidthField": 249,
+          "PBDrawObject\u002BheightField": 45
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9015,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9015,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Mic Vol Up",
+          "PBControlBase\u002BuserIdField": 9015,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9016,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9016,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Mic Vol Down",
+          "PBControlBase\u002BuserIdField": 9016,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9017,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9017,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Mic Mute",
+          "PBControlBase\u002BuserIdField": 9017,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4050,
+          "widthField": 249,
+          "heightField": 45,
+          "PBControl\u002BuserIdField": 4050,
+          "PBControl\u002BwidthField": 249,
+          "PBControl\u002BheightField": 45,
+          "PBControlBase\u002BnameField": "Mic Label",
+          "PBControlBase\u002BuserIdField": 4050,
+          "PBControlBase\u002BwidthField": 249,
+          "PBControlBase\u002BheightField": 45,
+          "PBDrawObject\u002BwidthField": 249,
+          "PBDrawObject\u002BheightField": 45
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLevel",
+        "fields": {
+          "userIdField": 9018,
+          "widthField": 249,
+          "heightField": 15,
+          "PBControl\u002BuserIdField": 9018,
+          "PBControl\u002BwidthField": 249,
+          "PBControl\u002BheightField": 15,
+          "PBControlBase\u002BnameField": "Mic Level",
+          "PBControlBase\u002BuserIdField": 9018,
+          "PBControlBase\u002BwidthField": 249,
+          "PBControlBase\u002BheightField": 15,
+          "PBDrawObject\u002BwidthField": 249,
+          "PBDrawObject\u002BheightField": 15
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLevel",
+        "fields": {
+          "userIdField": 9022,
+          "widthField": 249,
+          "heightField": 15,
+          "PBControl\u002BuserIdField": 9022,
+          "PBControl\u002BwidthField": 249,
+          "PBControl\u002BheightField": 15,
+          "PBControlBase\u002BnameField": "Program Level",
+          "PBControlBase\u002BuserIdField": 9022,
+          "PBControlBase\u002BwidthField": 249,
+          "PBControlBase\u002BheightField": 15,
+          "PBDrawObject\u002BwidthField": 249,
+          "PBDrawObject\u002BheightField": 15
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 6028,
+          "widthField": 231,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 6028,
+          "PBControl\u002BwidthField": 231,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Computer Label",
+          "PBControlBase\u002BuserIdField": 6028,
+          "PBControlBase\u002BwidthField": 231,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 231,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 6070,
+          "widthField": 320,
+          "heightField": 138,
+          "PBControl\u002BuserIdField": 6070,
+          "PBControl\u002BwidthField": 320,
+          "PBControl\u002BheightField": 138,
+          "PBControlBase\u002BnameField": "Computer Instructions Label",
+          "PBControlBase\u002BuserIdField": 6070,
+          "PBControlBase\u002BwidthField": 320,
+          "PBControlBase\u002BheightField": 138,
+          "PBDrawObject\u002BwidthField": 320,
+          "PBDrawObject\u002BheightField": 138
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4008,
+          "widthField": 231,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4008,
+          "PBControl\u002BwidthField": 231,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Help Label",
+          "PBControlBase\u002BuserIdField": 4008,
+          "PBControlBase\u002BwidthField": 231,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 231,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4059,
+          "widthField": 240,
+          "heightField": 100,
+          "PBControl\u002BuserIdField": 4059,
+          "PBControl\u002BwidthField": 240,
+          "PBControl\u002BheightField": 100,
+          "PBControlBase\u002BnameField": "Help Message Label",
+          "PBControlBase\u002BuserIdField": 4059,
+          "PBControlBase\u002BwidthField": 240,
+          "PBControlBase\u002BheightField": 100,
+          "PBDrawObject\u002BwidthField": 240,
+          "PBDrawObject\u002BheightField": 100
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8221,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8221,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Blind Preset 1",
+          "PBControlBase\u002BuserIdField": 8221,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8224,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8224,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Blind Preset 4",
+          "PBControlBase\u002BuserIdField": 8224,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8223,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8223,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Blind Preset 3",
+          "PBControlBase\u002BuserIdField": 8223,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8222,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8222,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Blind Preset 2",
+          "PBControlBase\u002BuserIdField": 8222,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4061,
+          "widthField": 173,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4061,
+          "PBControl\u002BwidthField": 173,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Blinds Preset Label",
+          "PBControlBase\u002BuserIdField": 4061,
+          "PBControlBase\u002BwidthField": 173,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 173,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 8122,
+          "widthField": 231,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8122,
+          "PBControl\u002BwidthField": 231,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Blinds Settings Label",
+          "PBControlBase\u002BuserIdField": 8122,
+          "PBControlBase\u002BwidthField": 231,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 231,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4010,
+          "widthField": 231,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4010,
+          "PBControl\u002BwidthField": 231,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Lights Settings Label",
+          "PBControlBase\u002BuserIdField": 4010,
+          "PBControlBase\u002BwidthField": 231,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 231,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8231,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8231,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Light Preset 1",
+          "PBControlBase\u002BuserIdField": 8231,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8234,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8234,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Light Preset 4",
+          "PBControlBase\u002BuserIdField": 8234,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8233,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8233,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Light Preset 3",
+          "PBControlBase\u002BuserIdField": 8233,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8232,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8232,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Light Preset 2",
+          "PBControlBase\u002BuserIdField": 8232,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 6034,
+          "widthField": 199,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 6034,
+          "PBControl\u002BwidthField": 199,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Lights Preset Label",
+          "PBControlBase\u002BuserIdField": 6034,
+          "PBControlBase\u002BwidthField": 199,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 199,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4014,
+          "widthField": 217,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4014,
+          "PBControl\u002BwidthField": 217,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Screen Settings Label",
+          "PBControlBase\u002BuserIdField": 4014,
+          "PBControlBase\u002BwidthField": 217,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 217,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4063,
+          "widthField": 120,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4063,
+          "PBControl\u002BwidthField": 120,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Screen 1 Label",
+          "PBControlBase\u002BuserIdField": 4063,
+          "PBControlBase\u002BwidthField": 120,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 120,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8241,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8241,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Screen 1 Up",
+          "PBControlBase\u002BuserIdField": 8241,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8242,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8242,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Screen 1 Down",
+          "PBControlBase\u002BuserIdField": 8242,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8243,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8243,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Screen 1 Stop",
+          "PBControlBase\u002BuserIdField": 8243,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4064,
+          "widthField": 120,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4064,
+          "PBControl\u002BwidthField": 120,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Screen 2 Label",
+          "PBControlBase\u002BuserIdField": 4064,
+          "PBControlBase\u002BwidthField": 120,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 120,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8245,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8245,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Screen 2 Down",
+          "PBControlBase\u002BuserIdField": 8245,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8244,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8244,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Screen 2 Up",
+          "PBControlBase\u002BuserIdField": 8244,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8246,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8246,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Screen 2 Stop",
+          "PBControlBase\u002BuserIdField": 8246,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 7004,
+          "widthField": 155,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 7004,
+          "PBControl\u002BwidthField": 155,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Settings Label",
+          "PBControlBase\u002BuserIdField": 7004,
+          "PBControlBase\u002BwidthField": 155,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 155,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4009,
+          "widthField": 217,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4009,
+          "PBControl\u002BwidthField": 217,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Modify Settings Label",
+          "PBControlBase\u002BuserIdField": 4009,
+          "PBControlBase\u002BwidthField": 217,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 217,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8116,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8116,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Lighting Settings",
+          "PBControlBase\u002BuserIdField": 8116,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8214,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8214,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display Settings",
+          "PBControlBase\u002BuserIdField": 8214,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8020,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8020,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Audio Settings",
+          "PBControlBase\u002BuserIdField": 8020,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8115,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8115,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Screen Settings",
+          "PBControlBase\u002BuserIdField": 8115,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8118,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8118,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Blinds Settings",
+          "PBControlBase\u002BuserIdField": 8118,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8123,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8123,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Recording Settings",
+          "PBControlBase\u002BuserIdField": 8123,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8120,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8120,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Main Volume Up",
+          "PBControlBase\u002BuserIdField": 8120,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8121,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8121,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Main Volume Down",
+          "PBControlBase\u002BuserIdField": 8121,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8021,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8021,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Main Volume Mute",
+          "PBControlBase\u002BuserIdField": 8021,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4052,
+          "widthField": 80,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4052,
+          "PBControl\u002BwidthField": 80,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Main Volume Label",
+          "PBControlBase\u002BuserIdField": 4052,
+          "PBControlBase\u002BwidthField": 80,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 80,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8000,
+          "widthField": 190,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8000,
+          "PBControl\u002BwidthField": 190,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Start",
+          "PBControlBase\u002BuserIdField": 8000,
+          "PBControlBase\u002BwidthField": 190,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 190,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 7001,
+          "widthField": 255,
+          "heightField": 37,
+          "PBControl\u002BuserIdField": 7001,
+          "PBControl\u002BwidthField": 255,
+          "PBControl\u002BheightField": 37,
+          "PBControlBase\u002BnameField": "Room Title Label",
+          "PBControlBase\u002BuserIdField": 7001,
+          "PBControlBase\u002BwidthField": 255,
+          "PBControlBase\u002BheightField": 37,
+          "PBDrawObject\u002BwidthField": 255,
+          "PBDrawObject\u002BheightField": 37
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 9080,
+          "widthField": 155,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 9080,
+          "PBControl\u002BwidthField": 155,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Video Label",
+          "PBControlBase\u002BuserIdField": 9080,
+          "PBControlBase\u002BwidthField": 155,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 155,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9087,
+          "widthField": 88,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9087,
+          "PBControl\u002BwidthField": 88,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Video Menu",
+          "PBControlBase\u002BuserIdField": 9087,
+          "PBControlBase\u002BwidthField": 88,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 88,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9088,
+          "widthField": 88,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9088,
+          "PBControl\u002BwidthField": 88,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Video Play Pause",
+          "PBControlBase\u002BuserIdField": 9088,
+          "PBControlBase\u002BwidthField": 88,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 88,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9082,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9082,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Video Up",
+          "PBControlBase\u002BuserIdField": 9082,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9086,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9086,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Video Enter",
+          "PBControlBase\u002BuserIdField": 9086,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9083,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9083,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Video Down",
+          "PBControlBase\u002BuserIdField": 9083,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9085,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9085,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Video Right",
+          "PBControlBase\u002BuserIdField": 9085,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9084,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9084,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Video Left",
+          "PBControlBase\u002BuserIdField": 9084,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4006,
+          "widthField": 231,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4006,
+          "PBControl\u002BwidthField": 231,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display Settings Label",
+          "PBControlBase\u002BuserIdField": 4006,
+          "PBControlBase\u002BwidthField": 231,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 231,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8041,
+          "widthField": 66,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 8041,
+          "PBControl\u002BwidthField": 66,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Page Back",
+          "PBControlBase\u002BuserIdField": 8041,
+          "PBControlBase\u002BwidthField": 66,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 66,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8205,
+          "widthField": 50,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8205,
+          "PBControl\u002BwidthField": 50,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 1 Mute Togge Off",
+          "PBControlBase\u002BuserIdField": 8205,
+          "PBControlBase\u002BwidthField": 50,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 50,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8203,
+          "widthField": 50,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8203,
+          "PBControl\u002BwidthField": 50,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 1 Power Toggle Off",
+          "PBControlBase\u002BuserIdField": 8203,
+          "PBControlBase\u002BwidthField": 50,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 50,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4057,
+          "widthField": 152,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4057,
+          "PBControl\u002BwidthField": 152,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 1 Label",
+          "PBControlBase\u002BuserIdField": 4057,
+          "PBControlBase\u002BwidthField": 152,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 152,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8203,
+          "widthField": 50,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8203,
+          "PBControl\u002BwidthField": 50,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 1 Power Toggle On",
+          "PBControlBase\u002BuserIdField": 8203,
+          "PBControlBase\u002BwidthField": 50,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 50,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8205,
+          "widthField": 50,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8205,
+          "PBControl\u002BwidthField": 50,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 1 Mute Toggle On",
+          "PBControlBase\u002BuserIdField": 8205,
+          "PBControlBase\u002BwidthField": 50,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 50,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8203,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8203,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 1 Power",
+          "PBControlBase\u002BuserIdField": 8203,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8205,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8205,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 1 Mute",
+          "PBControlBase\u002BuserIdField": 8205,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4058,
+          "widthField": 152,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 4058,
+          "PBControl\u002BwidthField": 152,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 2 Label",
+          "PBControlBase\u002BuserIdField": 4058,
+          "PBControlBase\u002BwidthField": 152,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 152,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8208,
+          "widthField": 50,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8208,
+          "PBControl\u002BwidthField": 50,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 2 Mute Toggle Off",
+          "PBControlBase\u002BuserIdField": 8208,
+          "PBControlBase\u002BwidthField": 50,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 50,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8206,
+          "widthField": 50,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8206,
+          "PBControl\u002BwidthField": 50,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 2 Power Toggle Off",
+          "PBControlBase\u002BuserIdField": 8206,
+          "PBControlBase\u002BwidthField": 50,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 50,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8206,
+          "widthField": 50,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8206,
+          "PBControl\u002BwidthField": 50,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 2 Power Toggle On",
+          "PBControlBase\u002BuserIdField": 8206,
+          "PBControlBase\u002BwidthField": 50,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 50,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8208,
+          "widthField": 50,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8208,
+          "PBControl\u002BwidthField": 50,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 2 Mute Toggle On",
+          "PBControlBase\u002BuserIdField": 8208,
+          "PBControlBase\u002BwidthField": 50,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 50,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8206,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8206,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 2 Power",
+          "PBControlBase\u002BuserIdField": 8206,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8208,
+          "widthField": 178,
+          "heightField": 50,
+          "PBControl\u002BuserIdField": 8208,
+          "PBControl\u002BwidthField": 178,
+          "PBControl\u002BheightField": 50,
+          "PBControlBase\u002BnameField": "Display 2 Mute",
+          "PBControlBase\u002BuserIdField": 8208,
+          "PBControlBase\u002BwidthField": 178,
+          "PBControlBase\u002BheightField": 50,
+          "PBDrawObject\u002BwidthField": 178,
+          "PBDrawObject\u002BheightField": 50
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4067,
+          "widthField": 280,
+          "heightField": 101,
+          "PBControl\u002BuserIdField": 4067,
+          "PBControl\u002BwidthField": 280,
+          "PBControl\u002BheightField": 101,
+          "PBControlBase\u002BnameField": "Power Down Label",
+          "PBControlBase\u002BuserIdField": 4067,
+          "PBControlBase\u002BwidthField": 280,
+          "PBControlBase\u002BheightField": 101,
+          "PBDrawObject\u002BwidthField": 280,
+          "PBDrawObject\u002BheightField": 101
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4068,
+          "widthField": 227,
+          "heightField": 197,
+          "PBControl\u002BuserIdField": 4068,
+          "PBControl\u002BwidthField": 227,
+          "PBControl\u002BheightField": 197,
+          "PBControlBase\u002BnameField": "Starting Up Label",
+          "PBControlBase\u002BuserIdField": 4068,
+          "PBControlBase\u002BwidthField": 227,
+          "PBControlBase\u002BheightField": 197,
+          "PBDrawObject\u002BwidthField": 227,
+          "PBDrawObject\u002BheightField": 197
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLevel",
+        "fields": {
+          "userIdField": 8023,
+          "widthField": 270,
+          "heightField": 15,
+          "PBControl\u002BuserIdField": 8023,
+          "PBControl\u002BwidthField": 270,
+          "PBControl\u002BheightField": 15,
+          "PBControlBase\u002BnameField": "Main Volume Level",
+          "PBControlBase\u002BuserIdField": 8023,
+          "PBControlBase\u002BwidthField": 270,
+          "PBControlBase\u002BheightField": 15,
+          "PBDrawObject\u002BwidthField": 270,
+          "PBDrawObject\u002BheightField": 15
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 240,
+          "heightField": 320,
+          "PBControl\u002BuserIdField": 0,
+          "PBControl\u002BwidthField": 240,
+          "PBControl\u002BheightField": 320,
+          "PBControlBase\u002BnameField": "Label",
+          "PBControlBase\u002BuserIdField": 0,
+          "PBControlBase\u002BwidthField": 240,
+          "PBControlBase\u002BheightField": 320,
+          "PBDrawObject\u002BwidthField": 240,
+          "PBDrawObject\u002BheightField": 320
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 4056,
+          "widthField": 292,
+          "heightField": 84,
+          "PBControl\u002BuserIdField": 4056,
+          "PBControl\u002BwidthField": 292,
+          "PBControl\u002BheightField": 84,
+          "PBControlBase\u002BnameField": "Power Down Confirmation Label",
+          "PBControlBase\u002BuserIdField": 4056,
+          "PBControlBase\u002BwidthField": 292,
+          "PBControlBase\u002BheightField": 84,
+          "PBDrawObject\u002BwidthField": 292,
+          "PBDrawObject\u002BheightField": 84
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9028,
+          "widthField": 136,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9028,
+          "PBControl\u002BwidthField": 136,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Power Down",
+          "PBControlBase\u002BuserIdField": 9028,
+          "PBControlBase\u002BwidthField": 136,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 136,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9029,
+          "widthField": 136,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9029,
+          "PBControl\u002BwidthField": 136,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Confirmation Cancel",
+          "PBControlBase\u002BuserIdField": 9029,
+          "PBControlBase\u002BwidthField": 136,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 136,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 9243,
+          "widthField": 292,
+          "heightField": 160,
+          "PBControl\u002BuserIdField": 9243,
+          "PBControl\u002BwidthField": 292,
+          "PBControl\u002BheightField": 160,
+          "PBControlBase\u002BnameField": "Start Recording Confirmation Label",
+          "PBControlBase\u002BuserIdField": 9243,
+          "PBControlBase\u002BwidthField": 292,
+          "PBControlBase\u002BheightField": 160,
+          "PBDrawObject\u002BwidthField": 292,
+          "PBDrawObject\u002BheightField": 160
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9244,
+          "widthField": 136,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9244,
+          "PBControl\u002BwidthField": 136,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Start Recording",
+          "PBControlBase\u002BuserIdField": 9244,
+          "PBControlBase\u002BwidthField": 136,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 136,
+          "PBDrawObject\u002BheightField": 66
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 9245,
+          "widthField": 136,
+          "heightField": 66,
+          "PBControl\u002BuserIdField": 9245,
+          "PBControl\u002BwidthField": 136,
+          "PBControl\u002BheightField": 66,
+          "PBControlBase\u002BnameField": "Recording Cancel",
+          "PBControlBase\u002BuserIdField": 9245,
+          "PBControlBase\u002BwidthField": 136,
+          "PBControlBase\u002BheightField": 66,
+          "PBDrawObject\u002BwidthField": 136,
+          "PBDrawObject\u002BheightField": 66
+        }
+      }
+    ]
+  },
+  "validation": "container \u002B NRBF decode; GUI Designer not verified"
+}

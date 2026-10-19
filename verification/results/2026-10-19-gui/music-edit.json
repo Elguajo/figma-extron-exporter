@@ -1,0 +1,20 @@
+{
+  "output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\Full-Test-Project-music-reproduced.gdl",
+  "bytes": 1612656,
+  "ButtonId": 8000,
+  "ButtonName": "Start",
+  "StateCount": 2,
+  "OldText": "Press to begin",
+  "NewText": "\u041C\u0443\u0437\u044B\u043A\u0430",
+  "Patches": [
+    {
+      "Offset": 2540980,
+      "OriginalBytes": 15,
+      "NewBytes": 13,
+      "StringObjectId": 8597
+    }
+  ],
+  "payloadSha256": "7F673C896CBD22248AA9455B0BA54B1D8DB076F92C57E9F3C7B67B243D029DD1",
+  "preserved": "All bytes outside selected NRBF string values; record IDs; all other decoded class members",
+  "guiDesignerVerified": false
+}

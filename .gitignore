@@ -1,0 +1,7 @@
+.tools/
+**/bin/
+**/obj/
+output/
+samples/original/*
+!samples/original/.gitkeep
+*.user

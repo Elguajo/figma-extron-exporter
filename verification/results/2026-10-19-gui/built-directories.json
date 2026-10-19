@@ -1,0 +1,34 @@
+[
+  {
+    "file": "output/Full-Test-Project-repacked.gdl",
+    "count": 2,
+    "entries": [
+      {
+        "name": "ProjectGCP",
+        "bytes": 2819954,
+        "compressedBytes": 1675887
+      },
+      {
+        "name": "full-test-project-repacked.tgz4",
+        "bytes": 919496,
+        "compressedBytes": 886251
+      }
+    ]
+  },
+  {
+    "file": "output/Full-Test-Project-music.gdl",
+    "count": 2,
+    "entries": [
+      {
+        "name": "ProjectGCP",
+        "bytes": 2819952,
+        "compressedBytes": 1675886
+      },
+      {
+        "name": "full-test-project-music.tgz4",
+        "bytes": 919510,
+        "compressedBytes": 886283
+      }
+    ]
+  }
+]

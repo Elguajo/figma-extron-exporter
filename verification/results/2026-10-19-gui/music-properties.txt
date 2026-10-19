@@ -1,0 +1,327 @@
+Window: "GUI Designer - [TLP Pro 300M: Full-Test-Project-music.gdl*]", App: GUI Designer.exe.
+	0 window GUI Designer - [TLP Pro 300M: Full-Test-Project-music.gdl*] Secondary Actions: Raise ID: FormMain
+		1 pane ID: mDockPanel
+			2 pane ID: 68310
+				3 pane ID: 68870
+					4 pane ID: 68874
+						5 pane ID: 68862
+						6 pane ID: 68866
+			7 pane ID: 133728
+				8 pane ID: 133726
+				9 pane ID: 133724
+					10 pane ID: 133722
+						11 pane ID: 68210
+						12 pane ID: 68212
+					13 pane Properties ID: WindowProperties
+						14 pane PropertyGrid ID: mPropertyGrid
+							15 table Properties Window ID: 133700
+								1717 scroll bar (settable, string) Value: 0 ID: 133698
+									1838 button Line up
+									1839 thumb Position
+									1840 button Page down
+									1841 button Line down
+								1722 PropertyGrid category Appearance ID: 57286847
+									1723 tree item (settable, string) Use Flattened Text Description: Setting this feature to "True" creates an image of that text. Value: False ID: 45819581
+									1724 tree item (settable, string) Text Description: This is the text that will appear on the object. Value: Музыка ID: 9723050
+									1725 tree item (settable, string) Font Description: This is the font for this control. Value: Open Sans ID: 20398591
+									1726 tree item (settable, string) Font Style Description: This is the font style for this control. Value: Regular ID: 49369598
+									1727 tree item (settable, string) Font Size Description: This is the font size for this control. Value: 14 ID: 41673198
+									1728 tree item (settable, string) Text Color Description: This is the color the text is drawn with. Value: 255, 255, 255 ID: 39514465
+									1729 tree item (settable, string) Text Alignment Description: This determines how the text will appear on the object's background. Value: Middle-Center ID: 20085873
+									1730 tree item (settable, string) Image Description: This is the image resource to draw on top of the object. Value: (none) ID: 46555134
+									1731 tree item (settable, string) Image Layout Description: This defines how the image should appear in relation to the object. Value: Stretch ID: 16343025
+									1732 tree item (settable, string) Image Key Color Description: This is the color value range to use as the fully transparent (invisible) colors for this object's image. Value: Transparent (0%) [Disabled] ID: 12869499
+									1733 tree item (settable, string) Border Type Description: This determines the border's shape. Value: Afterburn - 10 Radius 2 Thick [Border] ID: 48716629
+									1734 tree item (settable, string) Border Color Description: This is the color to draw the border's frame with. Value: 186, 188, 206 ID: 35796480
+									1735 tree item (settable, string) Fill Color Description: This is the color to fill the interior of the border with. ID: 53732870
+									1736 tree item (settable, string) Transparency Description: This is the percentage of alpha blending to apply to the object. A value of 0% means the object will appear fully opaque. Value: 0% ID: 13833782
+								1737 PropertyGrid category Behavior ID: 57395179
+									1738 tree item (settable, string) Transparent Pixels Description: This determines how the control’s transparent (invisible) pixels respond to touches (if at all). Value: Pressable ID: 46794564
+								1739 PropertyGrid category Design ID: 18497900
+									1740 tree item (settable, string) Name Description: This is the object’s name. Value: Start ID: 32263379
+										920 edit (settable, string) Name Value: Start ID: 196628
+									1741 tree item (settable, string) ID Description: This is the object's ID. Value: 8000 ID: 21934963
+								1742 PropertyGrid category Layout ID: 63196939
+									1743 tree item (settable, string) Left Description: This is the horizontal position of the object’s upper-left corner. Value: 65 ID: 31901541
+									1744 tree item (settable, string) Top Description: This is the vertical position of the object’s upper-left corner. Value: 159 ID: 18678419
+									1745 tree item (settable, string) Width Description: This is the object’s width. Value: 190 ID: 33888044
+									1746 tree item (settable, string) Height Description: This is the object’s height. Value: 66 ID: 36556947
+								1747 PropertyGrid category Misc ID: 60577072
+									1748 tree item (settable, string) Description Description: These are any comments that may be entered regarding the object. ID: 8322740
+								1749 PropertyGrid category States ID: 7795800
+									1750 tree item (settable, string) [0] Start - Off Description: This is state Off at index 0 that belongs to Button Start. Value: ●Expand for subproperties● ID: 3053341
+									1751 tree item (settable, string) [1] Start - On Description: This is state On at index 1 that belongs to Button Start. Value: ●Expand for subproperties● ID: 27480077
+							32 pane Description ID: 133706
+								33 text Name ID: 133704
+								34 text This is the object’s name. ID: 133702
+						35 tool bar ID: tsOptions
+							36 button Alphabetical
+							37 separator
+							38 button Expand All
+							39 button Collapse All
+						40 combo box (settable, string) Start Value: Start ID: mObjectsComboBox
+							41 text
+							42 button Open
+			43 pane ID: 133690
+				44 pane ID: 133688
+				45 pane ID: 68260
+					46 pane ID: 68262
+						47 pane ID: 68202
+						48 pane ID: 68204
+					49 pane Workspace ID: WindowSystem
+						50 tree ID: mWorkspaceTreeview
+							923 scroll bar (settable, float) Vertical Value: 0 ID: NonClientVerticalScrollBar
+								924 button Line up ID: UpButton
+								925 thumb Position ID: ScrollbarThumb
+								926 button Page down ID: DownPageButton
+								927 button Line down ID: DownButton
+							928 scroll bar (settable, float) Horizontal Value: 0 ID: NonClientHorizontalScrollBar
+								929 button Column left ID: UpButton
+								930 thumb Position ID: ScrollbarThumb
+								931 button Page right ID: DownPageButton
+								932 button Column right ID: DownButton
+							933 thumb (disabled)
+							1600 tree item (selectable, settable, string) Afterburn All-inclusive str300 Value: Afterburn All-inclusive str300
+								1601 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								1602 tree item (selectable, settable, string) Audio Settings Value: Audio Settings
+								1603 tree item (selectable, settable, string) Blinds Settings Value: Blinds Settings
+								1604 tree item (selectable, settable, string) Computer Value: Computer
+								1605 tree item (selectable, settable, string) Display Settings Value: Display Settings
+								1606 tree item (selectable, settable, string) Help Value: Help
+								1607 tree item (selectable, settable, string) Lights Settings Value: Lights Settings
+								1608 tree item (selectable, settable, string) Main Value: Main
+								1609 tree item (selectable, settable, string) Main Recording Value: Main Recording
+								1610 tree item (selectable, settable, string) Recording Controls Value: Recording Controls
+								1611 tree item (selectable, settable, string) Screen Settings Value: Screen Settings
+								1612 tree item (selectable, settable, string) Settings Value: Settings
+								1613 tree item (selectable, settable, string) Start Value: Start
+									1614 tree item (selectable, settable, string) Volume Level Value: Volume Level
+								1615 tree item (selectable, settable, string) Video Value: Video
+								1616 tree item (selectable, settable, string) Volume Level Value: Volume Level
+								1617 tree item (selectable, settable, string) Confirmation Value: Confirmation
+								1618 tree item (selectable, settable, string) Confirmation Recording Value: Confirmation Recording
+								1619 tree item (selectable, settable, string) Powering Down Value: Powering Down
+								1620 tree item (selectable, settable, string) Starting Up Value: Starting Up
+							934 tree item (selectable, settable, string) Afterburn All-inclusive str300 Value: Afterburn All-inclusive str300
+								935 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								936 tree item (selectable, settable, string) Audio Settings Value: Audio Settings
+								937 tree item (selectable, settable, string) Blinds Settings Value: Blinds Settings
+								938 tree item (selectable, settable, string) Computer Value: Computer
+								939 tree item (selectable, settable, string) Display Settings Value: Display Settings
+								940 tree item (selectable, settable, string) Help Value: Help
+								941 tree item (selectable, settable, string) Lights Settings Value: Lights Settings
+								942 tree item (selectable, settable, string) Main Value: Main
+								943 tree item (selectable, settable, string) Main Recording Value: Main Recording
+								944 tree item (selectable, settable, string) Recording Controls Value: Recording Controls
+								945 tree item (selectable, settable, string) Screen Settings Value: Screen Settings
+								946 tree item (selectable, settable, string) Settings Value: Settings
+								947 tree item (selectable, settable, string) Start Value: Start
+									948 tree item (selectable, settable, string) Volume Level Value: Volume Level
+								949 tree item (selectable, settable, string) Video Value: Video
+								950 tree item (selectable, settable, string) Volume Level Value: Volume Level
+								951 tree item (selectable, settable, string) Confirmation Value: Confirmation
+								952 tree item (selectable, settable, string) Confirmation Recording Value: Confirmation Recording
+								953 tree item (selectable, settable, string) Powering Down Value: Powering Down
+								954 tree item (selectable, settable, string) Starting Up Value: Starting Up
+							51 tree item (selectable, settable, string) Afterburn All-inclusive str300 Value: Afterburn All-inclusive str300
+								52 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								53 tree item (selectable, settable, string) Audio Settings Value: Audio Settings
+								54 tree item (selectable, settable, string) Blinds Settings Value: Blinds Settings
+								55 tree item (selectable, settable, string) Computer Value: Computer
+								56 tree item (selectable, settable, string) Display Settings Value: Display Settings
+								57 tree item (selectable, settable, string) Help Value: Help
+								58 tree item (selectable, settable, string) Lights Settings Value: Lights Settings
+								59 tree item (selectable, settable, string) Main Value: Main
+								60 tree item (selectable, settable, string) Main Recording Value: Main Recording
+								61 tree item (selectable, settable, string) Recording Controls Value: Recording Controls
+								62 tree item (selectable, settable, string) Screen Settings Value: Screen Settings
+								63 tree item (selectable, settable, string) Settings Value: Settings
+								64 tree item (selectable, settable, string) Start Value: Start
+									65 tree item (selectable, settable, string) Volume Level Value: Volume Level
+								66 tree item (selectable, settable, string) Video Value: Video
+								67 tree item (selectable, settable, string) Volume Level Value: Volume Level
+								68 tree item (selectable, settable, string) Confirmation Value: Confirmation
+								69 tree item (selectable, settable, string) Confirmation Recording Value: Confirmation Recording
+								70 tree item (selectable, settable, string) Powering Down Value: Powering Down
+								71 tree item (selectable, settable, string) Starting Up Value: Starting Up
+				1389 pane ID: 68268
+					1390 pane ID: 68270
+						1391 pane ID: 68226
+						1392 pane ID: 68228
+					1393 pane Controls ID: WindowControls
+						1394 list ID: mListView
+							1395 scroll bar (settable, float) Vertical Value: 0 ID: NonClientVerticalScrollBar
+								1396 button Line up ID: UpButton
+								1397 thumb Position ID: ScrollbarThumb
+								1398 button Page down ID: DownPageButton
+								1399 button Line down ID: DownButton
+							1400 list item (selectable) Select
+							1401 list item (selectable) Button
+							1402 list item (selectable) Level
+							1403 list item (selectable) Slider
+							1404 list item (selectable) Popup Page Reference
+							1405 list item (selectable) Date/Time
+							1406 list item (selectable) Image
+							1407 list item (selectable) Label
+							1408 list item (selectable) Line
+							1409 list item (selectable) Shape
+				1410 pane ID: 68274
+			1411 pane ID: 68286
+				1412 pane ID: 68288
+				1413 pane ID: 68290
+					1414 pane ID: 68292
+						1415 pane ID: 68218
+						1416 pane ID: 68220
+					1417 pane Control States ID: WindowStateManager
+						1418 pane ID: mStatesFlowLayoutPanel
+							1752 pane ID: StateCell0
+								1753 pane 0 ID: mStatePanel
+								1754 text 0 ID: mIndexLabel
+							1755 pane ID: StateCell1
+								1756 pane 1 ID: mStatePanel
+								1757 text 1 ID: mIndexLabel
+						1419 tool bar ID: tsMain
+							1420 separator
+							1421 button Add
+							1422 edit (settable, string) 1 Value: 1 ID: 68302
+							1423 button Insert Before
+							1424 edit (settable, string) 1 Value: 1 ID: 68304
+							1425 button Move Left
+							1426 edit (settable, string) 1 Value: 1 ID: 68306
+							1427 edit (settable, string) 1 Value: 1 ID: 133844
+							1428 button Move Right
+							1429 button Delete
+							1430 button Select All
+							1431 button (disabled) Undo
+							1432 button (disabled) Redo
+			116 pane ID: 1444236
+			1433 pane ID: 5310900
+		1434 pane ID: 68140
+			1621 window Afterburn All-inclusive str300.Start Secondary Actions: Raise ID: DesignViewfdbd72ee-9f75-4fba-b2e6-5db3dbfad2b38
+				1622 pane DesignerFrame ID: 70088
+					1623 pane OverlayControl ID: 70054
+						1624 pane AdornerWindow ID: 70056
+						1625 pane DesignViewRoot ID: 135442
+							1626 pane Start ID: 70064
+								1627 pane WidgetControl8 ID: WidgetControl8
+								1628 pane WidgetControl7 ID: WidgetControl7
+								1629 pane WidgetControl6 ID: WidgetControl6
+								1630 pane WidgetControl5 ID: WidgetControl5
+								1631 pane WidgetControl4 ID: WidgetControl4
+								1632 pane WidgetControl3 ID: WidgetControl3
+								1633 pane WidgetControl2 ID: WidgetControl2
+								1634 pane WidgetControl1 ID: WidgetControl1
+			1435 window Afterburn All-inclusive str300.Start Secondary Actions: Raise ID: DesignView8f2769da-d1ac-4566-b62f-da40cb8cf3fb8
+				1436 pane DesignerFrame ID: 331764
+					1437 pane OverlayControl ID: 266248
+						1438 pane AdornerWindow ID: 266246
+						1439 pane DesignViewRoot ID: 21761464
+							1440 pane Start ID: 200670
+								1441 pane WidgetControl8 ID: WidgetControl8
+								1442 pane WidgetControl7 ID: WidgetControl7
+								1443 pane WidgetControl6 ID: WidgetControl6
+								1444 pane WidgetControl5 ID: WidgetControl5
+								1445 pane WidgetControl4 ID: WidgetControl4
+								1446 pane WidgetControl3 ID: WidgetControl3
+								1447 pane WidgetControl2 ID: WidgetControl2
+								1448 pane WidgetControl1 ID: WidgetControl1
+			1449 window Afterburn All-inclusive str300.Start Secondary Actions: Raise ID: DesignView2cb5058d-eae6-44de-b4a2-43ba06b42ee18
+				1450 pane DesignerFrame ID: 68868
+					1451 pane OverlayControl ID: 68824
+						1452 pane AdornerWindow ID: 68826
+						1453 pane DesignViewRoot ID: 68822
+							1454 pane Start ID: 68834
+								1455 pane WidgetControl8 ID: WidgetControl8
+								1456 pane WidgetControl7 ID: WidgetControl7
+								1457 pane WidgetControl6 ID: WidgetControl6
+								1458 pane WidgetControl5 ID: WidgetControl5
+								1459 pane WidgetControl4 ID: WidgetControl4
+								1460 pane WidgetControl3 ID: WidgetControl3
+								1461 pane WidgetControl2 ID: WidgetControl2
+								1462 pane WidgetControl1 ID: WidgetControl1
+		1463 tool bar ID: tsProGroup1
+			1464 button New Project
+			1465 button Open Project
+			1466 button Save
+			1467 button Save And Build
+			1468 separator
+			1469 button Print
+			1470 button Print Preview
+			1471 separator
+			1472 button Cut
+			1473 button Copy
+			1474 button (disabled) Paste
+			1475 separator
+			1476 button Undo
+			1477 button (disabled) Redo
+			1478 separator
+			1479 button Show Control Info
+			1480 button Show Object Layer Indicator
+			1481 button Monochrome Mode
+			1482 button Hide Popup Page References
+			1483 separator
+			1484 button Verify
+			1485 separator
+			1486 button Character Map
+			1487 button Font Dialog
+			1488 separator
+			1489 button Align Lefts
+			1490 button Align Horizontal Centers
+			1491 button Align Rights
+			1492 button Align Tops
+			1493 button Align Vertical Centers
+			1494 button Align Bottoms
+			1495 separator
+			1496 button Align Page Tops
+			1497 button Align Page Vertical Center
+			1498 button Align Page Bottom
+			1499 button Align Page Left
+			1500 button Align Page Horizontal Center
+			1501 button Align Page Right
+			1502 separator
+			1503 button Bring to Front
+			1504 button Bring Forward
+			1505 button Send Backward
+			1506 button Send to Back
+			1507 separator
+			1508 button Make Same Width
+			1509 button Make Same Height
+			1510 button Make Same Size
+			1511 button Vertical Spacing Make Same
+			1512 button Vertical Spacing Increase
+			1513 button Vertical Spacing Decrease
+			1514 button Vertical Spacing Remove
+			1515 menu item ToolBar Options
+		1516 status bar Main Status Strip ID: mStatusStrip
+			1517 slider (settable, string) Value: 50 ID: 133640
+				1842 button Page left
+				1843 thumb Position
+				1844 button Page right
+			1521 text Afterburn All-inclusive str300.Start
+			1522 text
+			1523 text Panel RAM Usage 2%
+			1524 progress bar Value: 2 ID: 133638
+			1525 text khusan.turaev@red-mouse.com
+			1526 button 100%
+			1527 button Active View Zoom Out
+			1528 button Active View Zoom In
+			1529 button Active View Fit to Page
+		1530 menu bar Main Menu ID: mMainMenuBar
+			1531 menu item File
+			1532 menu item Edit
+			1533 menu item Project
+			1534 menu item Layout
+			1535 menu item Tools
+			1536 menu item View
+			1537 menu item Window
+			1538 menu item Help
+		209 title bar (settable, string) Value: GUI Designer - [TLP Pro 300M: Full-Test-Project-music.gdl*]
+			210 menu bar System ID: MenuBar
+				1638 menu item System
+			212 button Minimize
+			213 button Maximize
+			214 button Close
+
+Document text: ```
+1
+```

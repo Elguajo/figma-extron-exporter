@@ -1,0 +1,62 @@
+PASS CRC32 standard check vector
+PASS DEFLATE from standard ZIP writer
+PASS Stored entry
+PASS Repack preserves payload and supports a second repack
+PASS Reject truncated container
+PASS Reject wrong local signature
+PASS Reject central directory outside file
+PASS Reject mismatched metadata
+PASS Reject payload corruption even with consistent stored sizes
+PASS Reject oversized declared payload before allocating
+PASS Reject encrypted/data-descriptor flags
+PASS Reject expansion beyond declared size
+PASS Reject expansion shorter than declared size
+PASS Reject foreign entry name
+PASS Reject multi-entry declaration
+PASS Reject non-NRBF data
+PASS Real GDL decode + unchanged NRBF after repack
+PASS 1025 ZRTP Dark.glt
+PASS 1025 ZRTP Light.glt
+PASS 725 ZRTP Dark.glt
+PASS 725 ZRTP Light.glt
+PASS Afterburn 1020 Series.glt
+PASS Afterburn 1220 Series.glt
+PASS Afterburn 1230 Series.glt
+PASS Afterburn 1520 Series.glt
+PASS Afterburn 1720 Series.glt
+PASS Afterburn 300 Landscape Series.glt
+PASS Afterburn 300 Portrait Series.glt
+PASS Afterburn 300 Series.glt
+PASS Afterburn 320 Series.glt
+PASS Afterburn 520 Series.glt
+PASS Afterburn 535 Series.glt
+PASS Afterburn ECP 16-10 Series.glt
+PASS Afterburn ECP 16-9 Series.glt
+PASS ECW for Teams Rooms 16x10_2.0.0.glt
+PASS ECW for Teams Rooms 16x9_2.0.0.glt
+PASS Extron Control for Teams Rooms 16x10.glt
+PASS Extron Control for Teams Rooms 16x9.glt
+PASS Extron Control for Zoom Rooms Dark.glt
+PASS Extron Control for Zoom Rooms Light.glt
+PASS Mach 1020 Series.glt
+PASS Mach 1220 Series.glt
+PASS Mach 1520 Series.glt
+PASS Mach 1720 Series.glt
+PASS Mach 300 Series.glt
+PASS Mach 320 Series.glt
+PASS Mach 520 Series.glt
+PASS Mach 535 Series.glt
+PASS Mach 720 Series.glt
+PASS Mach ECP 16-10 Series.glt
+PASS Mach ECP 16-9 Series.glt
+PASS Shockwave 1020 Series.glt
+PASS Shockwave 1220 Series.glt
+PASS Shockwave 1520 Series.glt
+PASS Shockwave 1720 Series.glt
+PASS Shockwave 320 Series.glt
+PASS Shockwave 520 Series.glt
+PASS Shockwave 535 Series.glt
+PASS Shockwave 720 Series.glt
+PASS Shockwave ECP 16-10 Series.glt
+PASS Shockwave ECP 16-9 Series.glt
+RESULT: 61 passed, 0 failed. GUI Designer validation is separate.

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "samples": [
+    {
+      "file": "samples/original/Full-Test-Project.gdl",
+      "source": "../Full-Test-Project.gdl",
+      "sha256": "ba092e45129e08a1a8e2ec601f0ea95b7f07c7670ab7693fa9f3c956af6752e1",
+      "bytes": 1592701,
+      "guiDesignerVersion": "1.28.0.7",
+      "observedProfile": "TLP Pro 300M (open original window title)",
+      "description": "Existing user project; not a minimal controlled fixture",
+      "immutableByPolicy": true
+    }
+  ]
+}

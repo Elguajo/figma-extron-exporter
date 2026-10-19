@@ -1,0 +1,32 @@
+[
+  {
+    "path": "samples/original/Full-Test-Project.gdl",
+    "bytes": 1592701,
+    "sha256": "BA092E45129E08A1A8E2EC601F0EA95B7F07C7670AB7693FA9F3C956AF6752E1"
+  },
+  {
+    "path": "../Full-Test-Project.gdl",
+    "bytes": 1592701,
+    "sha256": "BA092E45129E08A1A8E2EC601F0EA95B7F07C7670AB7693FA9F3C956AF6752E1"
+  },
+  {
+    "path": "output/Full-Test-Project-repacked-before-gui.gdl",
+    "bytes": 1612654,
+    "sha256": "BDE05538CAD3632B3330436A5B97EC88710CE7616F278CFE71EB962A475884D2"
+  },
+  {
+    "path": "output/Full-Test-Project-repacked.gdl",
+    "bytes": 2562606,
+    "sha256": "5930B7BC14E77A4708C45DA00FEF76227FB30E7CF4EC1D15C38420704D68628F"
+  },
+  {
+    "path": "output/Full-Test-Project-music-generated.gdl",
+    "bytes": 1612656,
+    "sha256": "548FB94E4971C2530AB3992C2D3B64CFD0BFEE48161FEA8439B66D3E1CC060C1"
+  },
+  {
+    "path": "output/Full-Test-Project-music.gdl",
+    "bytes": 2562619,
+    "sha256": "22439A46458F3274D7297E6E10BAFE2BCDF8373DD495BB3FF4E62FBB7F9E614B"
+  }
+]
