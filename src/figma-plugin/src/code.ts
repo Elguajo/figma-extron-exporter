@@ -1,4 +1,4 @@
-import { DATA_KEY, PROFILES, ROLE_ID, fail, integer, key, readMetadata, text, type Metadata, type Profile, type Role } from './model.ts';
+import { DATA_KEY, PROFILES, ROLE_ID, CONTROL_KINDS, ELEMENT_KINDS, elementCount, fail, integer, key, readMetadata, text, type Metadata, type Profile, type Role } from './model.ts';
 import { capture, exportFrame } from './export.ts';
 import { createDemo, tag } from './demo.ts';
 import { recognize, applyRecognition, type RecognitionPlan } from './recognize.ts';
@@ -10,12 +10,14 @@ let busy=false;
 let recognition:RecognitionPlan|undefined, recognitionToken=0;
 function selected():SceneNode {const selection=figma.currentPage.selection;if(selection.length!==1)fail('selection','Выберите один Frame экрана или один его элемент.');return selection[0];}
 function screenOf(node:SceneNode):FrameNode {
-  let current:BaseNode|null=node;
+  let current:BaseNode|null=node,found:FrameNode|undefined;
   while(current&&current.type!=='PAGE') {
     const metadata=readMetadata(current);
-    if(metadata?.kind==='page'&&current.type==='FRAME')return current;
+    if(metadata?.kind==='project'&&current.type==='FRAME')return current;
+    if(metadata?.kind==='page'&&current.type==='FRAME')found=current;
     current=current.parent;
   }
+  if(found)return found;
   return fail('screen-unprepared','У выбранного макета ещё нет назначения «Экран». Выберите внешний Frame и профиль, затем нажмите «Распознать по именам» и сохраните назначения. Для ручной подготовки используйте «Подготовить выбранный экран» и «Назначение выбранного элемента».');
 }
 function prepare(profile:Profile|undefined):void {
@@ -39,36 +41,55 @@ function prepare(profile:Profile|undefined):void {
 }
 function publish():void {
   try {const n=selected();let metadata:Metadata|null=null;let warning='';try{metadata=readMetadata(n);}catch(e){warning=String((e as Error).message);}
-    figma.ui.postMessage({type:'selection',id:n.id,name:n.name,nodeType:n.type,metadata,warning});
+    let states:{stateId?:number;name?:string;role?:Role}[]=[];
+    try{if(n.type==='FRAME'&&['button','level'].includes(metadata?.kind??''))states=n.children.map(c=>readMetadata(c)).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}
+    catch(e){warning=warning||(e instanceof Error?e.message:String(e));}
+    figma.ui.postMessage({type:'selection',id:n.id,name:n.name,nodeType:n.type,metadata,warning,states});
   }catch {figma.ui.postMessage({type:'selection',id:null,name:'Выберите один элемент или Frame экрана'});}
 }
 function apply(data:Record<string,unknown>):void {
-  const node=selected();const kind=data.kind as Metadata['kind'];
+  const node=selected(),kind=data.kind as Metadata['kind'];
+  if(!['project','page','popup','popup-group','state','image',...ELEMENT_KINDS].includes(kind))fail('kind','Выберите назначение.');
   const value:Omit<Metadata,'schema'|'ownerNodeId'>={kind};
-  if(['page','button','label','level','graphic'].includes(kind)) {
-    value.key=key(data.key,'Ключ');value.objectId=integer(Number(data.objectId),1,kind==='page'?65534:1000000,'objectId');
-    if(kind!=='page')value.controlId=kind==='label'||kind==='graphic'?null:integer(Number(data.controlId),1,65535,'controlId');
-  }
-  if(kind==='page') {
+  if(!['state','image'].includes(kind))value.key=key(data.key,'Ключ');
+  if(!['project','state','image'].includes(kind))value.objectId=integer(Number(data.objectId),1,['page','popup'].includes(kind)?65534:kind==='popup-group'?65535:1000000,'objectId');
+  if(ELEMENT_KINDS.includes(kind))value.controlId=CONTROL_KINDS.includes(kind)?integer(Number(data.controlId),1,65535,'controlId'):null;
+  if(['project','page','popup'].includes(kind)){
     if(!Object.prototype.hasOwnProperty.call(PROFILES,String(data.profile)))fail('profile','Выберите профиль панели.');
     value.profile=data.profile as Profile;value.projectName=text(data.projectName,'Имя проекта');
-  }else if(kind==='state') {
-    if(!Object.prototype.hasOwnProperty.call(ROLE_ID,String(data.role)))fail('states','Выберите роль состояния.');
-    value.role=data.role as Role;value.stateId=ROLE_ID[value.role];value.stateName=text(data.stateName,'Имя состояния');
-  }else if(kind==='image'||kind==='graphic') {
-    value.key=key(data.key,'Ключ ресурса');value.file=String(data.file);value.resourceName=String(data.resourceName);
-    if(!/^assets\/[a-z0-9][a-z0-9-]{0,63}\.png$/.test(value.file)||/[\r\n]/.test(value.file)||!/^[A-Za-z0-9][A-Za-z0-9._-]{0,95}\.png$/.test(value.resourceName)||/[\r\n]/.test(value.resourceName)) fail('image','Задайте assets/name.png и ASCII resourceName.png.');
-  }else if(!['button','label','level'].includes(kind))fail('kind','Выберите назначение элемента.');
-  if(kind==='label'?node.type!=='TEXT':node.type!=='FRAME') fail('node-type',kind==='label'?'Для Label выберите Text.':'Для этого назначения выберите Frame.');
-  if(kind!=='page') {
-    const parentKind=node.parent?readMetadata(node.parent)?.kind:undefined;
-    const expected=kind==='state'?'button':kind==='image'?'state':'page';
-    if(parentKind!==expected)fail('placement',`${node.name}: сначала назначьте родительский Frame как ${expected}. Текст внутри состояния кнопки не является отдельным Label.`);
+    if(kind!=='project'&&data.shownBy){if(!['start','navigation','program'].includes(String(data.shownBy)))fail('page','Выберите способ показа.');value.shownBy=data.shownBy as Metadata['shownBy'];}
+    if(kind==='popup')value.modal=data.modal==='true';
   }
+  if(kind==='state'){
+    if(!Object.prototype.hasOwnProperty.call(ROLE_ID,String(data.role)))fail('states','Выберите роль состояния.');
+    value.role=data.role as Role;value.stateId=data.stateId!==''&&data.stateId!==undefined?integer(Number(data.stateId),0,7,'stateId'):ROLE_ID[value.role];value.stateName=text(data.stateName,'Имя состояния');
+  }
+  if(kind==='image'||kind==='graphic'){
+    value.key=key(data.key,'Ключ ресурса');value.file=String(data.file);value.resourceName=String(data.resourceName);
+    if(!/^assets\/[a-z0-9][a-z0-9-]{0,63}\.png$/.test(value.file)||/[\r\n]/.test(value.file)||!/^[A-Za-z0-9][A-Za-z0-9._-]{0,95}\.png$/.test(value.resourceName)||/[\r\n]/.test(value.resourceName))fail('image','Задайте assets/name.png и ASCII resourceName.png.');
+  }
+  if(kind==='level'||kind==='slider'){
+    if(kind==='level'){if(!['slider','gauge','volume-led','multistate'].includes(String(data.display)))fail('level','Выберите режим Level.');value.display=data.display as Metadata['display'];}
+    if(!['left-to-right','right-to-left','bottom-to-top','top-to-bottom'].includes(String(data.orientation)))fail('orientation','Выберите ориентацию.');
+    value.orientation=data.orientation as Metadata['orientation'];value.min=integer(Number(data.min),0,2147483646,'Минимум');value.max=integer(Number(data.max),1,2147483647,'Максимум');if(value.min>=value.max)fail('range','Минимум должен быть меньше максимума.');
+  }
+  if(kind==='datetime')value.pattern=text(data.pattern,'Формат даты/времени');
+  if(kind==='popup-ref'){if(!!data.popup===!!data.group)fail('popup-ref','Укажите popup или группу.');if(data.popup)value.popup=key(data.popup,'Ключ popup');if(data.group)value.group=key(data.group,'Ключ группы');}
+  if(kind==='button'&&data.navigate)value.navigate=key(data.navigate,'Цель перехода');
+  if(CONTROL_KINDS.includes(kind)){
+    const behavior:NonNullable<Metadata['behavior']>={};if(data.selectionGroup){if(kind!=='button')fail('behavior','Группа выбора применяется к кнопкам.');behavior.selectionGroup=key(data.selectionGroup,'Группа выбора');}
+    for(const field of ['enabled','visible'] as const)if(data[field]!==''&&data[field]!==undefined){if(!['true','false'].includes(String(data[field])))fail('behavior','Выберите значение поведения.');behavior[field]=data[field]==='true';}
+    if(Object.keys(behavior).length)value.behavior=behavior;
+  }
+  const textKind=['label','value','datetime'].includes(kind),primitive=['shape','line'].includes(kind);
+  if(textKind?node.type!=='TEXT':primitive?!['FRAME','RECTANGLE','ELLIPSE'].includes(node.type):node.type!=='FRAME')fail('node-type',textKind?'Для этого назначения нужен Text.':primitive?'Выберите Frame, Rectangle или Ellipse.':'Выберите Frame.');
+  const parentKind=node.parent?readMetadata(node.parent)?.kind:undefined;
+  const allowed=kind==='project'?[undefined]:kind==='page'?[undefined,'project']:kind==='popup'?['project','popup-group']:kind==='popup-group'?['project']:kind==='state'?['button','level']:kind==='image'?['state']:['page','popup'];
+  if(!allowed.includes(parentKind))fail('placement',`${node.name}: недопустимый родитель для ${kind}.`);
   tag(node,value);
 }
 figma.on('selectionchange',()=>{recognition=undefined;publish();});
-figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;token?:number})=>{
+figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number})=>{
   if(message.type==='ready'){publish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
@@ -91,13 +112,15 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       prepare(message.profile);publish();figma.ui.postMessage({type:'success',message:'Назначение «Экран» сохранено. Далее нажмите «Распознать по именам» либо назначьте элементы вручную, затем нажмите «Проверить экран». Слои макета не изменены.'});
     }else if(message.type==='apply') {apply(message.data??{});publish();figma.ui.postMessage({type:'success',message:'Назначение сохранено в Figma-узле.'});}
     else if(message.type==='preview') {
-      const node=selected();if(node.type!=='FRAME'||readMetadata(node)?.kind!=='button')fail('selection','Выберите Frame кнопки.');
-      const role=message.role;if(!role||!Object.prototype.hasOwnProperty.call(ROLE_ID,role))fail('states','Выберите роль состояния.');
+      const node=selected();if(node.type!=='FRAME'||!['button','level'].includes(readMetadata(node)?.kind??''))fail('selection','Выберите Frame кнопки.');
+      const role=message.role;if(message.stateId===undefined&&(!role||!Object.prototype.hasOwnProperty.call(ROLE_ID,role)))fail('states','Выберите состояние.');
+      if(message.stateId!==undefined)integer(message.stateId,0,7,'ID состояния');
       const children=node.children.map(n=>({node:n,metadata:readMetadata(n)}));
-      if(![2,3].includes(children.length)||children.some(c=>c.metadata?.kind!=='state')||children.filter(c=>c.metadata?.role===role).length!==1)fail('states','У кнопки должны быть назначены Normal/Pressed, Off/On либо Off/On/Pressed. Выберите существующую роль.');
-      for(const c of children)c.node.visible=c.metadata!.role===role;
-      figma.ui.postMessage({type:'success',message:`Показано состояние ${role}. При экспорте сохраняются все состояния кнопки.`});
-    }else if(message.type==='check') {const c=capture(screenOf(selected()));figma.ui.postMessage({type:'success',message:`Экран проверен: ${c.screen.elements.length} элемента, ${c.screen.assets.length} PNG. Декодирование PNG проверит CLI после экспорта.`});}
+      const matches=(m:Metadata|null)=>message.stateId!==undefined?m?.stateId===message.stateId:m?.role===role;
+      if(children.length<2||children.length>8||children.some(c=>c.metadata?.kind!=='state')||children.filter(c=>matches(c.metadata)).length!==1)fail('states','Выберите одно назначенное состояние; при нескольких feedback используйте его ID.');
+      for(const c of children)c.node.visible=matches(c.metadata);
+      figma.ui.postMessage({type:'success',message:`Показано состояние ${message.stateId??role}. При экспорте сохраняются все состояния.`});
+    }else if(message.type==='check') {const c=capture(screenOf(selected()));figma.ui.postMessage({type:'success',message:`Макет проверен: ${elementCount(c.screen)} элемента, ${c.screen.assets.length} PNG. Декодирование PNG проверит CLI после экспорта.`});}
     else if(message.type==='export') {
       const bundle=await exportFrame(screenOf(selected()),message=>figma.ui.postMessage({type:'progress',message}));
       figma.ui.postMessage({type:'bundle',bundle});

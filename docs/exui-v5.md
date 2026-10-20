@@ -1,0 +1,64 @@
+# Контракт exui/5: расширенные нативные элементы и проект Figma
+
+20.10.2026. Producer: плагин 0.2.0. Форматы exui/1–4 не меняются. Версия выбирается только по `manifest.schema`; автоматического fallback нет. Старый CLI может отклонить exui/5 и новые поля реестра доноров.
+
+ZIP/PNG/JSON, ограничения размера, CRC/SHA-256, пути, шрифты и профили остаются прежними. Схемы: [manifest](../schemas/exui-v5/manifest.schema.json), [screen](../schemas/exui-v5/screen.schema.json). Пакет не задаёт DLL, путь доноров, нативный тип или исполняемый код.
+
+## Две формы screen.json
+
+| Форма | Поля |
+|---|---|
+| Один экран | schema, project, page, assets, elements |
+| Проект | schema, project, pages, popups, groups, assets |
+
+`schema` = `exui-screen/5`; смешивать формы нельзя. Контейнерный вариант использует правила [exui/2](exui-v2.md): ровно одна стартовая страница, общие ID/имена страниц и popup, ссылки и группы, обратные ссылки, modal, достижимость navigation. Все новые типы доступны на страницах и в popup; popup-ref только на страницах.
+
+## Элементы
+
+Общие поля: key, kind, objectId, controlId, name, rect. Все свойства строго перечислены схемой; неизвестные и не относящиеся к типу поля отклоняются.
+
+| kind | Нативный тип | Дополнительные поля |
+|---|---|---|
+| button | PBButton | font, states, optional press/navigate/behavior |
+| label | PBLabel | Статичный текст: text, textColor, font; controlId=null |
+| value | PBLabel | text, textColor, font; обязательный controlId; dynamicText=true; optional behavior |
+| level | PBLevel | display=slider/gauge/multistate/volume-led, orientation, min/max, fillColor; optional behavior; у multistate обязательны states и font |
+| slider | PBSlider | orientation, min/max, fillColor, native; обязательный controlId; optional behavior |
+| graphic | PBImage | image: ключ PNG; controlId=null, правила exui/4 |
+| shape | PBShape | fillColor, native; controlId=null |
+| line | PBLine | fillColor, native; controlId=null |
+| datetime | PBDateTime | font, textColor, native; controlId=null |
+| popup-ref | PBPopupPageReference | popup либо group; controlId=null |
+
+Направления: left-to-right, right-to-left, bottom-to-top, top-to-bottom. Диапазон: целые `0 <= min < max <= 2147483647`. Value не связывается с Level/Slider автоматически; обновление и форматирование делает программа управления.
+
+| native для типа | Состав |
+|---|---|
+| slider | trackColor, trackWidth, thumbColor, thumbWidth, thumbHeight, thumbType=ellipse/rectangle/none, radius |
+| shape | shape=rectangle/ellipse, radius, strokeColor, thickness |
+| line | thickness; направление по большей стороне rect; концы Flat, по центрам противоположных сторон |
+| datetime | pattern, например dd.MM.yyyy HH:mm |
+
+Все поля соответствующей native-структуры обязательны. Размеры бегунка, толщина и скругление должны помещаться в геометрию. Сплошные RGB-цвета. Нативные изображения Slider пока не поддержаны. В Figma Track/Fill/Thumb — геометрическое описание и preview; положение Thumb не задаёт начальное значение устройства.
+
+## Состояния и указания программе
+
+У Button и Multistate Level 2..8 состояний. Явные stateId плотные 0..N, независимы от порядка массива. Первый и только первый normal, следующие feedback либо один pressed; Multistate Level без pressed. Имена уникальны, виды различимы. press, если указан, именует pressed. Если pressed отсутствует, press также отсутствует и press feedback=-1. Прежняя двухсостояниевая Normal/Pressed остаётся допустимой.
+
+`behavior`: optional selectionGroup (ключ, только Button), enabled/visible (boolean). Это **указания для программы управления** в id-map, а не native actions, отключение/скрытие объекта или автоматически созданная ControlScript-программа. Контрол должен иметь controlId. State Disabled задаёт только внешний вид. navigate сохраняет прежний смысл указания программисту.
+
+## Writer и независимая проверка
+
+PBShape (Offline Page), PBLine (Main), PBDateTime (Start) клонируются из прежних закреплённых доноров. Хеши донорских GDL не менялись; в реестр добавлены только ссылки на уже находящиеся в них объекты. PBSlider создаётся проверенным parameterless data-конструктором 1.28.0.7; сериализованная общая база копируется из клона PBLevel и ObjectType меняется на Slider. Все действия только в прежнем отдельном x86-хосте.
+
+Для Shape/Slider создаётся собственный PBBorderResource из закреплённого `2D Rectangle`, задаются форма, radius, thickness и 2D style. Старые ресурсы не изменяются. Multistate Level получает клон PBStates из кнопки-донора, затем ровно заданные состояния.
+
+NRBF-reader не загружает Extron и проверяет класс, native ObjectType, ID, rect, цвета, размеры дорожки/бегунка, диапазон/направление, border resource, параметры Line/DateTime, dynamicText, все состояния и контейнерные связи. Публикуется новый GDL только после успешной проверки. Проверка нативного объекта не подтверждает его отрисовку/Build на панели.
+
+## Плагин и сохранённые документы
+
+Старые metadata/1 читаются без перезаписи. Новые типы/свойства используют metadata/2 под тем же ключом exui; старый плагин их отклоняет. Реестр экрана/1 сохраняется, проект использует реестр/2 с nextContainerId/nextGroupId. Повреждённый реестр не сбрасывается. Исторические резервы включённых экранов учитываются, активные конфликты ID требуют явного решения автора.
+
+Видео и Dynamic Image для профилей 1025M/300M не входят в контракт: плагин выдаёт явную ошибку вместо растрирования. Новые профили потребуют самостоятельного расширения.
+
+Примеры: [exui-v5](../examples/exui-v5/README.md). [Стандарт Figma](../src/figma-plugin/AUTHORING_STANDARD.md), [протокол](../verification/results/2026-10-20-expanded-controls.md).

@@ -10,7 +10,7 @@ export function rect(node: SceneNode, parent: SceneNode): number[] {
     fail('geometry', `${node.name}: координаты и размеры должны быть целыми пикселями.`);
   return values.map(Math.round);
 }
-export function plain(node: SceneNode, allowHidden = false): void {
+export function plain(node: SceneNode, allowHidden = false, decorated = false): void {
   if ((!allowHidden && !node.visible) || ('opacity' in node && node.opacity !== 1) || ('isMask' in node && node.isMask) ||
       ('blendMode' in node && node.blendMode !== 'PASS_THROUGH' && node.blendMode !== 'NORMAL'))
     fail('appearance', `${node.name}: скрытые элементы, opacity, маски и blend modes не поддержаны.`);
@@ -18,8 +18,8 @@ export function plain(node: SceneNode, allowHidden = false): void {
   if (transforms.some(t=>Math.abs(t[0][0]-1)>0.00001 || Math.abs(t[1][1]-1)>0.00001 || Math.abs(t[0][1])>0.00001 || Math.abs(t[1][0])>0.00001))
     fail('transform', `${node.name}: поворот, отражение и skew не поддержаны.`);
   if ('effects' in node && node.effects.some(e => e.visible !== false)) fail('appearance', `${node.name}: эффекты не входят в .exui/1.`);
-  if ('strokes' in node && node.strokes.some(p => p.visible !== false)) fail('appearance', `${node.name}: обводки не входят в .exui/1.`);
-  if ('cornerRadius' in node && node.cornerRadius !== 0) fail('appearance', `${node.name}: скругление не входит в .exui/1.`);
+  if (!decorated && 'strokes' in node && node.strokes.some(p => p.visible !== false)) fail('appearance', `${node.name}: обводки не входят в .exui/1.`);
+  if (!decorated && 'cornerRadius' in node && node.cornerRadius !== 0) fail('appearance', `${node.name}: скругление не входит в .exui/1.`);
   if ('reactions' in node && node.reactions.length) fail('interaction', `${node.name}: переходы Figma не экспортируются. Уберите prototype interactions.`);
 }
 export function color(node: SceneNode): string {

@@ -5,11 +5,13 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { fakeFigma, icons } from './fake-figma.ts';
-import { createDemo } from '../src/demo.ts';
+import { createDemo,tag } from '../src/demo.ts';
 import { exportFrame } from '../src/export.ts';
 import { packageExui } from '../src/package.ts';
 import { namedFixture, graphicFixture } from './named-fixture.ts';
 import { recognize, applyRecognition } from '../src/recognize.ts';
+import { expandedFixture,projectFixture,verticalFixture } from './expanded-fixture.ts';
+import { readMetadata } from '../src/model.ts';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 const dotnet=process.env.DOTNET_EXE??'dotnet',registry=process.env.EXUI_DONOR_REGISTRY;
 const out=path.resolve(process.argv[2]??path.join(root,'output/figma-plugin',new Date().toISOString().replace(/[:.]/g,'-')));
@@ -66,6 +68,30 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
     row.nativeLogoAndMomentaryVerified=true;
   }
   evidence.push(row);console.log(`PASS ${profile}: logo + yellow Normal/Pressed → exui/4 → CLI${registry?' → PBImage + press feedback 1':''}`);
+}
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
+ for(const [name,fixture] of [['expanded',expandedFixture],['project',projectFixture],['vertical',verticalFixture]] as const){
+  fakeFigma();const frame=fixture(profile),plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const homeNode=name==='project'?(frame.children[0] as FrameNode):frame;
+  const button=homeNode.children.find(n=>n.name==='button_Connection')!;tag(button,{...readMetadata(button)!,behavior:{selectionGroup:'sources.hall',enabled:true,visible:true},...(name==='project'?{navigate:'page.settings'}:{})});
+  if(name==='project'){const settings=frame.children.find(n=>n.name==='screen_Settings')!;tag(settings,{...readMetadata(settings)!,shownBy:'navigation'});}
+  const bundle=await exportFrame(frame),input=path.join(out,`${name}-${profile}.exui`);await writeFile(input,packageExui(bundle),{flag:'wx'});const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/5');
+  const row:Record<string,unknown>={profile,name,validation,figmaBoundary:'fake Figma API; real native writer and independent NRBF'};
+  if(registry){const output=path.join(out,`${name}-${profile}.gdl`);row.generation=cli(['convert-package',input,output,'--registry',registry]);const report=JSON.parse(await readFile(output+'.report.json','utf8'));assert.ok(report.Generation.Checks.every((c:any)=>c.Passed));
+   const model=cli(['list-controls',output]).model,home=model.Pages.find((p:any)=>p.Name==='Home'),controls=home.Controls;
+   const nativeSlider=controls.find((c:any)=>c.Comments==='exui-key=home.volume');
+   assert.equal(nativeSlider.Type,'PBSlider');assert.equal(nativeSlider.Native.Slider.ThumbImage,'Slider Thumb');
+   assert.equal(nativeSlider.Native.Slider.ThumbAspectRatio,nativeSlider.Native.Slider.ThumbHeight/nativeSlider.Native.Slider.ThumbWidth);
+   const nativeValue=controls.find((c:any)=>c.Comments==='exui-key=home.volumevalue');
+   assert.equal(nativeValue.Native.DynamicText,true);assert.equal(nativeValue.TextAlignment,4);
+   assert.equal(controls.find((c:any)=>c.Comments==='exui-key=home.card').Type,'PBShape');assert.equal(controls.find((c:any)=>c.Comments==='exui-key=home.divider').Type,'PBLine');assert.equal(controls.find((c:any)=>c.Comments==='exui-key=home.clock').Type,'PBDateTime');
+   assert.equal(controls.find((c:any)=>c.Comments==='exui-key=home.status').States.length,3);assert.equal(controls.find((c:any)=>c.Comments==='exui-key=home.connection').States.length,4);
+   if(name==='project'){assert.equal(model.Pages.length,2);assert.equal(model.Popups.length,5);assert.equal(model.Groups.length,1);}
+   if(name==='vertical'){const slider=controls.find((c:any)=>c.Type==='PBSlider').Native.Slider;assert.equal(slider.Orientation,2);assert.equal(slider.Min,10);assert.equal(slider.Max,255);const line=controls.find((c:any)=>c.Type==='PBLine').Native.Line;assert.equal(line.Start,0);assert.equal(line.End,4);const shape=controls.find((c:any)=>c.Type==='PBShape');assert.equal(model.Resources.find((r:any)=>r.Name===shape.Native.BorderName).Border.Shape,2);}
+   const mapResult=spawnSync(dotnet,[path.join(root,'src/cli/bin/Debug/net10.0/Extron.Cli.dll'),'id-map',input],{cwd:root,encoding:'utf8',timeout:60000});assert.equal(mapResult.status,0);assert.ok(mapResult.stdout.includes('sources.hall'));await writeFile(path.join(out,`${name}-${profile}.id-map.md`),mapResult.stdout,{flag:'wx'});
+  }
+  evidence.push(row);console.log(`PASS ${profile}: ${name} → exui/5 → CLI${registry?' → native types and independently verified states/containers':''}`);
+ }
 }
 await writeFile(path.join(out,'integration.json'),JSON.stringify(evidence,null,2)+'\n',{flag:'wx'});
 console.log('Evidence: '+out);

@@ -25,7 +25,8 @@ public sealed record ProjectModel(
             Nrbf.Int(platform, "horizontalResolutionField"), Nrbf.Int(platform, "verticalResolutionField"));
         var resources = Nrbf.List(Nrbf.Class(Nrbf.Class(root, "resourceSetField"), "resourcesField"))
             .Select(r => new ResourceModel(Nrbf.ShortName(r), Nrbf.String(r, "nameField") ?? "",
-                Nrbf.Has(r, "widthField") ? Nrbf.Int(r, "widthField") : null, Nrbf.Has(r, "heightField") ? Nrbf.Int(r, "heightField") : null))
+                Nrbf.Has(r, "widthField") ? Nrbf.Int(r, "widthField") : null, Nrbf.Has(r, "heightField") ? Nrbf.Int(r, "heightField") : null,
+                Nrbf.ShortName(r) == "PBBorderResource" && Nrbf.Class(r, "dataField") is { } bi && new[]{"typeField","cornerRadiusField","thicknessField","styleField"}.All(n=>Nrbf.Has(bi,n)) ? new BorderModel(Nrbf.EnumValue(bi,"typeField"),Nrbf.Int(bi,"cornerRadiusField"),Nrbf.Int(bi,"thicknessField"),Nrbf.EnumValue(bi,"styleField")) : null))
             .ToArray();
         return new(root.TypeName.FullName, Nrbf.String(root, "nameField") ?? "", Nrbf.String(root, "applicationBuildVersionInfoField") ?? "",
             root.GetRawValue("checksum") as ulong?, (ushort)(Nrbf.Primitive(root, "defaultPageField") ?? 0),
@@ -66,7 +67,12 @@ public sealed record ProjectModel(
         return new(Nrbf.ShortName(c), Nrbf.ULong(c, "idField"), Nrbf.ControlId(c), Nrbf.String(c, "nameField") ?? "",
             Nrbf.String(c, "commentsField"), Nrbf.Int(c, "leftField"), Nrbf.Int(c, "topField"), Nrbf.Int(c, "widthField"), Nrbf.Int(c, "heightField"),
             Nrbf.String(c, "textField"), Nrbf.Color(c, "textColorField"), states, level, press, Nrbf.ImageId(c), binding,
-            Nrbf.ShortName(c)=="PBImage" ? new GraphicModel(Nrbf.ImageName(c,"buttonImageField"),Nrbf.EnumValue(c,"buttonImageLayoutField"),Nrbf.EnumValue(c,"buttonImageAlignmentField"),Nrbf.Color(c,"backgroundFillColorField"),Nrbf.Color(c,"borderFillColorField"),Nrbf.EnumValue(c,"shapeTypeField")) : null);
+            Nrbf.ShortName(c)=="PBImage" ? new GraphicModel(Nrbf.ImageName(c,"backgroundImageField"),Nrbf.EnumValue(c,"backgroundImageLayoutField"),Nrbf.EnumValue(c,"backgroundImageAlignmentField"),Nrbf.Color(c,"backgroundFillColorField"),Nrbf.Color(c,"borderFillColorField"),Nrbf.EnumValue(c,"shapeTypeField")) : null,
+            new NativeControlModel(Nrbf.EnumValue(c,"typeField"),Nrbf.Has(c,"dynamicTextField") && (bool)(Nrbf.Primitive(c,"dynamicTextField") ?? false),Nrbf.ImageName(c,"borderField"),Nrbf.Color(c,"borderFillColorField"),Nrbf.Color(c,"borderColorField"),
+                Nrbf.ShortName(c)=="PBSlider" ? new SliderModel(Nrbf.EnumValue(c,"orientationField"),(uint)Nrbf.Primitive(c,"minValueField")!, (uint)Nrbf.Primitive(c,"maxValueField")!,Nrbf.Color(c,"sliderFillColorField"),Nrbf.Color(c,"sliderThumbColorField"),Nrbf.EnumValue(c,"sliderThumbTypeField"),Nrbf.Int(c,"sliderThumbWidth"),Nrbf.Int(c,"sliderThumbHeight"),Nrbf.Int(c,"sliderTrackWidth"),Nrbf.ImageName(c,"sliderThumbImageField"),(double)Nrbf.Primitive(c,"<SliderThumbRectFactor>k__BackingField")!) : null,
+                Nrbf.ShortName(c)=="PBLine" ? new LineModel(Nrbf.Int(c,"thicknessField"),Nrbf.EnumValue(c,"startPointField"),Nrbf.EnumValue(c,"endPointField"),Nrbf.EnumValue(c,"startCapField"),Nrbf.EnumValue(c,"endCapField")) : null,
+                Nrbf.ShortName(c)=="PBDateTime" ? Nrbf.String(c,"patternField") : null),
+            Nrbf.EnumValue(c,"textAlignmentField"));
     }
 }
 
@@ -97,7 +103,12 @@ public sealed record GroupModel(string Name, ushort Id, int ReferenceCount, int 
 
 public sealed record ControlModel(string Type, ulong ObjectId, ushort ControlId, string Name, string? Comments,
     int Left, int Top, int Width, int Height, string? Text, uint? TextColor, IReadOnlyList<StateModel> States,
-    LevelModel? Level, int? PressFeedbackState, int? TlpImageId, PopupBinding? PopupBinding = null, GraphicModel? Graphic = null);
+    LevelModel? Level, int? PressFeedbackState, int? TlpImageId, PopupBinding? PopupBinding = null, GraphicModel? Graphic = null, NativeControlModel? Native = null, int? TextAlignment = null);
+
+public sealed record NativeControlModel(int ObjectType,bool DynamicText, string? BorderName, uint? Fill, uint? Stroke, SliderModel? Slider, LineModel? Line, string? Pattern);
+public sealed record SliderModel(int Orientation,uint Min,uint Max,uint? Fill,uint? Thumb,int ThumbType,int ThumbWidth,int ThumbHeight,int TrackWidth,string? ThumbImage,double ThumbAspectRatio);
+public sealed record LineModel(int Thickness,int Start,int End,int StartCap,int EndCap);
+public sealed record BorderModel(int Shape,int Radius,int Thickness,int Style);
 
 public sealed record GraphicModel(string? Image, int Layout, int Alignment, uint? Background, uint? Border, int Shape);
 
@@ -105,7 +116,7 @@ public sealed record StateModel(string Name, ulong Id, int Index, string? Text, 
 
 public sealed record LevelModel(int DisplayType, int Orientation, uint Min, uint Max, uint? Fill);
 
-public sealed record ResourceModel(string Type, string Name, int? Width, int? Height);
+public sealed record ResourceModel(string Type, string Name, int? Width, int? Height, BorderModel? Border = null);
 
 /// <summary>Member access tolerant of BinaryFormatter's "BaseClass+field" naming for inherited fields.</summary>
 internal static class Nrbf

@@ -148,6 +148,16 @@ static class PagesTests
 
     public static void Graph(Action<string, Action> test, string realGdl)
     {
+        test("PBImage reader resolves the visible background image in the stock project", () =>
+        {
+            // GUI Designer's PBImage paints the background image fields, while
+            // PBButton states paint buttonImageField. This stock fixture was
+            // authored by GUI Designer, independently of our writer.
+            var model = ProjectModel.Read(ExtronContainer.ReadFile(realGdl).Payload);
+            var image = model.Popups.Single(p => p.Name == "Confirmation").Controls.Single(c => c.Type == "PBImage" && c.Name == "Image1");
+            Check(image.Graphic?.Image == "1600x2400_bg1-default.png");
+            Check(image.Graphic?.Layout == 0 && image.Graphic.Alignment == 3);
+        });
         test("Graph compare: same payload equal, edited label reported at its path, record IDs ignored", () =>
         {
             var payload = ExtronContainer.ReadFile(realGdl).Payload;

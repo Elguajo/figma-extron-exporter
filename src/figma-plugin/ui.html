@@ -23,18 +23,35 @@ small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);
 .table-scroll{max-height:240px;overflow:auto}table{border-collapse:collapse;width:100%;min-width:600px;font-size:11px}th,td{text-align:left;vertical-align:top;padding:5px;border-bottom:1px solid var(--figma-color-border,#ddd);white-space:nowrap}caption{text-align:left;font-weight:600;padding:6px 0}#recognitionNotes{padding-left:18px;font-size:11px}
 .prefix-reference{max-height:360px}.prefix-reference table{min-width:0;table-layout:fixed;font-size:10px}.prefix-reference th,.prefix-reference td{white-space:normal;overflow-wrap:anywhere}.prefix-reference th:nth-child(1),.prefix-reference th:nth-child(2){width:28%}
 </style></head><body>
-<h1>Figma → Extron Exporter · 0.1.5</h1><p class="sub">Подготовленный экран → .exui → редактируемый .gdl</p>
+<h1>Figma → Extron Exporter · 0.2.0</h1><p class="sub">Подготовленный экран → .exui → редактируемый .gdl</p>
 <fieldset><legend>Экран</legend>
-<p id="selection" class="selected">Выберите один Frame экрана</p>
+<p id="selection" class="selected">Выберите один Frame экрана или проекта</p>
 <label class="stack">Профиль панели<select id="profile"><option value="tlp-pro-1025m">TLP Pro 1025M · 1280×800</option><option value="tlp-pro-300m-portrait">TLP Pro 300M · 320×480</option></select></label>
 <button id="prepare" class="secondary" hidden>Подготовить выбранный экран</button>
 <small id="preparationHelp" hidden>Это собственный макет без назначения Extron. Используйте «Распознать по именам» ниже либо подготовьте экран и назначьте элементы вручную.</small>
-<button id="check" class="secondary">Проверить экран</button><small>Экспортируется один экран целиком. Ключи и ID сохраняются.</small>
+<button id="check" class="secondary">Проверить экран</button><small>Экспортируется экран или весь project_Name. Ключи и ID сохраняются.</small>
 </fieldset>
 <fieldset><legend>Назначить по именам</legend>
-<small>Выберите экран Home. Префиксы: btn_/button_, lvl_/level_, txt_/text_, logo_, img_/image_. Регистр букв не важен. Кнопки: Normal/Pressed, Off/On либо Off/On/Pressed.</small>
+<small>Выберите экран Home или project_Name. Префиксы: btn_/button_, lvl_/level_, txt_/text_, logo_, img_/image_. Регистр букв не важен. Кнопки: Normal/Pressed, Off/On либо Off/On/Pressed.</small>
 <details><summary>Справочник префиксов и состояний</summary><div class="table-scroll prefix-reference" role="region" aria-label="Справочник префиксов" tabindex="0"><table><caption>Как назвать слой</caption><thead><tr><th scope="col">Коротко</th><th scope="col">Полностью</th><th scope="col">Для чего и где</th></tr></thead><tbody>
 <tr><td>Home / scr_Home</td><td>screen_Home</td><td>Внешний Frame экрана</td></tr>
+<tr><td>prj_Trilliant</td><td>project_Trilliant</td><td>Frame всего проекта: страницы, popup и группы</td></tr>
+<tr><td>pop_Sources</td><td>popup_Sources</td><td>Обычный popup внутри проекта</td></tr>
+<tr><td>mdl_Confirm</td><td>modalpopup_Confirm</td><td>Модальный popup размером с панель</td></tr>
+<tr><td>pgrp_Zones</td><td>popupgroup_Zones</td><td>Frame группы взаимоисключающих popup</td></tr>
+<tr><td>pr_Sources</td><td>popupref_Sources</td><td>Пустой Frame места popup; цель popup.sources</td></tr>
+<tr><td>sld_Volume</td><td>slider_Volume</td><td>Нативный Slider: Track, Fill, Thumb</td></tr>
+<tr><td>gau_Signal</td><td>gauge_Signal</td><td>Пустой Frame индикатора уровня</td></tr>
+<tr><td>ind_Status</td><td>indicator_Status</td><td>Индикатор значения, режим Gauge</td></tr>
+<tr><td>led_Audio</td><td>volumeled_Audio</td><td>Пустой Frame уровня, режим Volume LED</td></tr>
+<tr><td>mlvl_Status</td><td>multilevel_Status</td><td>Level с 2–8 Frame состояний</td></tr>
+<tr><td>val_VolumeValue</td><td>value_VolumeValue</td><td>Text с динамическим значением и управляющим ID</td></tr>
+<tr><td>shp_Card</td><td>shape_Card</td><td>Пустой Frame, Rectangle или Ellipse; редактируемая фигура</td></tr>
+<tr><td>ln_Divider</td><td>line_Divider</td><td>Пустой Frame/Rectangle; толщина — меньшая сторона</td></tr>
+<tr><td>dt_Clock</td><td>datetime_Clock</td><td>Text с форматом HH:mm или dd.MM.yyyy HH:mm</td></tr>
+<tr><td>st_Ready</td><td>state_Ready</td><td>Дополнительное feedback-состояние; до 8 состояний</td></tr>
+<tr><td>vid_Preview</td><td>video_Preview</td><td>Недоступно для профилей 1025M/300M; экспорт отклоняется</td></tr>
+<tr><td>dimg_Cover</td><td>dynamicimage_Cover</td><td>Недоступно для профилей 1025M/300M; экспорт отклоняется</td></tr>
 <tr><td>btn_Music</td><td>button_Music</td><td>Кнопка внутри экрана</td></tr>
 <tr><td>btn_VolumeUp</td><td>button_VolumeUp</td><td>Кнопка «+», увеличить громкость</td></tr>
 <tr><td>btn_VolumeDown</td><td>button_VolumeDown</td><td>Кнопка «−», уменьшить громкость</td></tr>
@@ -47,7 +64,7 @@ small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);
 <tr><td>Off / Normal / st_Normal</td><td>state_Off / state_Normal</td><td>Исходное состояние кнопки</td></tr>
 <tr><td>On / Feedback / st_On</td><td>state_On / state_Feedback</td><td>Состояние от программы управления</td></tr>
 <tr><td>Pressed / st_Pressed</td><td>state_Pressed</td><td>Вид при удержании; после отпускания возврат</td></tr>
-</tbody></table></div><small>VolumeUp и volumeup равнозначны. Текст на кнопке задаётся внутри Text и может быть «+» или «−». Логотип и картинка экспортируются в PNG, сохраняя отдельный объект PBImage в GDL.</small></details>
+</tbody></table></div><small>VolumeUp и volumeup равнозначны. Текст на кнопке задаётся внутри Text и может быть «+» или «−». Логотип и картинка экспортируются в PNG, сохраняя отдельный объект PBImage в GDL. Новые типы требуют CLI с exui/5. Переходы и обновление значений выполняет программа управления.</small></details>
 <button id="recognize" class="secondary">Распознать по именам</button>
 <div id="recognitionReport" hidden><div class="table-scroll" role="region" aria-label="Результат распознавания" tabindex="0"><table><caption>Предлагаемые назначения</caption><thead><tr><th scope="col">Слой</th><th scope="col">Тип</th><th scope="col">Ключ</th><th scope="col">ID объекта</th><th scope="col">ID управления</th><th scope="col">Назначение</th></tr></thead><tbody id="recognitionRows"></tbody></table></div><ul id="recognitionNotes"></ul><button id="applyRecognition" class="secondary" disabled>Сохранить распознанные назначения</button></div>
 </fieldset>
@@ -56,23 +73,37 @@ small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);
 </fieldset>
 <fieldset><legend>Элементы</legend><details id="editor"><summary>Назначение выбранного элемента</summary>
 <p class="sub">Имена слоёв можно менять. Назначение, ключ и ID хранятся на узле. Копиям явно назначьте новые ключи и ID.</p>
-<p class="sub">На экране: кнопки, подписи, Level и изображения. Кнопки: Normal/Pressed, Off/On либо Off/On/Pressed; в каждом состоянии — Text и необязательная иконка. Логотип поместите в отдельный Frame logo_Company. Графика внутри логотипа/иконки растрируется; остальные элементы требуют совместимого оформления.</p>
+<p class="sub">На странице/popup: кнопки, Text/Value, Level, Slider, фигуры, линии, дата/время и изображения. Кнопки: Normal/Pressed, Off/On либо Off/On/Pressed; в каждом состоянии — Text и необязательная иконка. Логотип поместите в отдельный Frame logo_Company. Графика внутри логотипа/иконки растрируется; остальные элементы требуют совместимого оформления.</p>
 <form id="mapping">
-<label class="stack">Назначение<select id="kind"><option value="page">Экран · Frame</option><option value="button">Кнопка · Frame</option><option value="label">Подпись · Text</option><option value="level">Level / Slider · Frame</option><option value="graphic">Логотип / изображение · Frame</option><option value="state">Состояние кнопки · Frame</option><option value="image">PNG-иконка · Frame</option></select></label>
-<label class="stack" data-for="page button label level image graphic">Семантический ключ<input id="key" placeholder="source.music" autocomplete="off"></label>
-<div class="row"><label class="stack" data-for="page button label level graphic">ID объекта<input id="objectId" type="number" min="1" step="1"></label><label class="stack" data-for="button level">ID управления Extron<input id="controlId" type="number" min="1" max="65535" step="1"></label></div>
-<label class="stack" data-for="page">Имя проекта<input id="projectName" maxlength="256"></label>
+<label class="stack">Назначение<select id="kind"><option value="project">Проект · Frame</option><option value="page">Экран · Frame</option><option value="popup">Popup · Frame</option><option value="popup-group">Группа popup · Frame</option><option value="popup-ref">Место popup · Frame</option><option value="button">Кнопка · Frame</option><option value="label">Подпись · Text</option><option value="value">Динамическое значение · Text</option><option value="datetime">Дата/время · Text</option><option value="slider">Кастомный Slider · Frame</option><option value="shape">Фигура</option><option value="line">Линия</option><option value="level">Level / Slider · Frame</option><option value="graphic">Логотип / изображение · Frame</option><option value="state">Состояние кнопки · Frame</option><option value="image">PNG-иконка · Frame</option></select></label>
+<label class="stack" data-for="project page popup popup-group popup-ref button label value level slider shape line datetime image graphic">Семантический ключ<input id="key" placeholder="source.music" autocomplete="off"></label>
+<div class="row"><label class="stack" data-for="page popup popup-group popup-ref button label value level slider shape line datetime graphic">ID объекта<input id="objectId" type="number" min="1" step="1"></label><label class="stack" data-for="button level value slider">ID управления Extron<input id="controlId" type="number" min="1" max="65535" step="1"></label></div>
+<label class="stack" data-for="project page popup">Имя проекта<input id="projectName" maxlength="256"></label>
 <label class="stack" data-for="state">Роль<select id="role"><option value="normal">normal · исходный вид · ID 0</option><option value="feedback">feedback · от программы управления · ID 1</option><option value="pressed">pressed · пока держат кнопку · ID 2</option></select></label>
+<label class="stack" data-for="state">ID состояния<input id="stateId" type="number" min="0" max="7" step="1" placeholder="По роли для Normal / On / Pressed"></label>
 <label class="stack" data-for="state">Имя состояния<input id="stateName" placeholder="Off"></label>
 <label class="stack" data-for="image graphic">Файл PNG в пакете<input id="file" placeholder="assets/note-light.png"></label>
 <label class="stack" data-for="image graphic">Имя ресурса Extron<input id="resourceName" placeholder="exui-note-light.png"></label>
+<label class="stack" data-for="page popup">Показывается<select id="shownBy"><option value="">По умолчанию</option><option value="start">Стартовая страница</option><option value="program">Программой управления</option><option value="navigation">По кнопке, указанной в карте ID</option></select></label>
+<label class="stack" data-for="popup">Модальный popup<select id="modal"><option value="false">Нет</option><option value="true">Да</option></select></label>
+<label class="stack" data-for="popup-ref">Ключ popup<input id="popup" placeholder="popup.sources"></label>
+<label class="stack" data-for="popup-ref">Или ключ группы popup<input id="group" placeholder="group.zones"></label>
+<label class="stack" data-for="level">Режим Level<select id="display"><option value="slider">Простой Slider</option><option value="gauge">Gauge — индикатор</option><option value="volume-led">Volume LED</option><option value="multistate">Multistate Level</option></select></label>
+<label class="stack" data-for="level slider">Направление<select id="orientation"><option value="left-to-right">Слева направо</option><option value="right-to-left">Справа налево</option><option value="bottom-to-top">Снизу вверх</option><option value="top-to-bottom">Сверху вниз</option></select></label>
+<div class="row" data-for="level slider"><label class="stack">Минимум<input id="min" type="number" min="0" step="1" value="0"></label><label class="stack">Максимум<input id="max" type="number" min="1" step="1" value="100"></label></div>
+<label class="stack" data-for="datetime">Формат даты/времени<input id="pattern" placeholder="dd.MM.yyyy HH:mm"></label>
+<label class="stack" data-for="button">Ключ цели перехода<input id="navigate" placeholder="page.home или popup.sources"></label>
+<label class="stack" data-for="button">Группа выбора<input id="selectionGroup" placeholder="sources.hall"></label>
+<label class="stack" data-for="button level value slider">Доступность при запуске<select id="enabled"><option value="">Без указания</option><option value="true">Доступен</option><option value="false">Недоступен</option></select></label>
+<label class="stack" data-for="button level value slider">Видимость при запуске<select id="visible"><option value="">Без указания</option><option value="true">Виден</option><option value="false">Скрыт</option></select></label>
+<small data-for="button level value slider">Переходы, группа выбора, доступность и видимость — указания в карте ID. Их применяет программа управления; GDL сам их не исполняет.</small>
 <button class="secondary" type="submit">Сохранить назначение</button>
 </form>
-<div data-for="button"><label class="stack">Просмотр состояния<select id="previewRole"><option value="normal">normal</option><option value="feedback">feedback</option><option value="pressed">pressed</option></select></label><button id="preview" class="secondary">Показать состояние</button></div>
+<div id="statePreview" data-for="button level"><label class="stack">Просмотр состояния<select id="previewRole"><option value="normal">normal</option><option value="feedback">feedback</option><option value="pressed">pressed</option></select></label><button id="preview" class="secondary">Показать состояние</button></div>
 </details></fieldset>
 <button id="export">Скачать .exui</button>
 <div id="bar" role="progressbar" aria-label="Экспорт экрана" aria-valuemin="0" aria-valuemax="100" hidden><div></div></div>
 <p id="status" role="status" aria-live="polite">Выберите подготовленный экран или создайте демо.</p>
 <a id="download" hidden download>Скачать пакет повторно</a>
-<footer><small>Arial · PNG · normal / feedback / pressed · Level 0..100<br>Пакет преобразуется локальным CLI. Build выполняется вручную в GUI Designer.</small></footer>
+<footer><small>Arial · PNG · Slider · индикаторы · страницы и popup<br>Пакет преобразуется локальным CLI. Build выполняется вручную в GUI Designer.</small></footer>
 <script>/*__BUNDLE__*/</script></body></html>

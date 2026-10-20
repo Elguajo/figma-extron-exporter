@@ -74,8 +74,8 @@ public sealed class ExuiPackage : IDisposable
             var screen = ContractJson.Read(screenBytes, "screen.json");
             // The manifest marker selects the contract; there is no fallback between versions.
             int version = manifest.ValueKind == JsonValueKind.Object && manifest.TryGetProperty("schema", out var marker) && marker.ValueKind == JsonValueKind.String
-                ? marker.GetString() switch { "exui/1" => 1, "exui/2" => 2, "exui/3" => 3, "exui/4" => 4, _ => 0 } : 0;
-            if (version == 0) throw new ExuiException("package-schema", "manifest.json: schema must be exui/1, exui/2, exui/3 or exui/4.");
+                ? marker.GetString() switch { "exui/1" => 1, "exui/2" => 2, "exui/3" => 3, "exui/4" => 4, "exui/5" => 5, _ => 0 } : 0;
+            if (version == 0) throw new ExuiException("package-schema", "manifest.json: schema must be exui/1 through exui/5.");
             ContractJson.Validate(manifest, version, "manifest");
             ContractJson.Validate(screen, version, "screen");
             var profile = GetProfile(manifest.GetProperty("profile").GetString()!);
@@ -100,15 +100,15 @@ public sealed class ExuiPackage : IDisposable
             var lowered = ContractJson.LowerNumbers(screen)!.AsObject();
             lowered["schema"] = ScreenSpecReader.Schema;
             lowered["panel"] = profile.Panel;
-            var elementLists = version != 2
+            var elementLists = !lowered.ContainsKey("pages")
                 ? new[] { lowered["elements"]!.AsArray() }
                 : lowered["pages"]!.AsArray().Concat(lowered["popups"]!.AsArray()).Select(c => c!["elements"]!.AsArray()).ToArray();
-            foreach (var list in elementLists) SortStates(list, version >= 3, version == 4);
+            foreach (var list in elementLists) SortStates(list, version >= 3, version >= 4, version == 5);
             work = Directory.CreateTempSubdirectory("exui-package-").FullName;
             Directory.CreateDirectory(Path.Combine(work, "assets"));
             foreach (string file in declared) File.WriteAllBytes(Path.Combine(work, file), files[file]);
             var spec = JsonSerializer.Deserialize<ScreenSpec>(lowered.ToJsonString(), ScreenSpecReader.Json)!;
-            var plan = ScreenSpecReader.Normalize(spec, profile.Panel, profile.Width, profile.Height, work, allowTwoStateButtons: version >= 3, allowGraphics: version == 4, allowMomentaryButtons: version == 4);
+            var plan = ScreenSpecReader.Normalize(spec, profile.Panel, profile.Width, profile.Height, work, allowTwoStateButtons: version >= 3, allowGraphics: version >= 4, allowMomentaryButtons: version >= 4, allowExtended: version == 5);
             return new(work, Hash(bytes), Hash(screenBytes), profile, plan, $"exui/{version}");
         }
         catch (Exception e)
@@ -119,13 +119,21 @@ public sealed class ExuiPackage : IDisposable
         }
     }
 
-    private static void SortStates(JsonArray elements, bool allowTwoStateButtons, bool allowMomentaryButtons)
+    private static void SortStates(JsonArray elements, bool allowTwoStateButtons, bool allowMomentaryButtons, bool extended = false)
     {
         foreach (var element in elements)
         {
-            if ((string?)element!["kind"] != "button") continue;
+            if (element!["states"] is not JsonArray) continue;
             var states = element["states"]!.AsArray();
             var sorted = states.Select(s => s!.AsObject()).OrderBy(s => (int)s["stateId"]!).ToArray();
+            if (extended)
+            {
+                if (!sorted.Select(s => (int)s["stateId"]!).SequenceEqual(Enumerable.Range(0, sorted.Length)) || sorted.Length is < 2 or > 8 ||
+                    (string?)sorted[0]["role"] != "normal" || sorted.Skip(1).Any(s => (string?)s["role"] == "normal"))
+                    throw new ExuiException("package-state", "exui/5 states require dense IDs 0..N, starting with normal.");
+                states.Clear(); foreach (var state in sorted) { state.Remove("stateId"); states.Add(state); }
+                continue;
+            }
             bool two = allowTwoStateButtons && sorted.Length == 2;
             bool momentary = allowMomentaryButtons && sorted.Length == 2 && (string?)sorted[1]["role"] == "pressed";
             if (!sorted.Select(s => (int)s["stateId"]!).SequenceEqual(two ? new[] { 0, 1 } : new[] { 0, 1, 2 }) ||

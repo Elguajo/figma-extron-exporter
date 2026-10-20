@@ -1,0 +1,1178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/singleScreen"
+    },
+    {
+      "$ref": "#/$defs/projectScreen"
+    }
+  ],
+  "$defs": {
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*([.-][a-z0-9]+)*(?![\\s\\S])",
+      "maxLength": 100
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "color": {
+      "type": "string",
+      "pattern": "^#[A-Fa-f0-9]{6}(?![\\s\\S])"
+    },
+    "font": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family",
+        "size",
+        "bold"
+      ],
+      "properties": {
+        "family": {
+          "const": "Arial"
+        },
+        "size": {
+          "type": "number",
+          "minimum": 4,
+          "maximum": 200
+        },
+        "bold": {
+          "type": "boolean"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stateId",
+        "name",
+        "role",
+        "text",
+        "fill",
+        "textColor"
+      ],
+      "properties": {
+        "stateId": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 7
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "role": {
+          "enum": [
+            "normal",
+            "feedback",
+            "pressed"
+          ]
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "fill": {
+          "$ref": "#/$defs/color"
+        },
+        "textColor": {
+          "$ref": "#/$defs/color"
+        },
+        "image": {
+          "$ref": "#/$defs/key"
+        },
+        "imageAlign": {
+          "enum": [
+            "top-center",
+            "middle-center"
+          ]
+        },
+        "textAlign": {
+          "enum": [
+            "bottom-center",
+            "middle-center"
+          ]
+        }
+      }
+    },
+    "button": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "font",
+        "states"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "button"
+        },
+        "font": {
+          "$ref": "#/$defs/font"
+        },
+        "states": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/state"
+          }
+        },
+        "press": {
+          "$ref": "#/$defs/text"
+        },
+        "navigate": {
+          "$ref": "#/$defs/key"
+        },
+        "behavior": {
+          "$ref": "#/$defs/behavior"
+        }
+      }
+    },
+    "label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "text",
+        "textColor",
+        "font"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "null"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "label"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "textColor": {
+          "$ref": "#/$defs/color"
+        },
+        "font": {
+          "$ref": "#/$defs/font"
+        }
+      }
+    },
+    "level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "display",
+        "orientation",
+        "min",
+        "max",
+        "fillColor"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "level"
+        },
+        "display": {
+          "enum": [
+            "slider",
+            "gauge",
+            "multistate",
+            "volume-led"
+          ]
+        },
+        "orientation": {
+          "enum": [
+            "left-to-right",
+            "right-to-left",
+            "bottom-to-top",
+            "top-to-bottom"
+          ]
+        },
+        "min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483646
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "fillColor": {
+          "$ref": "#/$defs/color"
+        },
+        "states": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/state"
+          }
+        },
+        "font": {
+          "$ref": "#/$defs/font"
+        },
+        "behavior": {
+          "$ref": "#/$defs/behavior"
+        }
+      }
+    },
+    "graphic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "image"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "null"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "graphic"
+        },
+        "image": {
+          "$ref": "#/$defs/key"
+        }
+      }
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "name",
+        "background",
+        "shownBy",
+        "elements"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65534
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "background": {
+          "$ref": "#/$defs/color"
+        },
+        "shownBy": {
+          "enum": [
+            "start",
+            "navigation",
+            "program"
+          ]
+        },
+        "elements": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/button"
+              },
+              {
+                "$ref": "#/$defs/label"
+              },
+              {
+                "$ref": "#/$defs/value"
+              },
+              {
+                "$ref": "#/$defs/level"
+              },
+              {
+                "$ref": "#/$defs/graphic"
+              },
+              {
+                "$ref": "#/$defs/slider"
+              },
+              {
+                "$ref": "#/$defs/shape"
+              },
+              {
+                "$ref": "#/$defs/line"
+              },
+              {
+                "$ref": "#/$defs/datetime"
+              },
+              {
+                "$ref": "#/$defs/popupRef"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "popup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "name",
+        "background",
+        "modal",
+        "shownBy",
+        "elements"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65534
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "background": {
+          "$ref": "#/$defs/color"
+        },
+        "modal": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1280
+          }
+        },
+        "group": {
+          "$ref": "#/$defs/key"
+        },
+        "shownBy": {
+          "enum": [
+            "navigation",
+            "program"
+          ]
+        },
+        "elements": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/button"
+              },
+              {
+                "$ref": "#/$defs/label"
+              },
+              {
+                "$ref": "#/$defs/value"
+              },
+              {
+                "$ref": "#/$defs/level"
+              },
+              {
+                "$ref": "#/$defs/graphic"
+              },
+              {
+                "$ref": "#/$defs/slider"
+              },
+              {
+                "$ref": "#/$defs/shape"
+              },
+              {
+                "$ref": "#/$defs/line"
+              },
+              {
+                "$ref": "#/$defs/datetime"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "groupId",
+        "name"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "groupId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "popupRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "null"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "popup-ref"
+        },
+        "popup": {
+          "$ref": "#/$defs/key"
+        },
+        "group": {
+          "$ref": "#/$defs/key"
+        }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "selectionGroup": {
+          "$ref": "#/$defs/key"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      },
+      "required": []
+    },
+    "value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "text",
+        "textColor",
+        "font"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "value"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "textColor": {
+          "$ref": "#/$defs/color"
+        },
+        "font": {
+          "$ref": "#/$defs/font"
+        },
+        "behavior": {
+          "$ref": "#/$defs/behavior"
+        }
+      }
+    },
+    "slider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "native",
+        "orientation",
+        "min",
+        "max",
+        "fillColor"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "slider"
+        },
+        "native": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "trackColor",
+            "trackWidth",
+            "thumbColor",
+            "thumbWidth",
+            "thumbHeight",
+            "thumbType",
+            "radius"
+          ],
+          "properties": {
+            "trackColor": {
+              "$ref": "#/$defs/color"
+            },
+            "trackWidth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1280
+            },
+            "thumbColor": {
+              "$ref": "#/$defs/color"
+            },
+            "thumbWidth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1280
+            },
+            "thumbHeight": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1280
+            },
+            "thumbType": {
+              "enum": [
+                "ellipse",
+                "rectangle",
+                "none"
+              ]
+            },
+            "radius": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 640
+            }
+          }
+        },
+        "orientation": {
+          "enum": [
+            "left-to-right",
+            "right-to-left",
+            "bottom-to-top",
+            "top-to-bottom"
+          ]
+        },
+        "min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483646
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "fillColor": {
+          "$ref": "#/$defs/color"
+        },
+        "behavior": {
+          "$ref": "#/$defs/behavior"
+        }
+      }
+    },
+    "shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "native",
+        "fillColor"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "null"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "shape"
+        },
+        "native": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "shape",
+            "radius",
+            "strokeColor",
+            "thickness"
+          ],
+          "properties": {
+            "shape": {
+              "enum": [
+                "rectangle",
+                "ellipse"
+              ]
+            },
+            "radius": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 640
+            },
+            "strokeColor": {
+              "$ref": "#/$defs/color"
+            },
+            "thickness": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 640
+            }
+          }
+        },
+        "fillColor": {
+          "$ref": "#/$defs/color"
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "native",
+        "fillColor"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "null"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "line"
+        },
+        "native": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "thickness"
+          ],
+          "properties": {
+            "thickness": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1280
+            }
+          }
+        },
+        "fillColor": {
+          "$ref": "#/$defs/color"
+        }
+      }
+    },
+    "datetime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "objectId",
+        "controlId",
+        "name",
+        "rect",
+        "kind",
+        "native",
+        "textColor",
+        "font"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/key"
+        },
+        "objectId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "controlId": {
+          "type": "null"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1280
+          }
+        },
+        "kind": {
+          "const": "datetime"
+        },
+        "native": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pattern"
+          ],
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100
+            }
+          }
+        },
+        "textColor": {
+          "$ref": "#/$defs/color"
+        },
+        "font": {
+          "$ref": "#/$defs/font"
+        }
+      }
+    },
+    "singleScreen": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "project",
+        "page",
+        "elements",
+        "assets"
+      ],
+      "properties": {
+        "schema": {
+          "const": "exui-screen/5"
+        },
+        "project": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/text"
+            }
+          }
+        },
+        "page": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key",
+            "objectId",
+            "name",
+            "background"
+          ],
+          "properties": {
+            "key": {
+              "$ref": "#/$defs/key"
+            },
+            "objectId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65534
+            },
+            "name": {
+              "$ref": "#/$defs/text"
+            },
+            "background": {
+              "$ref": "#/$defs/color"
+            }
+          }
+        },
+        "elements": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/button"
+              },
+              {
+                "$ref": "#/$defs/label"
+              },
+              {
+                "$ref": "#/$defs/value"
+              },
+              {
+                "$ref": "#/$defs/level"
+              },
+              {
+                "$ref": "#/$defs/graphic"
+              },
+              {
+                "$ref": "#/$defs/slider"
+              },
+              {
+                "$ref": "#/$defs/shape"
+              },
+              {
+                "$ref": "#/$defs/line"
+              },
+              {
+                "$ref": "#/$defs/datetime"
+              }
+            ]
+          }
+        },
+        "assets": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "file",
+              "resourceName"
+            ],
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/key"
+              },
+              "file": {
+                "type": "string",
+                "pattern": "^assets/[a-z0-9][a-z0-9-]{0,63}\\.png(?![\\s\\S])"
+              },
+              "resourceName": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,95}\\.png(?![\\s\\S])"
+              }
+            }
+          }
+        }
+      }
+    },
+    "projectScreen": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "project",
+        "pages",
+        "popups",
+        "groups",
+        "assets"
+      ],
+      "properties": {
+        "schema": {
+          "const": "exui-screen/5"
+        },
+        "project": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/text"
+            }
+          }
+        },
+        "pages": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/page"
+          }
+        },
+        "popups": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/popup"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/group"
+          }
+        },
+        "assets": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "file",
+              "resourceName"
+            ],
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/key"
+              },
+              "file": {
+                "type": "string",
+                "pattern": "^assets/[a-z0-9][a-z0-9-]{0,63}\\.png(?![\\s\\S])"
+              },
+              "resourceName": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,95}\\.png(?![\\s\\S])"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

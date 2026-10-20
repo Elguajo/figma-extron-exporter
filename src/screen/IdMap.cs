@@ -45,6 +45,14 @@ public static class IdMap
             foreach (var g in plan.Groups)
                 sb.AppendLine($"| {g.Name} | {g.GroupId} | {string.Join(", ", plan.Popups.Where(p => p.Group == g.Key).Select(p => $"«{p.Name}»"))} |");
         }
+        var behaviors = plan.Containers.SelectMany(c => c.Elements).Where(e => e.Behavior != null).ToArray();
+        if (behaviors.Length > 0)
+        {
+            sb.AppendLine().AppendLine("## Поведение для программы управления").AppendLine();
+            sb.AppendLine("Эти указания не исполняются самим GDL. Программа применяет доступность/видимость при запуске и обновляет группу выбора по обратной связи оборудования.").AppendLine();
+            sb.AppendLine("| ID | Ключ | Группа выбора | Доступен при запуске | Виден при запуске |").AppendLine("|---:|---|---|---|---|");
+            foreach (var e in behaviors) sb.AppendLine($"| {e.ControlId} | `{e.Key}` | {e.Behavior!.SelectionGroup ?? "—"} | {e.Behavior.Enabled?.ToString() ?? "без указания"} | {e.Behavior.Visible?.ToString() ?? "без указания"} |");
+        }
         return sb.ToString();
     }
 }

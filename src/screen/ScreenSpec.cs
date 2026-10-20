@@ -46,7 +46,14 @@ public sealed record ElementSpec(
     string? Text, string? TextColor, FontSpec? Font,
     IReadOnlyList<StateSpec>? States, string? Press,
     string? Display, string? Orientation, int? Min, int? Max, string? FillColor,
-    string? Navigate = null, string? Popup = null, string? Group = null, string? Image = null);
+    string? Navigate = null, string? Popup = null, string? Group = null, string? Image = null,
+    NativeStyle? Native = null, BehaviorSpec? Behavior = null);
+
+public sealed record NativeStyle(string? TrackColor = null, int? TrackWidth = null, string? ThumbColor = null,
+    int? ThumbWidth = null, int? ThumbHeight = null, string? ThumbType = null, int? Radius = null,
+    string? Shape = null, string? StrokeColor = null, int? Thickness = null, string? Pattern = null);
+// Instructions for the control program, deliberately not claimed as native button actions.
+public sealed record BehaviorSpec(string? SelectionGroup = null, bool? Enabled = null, bool? Visible = null);
 
 /// <summary>Role: normal (state 0, at rest), pressed (shown while held), feedback (set by the control program).</summary>
 public sealed record StateSpec(string? Name, string? Role, string? Text, string? Fill, string? TextColor,
@@ -80,7 +87,8 @@ public sealed record PlanElement(
     string? Text = null, string? TextColor = null, PlanFont? Font = null,
     IReadOnlyList<PlanState>? States = null, int? PressState = null,
     string? Display = null, string? Orientation = null, int? Min = null, int? Max = null, string? FillColor = null,
-    string? Navigate = null, string? Popup = null, string? Group = null, string? Image = null);
+    string? Navigate = null, string? Popup = null, string? Group = null, string? Image = null,
+    NativeStyle? Native = null, BehaviorSpec? Behavior = null);
 
 public static class ScreenSpecReader
 {
@@ -125,7 +133,7 @@ public static class ScreenSpecReader
     /// Validate against the donor's real canvas and resolve assets relative to <paramref name="baseDir"/>.
     /// IDs are taken from the description only; nothing here depends on element order, text or geometry.
     /// </summary>
-    public static GeneratePlan Normalize(ScreenSpec spec, string expectedPanel, int canvasWidth, int canvasHeight, string baseDir, bool allowTwoStateButtons = false, bool allowGraphics = false, bool allowMomentaryButtons = false)
+    public static GeneratePlan Normalize(ScreenSpec spec, string expectedPanel, int canvasWidth, int canvasHeight, string baseDir, bool allowTwoStateButtons = false, bool allowGraphics = false, bool allowMomentaryButtons = false, bool allowExtended = false)
     {
         var errors = new List<string>();
         void Error(string message) => errors.Add(message);
@@ -162,7 +170,7 @@ public static class ScreenSpecReader
                 images[asset.Key] = new(asset.Key, asset.ResourceName, file, w, h, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)));
         }
 
-        var ctx = new ElementContext(images, Error, Key, allowTwoStateButtons, allowGraphics, allowMomentaryButtons);
+        var ctx = new ElementContext(images, Error, Key, allowTwoStateButtons, allowGraphics, allowMomentaryButtons, allowExtended);
         var pages = new List<PlanContainer>();
         var popups = new List<PlanContainer>();
         var groups = new List<PlanGroup>();
@@ -307,7 +315,7 @@ public static class ScreenSpecReader
             images.Values.Where(i => ctx.Used.Contains(i.Key)).OrderBy(i => i.Key, StringComparer.Ordinal).ToArray());
     }
 
-    private sealed class ElementContext(Dictionary<string, PlanImage> images, Action<string> error, Action<string?, string> key, bool allowTwoStateButtons, bool allowGraphics, bool allowMomentaryButtons)
+    private sealed class ElementContext(Dictionary<string, PlanImage> images, Action<string> error, Action<string?, string> key, bool allowTwoStateButtons, bool allowGraphics, bool allowMomentaryButtons, bool allowExtended)
     {
         public Dictionary<string, PlanImage> Images { get; } = images;
         public Action<string> Error { get; } = error;
@@ -316,6 +324,7 @@ public static class ScreenSpecReader
         public bool AllowTwoStateButtons { get; } = allowTwoStateButtons;
         public bool AllowGraphics { get; } = allowGraphics;
         public bool AllowMomentaryButtons { get; } = allowMomentaryButtons;
+        public bool AllowExtended { get; } = allowExtended;
         // One control ID addresses one control in the whole project.
         public Dictionary<int, string> ControlIds { get; } = new();
     }
@@ -345,7 +354,18 @@ public static class ScreenSpecReader
             if (e.Kind != "button" && e.Navigate != null) Error($"{where}.navigate: only a button can lead to a page or popup.");
             if (e.Kind != "popup-ref" && (e.Popup != null || e.Group != null)) Error($"{where}: popup and group apply to popup-ref only.");
             if (e.Kind != "graphic" && e.Image != null) Error($"{where}.image: standalone image applies to graphic only.");
-            var basis = new PlanElement(e.Kind ?? "", e.Key ?? "", (ulong)(e.ObjectId ?? 0), e.ControlId ?? 0, e.Name ?? "", e.Rect ?? [], Font: font);
+            if (!ctx.AllowExtended && (e.Native != null || e.Behavior != null)) Error($"{where}: native/behavior require exui/5.");
+            if (e.Behavior != null)
+            {
+                if (e.ControlId == null) Error($"{where}.behavior: requires an addressable control.");
+                if (e.Behavior.SelectionGroup != null && (e.Kind != "button" || !KeyPattern.IsMatch(e.Behavior.SelectionGroup))) Error($"{where}.behavior.selectionGroup: lowercase group key on buttons only.");
+            }
+            var basis = new PlanElement(e.Kind ?? "", e.Key ?? "", (ulong)(e.ObjectId ?? 0), e.ControlId ?? 0, e.Name ?? "", e.Rect ?? [], Font: font, Native: e.Native, Behavior: e.Behavior);
+            if (ctx.AllowExtended && e.Kind is "slider" or "shape" or "line" or "datetime")
+            {
+                elements.Add(Extended(e, basis, where, Error));
+                continue;
+            }
             switch (e.Kind)
             {
                 case "graphic" when ctx.AllowGraphics:
@@ -359,6 +379,9 @@ public static class ScreenSpecReader
                         elements.Add(basis with { Image = graphic.ResourceName });
                     }
                     break;
+                case "value" when ctx.AllowExtended:
+                    if (e.ControlId == null) Error($"{where}.controlId: a dynamic value requires an ID.");
+                    goto case "label";
                 case "label":
                     Forbid(e.States != null || e.Press != null || e.Display != null || e.Orientation != null || e.Min != null || e.Max != null || e.FillColor != null, where, "label", Error);
                     CheckText(e.Text, $"{where}.text", required: true, Error);
@@ -366,16 +389,21 @@ public static class ScreenSpecReader
                     elements.Add(basis with { Text = e.Text, TextColor = e.TextColor });
                     break;
                 case "level":
-                    Forbid(e.States != null || e.Press != null || e.Text != null || e.TextColor != null || e.Font != null, where, "level", Error);
-                    if (e.Display == null || !Displays.TryGetValue(e.Display, out var display)) { Error($"{where}.display: slider or gauge."); display = ""; }
+                    bool multi = ctx.AllowExtended && e.Display == "multistate";
+                    if(multi && (e.Font == null || e.States == null)) Error($"{where}: multistate requires font and states.");
+                    Forbid((!multi && (e.States != null || e.Font != null)) || e.Press != null || e.Text != null || e.TextColor != null, where, "level", Error);
+                    string display;
+                    if (ctx.AllowExtended && e.Display is "multistate" or "volume-led") display = e.Display == "multistate" ? "MultistateLevel" : "VolumeLED";
+                    else if (e.Display == null || !Displays.TryGetValue(e.Display, out display!)) { Error($"{where}.display: slider or gauge."); display = ""; }
                     if (e.Orientation == null || !Orientations.TryGetValue(e.Orientation, out var orientation)) { Error($"{where}.orientation: {string.Join(", ", Orientations.Keys)}."); orientation = ""; }
                     if (e.Min is not >= 0 || e.Max is not > 0 || e.Min >= e.Max) Error($"{where}: min/max required, 0 <= min < max.");
                     CheckColor(e.FillColor, $"{where}.fillColor", required: false, Error);
-                    elements.Add(basis with { Display = display, Orientation = orientation, Min = e.Min, Max = e.Max, FillColor = e.FillColor });
+                    var levelStates = multi ? Button(e, where, ctx.Images, ctx.Used, Error, true, true, out _, true) : null;
+                    elements.Add(basis with { Display = display, Orientation = orientation, Min = e.Min, Max = e.Max, FillColor = e.FillColor, States = levelStates });
                     break;
                 case "button":
                     Forbid(e.Text != null || e.TextColor != null || e.Display != null || e.Orientation != null || e.Min != null || e.Max != null || e.FillColor != null, where, "button (text lives on states)", Error);
-                    elements.Add(basis with { States = Button(e, where, ctx.Images, ctx.Used, Error, ctx.AllowTwoStateButtons, ctx.AllowMomentaryButtons, out int press), PressState = press, Navigate = e.Navigate });
+                    elements.Add(basis with { States = Button(e, where, ctx.Images, ctx.Used, Error, ctx.AllowTwoStateButtons, ctx.AllowMomentaryButtons, out int press, ctx.AllowExtended), PressState = press, Navigate = e.Navigate });
                     break;
                 case "popup-ref" when allowPopupRef:
                     Forbid(e.States != null || e.Press != null || e.Text != null || e.TextColor != null || e.Font != null || e.Display != null ||
@@ -394,8 +422,57 @@ public static class ScreenSpecReader
         return elements;
     }
 
+    private static PlanElement Extended(ElementSpec e, PlanElement basis, string where, Action<string> error)
+    {
+        var n = e.Native;
+        if (n == null) { error($"{where}.native: required."); return basis; }
+        Forbid(e.States != null || e.Press != null || e.Image != null || e.Display != null || e.Navigate != null || e.Popup != null || e.Group != null, where, e.Kind!, error);
+        if (e.Kind == "slider")
+        {
+            if (e.ControlId == null) error($"{where}.controlId: slider requires an ID.");
+            if (e.Min is not >= 0 || e.Max is not > 0 || e.Min >= e.Max) error($"{where}: 0 <= min < max required.");
+            if (e.Orientation == null || !Orientations.ContainsKey(e.Orientation)) error($"{where}.orientation: unsupported.");
+            CheckColor(e.FillColor, where + ".fillColor", true, error);
+            CheckColor(n.TrackColor, where + ".native.trackColor", true, error);
+            CheckColor(n.ThumbColor, where + ".native.thumbColor", true, error);
+            if (e.Rect is { Length: 4 } r && (n.TrackWidth is not > 0 || n.ThumbWidth is not > 0 || n.ThumbHeight is not > 0 ||
+                n.ThumbWidth > r[2] || n.ThumbHeight > r[3] || n.TrackWidth > Math.Min(r[2], r[3]))) error($"{where}.native: track/thumb must fit the control.");
+            if (n.Radius is not >= 0 || n.Radius > n.TrackWidth / 2) error($"{where}.native.radius: must fit half the track width.");
+            if (n.ThumbType is not ("ellipse" or "rectangle" or "none")) error($"{where}.native.thumbType: ellipse, rectangle or none.");
+            Forbid(e.Font != null || e.Text != null || e.TextColor != null, where, "slider", error);
+            return basis with { Min = e.Min, Max = e.Max, Orientation = e.Orientation != null && Orientations.TryGetValue(e.Orientation, out var o) ? o : "", FillColor = e.FillColor };
+        }
+        if (e.ControlId != null) error($"{where}.controlId: {e.Kind} is passive; use null.");
+        Forbid(e.Orientation != null || e.Min != null || e.Max != null, where, e.Kind!, error);
+        if (e.Kind == "datetime")
+        {
+            CheckText(n.Pattern, where + ".native.pattern", true, error);
+            // Explicit custom formats only: no locale-dependent one-letter format expansion.
+            if (n.Pattern is { } pattern)
+            {
+                if (pattern.Length < 2 || pattern.Length > 100) error($"{where}.native.pattern: 2..100 characters.");
+                try { _ = DateTime.UnixEpoch.ToString(pattern, System.Globalization.CultureInfo.InvariantCulture); }
+                catch (FormatException) { error($"{where}.native.pattern: invalid time format."); }
+            }
+            CheckColor(e.TextColor, where + ".textColor", true, error);
+            Forbid(e.Text != null || e.FillColor != null, where, "datetime", error);
+            return basis with { TextColor = e.TextColor };
+        }
+        Forbid(e.Text != null || e.TextColor != null || e.Font != null, where, e.Kind!, error);
+        CheckColor(e.FillColor, where + ".fillColor", true, error);
+        if (e.Kind == "shape")
+        {
+            if (n.Shape is not ("rectangle" or "ellipse")) error($"{where}.native.shape: rectangle or ellipse.");
+            if(n.Shape == "ellipse" && n.Radius != 0) error($"{where}.native.radius: ellipse requires 0.");
+            CheckColor(n.StrokeColor, where + ".native.strokeColor", true, error);
+            if (n.Radius is not >= 0 || n.Thickness is not >= 0 || e.Rect is { Length: 4 } sr && (n.Radius > Math.Min(sr[2], sr[3]) / 2 || n.Thickness > Math.Min(sr[2], sr[3]) / 2)) error($"{where}.native: radius/thickness must fit the shape.");
+        }
+        else if (n.Thickness is not > 0 || e.Rect is { Length: 4 } lr && n.Thickness > Math.Min(lr[2], lr[3])) error($"{where}.native.thickness: positive and within line bounds.");
+        return basis with { FillColor = e.FillColor };
+    }
+
     private static IReadOnlyList<PlanState> Button(ElementSpec e, string where, Dictionary<string, PlanImage> images,
-        HashSet<string> used, Action<string> error, bool allowTwoStateButtons, bool allowMomentaryButtons, out int press)
+        HashSet<string> used, Action<string> error, bool allowTwoStateButtons, bool allowMomentaryButtons, out int press, bool extended = false)
     {
         press = -1;
         var states = e.States ?? [];
@@ -424,10 +501,12 @@ public static class ScreenSpecReader
         }
         bool two = allowTwoStateButtons && states.Count == 2 && states.Select(s => s.Role).SequenceEqual(new[] { "normal", "feedback" });
         bool momentary = allowMomentaryButtons && states.Count == 2 && states.Select(s => s.Role).SequenceEqual(new[] { "normal", "pressed" });
-        if (!two && states.Count(s => s.Role == "pressed") != 1) error($"{where}.states: exactly one \"pressed\" state (press feedback), kept apart from program feedback.");
+        if (!extended && !two && states.Count(s => s.Role == "pressed") != 1) error($"{where}.states: exactly one \"pressed\" state (press feedback), kept apart from program feedback.");
+        if (extended && states.Count(s => s.Role == "pressed") > 1) error($"{where}.states: at most one pressed state.");
         if (!momentary && !states.Any(s => s.Role == "feedback")) error($"{where}.states: at least one \"feedback\" state, set by the control program.");
         int index = states.Select((s, i) => (s, i)).FirstOrDefault(x => x.s.Name == e.Press && e.Press != null, (null!, -1)).Item2;
         if (two) { if (e.Press != null) error($"{where}.press: omit for a two-state button without press feedback."); }
+        else if (extended && !states.Any(s => s.Role == "pressed")) { if (e.Press != null) error($"{where}.press: no pressed state."); }
         else if (index < 0) error($"{where}.press: must name one of the states.");
         else if (states[index].Role != "pressed") error($"{where}.press: \"{e.Press}\" is not the pressed state.");
         press = index;

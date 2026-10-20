@@ -226,6 +226,74 @@ static class PackageTests
                 var f=V4();Edit(f,"manifest.json",n=>n["schema"]="exui/3");Edit(f,"screen.json",n=>{n["schema"]="exui-screen/3";n["elements"]!.AsArray().RemoveAt(4);});
                 Reject("package-state",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
             });
+            Dictionary<string,byte[]> V5()
+            {
+                var f=V4();Edit(f,"manifest.json",n=>n["schema"]="exui/5");
+                Edit(f,"screen.json",n=>
+                {
+                    n["schema"]="exui-screen/5";
+                    n["elements"]!.AsArray().Add(JsonNode.Parse("""
+                    {"kind":"slider","key":"home.custom-volume","objectId":6,"controlId":8206,"name":"slider_Volume","rect":[20,20,260,32],"orientation":"left-to-right","min":0,"max":100,"fillColor":"#F47700","native":{"trackColor":"#292D30","trackWidth":16,"thumbColor":"#FFFFFF","thumbWidth":28,"thumbHeight":28,"thumbType":"ellipse","radius":8}}
+                    """)!);
+                    var value=n["elements"]![1]!.DeepClone();value["kind"]="value";value["key"]="home.dynamic-value";value["objectId"]=7;value["controlId"]=8207;
+                    value["behavior"]=new JsonObject { ["visible"]=false,["enabled"]=true };n["elements"]!.AsArray().Add(value);
+                });return f;
+            }
+            test("Package v5 preserves editable Slider, dynamic label ID and programmer behavior",()=>
+            {
+                using var p=ExuiPackage.Load(Zip(work,V5()));Check(p.Contract=="exui/5");
+                var slider=p.Plan.Elements.Single(e=>e.Kind=="slider");Check(slider.Native?.TrackWidth==16&&slider.Native.ThumbWidth==28&&slider.Min==0&&slider.Max==100);
+                var value=p.Plan.Elements.Single(e=>e.Kind=="value");Check(value.ControlId==8207&&value.Behavior?.Visible==false);
+                Check(IdMap.Markdown(p.Plan,p.Profile.Panel).Contains("Доступен при запуске"));
+            });
+            test("Package v5 uses the same validation for container form",()=>
+            {
+                var f=V5();Edit(f,"screen.json",n=>{var o=n.AsObject();var page=o["page"]!.DeepClone();page["shownBy"]="start";page["elements"]=o["elements"]!.DeepClone();o.Remove("page");o.Remove("elements");o["pages"]=new JsonArray(page);o["popups"]=new JsonArray();o["groups"]=new JsonArray();});
+                using var p=ExuiPackage.Load(Zip(work,f));Check(p.Plan.Pages.Count==1&&p.Plan.Elements.Any(e=>e.Kind=="slider"));
+            });
+            test("Native Slider verifier rejects an invisible vector thumb with no resolvable bitmap",()=>
+            {
+                using var p=ExuiPackage.Load(Zip(work,V5()));
+                var e=p.Plan.Elements.Single(e=>e.Kind=="slider");
+                var control=new ControlModel("PBSlider",(ulong)e.ObjectId,(ushort)e.ControlId!,e.Name,"exui-key="+e.Key,
+                    20,20,260,32,null,null,[],null,null,null,
+                    Native:new NativeControlModel(27,false,null,0xFF292D30,0,new SliderModel(0,0,100,0xFFF47700,0xFFFFFFFF,0,28,28,16,null,1),null,null));
+                var page=new ContainerModel("PBPage",100,100,"Home","exui-key=page.home",1280,800,0,[control]);
+                var model=new ProjectModel("PBProject","Home","1.28.0.7",0,100,new BuildInfo(1,"0.0.0",null),
+                    new PlatformProfile("PBTLP1025MPlatform",30,"60-1566-02",1280,800,1280,800),[page],[],[]);
+                var expected=new ExpectedProfile("TLP Pro 1025M","PBTLP1025MPlatform","TLP1025M",30,"60-1566-02",1280,800);
+                bool Geometry(ProjectModel m)=>ScreenVerifier.Verify(p.Plan,m,model,expected).Single(c=>c.Id=="element."+e.Key+".thumb-geometry-resource").Passed;
+                Check(!Geometry(model));
+                control=control with { Native=control.Native! with { Slider=control.Native!.Slider! with { ThumbImage="Slider Thumb" } } };
+                model=model with { Pages=[page with { Controls=[control] }] };
+                Check(!Geometry(model));
+                Check(!Geometry(model with { Resources=[new ResourceModel("PBImageResource","Slider Thumb",0,64)] }));
+                Check(Geometry(model with { Resources=[new ResourceModel("PBImageResource","Slider Thumb",64,64)] }));
+                var rectangular=p.Plan with { Pages=p.Plan.Pages.Select(pg=>pg with { Elements=pg.Elements.Select(el=>el.Kind=="slider" ? el with { Native=el.Native! with { ThumbWidth=20 } } : el).ToArray() }).ToArray() };
+                bool Aspect(double ratio)
+                {
+                    var resized=control with { Native=control.Native! with { Slider=control.Native!.Slider! with { ThumbWidth=20,ThumbAspectRatio=ratio } } };
+                    var m=model with { Pages=[page with { Controls=[resized] }] };
+                    return ScreenVerifier.Verify(rectangular,m,model,expected).Single(c=>c.Id=="element."+e.Key+".thumb-aspect-ratio").Passed;
+                }
+                Check(!Aspect(20d/28));Check(Aspect(28d/20));
+            });
+            foreach(var (name,code,change) in new (string,string,Action<JsonNode>)[]
+            {
+                ("missing ID","package-schema",n=>n["elements"]![6]!["controlId"]=null),
+                ("duplicate ID","spec",n=>n["elements"]![6]!["controlId"]=8206),
+                ("oversized thumb","spec",n=>n["elements"]![5]!["native"]!["thumbWidth"]=300),
+                ("invalid range","spec",n=>n["elements"]![5]!["min"]=100),
+                ("unknown native field","package-schema",n=>n["elements"]![5]!["native"]!["arbitraryField"]=true),
+                ("inappropriate native appearance","package-schema",n=>n["elements"]![6]!["native"]=new JsonObject()),
+                ("behavior on passive graphic","package-schema",n=>n["elements"]![4]!["behavior"]=new JsonObject{["enabled"]=false}),
+                ("unknown behavior field","package-schema",n=>n["elements"]![6]!["behavior"]!["script"]="execute"),
+                ("mixed single/project forms","package-schema",n=>{n["pages"]=new JsonArray();n["popups"]=new JsonArray();n["groups"]=new JsonArray();})
+            })test("Package v5 rejects "+name,()=>{var f=V5();Edit(f,"screen.json",change);Reject(code,()=>{using var p=ExuiPackage.Load(Zip(work,f));});});
+            test("Package v4 rejects v5 controls instead of silently lowering them",()=>
+            {
+                var f=V5();Edit(f,"manifest.json",n=>n["schema"]="exui/4");Edit(f,"screen.json",n=>n["schema"]="exui-screen/4");Reject("package-schema",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+            });
         }
         finally { Directory.Delete(work,true); }
     }

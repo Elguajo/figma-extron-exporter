@@ -6,8 +6,20 @@ import { readFileSync } from 'node:fs';
 import { buildSync } from 'esbuild';
 import { icons, fakeFigma } from './fake-figma.ts';
 import { namedFixture } from './named-fixture.ts';
+import { projectFixture } from './expanded-fixture.ts';
 const source=buildSync({entryPoints:[fileURLToPath(new URL('../src/code.ts',import.meta.url))],bundle:true,write:false,target:'es2017',define:{__html__:'"test"',__ICONS__:JSON.stringify(Object.fromEntries(Object.entries(icons()).map(([k,v])=>[k,[...v]])))}}).outputFiles[0].text;
 function plugin(){const fake=fakeFigma();vm.runInNewContext(source,{figma:fake.api,Uint8Array,console});return{...fake,send:fake.api.ui.onmessage as (message:unknown)=>Promise<void>};}
+
+test('Built plugin exports the whole project from a selected control, edits range/behavior and previews individual feedback states',async()=>{
+ const p=plugin(),root=projectFixture('tlp-pro-300m-portrait');p.page.selection=[root as never];await p.send({type:'recognize',profile:'tlp-pro-300m-portrait'});const report=p.messages.filter(m=>m.type==='recognition').at(-1) as any;assert.deepEqual([...report.errors],[]);await p.send({type:'apply-recognition',profile:'tlp-pro-300m-portrait',token:report.token});
+ const home=root.children[0] as FrameNode,slider=home.children[0],m=JSON.parse(slider.getPluginData('exui'));p.page.selection=[slider as never];await p.send({type:'apply',data:{...m,min:'0',max:'255',orientation:'left-to-right',enabled:'true',visible:'false'}});assert.equal(JSON.parse(slider.getPluginData('exui')).max,255);assert.equal(JSON.parse(slider.getPluginData('exui')).objectId,m.objectId);
+ const before=slider.getPluginData('exui');await p.send({type:'apply',data:{...m,min:'100',max:'0',orientation:'left-to-right'}});assert.equal(slider.getPluginData('exui'),before);
+ await p.send({type:'export'});const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.pages[0].elements[0].max,255);assert.equal(bundle.screen.pages[0].elements[0].behavior.visible,false);
+ const button=home.children.find(n=>n.name==='button_Connection') as FrameNode;p.page.selection=[button as never];p.emit('selectionchange');const selection=p.messages.filter(m=>m.type==='selection').at(-1) as any;assert.equal(selection.states.length,4);await p.send({type:'preview',stateId:2});assert.deepEqual(button.children.map(n=>n.visible),[false,false,true,false]);
+});
+test('A copied state does not hide its parent button mapping; selection carries the repair warning',async()=>{
+ const p=plugin();await p.send({type:'demo',profile:'tlp-pro-300m-portrait'});const button=p.page.selection[0].children[0],state=button.children[1],m=JSON.parse(state.getPluginData('exui'));m.ownerNodeId='copied';state.setPluginData('exui',JSON.stringify(m));p.page.selection=[button];p.emit('selectionchange');const selection=p.messages.filter(m=>m.type==='selection').at(-1) as any;assert.equal(selection.id,button.id);assert.equal(selection.metadata.kind,'button');assert.match(selection.warning,/копия/);assert.deepEqual([...selection.states],[]);
+});
 
 test('Built plugin recognizes aliases and Off/On, rejects stale tokens and preserves IDs after restart',async()=>{
   const p=plugin(),root=await namedFixture('tlp-pro-1025m',true);p.page.selection=[root as never];

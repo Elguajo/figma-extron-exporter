@@ -1,0 +1,880 @@
+{
+  "boundary": "Synthetic exui/5; real GUI Designer 1.28.0.7; real Figma and hardware not tested",
+  "originalFailure": [
+    {
+      "Id": "element.home.volume.thumb-geometry-resource",
+      "Passed": false,
+      "Detail": "vector thumb geometry requires a resolvable bitmap in GUI Designer 1.28.0.7"
+    }
+  ],
+  "fixedChecks": [
+    {
+      "Id": "profile.platform-class",
+      "Passed": true,
+      "Detail": "PBTLP1025MPlatform (expected PBTLP1025MPlatform)"
+    },
+    {
+      "Id": "profile.platform-type",
+      "Passed": true,
+      "Detail": "PlatformProTypeEnum value 30 (expected 30 = TLP1025M)"
+    },
+    {
+      "Id": "profile.part-number",
+      "Passed": true,
+      "Detail": "60-1566-02 (expected 60-1566-02)"
+    },
+    {
+      "Id": "profile.screen",
+      "Passed": true,
+      "Detail": "screen 1280x800, platform 1280x800 (expected 1280x800)"
+    },
+    {
+      "Id": "profile.app-version",
+      "Passed": true,
+      "Detail": "1.28.0.7"
+    },
+    {
+      "Id": "profile.checksum",
+      "Passed": true,
+      "Detail": "checksum 0"
+    },
+    {
+      "Id": "project.name",
+      "Passed": true,
+      "Detail": "Volume smoke - synthetic package"
+    },
+    {
+      "Id": "page.count",
+      "Passed": true,
+      "Detail": "1 page(s), expected 1"
+    },
+    {
+      "Id": "page.default",
+      "Passed": true,
+      "Detail": "defaultPage 100"
+    },
+    {
+      "Id": "page.order",
+      "Passed": true,
+      "Detail": "pages in plan order"
+    },
+    {
+      "Id": "popup.set",
+      "Passed": true,
+      "Detail": "65535:Offline Page"
+    },
+    {
+      "Id": "popup.offline",
+      "Passed": true,
+      "Detail": "Offline Page 1280x800, 2 control(s)"
+    },
+    {
+      "Id": "page.page.home.ids",
+      "Passed": true,
+      "Detail": "id 100, userId 100"
+    },
+    {
+      "Id": "page.page.home.name",
+      "Passed": true,
+      "Detail": "Home"
+    },
+    {
+      "Id": "page.page.home.key",
+      "Passed": true,
+      "Detail": "exui-key=page.home"
+    },
+    {
+      "Id": "page.page.home.size",
+      "Passed": true,
+      "Detail": "1280x800"
+    },
+    {
+      "Id": "page.page.home.background",
+      "Passed": true,
+      "Detail": "#FF101010"
+    },
+    {
+      "Id": "page.page.home.controls",
+      "Passed": true,
+      "Detail": "5 control(s), expected 5"
+    },
+    {
+      "Id": "page.page.home.object-ids-unique",
+      "Passed": true,
+      "Detail": "idField unique within the page or popup"
+    },
+    {
+      "Id": "element.home.volume.type",
+      "Passed": true,
+      "Detail": "PBSlider"
+    },
+    {
+      "Id": "element.home.volume.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.home.volume.control-id",
+      "Passed": true,
+      "Detail": "userId 8101 (expected 8101)"
+    },
+    {
+      "Id": "element.home.volume.key",
+      "Passed": true,
+      "Detail": "exui-key=home.volume"
+    },
+    {
+      "Id": "element.home.volume.name",
+      "Passed": true,
+      "Detail": "slider_Volume"
+    },
+    {
+      "Id": "element.home.volume.rect",
+      "Passed": true,
+      "Detail": "260,180,500,48"
+    },
+    {
+      "Id": "element.home.volume.slider",
+      "Passed": true,
+      "Detail": "native slider orientation, range, fill, thumb and track geometry"
+    },
+    {
+      "Id": "element.home.volume.track-color",
+      "Passed": true,
+      "Detail": "#FF292D30"
+    },
+    {
+      "Id": "element.home.volume.thumb-geometry-resource",
+      "Passed": true,
+      "Detail": "vector thumb geometry requires a resolvable bitmap in GUI Designer 1.28.0.7"
+    },
+    {
+      "Id": "element.home.volume.thumb-aspect-ratio",
+      "Passed": true,
+      "Detail": "thumb resize factor is height / width"
+    },
+    {
+      "Id": "element.home.volume.border",
+      "Passed": true,
+      "Detail": "authored native border resource, shape/radius/thickness/style"
+    },
+    {
+      "Id": "element.home.volumevalue.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.home.volumevalue.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.home.volumevalue.control-id",
+      "Passed": true,
+      "Detail": "userId 8102 (expected 8102)"
+    },
+    {
+      "Id": "element.home.volumevalue.key",
+      "Passed": true,
+      "Detail": "exui-key=home.volumevalue"
+    },
+    {
+      "Id": "element.home.volumevalue.name",
+      "Passed": true,
+      "Detail": "value_VolumeValue"
+    },
+    {
+      "Id": "element.home.volumevalue.rect",
+      "Passed": true,
+      "Detail": "800,180,150,48"
+    },
+    {
+      "Id": "element.home.volumevalue.dynamic",
+      "Passed": true,
+      "Detail": "dynamic label with an addressable ID"
+    },
+    {
+      "Id": "element.home.volumevalue.text",
+      "Passed": true,
+      "Detail": "42%"
+    },
+    {
+      "Id": "element.home.volumevalue.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.home.volumedown.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.home.volumedown.control-id",
+      "Passed": true,
+      "Detail": "userId 8103 (expected 8103)"
+    },
+    {
+      "Id": "element.home.volumedown.key",
+      "Passed": true,
+      "Detail": "exui-key=home.volumedown"
+    },
+    {
+      "Id": "element.home.volumedown.name",
+      "Passed": true,
+      "Detail": "button_VolumeDown"
+    },
+    {
+      "Id": "element.home.volumedown.rect",
+      "Passed": true,
+      "Detail": "100,160,100,90"
+    },
+    {
+      "Id": "element.home.volumedown.state-count",
+      "Passed": true,
+      "Detail": "2 state(s)"
+    },
+    {
+      "Id": "element.home.volumedown.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027-\u0027, fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+    },
+    {
+      "Id": "element.home.volumedown.state1",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027-\u0027, fill #FFFFCC00, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.home.volumedown.press-feedback",
+      "Passed": true,
+      "Detail": "press state 1"
+    },
+    {
+      "Id": "element.home.volumedown.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.home.volumeup.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.home.volumeup.control-id",
+      "Passed": true,
+      "Detail": "userId 8104 (expected 8104)"
+    },
+    {
+      "Id": "element.home.volumeup.key",
+      "Passed": true,
+      "Detail": "exui-key=home.volumeup"
+    },
+    {
+      "Id": "element.home.volumeup.name",
+      "Passed": true,
+      "Detail": "button_VolumeUp"
+    },
+    {
+      "Id": "element.home.volumeup.rect",
+      "Passed": true,
+      "Detail": "1000,160,100,90"
+    },
+    {
+      "Id": "element.home.volumeup.state-count",
+      "Passed": true,
+      "Detail": "2 state(s)"
+    },
+    {
+      "Id": "element.home.volumeup.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u002B\u0027, fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+    },
+    {
+      "Id": "element.home.volumeup.state1",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u002B\u0027, fill #FFFFCC00, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.home.volumeup.press-feedback",
+      "Passed": true,
+      "Detail": "press state 1"
+    },
+    {
+      "Id": "element.home.volumeup.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.home.company.type",
+      "Passed": true,
+      "Detail": "PBImage"
+    },
+    {
+      "Id": "element.home.company.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.home.company.key",
+      "Passed": true,
+      "Detail": "exui-key=home.company"
+    },
+    {
+      "Id": "element.home.company.name",
+      "Passed": true,
+      "Detail": "logo_Company"
+    },
+    {
+      "Id": "element.home.company.rect",
+      "Passed": true,
+      "Detail": "1208,728,64,64"
+    },
+    {
+      "Id": "element.home.company.image",
+      "Passed": true,
+      "Detail": "exui-graphic-5.png"
+    },
+    {
+      "Id": "element.home.company.native-layout",
+      "Passed": true,
+      "Detail": "layout 3, alignment 3"
+    },
+    {
+      "Id": "element.home.company.passive-transparent",
+      "Passed": true,
+      "Detail": "passive PBImage, no states/text/shape/background"
+    },
+    {
+      "Id": "groups.registry",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Id": "groups.reference-count",
+      "Passed": true,
+      "Detail": "referenceCountField as written"
+    },
+    {
+      "Id": "resource.image.home.company",
+      "Passed": true,
+      "Detail": "exui-graphic-5.png: 1 found, 64x64"
+    },
+    {
+      "Id": "resource.references",
+      "Passed": true,
+      "Detail": "every state image names an existing image resource"
+    },
+    {
+      "Id": "resource.donor-kept",
+      "Passed": true,
+      "Detail": "donor resources retained"
+    }
+  ],
+  "builtChecks": [
+    {
+      "Id": "profile.platform-class",
+      "Passed": true,
+      "Detail": "PBTLP1025MPlatform (expected PBTLP1025MPlatform)"
+    },
+    {
+      "Id": "profile.platform-type",
+      "Passed": true,
+      "Detail": "PlatformProTypeEnum value 30 (expected 30 = TLP1025M)"
+    },
+    {
+      "Id": "profile.part-number",
+      "Passed": true,
+      "Detail": "60-1566-02 (expected 60-1566-02)"
+    },
+    {
+      "Id": "profile.screen",
+      "Passed": true,
+      "Detail": "screen 1280x800, platform 1280x800 (expected 1280x800)"
+    },
+    {
+      "Id": "profile.app-version",
+      "Passed": true,
+      "Detail": "1.28.0.7"
+    },
+    {
+      "Id": "profile.checksum",
+      "Passed": true,
+      "Detail": "checksum 0"
+    },
+    {
+      "Id": "project.name",
+      "Passed": true,
+      "Detail": "Volume smoke - synthetic package"
+    },
+    {
+      "Id": "page.count",
+      "Passed": true,
+      "Detail": "1 page(s), expected 1"
+    },
+    {
+      "Id": "page.default",
+      "Passed": true,
+      "Detail": "defaultPage 100"
+    },
+    {
+      "Id": "page.order",
+      "Passed": true,
+      "Detail": "pages in plan order"
+    },
+    {
+      "Id": "popup.set",
+      "Passed": true,
+      "Detail": "65535:Offline Page"
+    },
+    {
+      "Id": "popup.offline",
+      "Passed": true,
+      "Detail": "Offline Page 1280x800, 2 control(s)"
+    },
+    {
+      "Id": "page.page.home.ids",
+      "Passed": true,
+      "Detail": "id 100, userId 100"
+    },
+    {
+      "Id": "page.page.home.name",
+      "Passed": true,
+      "Detail": "Home"
+    },
+    {
+      "Id": "page.page.home.key",
+      "Passed": true,
+      "Detail": "exui-key=page.home"
+    },
+    {
+      "Id": "page.page.home.size",
+      "Passed": true,
+      "Detail": "1280x800"
+    },
+    {
+      "Id": "page.page.home.background",
+      "Passed": true,
+      "Detail": "#FF101010"
+    },
+    {
+      "Id": "page.page.home.controls",
+      "Passed": true,
+      "Detail": "5 control(s), expected 5"
+    },
+    {
+      "Id": "page.page.home.object-ids-unique",
+      "Passed": true,
+      "Detail": "idField unique within the page or popup"
+    },
+    {
+      "Id": "element.home.volume.type",
+      "Passed": true,
+      "Detail": "PBSlider"
+    },
+    {
+      "Id": "element.home.volume.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.home.volume.control-id",
+      "Passed": true,
+      "Detail": "userId 8101 (expected 8101)"
+    },
+    {
+      "Id": "element.home.volume.key",
+      "Passed": true,
+      "Detail": "exui-key=home.volume"
+    },
+    {
+      "Id": "element.home.volume.name",
+      "Passed": true,
+      "Detail": "slider_Volume"
+    },
+    {
+      "Id": "element.home.volume.rect",
+      "Passed": true,
+      "Detail": "260,180,500,48"
+    },
+    {
+      "Id": "element.home.volume.slider",
+      "Passed": true,
+      "Detail": "native slider orientation, range, fill, thumb and track geometry"
+    },
+    {
+      "Id": "element.home.volume.track-color",
+      "Passed": true,
+      "Detail": "#FF292D30"
+    },
+    {
+      "Id": "element.home.volume.thumb-geometry-resource",
+      "Passed": true,
+      "Detail": "vector thumb geometry requires a resolvable bitmap in GUI Designer 1.28.0.7"
+    },
+    {
+      "Id": "element.home.volume.thumb-aspect-ratio",
+      "Passed": true,
+      "Detail": "thumb resize factor is height / width"
+    },
+    {
+      "Id": "element.home.volume.border",
+      "Passed": true,
+      "Detail": "authored native border resource, shape/radius/thickness/style"
+    },
+    {
+      "Id": "element.home.volumevalue.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.home.volumevalue.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.home.volumevalue.control-id",
+      "Passed": true,
+      "Detail": "userId 8102 (expected 8102)"
+    },
+    {
+      "Id": "element.home.volumevalue.key",
+      "Passed": true,
+      "Detail": "exui-key=home.volumevalue"
+    },
+    {
+      "Id": "element.home.volumevalue.name",
+      "Passed": true,
+      "Detail": "value_VolumeValue"
+    },
+    {
+      "Id": "element.home.volumevalue.rect",
+      "Passed": true,
+      "Detail": "800,180,150,48"
+    },
+    {
+      "Id": "element.home.volumevalue.dynamic",
+      "Passed": true,
+      "Detail": "dynamic label with an addressable ID"
+    },
+    {
+      "Id": "element.home.volumevalue.text",
+      "Passed": true,
+      "Detail": "43%"
+    },
+    {
+      "Id": "element.home.volumevalue.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.home.volumedown.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.home.volumedown.control-id",
+      "Passed": true,
+      "Detail": "userId 8103 (expected 8103)"
+    },
+    {
+      "Id": "element.home.volumedown.key",
+      "Passed": true,
+      "Detail": "exui-key=home.volumedown"
+    },
+    {
+      "Id": "element.home.volumedown.name",
+      "Passed": true,
+      "Detail": "button_VolumeDown"
+    },
+    {
+      "Id": "element.home.volumedown.rect",
+      "Passed": true,
+      "Detail": "100,160,100,90"
+    },
+    {
+      "Id": "element.home.volumedown.state-count",
+      "Passed": true,
+      "Detail": "2 state(s)"
+    },
+    {
+      "Id": "element.home.volumedown.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027-\u0027, fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+    },
+    {
+      "Id": "element.home.volumedown.state1",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027-\u0027, fill #FFFFCC00, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.home.volumedown.press-feedback",
+      "Passed": true,
+      "Detail": "press state 1"
+    },
+    {
+      "Id": "element.home.volumedown.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.home.volumeup.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.home.volumeup.control-id",
+      "Passed": true,
+      "Detail": "userId 8104 (expected 8104)"
+    },
+    {
+      "Id": "element.home.volumeup.key",
+      "Passed": true,
+      "Detail": "exui-key=home.volumeup"
+    },
+    {
+      "Id": "element.home.volumeup.name",
+      "Passed": true,
+      "Detail": "button_VolumeUp"
+    },
+    {
+      "Id": "element.home.volumeup.rect",
+      "Passed": true,
+      "Detail": "1000,160,100,90"
+    },
+    {
+      "Id": "element.home.volumeup.state-count",
+      "Passed": true,
+      "Detail": "2 state(s)"
+    },
+    {
+      "Id": "element.home.volumeup.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027UP\u0027, fill #FF242634, text #FFFFFFFF, image none, id 0/0"
+    },
+    {
+      "Id": "element.home.volumeup.state1",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027UP\u0027, fill #FFFFCC00, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.home.volumeup.press-feedback",
+      "Passed": true,
+      "Detail": "press state 1"
+    },
+    {
+      "Id": "element.home.volumeup.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.home.company.type",
+      "Passed": true,
+      "Detail": "PBImage"
+    },
+    {
+      "Id": "element.home.company.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.home.company.key",
+      "Passed": true,
+      "Detail": "exui-key=home.company"
+    },
+    {
+      "Id": "element.home.company.name",
+      "Passed": true,
+      "Detail": "logo_Company"
+    },
+    {
+      "Id": "element.home.company.rect",
+      "Passed": true,
+      "Detail": "1208,728,64,64"
+    },
+    {
+      "Id": "element.home.company.image",
+      "Passed": true,
+      "Detail": "exui-graphic-5.png"
+    },
+    {
+      "Id": "element.home.company.native-layout",
+      "Passed": true,
+      "Detail": "layout 3, alignment 3"
+    },
+    {
+      "Id": "element.home.company.passive-transparent",
+      "Passed": true,
+      "Detail": "passive PBImage, no states/text/shape/background"
+    },
+    {
+      "Id": "groups.registry",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Id": "resource.image.home.company",
+      "Passed": true,
+      "Detail": "exui-graphic-5.png: 1 found, 64x64"
+    },
+    {
+      "Id": "resource.references",
+      "Passed": true,
+      "Detail": "every state image names an existing image resource"
+    }
+  ],
+  "Build": {
+    "StatusValue": 0,
+    "VersionInfo": "0.0.2",
+    "RevisionDate": "2026-10-20T21:04:33.1143534+05:00"
+  },
+  "entries": [
+    "ProjectGCP",
+    "volume-1025m-fixed-gui.tgz4"
+  ],
+  "valueFlattened": false,
+  "controls": [
+    {
+      "Name": "slider_Volume",
+      "ObjectId": 1,
+      "ControlId": 8101,
+      "Text": null,
+      "TlpImageId": 2,
+      "Native": {
+        "ObjectType": 27,
+        "DynamicText": true,
+        "BorderName": "exui-border-home.volume",
+        "Fill": 4280888624,
+        "Stroke": 0,
+        "Slider": {
+          "Orientation": 0,
+          "Min": 0,
+          "Max": 100,
+          "Fill": 4294211328,
+          "Thumb": 4294967295,
+          "ThumbType": 0,
+          "ThumbWidth": 32,
+          "ThumbHeight": 28,
+          "TrackWidth": 16,
+          "ThumbImage": "Slider Thumb",
+          "ThumbAspectRatio": 0.875
+        },
+        "Line": null,
+        "Pattern": null
+      },
+      "States": []
+    },
+    {
+      "Name": "value_VolumeValue",
+      "ObjectId": 2,
+      "ControlId": 8102,
+      "Text": "43%",
+      "TlpImageId": 4,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "States": []
+    },
+    {
+      "Name": "button_VolumeDown",
+      "ObjectId": 3,
+      "ControlId": 8103,
+      "Text": null,
+      "TlpImageId": 5,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "-",
+          "Image": null,
+          "Fill": 4280559156,
+          "TextColor": 4294967295,
+          "TlpImageId": 5
+        },
+        {
+          "Name": "Pressed",
+          "Id": 1,
+          "Index": 1,
+          "Text": "-",
+          "Image": null,
+          "Fill": 4294953984,
+          "TextColor": 4278190080,
+          "TlpImageId": 6
+        }
+      ]
+    },
+    {
+      "Name": "button_VolumeUp",
+      "ObjectId": 4,
+      "ControlId": 8104,
+      "Text": null,
+      "TlpImageId": 5,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "UP",
+          "Image": null,
+          "Fill": 4280559156,
+          "TextColor": 4294967295,
+          "TlpImageId": 5
+        },
+        {
+          "Name": "Pressed",
+          "Id": 1,
+          "Index": 1,
+          "Text": "UP",
+          "Image": null,
+          "Fill": 4294953984,
+          "TextColor": 4278190080,
+          "TlpImageId": 6
+        }
+      ]
+    },
+    {
+      "Name": "logo_Company",
+      "ObjectId": 5,
+      "ControlId": 0,
+      "Text": null,
+      "TlpImageId": 7,
+      "Native": {
+        "ObjectType": 10,
+        "DynamicText": false,
+        "BorderName": "",
+        "Fill": 0,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "States": []
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+PASS CRC32 standard check vector
+PASS DEFLATE from standard ZIP writer
+PASS Stored entry
+PASS Repack preserves payload and supports a second repack
+PASS Reject truncated container
+PASS Reject wrong local signature
+PASS Reject central directory outside file
+PASS Reject mismatched metadata
+PASS Reject payload corruption even with consistent stored sizes
+PASS Reject oversized declared payload before allocating
+PASS Reject encrypted/data-descriptor flags
+PASS Reject expansion beyond declared size
+PASS Reject expansion shorter than declared size
+PASS Reject foreign entry name
+PASS Reject multi-entry declaration
+PASS Reject non-NRBF data
+PASS Synthetic button: edits two distinct strings, exact reverse
+PASS Synthetic button: reject version
+PASS Synthetic button: reject checksum
+PASS Synthetic button: reject inherited-id
+PASS Synthetic button: reject formatted
+PASS Synthetic button: reject shared-string
+PASS Synthetic button: reject shared-collection
+PASS Synthetic button: reject shared-state-array
+PASS Multi-entry: ProjectGCP + build output parsed structurally
+PASS Multi-entry: repack with new payload keeps other entry bytes and fixes offsets
+PASS Multi-entry: reject ProjectGCP not first
+PASS Multi-entry: reject missing ProjectGCP
+PASS Multi-entry: reject duplicate entry names
+PASS Multi-entry: reject CRC mismatch in the second entry
+PASS Multi-entry: reject gap between entries
+PASS Multi-entry: reject path-like entry name
+PASS Multi-entry: reject more than 16 entries
+PASS Multi-entry: reject declared entry count larger than the directory
+PASS Spec: both examples normalize; four kinds present; Cyrillic kept
+PASS Spec: IDs do not depend on element order, text or coordinates
+PASS Spec: panel name must match the donor
+PASS Spec: 1025M layout does not fit the 300M canvas
+PASS Spec: duplicate key / objectId / controlId rejected
+PASS Spec: page objectId must fit the UInt16 start page and avoid Offline 65535
+PASS Spec: controlId out of UInt16 range rejected
+PASS Spec: missing and non-PNG resources rejected
+PASS Spec: button state roles keep press feedback apart from program feedback
+PASS Spec: kind-specific properties and unknown kinds rejected
+PASS Spec: unknown JSON property rejected (no silent typos)
+PASS Spec: NUL and broken Unicode text rejected
+PASS Adapter: missing GUI Designer reported as extron-missing
+PASS Adapter: missing 32-bit PowerShell reported as host-missing
+PASS Adapter: host script is deployed with the build
+PASS Adapter: host script never automates GUI Designer or Build
+PASS Package 1025m: lowers to the exact experimental plan; resources cleaned up
+PASS Package 300m: lowers to the exact experimental plan; resources cleaned up
+PASS Package refuses unknown contract
+PASS Package refuses unsupported profile
+PASS Package refuses missing project
+PASS Package refuses null element
+PASS Package refuses unknown property
+PASS Package refuses unsupported gauge
+PASS Package refuses unsupported font
+PASS Package refuses integer type
+PASS Package refuses newline in semantic key
+PASS Package refuses duplicate semantic key
+PASS Package refuses duplicate objectId
+PASS Package refuses duplicate controlId
+PASS Package refuses bounds
+PASS Package refuses overflow geometry
+PASS Package refuses wrong state identity
+PASS Package refuses feedback used as press
+PASS Package refuses pressed mixed with feedback
+PASS Package refuses missing image reference
+PASS Package refuses resource name conflict
+PASS Package refuses missing resource
+PASS Package refuses extra file
+PASS Package refuses traversal
+PASS Package refuses backslash
+PASS Package refuses absolute path
+PASS Package refuses directory
+PASS Package refuses undeclared resource
+PASS Package refuses wrong SHA
+PASS Package refuses resource map mismatch
+PASS Package refuses duplicate resource declaration
+PASS Package refuses duplicate JSON
+PASS Package refuses malformed JSON
+PASS Package refuses expanded resource limit
+PASS Package refuses duplicate/case-colliding ZIP paths
+PASS Package refuses corrupt PNG even with updated manifest SHA
+PASS Package refuses corrupt stored ZIP CRC
+PASS Package JSON Schema integer semantics accept 1.0 and 1e0 without changing IDs
+PASS Package never rounds a fractional ID to an integer
+PASS Package state order, text, geometry and element order cannot reassign IDs
+PASS Package v3 two-state Off/On buttons disable press feedback; IDs preserved
+PASS Package v3 three-state plan equals v1; existing contracts remain strict
+PASS Package v3 refuses invalid two-state press/identity/version
+PASS Package v3 refuses invalid two-state press/identity/version
+PASS Package v3 refuses invalid two-state press/identity/version
+PASS Package v3 refuses invalid two-state press/identity/version
+PASS Package v3 still requires pressed reference when three states are present
+PASS Package v4 resolves passive graphic and two-state momentary press index
+PASS Package v4 rejects malformed graphic, press or version
+PASS Package v4 rejects malformed graphic, press or version
+PASS Package v4 rejects malformed graphic, press or version
+PASS Package v4 rejects malformed graphic, press or version
+PASS Package v4 rejects malformed graphic, press or version
+PASS Package v4 rejects malformed graphic, press or version
+PASS Package v4 rejects malformed graphic, press or version
+PASS Package v3 remains strict: no momentary pair or standalone graphics
+PASS Package v5 preserves editable Slider, dynamic label ID and programmer behavior
+PASS Package v5 uses the same validation for container form
+PASS Package v5 rejects missing ID
+PASS Package v5 rejects duplicate ID
+PASS Package v5 rejects oversized thumb
+PASS Package v5 rejects invalid range
+PASS Package v5 rejects unknown native field
+PASS Package v5 rejects inappropriate native appearance
+PASS Package v5 rejects behavior on passive graphic
+PASS Package v5 rejects unknown behavior field
+PASS Package v5 rejects mixed single/project forms
+PASS Package v4 rejects v5 controls instead of silently lowering them
+PASS exui/2 1025m: pages, popups, group and references lower to one plan
+PASS exui/2 300m: pages, popups, group and references lower to one plan
+PASS exui/2: both panels carry the same keys and IDs
+PASS exui/2: IDs ignore order of pages, popups and elements, texts and geometry
+PASS exui/2: ID map lists every control ID and says navigation is not stored in GDL
+PASS exui/2 refuses v1 manifest with v2 screen
+PASS exui/2 refuses unknown contract
+PASS exui/2 refuses popup-ref inside a popup
+PASS exui/2 refuses popup-ref with control ID
+PASS exui/2 refuses unknown popup property
+PASS exui/2 refuses modal popup with size
+PASS exui/2 refuses standard popup without size
+PASS exui/2 refuses reference to a modal popup
+PASS exui/2 refuses direct reference to a grouped popup
+PASS exui/2 refuses reference naming popup and group
+PASS exui/2 refuses reference size differs from popup
+PASS exui/2 refuses standard popup placed nowhere
+PASS exui/2 refuses group without members
+PASS exui/2 refuses members of different size
+PASS exui/2 refuses navigation to an unknown target
+PASS exui/2 refuses navigation page nobody leads to
+PASS exui/2 refuses two start pages
+PASS exui/2 refuses no start page
+PASS exui/2 refuses page and popup share an ID
+PASS exui/2 refuses page and popup share a name
+PASS exui/2 refuses popup named like the Offline page
+PASS exui/2 refuses Offline page ID
+PASS exui/2 refuses control ID used on two containers
+PASS exui/2 refuses element outside its popup
+PASS exui/2 refuses navigate on a label
+PASS exui/1 package still refuses navigate (no silent upgrade)
+RESULT: 149 passed, 0 failed. GUI Designer validation is separate.

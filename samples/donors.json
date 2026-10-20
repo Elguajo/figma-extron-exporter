@@ -65,6 +65,21 @@
           "page": "Confirmation",
           "type": "PBImage",
           "name": "Image1"
+        },
+        "shape": {
+          "page": "Offline Page",
+          "type": "PBShape",
+          "name": "Offline Window"
+        },
+        "line": {
+          "page": "Main",
+          "type": "PBLine",
+          "name": "Divider"
+        },
+        "datetime": {
+          "page": "Start",
+          "type": "PBDateTime",
+          "name": "Current Date & Time"
         }
       },
       "notes": "Copy of the local Full-Test-Project reduced to pages Main and Start (with its popup reference) and the popups Offline Page, Volume Level (standard) and Confirmation (modal); profile not changed."
@@ -132,6 +147,21 @@
           "page": "Confirmation",
           "type": "PBImage",
           "name": "Image1"
+        },
+        "shape": {
+          "page": "Offline Page",
+          "type": "PBShape",
+          "name": "Offline Window"
+        },
+        "line": {
+          "page": "Main",
+          "type": "PBLine",
+          "name": "Divider"
+        },
+        "datetime": {
+          "page": "Start",
+          "type": "PBDateTime",
+          "name": "Current Date & Time"
         }
       },
       "notes": "Same reduction (Main, Start; Offline, Volume Level, Confirmation), platform replaced through Extron's PBPlatformPro.CreatePlatform(TLP1025M); kept containers scaled uniformly and centred. Not made by the GUI Designer Create Wizard."

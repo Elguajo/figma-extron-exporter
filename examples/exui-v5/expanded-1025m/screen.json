@@ -1,0 +1,263 @@
+{
+  "schema": "exui-screen/5",
+  "project": {
+    "name": "Home"
+  },
+  "page": {
+    "key": "page.home",
+    "objectId": 100,
+    "name": "Home",
+    "background": "#101010"
+  },
+  "assets": [],
+  "elements": [
+    {
+      "key": "home.volume",
+      "kind": "slider",
+      "objectId": 1,
+      "controlId": 8101,
+      "name": "slider_Volume",
+      "rect": [
+        20,
+        20,
+        260,
+        32
+      ],
+      "orientation": "left-to-right",
+      "min": 0,
+      "max": 100,
+      "fillColor": "#F47700",
+      "native": {
+        "trackColor": "#292D30",
+        "trackWidth": 16,
+        "thumbColor": "#FFFFFF",
+        "thumbWidth": 28,
+        "thumbHeight": 28,
+        "thumbType": "ellipse",
+        "radius": 8
+      }
+    },
+    {
+      "key": "home.volumevalue",
+      "kind": "value",
+      "objectId": 2,
+      "controlId": 8102,
+      "name": "value_VolumeValue",
+      "rect": [
+        20,
+        60,
+        100,
+        28
+      ],
+      "text": "42%",
+      "textColor": "#FFFFFF",
+      "font": {
+        "family": "Arial",
+        "size": 12,
+        "bold": false
+      }
+    },
+    {
+      "key": "home.card",
+      "kind": "shape",
+      "objectId": 3,
+      "controlId": null,
+      "name": "shape_Card",
+      "rect": [
+        20,
+        100,
+        100,
+        40
+      ],
+      "fillColor": "#292D30",
+      "native": {
+        "shape": "rectangle",
+        "radius": 10,
+        "strokeColor": "#888888",
+        "thickness": 1
+      }
+    },
+    {
+      "key": "home.divider",
+      "kind": "line",
+      "objectId": 4,
+      "controlId": null,
+      "name": "line_Divider",
+      "rect": [
+        20,
+        150,
+        260,
+        2
+      ],
+      "fillColor": "#666666",
+      "native": {
+        "thickness": 2
+      }
+    },
+    {
+      "key": "home.clock",
+      "kind": "datetime",
+      "objectId": 5,
+      "controlId": null,
+      "name": "datetime_Clock",
+      "rect": [
+        20,
+        165,
+        260,
+        28
+      ],
+      "textColor": "#FFFFFF",
+      "font": {
+        "family": "Arial",
+        "size": 12,
+        "bold": false
+      },
+      "native": {
+        "pattern": "dd.MM.yyyy HH:mm"
+      }
+    },
+    {
+      "key": "home.signal",
+      "kind": "level",
+      "objectId": 6,
+      "controlId": 8103,
+      "name": "gauge_Signal",
+      "rect": [
+        20,
+        210,
+        260,
+        16
+      ],
+      "display": "gauge",
+      "orientation": "left-to-right",
+      "min": 0,
+      "max": 100,
+      "fillColor": "#00FF00"
+    },
+    {
+      "key": "home.output",
+      "kind": "level",
+      "objectId": 7,
+      "controlId": 8104,
+      "name": "volumeled_Output",
+      "rect": [
+        20,
+        245,
+        260,
+        16
+      ],
+      "display": "volume-led",
+      "orientation": "left-to-right",
+      "min": 0,
+      "max": 100,
+      "fillColor": "#00FF00"
+    },
+    {
+      "key": "home.status",
+      "kind": "level",
+      "objectId": 8,
+      "controlId": 8105,
+      "name": "multilevel_Status",
+      "rect": [
+        20,
+        280,
+        90,
+        40
+      ],
+      "font": {
+        "family": "Arial",
+        "size": 12,
+        "bold": false
+      },
+      "states": [
+        {
+          "stateId": 0,
+          "name": "Normal",
+          "role": "normal",
+          "text": "0",
+          "fill": "#202020",
+          "textColor": "#FFFFFF"
+        },
+        {
+          "stateId": 1,
+          "name": "state_Ready",
+          "role": "feedback",
+          "text": "1",
+          "fill": "#008000",
+          "textColor": "#FFFFFF"
+        },
+        {
+          "stateId": 2,
+          "name": "state_Error",
+          "role": "feedback",
+          "text": "2",
+          "fill": "#D00000",
+          "textColor": "#FFFFFF"
+        }
+      ],
+      "display": "multistate",
+      "orientation": "left-to-right",
+      "min": 0,
+      "max": 100,
+      "fillColor": "#202020"
+    },
+    {
+      "key": "home.connection",
+      "kind": "button",
+      "objectId": 9,
+      "controlId": 8106,
+      "name": "button_Connection",
+      "rect": [
+        20,
+        340,
+        90,
+        40
+      ],
+      "behavior": {
+        "selectionGroup": "sources.hall",
+        "enabled": true,
+        "visible": true
+      },
+      "font": {
+        "family": "Arial",
+        "size": 12,
+        "bold": false
+      },
+      "states": [
+        {
+          "stateId": 0,
+          "name": "Normal",
+          "role": "normal",
+          "text": "0",
+          "fill": "#202020",
+          "textColor": "#FFFFFF"
+        },
+        {
+          "stateId": 1,
+          "name": "state_Ready",
+          "role": "feedback",
+          "text": "1",
+          "fill": "#008000",
+          "textColor": "#FFFFFF"
+        },
+        {
+          "stateId": 2,
+          "name": "state_Error",
+          "role": "feedback",
+          "text": "2",
+          "fill": "#D00000",
+          "textColor": "#FFFFFF"
+        },
+        {
+          "stateId": 3,
+          "name": "Pressed",
+          "role": "pressed",
+          "text": "3",
+          "fill": "#FFCC00",
+          "textColor": "#FFFFFF"
+        }
+      ],
+      "press": "Pressed"
+    }
+  ]
+}

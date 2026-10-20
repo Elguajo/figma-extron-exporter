@@ -72,7 +72,8 @@ public static class ScreenGenerator
             donorElements = new
             {
                 page = e.Elements.Page, button = e.Elements.Button, label = e.Elements.Label, level = e.Elements.Level,
-                popupReference = e.Elements.PopupReference, standardPopup = e.Elements.StandardPopup, modalPopup = e.Elements.ModalPopup, graphic = e.Elements.Graphic
+                popupReference = e.Elements.PopupReference, standardPopup = e.Elements.StandardPopup, modalPopup = e.Elements.ModalPopup, graphic = e.Elements.Graphic,
+                shape = e.Elements.Shape, line = e.Elements.Line, datetime = e.Elements.Datetime
             }
         });
         CheckHostEnums(run.Result, e.Profile);

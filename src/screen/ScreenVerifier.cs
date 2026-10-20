@@ -19,7 +19,7 @@ public static class ScreenVerifier
     public static readonly IReadOnlyDictionary<string, int> LevelOrientation = new Dictionary<string, int>
     { ["LeftToRight"] = 0, ["RightToLeft"] = 1, ["BottomToTop"] = 2, ["TopToBottom"] = 3 };
 
-    private static readonly Dictionary<string, string> Types = new() { ["button"] = "PBButton", ["label"] = "PBLabel", ["level"] = "PBLevel", ["popup-ref"] = "PBPopupPageReference", ["graphic"] = "PBImage" };
+    private static readonly Dictionary<string, string> Types = new() { ["button"] = "PBButton", ["label"] = "PBLabel", ["level"] = "PBLevel", ["popup-ref"] = "PBPopupPageReference", ["graphic"] = "PBImage", ["value"] = "PBLabel", ["slider"] = "PBSlider", ["shape"] = "PBShape", ["line"] = "PBLine", ["datetime"] = "PBDateTime" };
 
     public static IReadOnlyList<CheckResult> ProfileChecks(ProjectModel model, ExpectedProfile expected)
     {
@@ -131,26 +131,53 @@ public static class ScreenVerifier
             if (found.Length != 1) { Check($"{at}.present", false, $"objectId {e.ObjectId} found {found.Length} time(s)"); return; }
             var c = found[0];
             Check($"{at}.type", c.Type == Types[e.Kind], c.Type);
+            if(e.Kind is "slider" or "shape" or "line" or "datetime" or "value")
+                Check($"{at}.native-object-type", c.Native?.ObjectType == (e.Kind switch { "slider"=>27,"shape"=>13,"line"=>12,"datetime"=>8,_=>11 }), "native ObjectTypeEnum agrees with the serialized class");
             Check($"{at}.control-id", c.ControlId == e.ControlId, $"userId {c.ControlId} (expected {e.ControlId})");
             Check($"{at}.key", c.Comments == "exui-key=" + e.Key, c.Comments ?? "null");
             Check($"{at}.name", c.Name == e.Name, c.Name);
             Check($"{at}.rect", c.Left == e.Rect[0] && c.Top == e.Rect[1] && c.Width == e.Rect[2] && c.Height == e.Rect[3], $"{c.Left},{c.Top},{c.Width},{c.Height}");
             switch (e.Kind)
             {
+                case "slider":
+                    var sl = c.Native?.Slider; var ns = e.Native!;
+                    Check($"{at}.slider", sl != null && sl.Orientation == LevelOrientation[e.Orientation!] && sl.Min == e.Min && sl.Max == e.Max && sl.Fill == Argb(e.FillColor!) && sl.Thumb == Argb(ns.ThumbColor!) && sl.ThumbWidth == ns.ThumbWidth && sl.ThumbHeight == ns.ThumbHeight && sl.TrackWidth == ns.TrackWidth && sl.ThumbType == (ns.ThumbType == "ellipse" ? 0 : ns.ThumbType == "rectangle" ? 1 : 3), "native slider orientation, range, fill, thumb and track geometry");
+                    Check($"{at}.track-color", c.Native?.Fill == Argb(ns.TrackColor!), Hex(c.Native?.Fill));
+                    Check($"{at}.thumb-geometry-resource", ns.ThumbType == "none" || (sl?.ThumbImage == "Slider Thumb" && model.Resources.Count(r => r.Type == "PBImageResource" && r.Name == sl.ThumbImage && r.Width > 0 && r.Height > 0) == 1), "vector thumb geometry requires a resolvable bitmap in GUI Designer 1.28.0.7");
+                    Check($"{at}.thumb-aspect-ratio", sl != null && ns.ThumbHeight is int thumbHeight && ns.ThumbWidth is int thumbWidth && thumbWidth > 0 && Math.Abs(sl.ThumbAspectRatio - (double)thumbHeight / thumbWidth) < 0.000001, "thumb resize factor is height / width");
+                    CheckBorder(e, c, at, true);
+                    break;
+                case "shape":
+                    Check($"{at}.shape-colors", c.Native?.Fill == Argb(e.FillColor!) && c.Native.Stroke == Argb(e.Native!.StrokeColor!), "shape fill and stroke");
+                    CheckBorder(e, c, at, false);
+                    break;
+                case "line":
+                    var line = c.Native?.Line; bool horizontal = e.Rect[2] >= e.Rect[3];
+                    Check($"{at}.line", line != null && line.Thickness == e.Native!.Thickness && line.Start == (horizontal ? 6 : 0) && line.End == (horizontal ? 2 : 4) && line.StartCap == 0 && line.EndCap == 0 && c.Native?.Fill == Argb(e.FillColor!), "line thickness, endpoints, caps and color");
+                    break;
+                case "datetime":
+                    Check($"{at}.pattern", c.Native?.Pattern == e.Native!.Pattern && c.TextColor == Argb(e.TextColor!), c.Native?.Pattern ?? "none");
+                    break;
                 case "graphic":
                     Check($"{at}.image", c.Graphic?.Image == e.Image && names.Contains(e.Image!), c.Graphic?.Image ?? "none");
                     Check($"{at}.native-layout", c.Graphic?.Layout == 3 && c.Graphic.Alignment == 3, $"layout {c.Graphic?.Layout}, alignment {c.Graphic?.Alignment}");
                     Check($"{at}.passive-transparent", c.ControlId == 0 && c.States.Count == 0 && string.IsNullOrEmpty(c.Text) && c.Graphic?.Background == 0 && c.Graphic.Border == 0 && c.Graphic.Shape == 0, "passive PBImage, no states/text/shape/background");
                     break;
+                case "value":
+                    Check($"{at}.dynamic", c.Native?.DynamicText == true && c.ControlId > 0, "dynamic label with an addressable ID");
+                    goto case "label";
                 case "label":
-                    Check($"{at}.text", c.Text == e.Text, c.Text ?? "null");
+                    Check($"{at}.text", c.Text == e.Text && c.TextAlignment == 4, $"{c.Text ?? "null"}; alignment {c.TextAlignment} (expected MiddleLeft=4)");
                     if (e.TextColor != null) Check($"{at}.text-color", c.TextColor == Argb(e.TextColor), Hex(c.TextColor));
                     break;
                 case "level":
-                    Check($"{at}.level", c.Level != null && c.Level.DisplayType == LevelDisplay[e.Display!] && c.Level.Orientation == LevelOrientation[e.Orientation!]
+                    int display = e.Display == "MultistateLevel" ? 2 : e.Display == "VolumeLED" ? 4 : LevelDisplay[e.Display!];
+                    Check($"{at}.level", c.Level != null && c.Level.DisplayType == display && c.Level.Orientation == LevelOrientation[e.Orientation!]
                         && c.Level.Min == (uint)e.Min! && c.Level.Max == (uint)e.Max!,
                         c.Level == null ? "no level" : $"display {c.Level.DisplayType}, orientation {c.Level.Orientation}, {c.Level.Min}..{c.Level.Max}");
                     if (e.FillColor != null) Check($"{at}.fill", c.Level?.Fill == Argb(e.FillColor), Hex(c.Level?.Fill));
+                    if (e.States != null)
+                        Check($"{at}.level-states", c.States.Count == e.States.Count && c.States.Select((s,i) => s.Id == (ulong)i && s.Index == i && s.Name == e.States[i].Name && s.Text == e.States[i].Text && s.Fill == Argb(e.States[i].Fill) && s.TextColor == Argb(e.States[i].TextColor) && s.Image == e.States[i].Image).All(x=>x), "all multistate Level states preserve identity, artwork and text");
                     break;
                 case "button":
                     var want = e.States!;
@@ -182,6 +209,12 @@ public static class ScreenVerifier
                     }
                     break;
             }
+        }
+
+        void CheckBorder(PlanElement e, ControlModel c, string at, bool slider)
+        {
+            var border = model.Resources.SingleOrDefault(r => r.Name == c.Native?.BorderName && r.Type == "PBBorderResource")?.Border;
+            Check($"{at}.border", border != null && border.Shape == (slider || e.Native!.Shape == "rectangle" ? 1 : 2) && border.Radius == e.Native!.Radius && border.Thickness == (slider ? 0 : e.Native!.Thickness) && border.Style == 0, "authored native border resource, shape/radius/thickness/style");
         }
     }
 

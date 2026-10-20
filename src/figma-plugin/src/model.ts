@@ -1,5 +1,5 @@
 export type Role = 'normal' | 'feedback' | 'pressed';
-export type Kind = 'page' | 'button' | 'label' | 'level' | 'state' | 'image' | 'graphic';
+export type Kind = 'project' | 'page' | 'popup' | 'popup-group' | 'popup-ref' | 'button' | 'label' | 'value' | 'level' | 'slider' | 'shape' | 'line' | 'datetime' | 'state' | 'image' | 'graphic';
 export type Profile = 'tlp-pro-1025m' | 'tlp-pro-300m-portrait';
 export const DATA_KEY = 'exui';
 export const PROFILES = {
@@ -8,28 +8,44 @@ export const PROFILES = {
 } as const;
 export const ROLE_ID: Record<Role, number> = { normal: 0, feedback: 1, pressed: 2 };
 export interface Metadata {
-  schema: 'exui-node/1'; ownerNodeId: string; kind: Kind;
+  schema: 'exui-node/1' | 'exui-node/2'; ownerNodeId: string; kind: Kind;
   key?: string; objectId?: number; controlId?: number | null;
   projectName?: string; profile?: Profile;
   role?: Role; stateId?: number; stateName?: string;
   file?: string; resourceName?: string;
+  display?: 'slider'|'gauge'|'volume-led'|'multistate'; orientation?: Orientation; min?:number; max?:number;
+  pattern?:string; modal?:boolean; shownBy?:'start'|'program'|'navigation'; popup?:string; group?:string;
+  navigate?:string; behavior?:Behavior;
 }
+export type Orientation='left-to-right'|'right-to-left'|'bottom-to-top'|'top-to-bottom';
+export interface Behavior {selectionGroup?:string; enabled?:boolean; visible?:boolean}
+export interface NativeStyle {trackColor?:string;trackWidth?:number;thumbColor?:string;thumbWidth?:number;thumbHeight?:number;thumbType?:'ellipse'|'rectangle'|'none';radius?:number;shape?:'rectangle'|'ellipse';strokeColor?:string;thickness?:number;pattern?:string}
 export interface Font { family: 'Arial'; size: number; bold: boolean }
 export interface State {
   stateId: number; name: string; role: Role; text: string; fill: string; textColor: string;
   image?: string; imageAlign?: 'top-center' | 'middle-center'; textAlign?: 'bottom-center' | 'middle-center';
 }
 export interface Element {
-  key: string; kind: 'button' | 'label' | 'level' | 'graphic'; objectId: number; controlId: number | null; name: string; rect: number[];
+  key: string; kind: 'button' | 'label' | 'value' | 'level' | 'slider' | 'shape' | 'line' | 'datetime' | 'popup-ref' | 'graphic'; objectId: number; controlId: number | null; name: string; rect: number[];
   text?: string; textColor?: string; font?: Font; states?: State[]; press?: string;
-  display?: 'slider'; orientation?: 'left-to-right'; min?: 0; max?: 100; fillColor?: string;
+  display?: 'slider'|'gauge'|'volume-led'|'multistate'; orientation?: Orientation; min?: number; max?: number; fillColor?: string;
   image?: string;
+  native?:NativeStyle; navigate?:string;popup?:string;group?:string;behavior?:Behavior;
 }
 export interface Asset { key: string; file: string; resourceName: string }
-export interface Screen {
-  schema: 'exui-screen/1' | 'exui-screen/3' | 'exui-screen/4'; project: { name: string };
+export interface SingleScreen {
+  schema: 'exui-screen/1' | 'exui-screen/3' | 'exui-screen/4' | 'exui-screen/5'; project: { name: string };
   page: { key: string; objectId: number; name: string; background: string };
   assets: Asset[]; elements: Element[];
+}
+export interface Container {key:string;objectId:number;name:string;background:string;shownBy:'start'|'program'|'navigation';elements:Element[];modal?:boolean;size?:number[];group?:string}
+export interface ProjectScreen {schema:'exui-screen/5';project:{name:string};pages:Container[];popups:Container[];groups:{key:string;groupId:number;name:string}[];assets:Asset[]}
+export type Screen=SingleScreen|ProjectScreen;
+export function elementCount(screen:Screen):number {return 'elements' in screen?screen.elements.length:[...screen.pages,...screen.popups].reduce((n,c)=>n+c.elements.length,0);}
+export const CONTROL_KINDS:Kind[]=['button','value','level','slider'];
+export const ELEMENT_KINDS:Kind[]=['button','label','value','level','slider','shape','line','datetime','popup-ref','graphic'];
+export function metadataSchema(value:Omit<Metadata,'schema'|'ownerNodeId'>):Metadata['schema'] {
+  return ['project','popup','popup-group','popup-ref','value','slider','shape','line','datetime'].includes(value.kind)||value.display||value.orientation||value.min!==undefined||value.max!==undefined||value.navigate||value.behavior||value.shownBy||value.stateId!==undefined&&value.role&&value.stateId!==ROLE_ID[value.role]?'exui-node/2':'exui-node/1';
 }
 export interface Bundle { profile: Profile; screen: Screen; resources: { path: string; bytes: Uint8Array }[] }
 export class ExportError extends Error {
@@ -57,7 +73,7 @@ export function readMetadata(node: { id: string; name: string; getPluginData(k: 
   if (!raw) return null;
   let data: Metadata;
   try { data = JSON.parse(raw); } catch { return fail('metadata', `${node.name}: повреждены данные Extron.`); }
-  if (!data || data.schema !== 'exui-node/1' || !['page','button','label','level','state','image','graphic'].includes(data.kind))
+  if (!data || !['exui-node/1','exui-node/2'].includes(data.schema) || !['project','page','popup','popup-group',...ELEMENT_KINDS,'state','image'].includes(data.kind))
     fail('metadata', `${node.name}: неизвестная версия или тип данных Extron.`);
   if (data.ownerNodeId !== node.id) fail('copied-node', `${node.name}: это копия. Явно назначьте ей собственные ключ и ID через «Сохранить назначение».`);
   return data;

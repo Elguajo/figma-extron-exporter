@@ -1,0 +1,467 @@
+{
+  "schema": "exui-screen/5",
+  "project": {
+    "name": "project_Trilliant"
+  },
+  "pages": [
+    {
+      "key": "page.home",
+      "objectId": 100,
+      "name": "Home",
+      "background": "#101010",
+      "shownBy": "start",
+      "elements": [
+        {
+          "key": "home.volume",
+          "kind": "slider",
+          "objectId": 501,
+          "controlId": 8101,
+          "name": "slider_Volume",
+          "rect": [
+            20,
+            20,
+            260,
+            32
+          ],
+          "orientation": "left-to-right",
+          "min": 0,
+          "max": 100,
+          "fillColor": "#F47700",
+          "native": {
+            "trackColor": "#292D30",
+            "trackWidth": 16,
+            "thumbColor": "#FFFFFF",
+            "thumbWidth": 28,
+            "thumbHeight": 28,
+            "thumbType": "ellipse",
+            "radius": 8
+          }
+        },
+        {
+          "key": "home.volumevalue",
+          "kind": "value",
+          "objectId": 502,
+          "controlId": 8102,
+          "name": "value_VolumeValue",
+          "rect": [
+            20,
+            60,
+            100,
+            28
+          ],
+          "text": "42%",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 12,
+            "bold": false
+          }
+        },
+        {
+          "key": "home.card",
+          "kind": "shape",
+          "objectId": 503,
+          "controlId": null,
+          "name": "shape_Card",
+          "rect": [
+            20,
+            100,
+            100,
+            40
+          ],
+          "fillColor": "#292D30",
+          "native": {
+            "shape": "rectangle",
+            "radius": 10,
+            "strokeColor": "#888888",
+            "thickness": 1
+          }
+        },
+        {
+          "key": "home.divider",
+          "kind": "line",
+          "objectId": 504,
+          "controlId": null,
+          "name": "line_Divider",
+          "rect": [
+            20,
+            150,
+            260,
+            2
+          ],
+          "fillColor": "#666666",
+          "native": {
+            "thickness": 2
+          }
+        },
+        {
+          "key": "home.clock",
+          "kind": "datetime",
+          "objectId": 505,
+          "controlId": null,
+          "name": "datetime_Clock",
+          "rect": [
+            20,
+            165,
+            260,
+            28
+          ],
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 12,
+            "bold": false
+          },
+          "native": {
+            "pattern": "dd.MM.yyyy HH:mm"
+          }
+        },
+        {
+          "key": "home.signal",
+          "kind": "level",
+          "objectId": 506,
+          "controlId": 8103,
+          "name": "gauge_Signal",
+          "rect": [
+            20,
+            210,
+            260,
+            16
+          ],
+          "display": "gauge",
+          "orientation": "left-to-right",
+          "min": 0,
+          "max": 100,
+          "fillColor": "#00FF00"
+        },
+        {
+          "key": "home.output",
+          "kind": "level",
+          "objectId": 507,
+          "controlId": 8104,
+          "name": "volumeled_Output",
+          "rect": [
+            20,
+            245,
+            260,
+            16
+          ],
+          "display": "volume-led",
+          "orientation": "left-to-right",
+          "min": 0,
+          "max": 100,
+          "fillColor": "#00FF00"
+        },
+        {
+          "key": "home.status",
+          "kind": "level",
+          "objectId": 508,
+          "controlId": 8105,
+          "name": "multilevel_Status",
+          "rect": [
+            20,
+            280,
+            90,
+            40
+          ],
+          "font": {
+            "family": "Arial",
+            "size": 12,
+            "bold": false
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Normal",
+              "role": "normal",
+              "text": "0",
+              "fill": "#202020",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "state_Ready",
+              "role": "feedback",
+              "text": "1",
+              "fill": "#008000",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 2,
+              "name": "state_Error",
+              "role": "feedback",
+              "text": "2",
+              "fill": "#D00000",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "display": "multistate",
+          "orientation": "left-to-right",
+          "min": 0,
+          "max": 100,
+          "fillColor": "#202020"
+        },
+        {
+          "key": "home.connection",
+          "kind": "button",
+          "objectId": 509,
+          "controlId": 8106,
+          "name": "button_Connection",
+          "rect": [
+            20,
+            340,
+            90,
+            40
+          ],
+          "navigate": "page.settings",
+          "behavior": {
+            "selectionGroup": "sources.hall",
+            "enabled": true,
+            "visible": true
+          },
+          "font": {
+            "family": "Arial",
+            "size": 12,
+            "bold": false
+          },
+          "states": [
+            {
+              "stateId": 0,
+              "name": "Normal",
+              "role": "normal",
+              "text": "0",
+              "fill": "#202020",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 1,
+              "name": "state_Ready",
+              "role": "feedback",
+              "text": "1",
+              "fill": "#008000",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 2,
+              "name": "state_Error",
+              "role": "feedback",
+              "text": "2",
+              "fill": "#D00000",
+              "textColor": "#FFFFFF"
+            },
+            {
+              "stateId": 3,
+              "name": "Pressed",
+              "role": "pressed",
+              "text": "3",
+              "fill": "#FFCC00",
+              "textColor": "#FFFFFF"
+            }
+          ],
+          "press": "Pressed"
+        },
+        {
+          "key": "home.sources",
+          "kind": "popup-ref",
+          "objectId": 510,
+          "controlId": null,
+          "name": "popupref_Sources",
+          "rect": [
+            200,
+            65,
+            80,
+            60
+          ],
+          "popup": "popup.sources"
+        },
+        {
+          "key": "home.zonepanel",
+          "kind": "popup-ref",
+          "objectId": 500,
+          "controlId": null,
+          "name": "popupref_ZonePanel",
+          "rect": [
+            200,
+            125,
+            80,
+            60
+          ],
+          "group": "group.zones"
+        }
+      ]
+    },
+    {
+      "key": "page.settings",
+      "objectId": 101,
+      "name": "screen_Settings",
+      "background": "#101010",
+      "shownBy": "navigation",
+      "elements": [
+        {
+          "key": "settings.title",
+          "kind": "label",
+          "objectId": 511,
+          "controlId": null,
+          "name": "text_Title",
+          "rect": [
+            10,
+            10,
+            200,
+            30
+          ],
+          "text": "Settings",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 12,
+            "bold": false
+          }
+        }
+      ]
+    }
+  ],
+  "popups": [
+    {
+      "key": "popup.sources",
+      "objectId": 102,
+      "name": "popup_Sources",
+      "background": "#202020",
+      "shownBy": "program",
+      "elements": [
+        {
+          "key": "sources.title",
+          "kind": "label",
+          "objectId": 512,
+          "controlId": null,
+          "name": "text_Title",
+          "rect": [
+            5,
+            5,
+            70,
+            30
+          ],
+          "text": "Sources",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 12,
+            "bold": false
+          }
+        }
+      ],
+      "modal": false,
+      "size": [
+        80,
+        60
+      ]
+    },
+    {
+      "key": "popup.confirm",
+      "objectId": 103,
+      "name": "modalpopup_Confirm",
+      "background": "#202020",
+      "shownBy": "program",
+      "elements": [
+        {
+          "key": "confirm.title",
+          "kind": "label",
+          "objectId": 513,
+          "controlId": null,
+          "name": "text_Title",
+          "rect": [
+            10,
+            10,
+            200,
+            30
+          ],
+          "text": "Confirm?",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 12,
+            "bold": false
+          }
+        }
+      ],
+      "modal": true
+    },
+    {
+      "key": "popup.hall",
+      "objectId": 104,
+      "name": "popup_Hall",
+      "background": "#202020",
+      "shownBy": "program",
+      "elements": [
+        {
+          "key": "hall.title",
+          "kind": "label",
+          "objectId": 514,
+          "controlId": null,
+          "name": "text_Title",
+          "rect": [
+            5,
+            5,
+            70,
+            30
+          ],
+          "text": "Hall",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 12,
+            "bold": false
+          }
+        }
+      ],
+      "modal": false,
+      "size": [
+        80,
+        60
+      ],
+      "group": "group.zones"
+    },
+    {
+      "key": "popup.terrace",
+      "objectId": 105,
+      "name": "popup_Terrace",
+      "background": "#202020",
+      "shownBy": "program",
+      "elements": [
+        {
+          "key": "terrace.title",
+          "kind": "label",
+          "objectId": 515,
+          "controlId": null,
+          "name": "text_Title",
+          "rect": [
+            5,
+            5,
+            70,
+            30
+          ],
+          "text": "Terrace",
+          "textColor": "#FFFFFF",
+          "font": {
+            "family": "Arial",
+            "size": 12,
+            "bold": false
+          }
+        }
+      ],
+      "modal": false,
+      "size": [
+        80,
+        60
+      ],
+      "group": "group.zones"
+    }
+  ],
+  "groups": [
+    {
+      "key": "group.zones",
+      "groupId": 1,
+      "name": "popupgroup_Zones"
+    }
+  ],
+  "assets": []
+}

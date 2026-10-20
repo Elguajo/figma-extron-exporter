@@ -1,0 +1,404 @@
+[
+  {
+    "profile": "tlp-pro-1025m",
+    "input": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\plugin-1025m.exui",
+    "validation": {
+      "contract": "exui/1",
+      "Sha256": "79DBA891F568C2A45EE5FFB1D7C0597B2A360601E3416C831AC28D8790D0E09A",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 4,
+      "resources": 2,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake API; real Figma not exercised",
+    "generation": {
+      "Contract": "exui/1",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "79DBA891F568C2A45EE5FFB1D7C0597B2A360601E3416C831AC28D8790D0E09A",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\plugin-1025m.gdl",
+      "OutputSha256": "3B345D6514F9BEDDE20908B582DAE8A57382DF5905BEC19B40A652DC62DF4F8B",
+      "checks": "65/65 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\plugin-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "idsPreservedAfterMoveAndReorder": true
+  },
+  {
+    "profile": "tlp-pro-300m-portrait",
+    "input": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\plugin-300m.exui",
+    "validation": {
+      "contract": "exui/1",
+      "Sha256": "308D0BD536D7192779AA7084FD0A6C5643823BDD95BAB3A8AC183C01CBE9823F",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 4,
+      "resources": 2,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake API; real Figma not exercised",
+    "generation": {
+      "Contract": "exui/1",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "308D0BD536D7192779AA7084FD0A6C5643823BDD95BAB3A8AC183C01CBE9823F",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\plugin-300m.gdl",
+      "OutputSha256": "F2ED2AE77E622E50B34D135E57ECC4FE373F1B215244397C591A12CB8DB53387",
+      "checks": "65/65 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\plugin-300m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "idsPreservedAfterMoveAndReorder": true
+  },
+  {
+    "profile": "tlp-pro-1025m",
+    "input": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\named-off-on-1025m.exui",
+    "validation": {
+      "contract": "exui/3",
+      "Sha256": "E6AFCC5295A97A065A2A27365E06ED9539E699CF8CDF620F7062A8376590DB09",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 4,
+      "resources": 2,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake API; real Figma not exercised",
+    "generation": {
+      "Contract": "exui/3",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "E6AFCC5295A97A065A2A27365E06ED9539E699CF8CDF620F7062A8376590DB09",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\named-off-on-1025m.gdl",
+      "OutputSha256": "E19888ECC0281925A2A0C686A14F66E9D669E737F5690C62151012FD2E2EBF40",
+      "checks": "63/63 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\named-off-on-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "twoStatesAndDisabledPressFeedbackVerified": true
+  },
+  {
+    "profile": "tlp-pro-300m-portrait",
+    "input": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\named-off-on-300m.exui",
+    "validation": {
+      "contract": "exui/3",
+      "Sha256": "2D5033E1361C667E22B47837DB8FFFE7336E2758136466890CC5B6FDAD58D1C0",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 4,
+      "resources": 2,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake API; real Figma not exercised",
+    "generation": {
+      "Contract": "exui/3",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "2D5033E1361C667E22B47837DB8FFFE7336E2758136466890CC5B6FDAD58D1C0",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\named-off-on-300m.gdl",
+      "OutputSha256": "7317AAE3E365CE6727F840B146117956B24E7EDC5E6A01019FA2E615290E9BF4",
+      "checks": "63/63 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\named-off-on-300m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "twoStatesAndDisabledPressFeedbackVerified": true
+  },
+  {
+    "profile": "tlp-pro-1025m",
+    "input": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\logo-volume-1025m.exui",
+    "validation": {
+      "contract": "exui/4",
+      "Sha256": "90ADBCCDE857C355D578571F9BB89C51EA3ECE94DB092BAA89AD11FA7FA670E5",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 5,
+      "resources": 3,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake API and PNG rendering; real Figma not exercised",
+    "generation": {
+      "Contract": "exui/4",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "90ADBCCDE857C355D578571F9BB89C51EA3ECE94DB092BAA89AD11FA7FA670E5",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\logo-volume-1025m.gdl",
+      "OutputSha256": "D6B18E22FC28EDE65FCB885D9AF53DD975634E5EDD00E9CF689E0FF20C3C0474",
+      "checks": "73/73 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\logo-volume-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "nativeLogoAndMomentaryVerified": true
+  },
+  {
+    "profile": "tlp-pro-300m-portrait",
+    "input": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\logo-volume-300m.exui",
+    "validation": {
+      "contract": "exui/4",
+      "Sha256": "46B490F0AFB4C6A77C5BDDA17F675D73D98C7DCBDDEC18116FCE77C9C00A48D3",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 5,
+      "resources": 3,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake API and PNG rendering; real Figma not exercised",
+    "generation": {
+      "Contract": "exui/4",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "46B490F0AFB4C6A77C5BDDA17F675D73D98C7DCBDDEC18116FCE77C9C00A48D3",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\logo-volume-300m.gdl",
+      "OutputSha256": "925E13F121CF88108EB97618AF4A69E44964CC4A75C6BFB406DAE07B5B511672",
+      "checks": "73/73 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\logo-volume-300m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "nativeLogoAndMomentaryVerified": true
+  },
+  {
+    "profile": "tlp-pro-1025m",
+    "name": "expanded",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "1437C7AB54D15C41D5C3611AC02AFF42EDED8F997342E32A68259455F298E77F",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 9,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake Figma API; real native writer and independent NRBF",
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "1437C7AB54D15C41D5C3611AC02AFF42EDED8F997342E32A68259455F298E77F",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\expanded-tlp-pro-1025m.gdl",
+      "OutputSha256": "1B7D6B4F18D495FBC513D79495F5A0904BB7D55D48D8D208E01ACFA91B01ED9F",
+      "checks": "103/103 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\expanded-tlp-pro-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    }
+  },
+  {
+    "profile": "tlp-pro-1025m",
+    "name": "project",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "D529557B2C6D8403E161EE1EDACE1820E87C9D284872EC991980082E62706661",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 2,
+      "popups": 4,
+      "groups": 1,
+      "elements": 16,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake Figma API; real native writer and independent NRBF",
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "D529557B2C6D8403E161EE1EDACE1820E87C9D284872EC991980082E62706661",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\project-tlp-pro-1025m.gdl",
+      "OutputSha256": "A5E01A66764BBC1801CA678AAFEA205EB16250CB8570BB9B0FA0A3933AB30762",
+      "checks": "202/202 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\project-tlp-pro-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    }
+  },
+  {
+    "profile": "tlp-pro-1025m",
+    "name": "vertical",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "39789CF22D105E438AD69953B92BE387C4465816073D2903E163ACA737164769",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 9,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake Figma API; real native writer and independent NRBF",
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "39789CF22D105E438AD69953B92BE387C4465816073D2903E163ACA737164769",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\vertical-tlp-pro-1025m.gdl",
+      "OutputSha256": "380CB5D97CFA8212F59D51256769506872F916CD0B1CFE6D5DEB71B6E1C7AAA2",
+      "checks": "103/103 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\vertical-tlp-pro-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    }
+  },
+  {
+    "profile": "tlp-pro-300m-portrait",
+    "name": "expanded",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "8FD9A86B928D5F3F06A00A01D11A55A98535B34D6D879CAFB417615CD07FBD57",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 9,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake Figma API; real native writer and independent NRBF",
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "8FD9A86B928D5F3F06A00A01D11A55A98535B34D6D879CAFB417615CD07FBD57",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\expanded-tlp-pro-300m-portrait.gdl",
+      "OutputSha256": "515556E5A881C3101371BD4144B8F82E19B8D123C5D1173E99D0018B9457517F",
+      "checks": "103/103 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\expanded-tlp-pro-300m-portrait.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    }
+  },
+  {
+    "profile": "tlp-pro-300m-portrait",
+    "name": "project",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "0D0DF37DA493472FE59ADB55EE3B642D4FD972957311C3E77B5A184B038BBE1F",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 2,
+      "popups": 4,
+      "groups": 1,
+      "elements": 16,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake Figma API; real native writer and independent NRBF",
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "0D0DF37DA493472FE59ADB55EE3B642D4FD972957311C3E77B5A184B038BBE1F",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\project-tlp-pro-300m-portrait.gdl",
+      "OutputSha256": "2906F69C3002E2CDAA048CF7371C1916217BEDA8475C101FCDD30226FE9DD8BA",
+      "checks": "202/202 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\project-tlp-pro-300m-portrait.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    }
+  },
+  {
+    "profile": "tlp-pro-300m-portrait",
+    "name": "vertical",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "59A4407A10B0DD2BBCA23AE7C7D197271A28C591A04157766C02B2A69A03ACCB",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 9,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "figmaBoundary": "fake Figma API; real native writer and independent NRBF",
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "59A4407A10B0DD2BBCA23AE7C7D197271A28C591A04157766C02B2A69A03ACCB",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\vertical-tlp-pro-300m-portrait.gdl",
+      "OutputSha256": "88A16EB05A0D82FC6859B8D2FAC2CFBC7333E3C4F03E5FDA467BE3A14CF4F07C",
+      "checks": "103/103 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\figma-live-1025m-20261020\\regression-final\\vertical-tlp-pro-300m-portrait.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    }
+  }
+]

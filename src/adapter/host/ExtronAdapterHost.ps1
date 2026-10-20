@@ -113,7 +113,7 @@ function Find-Field($Object, [string]$Name) {
 
 function Get-F($Object, [string]$Name) {
     $f = Find-Field $Object $Name
-    if (-not $f) { Fail 'field-missing' "No serialized field '$Name' on $($Object.GetType().Name)." }
+    if (-not $f) { Fail 'field-missing' "No serialized field '$Name' on $($Object.GetType().Name). $((Get-PSCallStack | Select-Object -First 5 | ForEach-Object { $_.FunctionName + ':' + $_.ScriptLineNumber }) -join ', ')" }
     # Comma keeps a one-element List<T> from being unrolled.
     return , $f.GetValue($Object)
 }
@@ -178,7 +178,7 @@ function Find-ImageReference($Project) {
 }
 
 function Find-ColorDonor($Project) {
-    foreach ($pg in Get-Pages $Project) {
+    foreach ($pg in (Get-Pages $Project)) {
         foreach ($c in (Get-F $pg 'controlsField')) {
             foreach ($st in (Get-States $c)) { $v = Get-F $st 'borderFillColorField'; if ($v) { return , $v } }
         }
@@ -375,6 +375,45 @@ function New-Control($Project, $Donor, $El) {
     return , $c
 }
 
+# PBSlider's parameterless data constructor was probed on 1.28.0.7. Copy a
+# cloned donor's serialized common base graph, never editor services or input objects.
+function New-SliderDonor($Level) {
+    $source = Copy-Graph $Level
+    $slider = [Activator]::CreateInstance((Get-ExtronType 'Extron.GUICPro.PBSlider'))
+    $t = Get-ExtronType 'Extron.GUICPro.PBControl'
+    while ($t -and $t -ne [object]) {
+        foreach ($f in $t.GetFields('Instance,Public,NonPublic,DeclaredOnly')) {
+            if (-not $f.IsNotSerialized) { $f.SetValue($slider, $f.GetValue($source)) }
+        }
+        $t = $t.BaseType
+    }
+    Set-F $slider 'typeField' 'Slider'
+    foreach ($f in '<TLPMinValueImageID>k__BackingField','<TLPMaxValueImageID>k__BackingField','<SliderIndicatorImageID>k__BackingField') { Set-F $slider $f -1 }
+    return , $slider
+}
+
+function Set-AuthoredBorder($Project, $Control, $El, [bool]$Slider) {
+    $resources = Get-Resources $Project
+    $seed = @(Items $resources | Where-Object { $_.GetType().Name -eq 'PBBorderResource' -and (Get-F $_ 'nameField') -eq '2D Rectangle' })
+    if ($seed.Count -ne 1) { Fail 'donor-element' 'Pinned donor must contain the 2D Rectangle border resource.' }
+    $resource = Copy-Graph $seed[0]
+    $name = 'exui-border-' + $El.key
+    if (@(Items $resources | Where-Object { (Get-F $_ 'nameField') -eq $name }).Count) { Fail 'resource-collision' "Resource '$name' already exists." }
+    Set-F $resource 'nameField' $name
+    Set-F $resource 'mIsDefault' $false
+    $info = Get-F $resource 'dataField'
+    Set-F $info 'typeField' $(if ($Slider -or $El.native.shape -eq 'rectangle') { 'Rectangle' } else { 'Ellipse' })
+    Set-F $info 'cornerRadiusField' ([int]$El.native.radius)
+    Set-F $info 'thicknessField' $(if ($Slider) { 0 } else { [int]$El.native.thickness })
+    Set-F $info 'styleField' 'Item2D'
+    Set-F $info 'depthField' 0
+    Set-F $info 'surfaceHeightField' 0
+    $reference = [Activator]::CreateInstance((Get-ExtronType 'Extron.GUICPro.PBResourceReferenceBorder'))
+    Set-F $reference 'resourceNameField' $name
+    $resources.Add($resource)
+    Set-F $Control 'borderField' $reference
+}
+
 function Find-Container($Project, [string]$Field, [string]$Name, [string]$What) {
     $hits = @(Items (Get-F $Project $Field) | Where-Object { (Get-F $_ 'nameField') -eq $Name })
     if ($hits.Count -ne 1) { Fail 'donor-element' "Donor $What '$Name' not found exactly once." }
@@ -395,38 +434,7 @@ function New-Container($Project, $Donor, $Spec, [int]$Width, [int]$Height) {
     return , $c
 }
 
-# One button, label or level, from a plan element (popup-ref is bound separately).
-function New-PlanControl($Project, $Donors, $El, $ImageRef) {
-    $c = New-Control $Project $Donors[$El.kind] $El
-    switch ($El.kind) {
-        'graphic' {
-            Set-F $c 'textField' $null
-            Set-F $c 'dynamicTextField' $false
-            Set-F $c 'shapeTypeField' 'None'
-            Set-Color $Project $c 'backgroundFillColorField' '#00000000'
-            Set-Color $Project $c 'borderFillColorField' '#00000000'
-            Set-F $c 'backgroundImageKeyColorField' $null
-            Set-F $c 'buttonImageKeyColorField' $null
-            Set-ImageRef $c 'buttonImageField' $ImageRef $El.image
-            Set-F $c 'buttonImageLayoutField' 'Native'
-            Set-F $c 'buttonImageAlignmentField' 'MiddleCenter'
-            Set-F $c 'buttonImageLeftField' 0
-            Set-F $c 'buttonImageTopField' 0
-        }
-        'label' {
-            Set-F $c 'textField' $El.text
-            Set-Color $Project $c 'textColorField' $El.textColor
-            Set-Font $Project $c $El.font
-        }
-        'level' {
-            Set-F $c 'displayTypeField' $El.display
-            Set-F $c 'orientationField' $El.orientation
-            Set-F $c 'minValueField' ([uint32]$El.min)
-            Set-F $c 'maxValueField' ([uint32]$El.max)
-            Set-Color $Project $c 'gaugeFillColorField' $El.fillColor
-        }
-        'button' {
-            Set-F $c 'textField' $null
+function Set-PlanStates($Project, $c, $El, $ImageRef) {
             $states = Resize-States $c @($El.states).Count
             for ($i = 0; $i -lt $states.Count; $i++) {
                 $s = @($El.states)[$i]; $st = $states[$i]
@@ -445,6 +453,104 @@ function New-PlanControl($Project, $Donors, $El, $ImageRef) {
                 Set-Color $Project $st 'textColorField' $s.textColor
                 Set-Font $Project $st $El.font
             }
+}
+
+# One button, label or level, from a plan element (popup-ref is bound separately).
+function New-PlanControl($Project, $Donors, $El, $ImageRef) {
+    $c = New-Control $Project $Donors[$El.kind] $El
+    switch ($El.kind) {
+        'slider' {
+            Set-F $c 'textField' $null
+            Set-F $c 'orientationField' $El.orientation
+            Set-F $c 'minValueField' ([uint32]$El.min)
+            Set-F $c 'maxValueField' ([uint32]$El.max)
+            Set-F $c 'sliderFillTypeField' 'Color'
+            Set-Color $Project $c 'sliderFillColorField' $El.fillColor
+            Set-F $c 'sliderThumbTypeField' $(@{ellipse='ClosedEllipse';rectangle='ClosedRectangle';none='None'}[$El.native.thumbType])
+            Set-Color $Project $c 'sliderThumbColorField' $El.native.thumbColor
+            Set-F $c 'sliderThumbWidth' ([int]$El.native.thumbWidth)
+            Set-F $c 'sliderThumbHeight' ([int]$El.native.thumbHeight)
+            # GUI Designer 1.28.0.7 computes even a vector thumb's rectangle only
+            # when SliderThumbImage resolves to a bitmap. Keep the pinned stock
+            # resource as a geometry dependency; Ellipse/Rectangle still draw
+            # the authored solid color, not this image.
+            if ($El.native.thumbType -ne 'none') {
+                $thumbResource = @(Items (Get-Resources $Project) | Where-Object { $_.GetType().Name -eq 'PBImageResource' -and (Get-F $_ 'nameField') -eq 'Slider Thumb' })
+                if ($thumbResource.Count -ne 1) { Fail 'resource-missing' 'Pinned donor must contain the Slider Thumb bitmap for native thumb geometry.' }
+                Set-ImageRef $c 'sliderThumbImageField' $ImageRef 'Slider Thumb'
+            }
+            Set-F $c 'sliderTrackWidth' ([int]$El.native.trackWidth)
+            Set-F $c 'showSliderTickMarksField' $false
+            Set-F $c '<SliderThumbRectFactor>k__BackingField' ([double]$El.native.thumbHeight / [double]$El.native.thumbWidth)
+            Set-Color $Project $c 'borderFillColorField' $El.native.trackColor
+            Set-Color $Project $c 'borderColorField' '#00000000'
+            Set-Color $Project $c 'backgroundFillColorField' '#00000000'
+            Set-AuthoredBorder $Project $c $El $true
+        }
+        'shape' {
+            Set-F $c 'textField' $null
+            Set-F $c 'dynamicTextField' $false
+            Set-Color $Project $c 'backgroundFillColorField' '#00000000'
+            Set-Color $Project $c 'borderFillColorField' $El.fillColor
+            Set-Color $Project $c 'borderColorField' $El.native.strokeColor
+            Set-AuthoredBorder $Project $c $El $false
+        }
+        'line' {
+            Set-F $c 'textField' $null
+            Set-F $c 'dynamicTextField' $false
+            Set-F $c 'thicknessField' ([int]$El.native.thickness)
+            Set-F $c 'startCapField' 'Flat'; Set-F $c 'endCapField' 'Flat'
+            Set-F $c 'startPointField' $(if ($El.rect[2] -ge $El.rect[3]) { 'MiddleLeft' } else { 'TopCenter' })
+            Set-F $c 'endPointField' $(if ($El.rect[2] -ge $El.rect[3]) { 'MiddleRight' } else { 'BottomCenter' })
+            Set-Color $Project $c 'borderFillColorField' $El.fillColor
+        }
+        'datetime' {
+            Set-F $c 'textField' $null
+            Set-F $c 'patternField' $El.native.pattern
+            Set-F $c 'textAlignmentField' 'MiddleLeft'
+            Set-Color $Project $c 'textColorField' $El.textColor
+            Set-Font $Project $c $El.font
+        }
+        'value' {
+            Set-F $c 'textField' $El.text
+            Set-F $c 'dynamicTextField' $true
+            Set-F $c 'textAlignmentField' 'MiddleLeft'
+            Set-Color $Project $c 'textColorField' $El.textColor
+            Set-Font $Project $c $El.font
+        }
+        'graphic' {
+            Set-F $c 'textField' $null
+            Set-F $c 'dynamicTextField' $false
+            Set-F $c 'shapeTypeField' 'None'
+            Set-Color $Project $c 'backgroundFillColorField' '#00000000'
+            Set-Color $Project $c 'borderFillColorField' '#00000000'
+            Set-F $c 'backgroundImageKeyColorField' $null
+            Set-F $c 'buttonImageKeyColorField' $null
+            # PBImage paints via PBControl.UpdateBackgroundImage, unlike button
+            # states. Its visible Image property uses the backgroundImage fields.
+            Set-ImageRef $c 'backgroundImageField' $ImageRef $El.image
+            Set-F $c 'backgroundImageLayoutField' 'Native'
+            Set-F $c 'backgroundImageAlignmentField' 'MiddleCenter'
+            Set-F $c 'backgroundImageLeftField' 0
+            Set-F $c 'backgroundImageTopField' 0
+        }
+        'label' {
+            Set-F $c 'textField' $El.text
+            Set-F $c 'textAlignmentField' 'MiddleLeft'
+            Set-Color $Project $c 'textColorField' $El.textColor
+            Set-Font $Project $c $El.font
+        }
+        'level' {
+            Set-F $c 'displayTypeField' $El.display
+            Set-F $c 'orientationField' $El.orientation
+            Set-F $c 'minValueField' ([uint32]$El.min)
+            Set-F $c 'maxValueField' ([uint32]$El.max)
+            Set-Color $Project $c 'gaugeFillColorField' $El.fillColor
+            if ($El.states) { Set-F $c 'statesField' (Copy-Graph (Get-F $Donors['button'] 'statesField')); Set-PlanStates $Project $c $El $ImageRef }
+        }
+        'button' {
+            Set-F $c 'textField' $null
+            Set-PlanStates $Project $c $El $ImageRef
             Set-F $c '<TLPDefaultStateID>k__BackingField' 0
             Set-F $c '<TLPPressFeedbackStateID>k__BackingField' ([int]$El.pressState)
             Set-F $c '<HidePressFeedback>k__BackingField' $false
@@ -468,7 +574,19 @@ function Invoke-Generate($Project, $Op) {
         if ($null -eq $ref) { Fail 'donor-element' "Donor registry gives no element for kind '$kind'." }
         $donors[$kind] = Find-DonorControl $Project $ref $kind
     }
-    $usesGraphics = @(@($Op.pages) | ForEach-Object { @($_.elements) } | Where-Object { $_.kind -eq 'graphic' }).Count -gt 0
+    $donors['value'] = $donors['label']
+    $allElements = @(@($Op.pages) + @($Op.popups) | ForEach-Object { @($_.elements) })
+    if (@($allElements | Where-Object { $_.kind -eq 'slider' }).Count) { $donors['slider'] = New-SliderDonor $donors['level'] }
+    foreach ($kind in 'shape','line','datetime') {
+        if (-not @($allElements | Where-Object { $_.kind -eq $kind }).Count) { continue }
+        $ref = $Op.donorElements.$kind
+        if (-not $ref) { Fail 'donor-element' "Donor registry gives no $kind donor." }
+        $containers = @(@(Items (Get-Pages $Project)) + @(Items (Get-Popups $Project)) | Where-Object { (Get-F $_ 'nameField') -eq $ref.page })
+        $hits = @($containers | ForEach-Object { Items (Get-F $_ 'controlsField') } | Where-Object { $_.GetType().Name -eq $ref.type -and (Get-F $_ 'nameField') -eq $ref.name })
+        if ($hits.Count -ne 1) { Fail 'donor-element' "The pinned $kind donor must be found exactly once." }
+        $donors[$kind] = $hits[0]
+    }
+    $usesGraphics = @($allElements | Where-Object { $_.kind -eq 'graphic' }).Count -gt 0
     if ($usesGraphics) {
         $ref = $Op.donorElements.graphic
         if (-not $ref -or $ref.type -ne 'PBImage') { Fail 'donor-element' 'Donor registry must identify a PBImage for static graphics.' }

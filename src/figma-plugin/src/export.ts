@@ -1,7 +1,9 @@
-import { DATA_KEY, PROFILES, ROLE_ID, fail, integer, key, readMetadata, text, type Asset, type Bundle, type Element, type Font, type Metadata, type Profile, type Role, type Screen, type State } from './model.ts';
+import { DATA_KEY, PROFILES, ROLE_ID, ELEMENT_KINDS, CONTROL_KINDS, fail, integer, key, readMetadata, text, type Asset, type Bundle, type Element, type Font, type Metadata, type Profile, type Role, type Screen, type SingleScreen, type State } from './model.ts';
 import { color, exportPng, plain, readText, rect } from './read-node.ts';
+import { nativeElement,range } from './extended.ts';
+import { captureProject } from './project.ts';
 
-interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode }[]; signature: string }
+export interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode }[]; signature: string }
 type MetadataReader = (node: SceneNode) => Metadata | null;
 function meta(node: SceneNode, kind: string | undefined, read: MetadataReader): Metadata {
   const m=read(node);
@@ -13,7 +15,7 @@ function frame(node: SceneNode): asserts node is FrameNode {
 }
 function snapshot(node: SceneNode): unknown {
   // Detect edits across async PNG exports; no package may silently combine two design revisions.
-  const props: Record<string,unknown>={ metadata:node.getPluginData(DATA_KEY) };
+  const props: Record<string,unknown>={ metadata:node.getPluginData(DATA_KEY),registry:node.getPluginData('exui-id-registry') };
   for(const field of ['id','type','name','visible','opacity','clipsContent','relativeTransform','width','height','fills','strokes','strokeWeight','effects','cornerRadius','blendMode','isMask','reactions','characters','fontName','fontSize','fontWeight','lineHeight','letterSpacing','textCase','textDecoration','textAlignHorizontal','textAlignVertical','vectorPaths','vectorNetwork','arcData','pointCount','innerRadius'])
     if(field in node) props[field]=(node as unknown as Record<string,unknown>)[field];
   if('children' in node) props.children=node.children.map(snapshot);
@@ -21,11 +23,17 @@ function snapshot(node: SceneNode): unknown {
 }
 export function designSignature(root: SceneNode): string { return JSON.stringify(snapshot(root)); }
 export function capture(root: SceneNode, read: MetadataReader = readMetadata): Capture {
+  if(read(root)?.kind==='project')return captureProject(root,read,captureSingle,designSignature);
+  return captureSingle(root,read);
+}
+export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,inProject=false):Capture&{screen:SingleScreen} {
   frame(root); plain(root);
-  const pm=meta(root,'page',read);
+  const pm=meta(root,undefined,read);if(pm.kind!=='page'&&!(inProject&&pm.kind==='popup'))fail('kind',`${root.name}: нужен экран или popup проекта.`);
   if(!pm.profile || !(pm.profile in PROFILES)) fail('profile','Выберите один из двух профилей панели.');
   const profile=pm.profile, canvas=PROFILES[profile];
-  if(root.width!==canvas.width || root.height!==canvas.height) fail('profile',`Холст должен быть ${canvas.width}×${canvas.height}; масштабирование не выполняется.`);
+  if(!inProject&&pm.shownBy&&pm.shownBy!=='start')fail('page','Для способа показа navigation/program нужен общий Frame project_Name.');
+  if(pm.kind==='popup'&&!pm.modal){if(root.width<1||root.height<1||root.width>canvas.width||root.height>canvas.height)fail('profile','Popup должен помещаться в холст.');}
+  else if(root.width!==canvas.width || root.height!==canvas.height) fail('profile',`Холст должен быть ${canvas.width}×${canvas.height}; масштабирование не выполняется.`);
   const keys=new Set<string>(), ids=new Set<number>(), controls=new Set<number>();
   const addKey=(value:unknown,where:string)=>{const k=key(value,where); if(keys.has(k)) fail('duplicate-key',`${where}: повтор ключа ${k}.`); keys.add(k);return k;};
   const images: Capture['images']=[];
@@ -40,38 +48,48 @@ export function capture(root: SceneNode, read: MetadataReader = readMetadata): C
     if(!previous){addKey(k,node.name);if(paths.has(asset.file)||resourceNames.has(asset.resourceName.toLowerCase()))fail('image',`${k}: повтор пути или имени ресурса.`);paths.add(asset.file);resourceNames.add(asset.resourceName.toLowerCase());assets.set(k,asset);}
     images.push({asset,node});return k;
   };
-  const screen: Screen={schema:'exui-screen/1',project:{name:text(pm.projectName,'Имя проекта')},page:{key:addKey(pm.key,root.name),objectId:integer(pm.objectId,1,65534,'ID страницы'),name:text(root.name,'Имя страницы'),background:color(root)},assets:[],elements:[]};
+  const screen: SingleScreen={schema:'exui-screen/1',project:{name:text(pm.projectName,'Имя проекта')},page:{key:addKey(pm.key,root.name),objectId:integer(pm.objectId,1,65534,'ID страницы'),name:text(root.name,'Имя страницы'),background:color(root)},assets:[],elements:[]};
   if(root.children.length<1 || root.children.length>64) fail('elements','На странице должно быть 1..64 элемента.');
   for(const node of root.children) {
-    plain(node); const m=meta(node,undefined,read);
-    if(!['button','label','level','graphic'].includes(m.kind)) fail('kind',`${node.name}: на странице допустимы button, label, level, graphic.`);
+    const m=meta(node,undefined,read);plain(node,false,m.kind==='shape'||m.kind==='line');
+    if(!ELEMENT_KINDS.includes(m.kind)) fail('kind',`${node.name}: неизвестный тип элемента экрана.`);
     const objectId=integer(m.objectId,1,1000000,node.name+'.objectId');
     if(ids.has(objectId)) fail('duplicate-id',`${node.name}: objectId ${objectId} уже используется.`); ids.add(objectId);
-    const passive=m.kind==='label'||m.kind==='graphic';
+    const passive=!CONTROL_KINDS.includes(m.kind);
     const controlId=passive?null:integer(m.controlId,1,65535,node.name+'.controlId');
     if(passive && m.controlId!==null) fail('id',`${node.name}: у ${m.kind} controlId должен быть null.`);
     if(controlId!==null) {if(controls.has(controlId)) fail('duplicate-id',`${node.name}: controlId ${controlId} уже используется.`);controls.add(controlId);}
     const bounds=rect(node,root), [x,y,w,h]=bounds;
-    if(x<0||y<0||w<1||h<1||x+w>canvas.width||y+h>canvas.height) fail('bounds',`${node.name}: элемент выходит за холст.`);
+    if(x<0||y<0||w<1||h<1||x+w>root.width||y+h>root.height) fail('bounds',`${node.name}: элемент выходит за холст.`);
     const e: Element={key:addKey(m.key,node.name),kind:m.kind as Element['kind'],objectId,controlId,name:text(node.name,'Имя элемента'),rect:bounds};
-    if(m.kind==='graphic') {
+    if(m.navigate){if(!inProject)fail('navigation','Для переходов нужен project_Name.');if(m.kind!=='button')fail('navigation','Переход допустим только у кнопки.');e.navigate=key(m.navigate,'Цель перехода');}
+    if(m.behavior){if(passive)fail('behavior','Поведение требует управляющего ID.');if(Object.keys(m.behavior).some(k=>!['selectionGroup','enabled','visible'].includes(k))||['enabled','visible'].some(k=>k in m.behavior!&&typeof m.behavior![k as 'enabled'|'visible']!=='boolean'))fail('behavior','Неизвестные или некорректные поля поведения.');if(m.behavior.selectionGroup){if(m.kind!=='button')fail('behavior','Группа выбора применяется к кнопкам.');key(m.behavior.selectionGroup,'Группа выбора');}e.behavior=m.behavior;}
+    if(nativeElement(node,m,e)) {
+      // Native controls carry editable appearance rather than a raster snapshot.
+    }else if(m.kind==='popup-ref') {
+      frame(node);if(!inProject||pm.kind==='popup')fail('placement','Popup reference допустим только на странице проекта.');
+      if(node.children.length)fail('structure','Popup reference должен быть пустым Frame.');
+      if(!!m.popup===!!m.group)fail('popup-ref','Укажите одну цель: popup или группу popup.');
+      if(m.popup)e.popup=key(m.popup,'Цель popup');if(m.group)e.group=key(m.group,'Группа popup');
+    }else if(m.kind==='graphic') {
       frame(node);e.image=addImage(node,m,key('image.'+e.key,'Ключ изображения'));
     }else if(m.kind==='label') {
       if(node.type!=='TEXT') fail('node-type',`${node.name}: label должен быть Text.`);
       if(node.textAlignHorizontal!=='LEFT'||node.textAlignVertical!=='CENTER') fail('alignment',`${node.name}: для текущего профиля Label используйте LEFT / CENTER.`);
       Object.assign(e,readText(node));
-    } else if(m.kind==='level') {
+    } else if(m.kind==='level'&&m.display!=='multistate') {
       frame(node);if(node.children.length) fail('appearance',`${node.name}: Level preview должен быть пустым Frame с цветом fill.`);
-      Object.assign(e,{display:'slider',orientation:'left-to-right',min:0,max:100,fillColor:color(node)});
+      Object.assign(e,{display:m.display??'slider',...range(m,node),fillColor:color(node)});
     } else {
       frame(node);
       if(!Array.isArray(node.fills)||node.fills.some(f=>f.visible!==false)) fail('appearance',`${node.name}: фон кнопки задаётся на состояниях; у внешнего Frame fills должны быть пусты.`);
-      if(![2,3].includes(node.children.length)) fail('states',`${node.name}: нужны Normal/Pressed, Off/On либо Off/On/Pressed.`);
+      if(node.children.length<2||node.children.length>8) fail('states',`${node.name}: нужны 2..8 состояний, начиная с Normal.`);
       if(node.children.filter(n=>n.visible).length!==1) fail('states',`${node.name}: для предпросмотра должно быть видно ровно одно состояние.`);
       const states: State[]=[];let commonFont:Font|undefined;
       for(const stateNode of node.children) {
         frame(stateNode);plain(stateNode,true);const sm=meta(stateNode,'state',read);
-        if(!sm.role||!(sm.role in ROLE_ID)||sm.stateId!==ROLE_ID[sm.role]) fail('states',`${stateNode.name}: нужны явные 0/normal, 1/feedback и необязательный 2/pressed.`);
+        if(!sm.role||!(sm.role in ROLE_ID)||sm.schema==='exui-node/1'&&sm.stateId!==ROLE_ID[sm.role]) fail('states',`${stateNode.name}: нужны явные ID и роли состояний.`);
+        integer(sm.stateId,0,7,'ID состояния');
         if(JSON.stringify(rect(stateNode,node))!==JSON.stringify([0,0,w,h])) fail('states',`${stateNode.name}: состояние должно занимать весь Frame кнопки.`);
         const labels=stateNode.children.filter(n=>n.type==='TEXT');
         if(labels.length!==1) fail('states',`${stateNode.name}: нужна ровно одна текстовая подпись.`);
@@ -80,7 +98,7 @@ export function capture(root: SceneNode, read: MetadataReader = readMetadata): C
           fail('alignment',`${label.name}: подпись должна занимать всю кнопку, CENTER по горизонтали и CENTER/BOTTOM по вертикали.`);
         if(commonFont&&JSON.stringify(commonFont)!==JSON.stringify(copy.font)) fail('font',`${node.name}: шрифт должен совпадать во всех состояниях.`);
         commonFont=copy.font;
-        const state: State={stateId:sm.stateId,name:text(sm.stateName,'Имя состояния'),role:sm.role,text:copy.text,fill:color(stateNode),textColor:copy.textColor};
+        const state: State={stateId:sm.stateId!,name:text(sm.stateName,'Имя состояния'),role:sm.role,text:copy.text,fill:color(stateNode),textColor:copy.textColor};
         if(label.textAlignVertical==='BOTTOM') state.textAlign='bottom-center';
         const icons=stateNode.children.filter(n=>n!==label);
         if(icons.length>1) fail('states',`${stateNode.name}: допустима одна иконка.`);
@@ -96,19 +114,22 @@ export function capture(root: SceneNode, read: MetadataReader = readMetadata): C
       }
       states.sort((a,b)=>a.stateId-b.stateId);
       const roles=states.map(s=>s.role).join(',');
-      if(!['normal,feedback','normal,pressed','normal,feedback,pressed'].includes(roles)||new Set(states.map(s=>s.name)).size!==states.length) fail('states',`${node.name}: нужны Normal/Pressed, Off/On либо Off/On/Pressed; роли и имена уникальны.`);
+      if(states[0].role!=='normal'||states.slice(1).some(s=>s.role==='normal')||states.filter(s=>s.role==='pressed').length>1||new Set(states.map(s=>s.name.toLowerCase())).size!==states.length||new Set(states.map(s=>s.stateId)).size!==states.length) fail('states',`${node.name}: Normal должен быть первым, Pressed не более одного; имена и ID уникальны.`);
       if(new Set(states.map(s=>JSON.stringify([s.text,s.fill,s.textColor,s.image??null]))).size!==states.length) fail('states',`${node.name}: состояния должны различаться текстом, цветом или изображением; одного выравнивания недостаточно.`);
       // Metadata keeps canonical role IDs (pressed=2). A two-state momentary
       // button has dense package/GDL state IDs 0/normal, 1/pressed.
       if(roles==='normal,pressed'){states[1].stateId=1;screen.schema='exui-screen/4';}
+      if(!states.every((s,i)=>s.stateId===i))fail('states',`${node.name}: ID состояний должны идти подряд от 0. Сохраните назначения состояний явно.`);
       const pressed=states.find(s=>s.role==='pressed');
       Object.assign(e,{font:commonFont,states,...(pressed?{press:pressed.name}:{})});
+      if(m.kind==='level'){if(pressed)fail('states','Multistate Level не имеет Pressed.');Object.assign(e,{display:'multistate',...range(m,node),fillColor:states[0].fill});}
     }
     screen.elements.push(e);
   }
   if(assets.size>16) fail('images','Допустимо до 16 PNG ресурсов.');
   if(screen.elements.some(e=>e.kind==='graphic'||e.states?.map(s=>s.role).join(',')==='normal,pressed'))screen.schema='exui-screen/4';
   else if(screen.elements.some(e=>e.states?.length===2))screen.schema='exui-screen/3';
+  if(screen.elements.some(e=>e.native||e.kind==='value'||e.states&&!['normal,pressed','normal,feedback','normal,feedback,pressed'].includes(e.states.map(s=>s.role).join(',')))||inProject||root.children.some(n=>read(n)?.schema==='exui-node/2')||screen.elements.some(e=>e.states&&e.states.length>3))screen.schema='exui-screen/5';
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
   return {profile,screen,images,signature:designSignature(root)};
 }

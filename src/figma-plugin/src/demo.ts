@@ -1,12 +1,12 @@
 import large from '../../../examples/exui-v1/1025m/screen.json' with { type:'json' };
 import small from '../../../examples/exui-v1/300m/screen.json' with { type:'json' };
-import { DATA_KEY, ROLE_ID, type Metadata, type Profile, type Screen } from './model.ts';
+import { DATA_KEY, ROLE_ID, metadataSchema, type Metadata, type Profile, type SingleScreen } from './model.ts';
 export function tag(node:BaseNode, data:Omit<Metadata,'schema'|'ownerNodeId'>):void {
-  node.setPluginData(DATA_KEY,JSON.stringify({schema:'exui-node/1',ownerNodeId:node.id,...data}));
+  node.setPluginData(DATA_KEY,JSON.stringify({...data,schema:metadataSchema(data),ownerNodeId:node.id}));
 }
 function paint(hex:string):SolidPaint {return {type:'SOLID',color:{r:parseInt(hex.slice(1,3),16)/255,g:parseInt(hex.slice(3,5),16)/255,b:parseInt(hex.slice(5,7),16)/255}};}
 export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>):Promise<FrameNode> {
-  const spec=(profile==='tlp-pro-1025m'?large:small) as Screen;
+  const spec=(profile==='tlp-pro-1025m'?large:small) as SingleScreen;
   const fonts=await figma.listAvailableFontsAsync();
   for(const style of ['Regular','Bold']) {
     if(!fonts.some(f=>f.fontName.family==='Arial'&&f.fontName.style===style)) throw new Error(`В Figma отсутствует Arial ${style}. Установите шрифт и перезапустите приложение.`);

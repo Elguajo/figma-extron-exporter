@@ -1,0 +1,183 @@
+{
+  "schema": "exui-screen/5",
+  "project": {
+    "name": "HomeVolumeReady"
+  },
+  "page": {
+    "key": "page.homevolumeready",
+    "objectId": 100,
+    "name": "HomeVolumeReady",
+    "background": "#14151C"
+  },
+  "assets": [
+    {
+      "key": "icon.homevolumeready.volumedown.state0",
+      "file": "assets/control-1-0.png",
+      "resourceName": "exui-control-1-0.png"
+    },
+    {
+      "key": "icon.homevolumeready.volumedown.state2",
+      "file": "assets/control-1-2.png",
+      "resourceName": "exui-control-1-2.png"
+    },
+    {
+      "key": "icon.homevolumeready.volumeup.state0",
+      "file": "assets/control-2-0.png",
+      "resourceName": "exui-control-2-0.png"
+    },
+    {
+      "key": "icon.homevolumeready.volumeup.state2",
+      "file": "assets/control-2-2.png",
+      "resourceName": "exui-control-2-2.png"
+    },
+    {
+      "key": "image.homevolumeready.company",
+      "file": "assets/graphic-5.png",
+      "resourceName": "exui-graphic-5.png"
+    }
+  ],
+  "elements": [
+    {
+      "key": "homevolumeready.volumedown",
+      "kind": "button",
+      "objectId": 1,
+      "controlId": 8101,
+      "name": "button_VolumeDown",
+      "rect": [
+        345,
+        686,
+        68,
+        68
+      ],
+      "font": {
+        "family": "Arial",
+        "size": 21,
+        "bold": true
+      },
+      "states": [
+        {
+          "stateId": 0,
+          "name": "Normal",
+          "role": "normal",
+          "text": "−",
+          "fill": "#14151C",
+          "textColor": "#FFFFFF",
+          "imageAlign": "top-center",
+          "image": "icon.homevolumeready.volumedown.state0"
+        },
+        {
+          "stateId": 1,
+          "name": "Pressed",
+          "role": "pressed",
+          "text": "−",
+          "fill": "#14151C",
+          "textColor": "#000000",
+          "imageAlign": "top-center",
+          "image": "icon.homevolumeready.volumedown.state2"
+        }
+      ],
+      "press": "Pressed"
+    },
+    {
+      "key": "homevolumeready.volumeup",
+      "kind": "button",
+      "objectId": 2,
+      "controlId": 8102,
+      "name": "button_VolumeUp",
+      "rect": [
+        816,
+        686,
+        68,
+        68
+      ],
+      "font": {
+        "family": "Arial",
+        "size": 21,
+        "bold": true
+      },
+      "states": [
+        {
+          "stateId": 0,
+          "name": "Normal",
+          "role": "normal",
+          "text": "+",
+          "fill": "#14151C",
+          "textColor": "#FFFFFF",
+          "imageAlign": "top-center",
+          "image": "icon.homevolumeready.volumeup.state0"
+        },
+        {
+          "stateId": 1,
+          "name": "Pressed",
+          "role": "pressed",
+          "text": "+",
+          "fill": "#14151C",
+          "textColor": "#000000",
+          "imageAlign": "top-center",
+          "image": "icon.homevolumeready.volumeup.state2"
+        }
+      ],
+      "press": "Pressed"
+    },
+    {
+      "key": "homevolumeready.volume",
+      "kind": "slider",
+      "objectId": 3,
+      "controlId": 8103,
+      "name": "slider_Volume",
+      "rect": [
+        435,
+        704,
+        359,
+        32
+      ],
+      "orientation": "left-to-right",
+      "min": 0,
+      "max": 100,
+      "fillColor": "#E16716",
+      "native": {
+        "trackColor": "#2A2D31",
+        "trackWidth": 20,
+        "thumbColor": "#FFFFFF",
+        "thumbWidth": 28,
+        "thumbHeight": 28,
+        "thumbType": "ellipse",
+        "radius": 10
+      }
+    },
+    {
+      "key": "homevolumeready.volumevalue",
+      "kind": "value",
+      "objectId": 4,
+      "controlId": 8104,
+      "name": "value_VolumeValue",
+      "rect": [
+        904,
+        695,
+        87,
+        48
+      ],
+      "text": "42%",
+      "textColor": "#FFFFFF",
+      "font": {
+        "family": "Arial",
+        "size": 30,
+        "bold": true
+      }
+    },
+    {
+      "key": "homevolumeready.company",
+      "kind": "graphic",
+      "objectId": 5,
+      "controlId": null,
+      "name": "logo_Company",
+      "rect": [
+        48,
+        28,
+        205,
+        30
+      ],
+      "image": "image.homevolumeready.company"
+    }
+  ]
+}

@@ -16,7 +16,7 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){fakeFig
 const ui=await readFile(path.join(root,'src/figma-plugin/dist/ui.html'));
 const host=`<!doctype html><meta charset=utf-8><title>Extron plugin UI harness — Figma host mocked</title><style>body{margin:0}iframe{width:420px;height:900px;border:0}</style><script>
 const bundles=${JSON.stringify(bundles).replace(/</g,'\\u003c')};let profile='tlp-pro-1025m';window.failExport=false;window.lastMapping=null;
-window.bridgeMessages=0;window.lastPreparation=null;window.failRecognition=false;window.lastRecognitionApply=null;
+window.bridgeMessages=0;window.lastPreparation=null;window.failRecognition=false;window.lastRecognitionApply=null;window.lastPreview=null;
 const send=m=>{const target=document.querySelector('iframe').contentWindow;if(new URLSearchParams(location.search).get('transport')==='bridge'){target.dispatchEvent(new target.MessageEvent('message',{data:{pluginMessage:m}}));window.bridgeMessages++;}else target.postMessage({pluginMessage:m},location.origin);};
 window.onmessage=e=>{if(e.source!==document.querySelector('iframe').contentWindow)return;const m=e.data.pluginMessage;if(!m)return;
 if(m.type==='ready')send({type:'selection',id:null,name:'Выберите один элемент или Frame экрана'});
@@ -24,6 +24,7 @@ if(m.type==='demo'){profile=m.profile;send({type:'selection',id:'demo',name:'Г�
 if(m.type==='prepare'){window.lastPreparation=m;profile=m.profile;send({type:'selection',id:'custom',name:'Свой экран',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Свой экран',profile}});send({type:'success',message:'Назначение «Экран» сохранено. Далее назначьте элементы.'});}
 if(m.type==='check')send({type:'success',message:'Экран проверен: 4 элемента, 2 PNG.'});
 if(m.type==='apply'){window.lastMapping=m.data;send({type:'success',message:'Назначение сохранено в Figma-узле.'});}
+if(m.type==='preview'){window.lastPreview=m;send({type:'success',message:'Состояние показано.'});}
 if(m.type==='recognize')send({type:'recognition',token:7,rows:[{id:'button',name:'button_Music',kind:'button',key:'home.music',objectId:1,controlId:8101,isNew:true}],errors:window.failRecognition?['Повтор ключа home.music']:[],warnings:[]});
 if(m.type==='apply-recognition'){window.lastRecognitionApply=m;send({type:'selection',id:'custom',name:'Home',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Home',profile:m.profile}});send({type:'success',message:'Назначения сохранены. Можно скачать .exui.'});}
 if(m.type==='export'){if(window.failExport)send({type:'error',message:'PNG не экспортирован: тестовый отказ рендера'});else {const bundle=structuredClone(bundles[profile]);bundle.resources.forEach(r=>r.bytes=new Uint8Array(r.bytes));send({type:'bundle',bundle});}}
@@ -41,6 +42,9 @@ try{
  await page.keyboard.press('Enter');
  await frame.getByRole('cell',{name:'logo_Company',exact:true}).first().waitFor();
  await frame.getByRole('cell',{name:'button_VolumeUp',exact:true}).waitFor();
+ await frame.getByRole('cell',{name:'slider_Volume',exact:true}).waitFor();
+ await frame.getByRole('cell',{name:'value_VolumeValue',exact:true}).waitFor();
+ assert.equal(await frame.locator('body').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
  await page.screenshot({path:path.join(out,'prefix-reference.png'),fullPage:true});
  await page.keyboard.press('Enter');await page.keyboard.press('Tab');
  assert.equal(await frame.getByRole('button',{name:'Создать демо для этого профиля'}).evaluate(el=>el===el.ownerDocument.activeElement),true);
@@ -93,6 +97,27 @@ try{
  assert.equal(await frame.getByLabel('ID управления Extron',{exact:true}).isVisible(),false);
  await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();
  await page.waitForFunction(()=>(window as any).lastMapping.kind==='graphic');
+ // Expanded native mapping and program instructions remain distinct visible fields.
+ await page.evaluate(()=>document.querySelector('iframe')!.contentWindow!.postMessage({pluginMessage:{type:'selection',id:'slider',name:'slider_Volume',nodeType:'FRAME',metadata:{kind:'slider',key:'home.volume',objectId:6,controlId:8206,min:0,max:100,orientation:'left-to-right',behavior:{enabled:true,visible:false}}}},location.origin));
+ await frame.getByLabel('Направление').selectOption('bottom-to-top');
+ await frame.getByLabel('Максимум',{exact:true}).fill('255');
+ assert.equal(await frame.getByLabel('Видимость при запуске').inputValue(),'false');
+ await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();
+ await page.waitForFunction(()=>(window as any).lastMapping.kind==='slider'&&(window as any).lastMapping.max==='255');
+ assert.equal(await page.evaluate(()=>(window as any).lastMapping.orientation),'bottom-to-top');
+ await page.screenshot({path:path.join(out,'slider-mapping.png'),fullPage:true});
+ await frame.getByLabel('Назначение').selectOption('value');
+ assert.equal(await frame.getByLabel('ID управления Extron',{exact:true}).isVisible(),true);
+ await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.kind==='value');
+ await frame.getByLabel('Назначение').selectOption('datetime');
+ assert.equal(await frame.getByLabel('ID управления Extron',{exact:true}).isVisible(),false);
+ await frame.getByLabel('Формат даты/времени',{exact:true}).fill('HH:mm');
+ await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.pattern==='HH:mm');
+ await frame.getByLabel('Назначение').selectOption('popup-ref');
+ await frame.getByLabel('Ключ popup',{exact:true}).fill('popup.sources');
+ await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.popup==='popup.sources');
+ await page.evaluate(()=>document.querySelector('iframe')!.contentWindow!.postMessage({pluginMessage:{type:'selection',id:'multistate-button',name:'button_Connection',nodeType:'FRAME',metadata:{kind:'button',key:'home.connection',objectId:9,controlId:8209},states:[{stateId:0,name:'Normal',role:'normal'},{stateId:1,name:'Ready',role:'feedback'},{stateId:2,name:'Error',role:'feedback'},{stateId:3,name:'Pressed',role:'pressed'}]}},location.origin));
+ await frame.getByLabel('Просмотр состояния').selectOption('id:2');await frame.getByRole('button',{name:'Показать состояние',exact:true}).click();await page.waitForFunction(()=>(window as any).lastPreview?.stateId===2);
  await page.evaluate(()=>{(window as any).failExport=true;});await frame.getByRole('button',{name:'Скачать .exui',exact:true}).click();await frame.getByRole('alert').filter({hasText:'тестовый отказ'}).waitFor();
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isEnabled(),true);assert.equal(await frame.getByRole('link',{name:'Скачать пакет повторно'}).isVisible(),false);
  // Host-provided names are treated as text, never markup.
@@ -116,6 +141,6 @@ try{
  assert.deepEqual(await readFile(path.join(out,'bridge-'+bridgeDownload.suggestedFilename())),await readFile(path.join(out,bridgeDownload.suggestedFilename())));
  await frame.getByRole('status').filter({hasText:'Пакет готов'}).waitFor();
  await page.screenshot({path:path.join(out,'bridge-ui.png'),fullPage:true});assert.deepEqual(failures,[]);
- await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,browser:browser.version(),checks:['empty selection','keyboard navigation and collapsible prefix reference','custom Frame preparation command and metadata display','recognition preview, keyboard review, apply, error blocking and profile invalidation','both profile downloads','ZIP payload','explicit metadata form including passive graphic','render error recovery','text injection','null-source bridge selection, idle, check and download'],boundary:'actual Chromium UI; Figma parent and null-source bridge messages mocked',pageErrors:failures},null,2)+'\n');
+ await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,browser:browser.version(),checks:['empty selection','keyboard navigation and expanded prefix table without horizontal overflow','custom Frame preparation command and metadata display','recognition preview, keyboard review, apply, error blocking and profile invalidation','both profile downloads','ZIP payload','explicit metadata form including passive graphic','slider orientation/range and behavior, dynamic label ID, datetime pattern, popup target fields','render error recovery','text injection','null-source bridge selection, idle, check and download'],boundary:'actual Chromium UI; Figma parent and null-source bridge messages mocked',pageErrors:failures},null,2)+'\n');
  console.log('PASS Chromium plugin UI: both downloads, metadata form, error recovery, no page errors. '+out);
 }finally{await browser?.close();await new Promise<void>((resolve,reject)=>server.close(e=>e?reject(e):resolve()));}

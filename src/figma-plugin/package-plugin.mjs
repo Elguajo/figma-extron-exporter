@@ -3,7 +3,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {zipSync} from 'fflate';
 const dir=path.dirname(fileURLToPath(import.meta.url));
-const output=path.resolve(process.argv[2]??path.join(dir,'../../output/figma-plugin/figma-extron-plugin-0.1.5.zip'));
+const output=path.resolve(process.argv[2]??path.join(dir,'../../output/figma-plugin/figma-extron-plugin-0.2.0.zip'));
 const files={};
 for(const name of ['manifest.json','dist/code.js','dist/ui.html','README.md','AUTHORING_STANDARD.md','PREFIXES.md','THIRD_PARTY_NOTICES.md'])files[name]=new Uint8Array(await readFile(path.join(dir,name)));
 for(const [name,file] of [['fflate','fflate/LICENSE'],['noble-hashes','@noble/hashes/LICENSE']])files[`licenses/${name}.txt`]=new Uint8Array(await readFile(path.join(dir,'node_modules',file)));
