@@ -1,0 +1,138 @@
+[
+  {
+    "version": "0.2.1",
+    "profile": "tlp-pro-1025m",
+    "scenario": "blank-caption",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "8932A1DC49D580607684CE7BB3E648AE30BD77522240B0D8A45AE2D274498977",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 5,
+      "resources": 3,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "8932A1DC49D580607684CE7BB3E648AE30BD77522240B0D8A45AE2D274498977",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\archive-smoke\\blank-caption-tlp-pro-1025m.gdl",
+      "OutputSha256": "0EB108B06966E4DE2A822BA1F4DBC8D30EC3EA92F125425E8B0C8AFC7FD94B9F",
+      "checks": "73/73 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\archive-smoke\\blank-caption-tlp-pro-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Archived main bundle + fake Figma API/PNG + packageExui from source; packaged native CLI. Archived UI download tested separately in Chromium; Desktop/device not exercised."
+  },
+  {
+    "version": "0.2.1",
+    "profile": "tlp-pro-1025m",
+    "scenario": "expanded",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "106EE2FC3323894F2CB87C81E4B5AC1122A23B746633DD8F5E0719E728B939F8",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 9,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "106EE2FC3323894F2CB87C81E4B5AC1122A23B746633DD8F5E0719E728B939F8",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\archive-smoke\\expanded-tlp-pro-1025m.gdl",
+      "OutputSha256": "1B7D6B4F18D495FBC513D79495F5A0904BB7D55D48D8D208E01ACFA91B01ED9F",
+      "checks": "103/103 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\archive-smoke\\expanded-tlp-pro-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Archived main bundle + fake Figma API/PNG + packageExui from source; packaged native CLI. Archived UI download tested separately in Chromium; Desktop/device not exercised."
+  },
+  {
+    "version": "0.2.1",
+    "profile": "tlp-pro-300m-portrait",
+    "scenario": "blank-caption",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "F18194FA6E79E27B53BAFE2F6BA607ED24441D3B09EFE6A8F4F72FE8A277849C",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 5,
+      "resources": 3,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "F18194FA6E79E27B53BAFE2F6BA607ED24441D3B09EFE6A8F4F72FE8A277849C",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\archive-smoke\\blank-caption-tlp-pro-300m-portrait.gdl",
+      "OutputSha256": "3A9B85CDFA60C8D86504E247C470FDD5877DD2890F1B3E60C24F4A300E1063F1",
+      "checks": "73/73 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\archive-smoke\\blank-caption-tlp-pro-300m-portrait.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Archived main bundle + fake Figma API/PNG + packageExui from source; packaged native CLI. Archived UI download tested separately in Chromium; Desktop/device not exercised."
+  },
+  {
+    "version": "0.2.1",
+    "profile": "tlp-pro-300m-portrait",
+    "scenario": "expanded",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "A90491AFF5005E5B2F98B29550430D996BBC9733F03AF7DF556F2902442C2989",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 9,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "A90491AFF5005E5B2F98B29550430D996BBC9733F03AF7DF556F2902442C2989",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\archive-smoke\\expanded-tlp-pro-300m-portrait.gdl",
+      "OutputSha256": "515556E5A881C3101371BD4144B8F82E19B8D123C5D1173E99D0018B9457517F",
+      "checks": "103/103 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\archive-smoke\\expanded-tlp-pro-300m-portrait.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Archived main bundle + fake Figma API/PNG + packageExui from source; packaged native CLI. Archived UI download tested separately in Chromium; Desktop/device not exercised."
+  }
+]

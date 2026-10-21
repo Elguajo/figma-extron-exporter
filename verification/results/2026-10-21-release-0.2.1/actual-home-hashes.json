@@ -1,0 +1,18 @@
+[
+  {
+    "sha256": "F188D07D06FFF773CE08896531BCA01698E3BE8B47B69C2F8588815588334A0E",
+    "file": "output/releases/0.2.1/reexport/actual-home-021.exui"
+  },
+  {
+    "sha256": "F188D07D06FFF773CE08896531BCA01698E3BE8B47B69C2F8588815588334A0E",
+    "file": "output/releases/0.2.1/installed/examples/home-1025m/home.exui"
+  },
+  {
+    "sha256": "CAAF8467130A9A06497679637A2C8B2EECF38741EE48504E2B3F1D0939FC018B",
+    "file": "output/releases/0.2.1/reexport/home-021.gdl"
+  },
+  {
+    "sha256": "CAAF8467130A9A06497679637A2C8B2EECF38741EE48504E2B3F1D0939FC018B",
+    "file": "output/releases/0.2.1/smoke/home.gdl"
+  }
+]

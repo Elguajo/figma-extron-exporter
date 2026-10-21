@@ -1,0 +1,26 @@
+
+> figma-extron-exporter-plugin@0.2.1 build
+> node build.mjs
+
+
+  dist\code.js  167.8kb
+
+Done in 7ms
+Plugin archive: D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\output\releases\0.2.1\figma-extron-plugin-0.2.1.zip
+  Extron.Format -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\src\extron\bin\Release\net10.0\Extron.Format.dll
+  Extron.Screen -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\src\screen\bin\Release\net10.0\Extron.Screen.dll
+  Extron.Adapter -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\src\adapter\bin\Release\net10.0\Extron.Adapter.dll
+  Extron.Cli -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\src\cli\bin\Release\net10.0\Extron.Cli.dll
+  Extron.Cli -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\output\releases\0.2.1\stage-124391242f0344e9ae0c323f16d92872\cli\
+
+Algorithm Hash                                                             Path
+--------- ----                                                             ----
+SHA256    E2E691638A733D96A629AE0FB9C5D84F544645A5E10B1832BA02BA05779D4652 D:\PROJECTS\Tashkent\2026-10 - Trilliant\fig…
+SHA256    98DEEB52C82DAE1308D4E0522DD0BE06CC8D9D4F09B20C6167029C69ED91E368 D:\PROJECTS\Tashkent\2026-10 - Trilliant\fig…
+
+
+Algorithm Hash                                                             Path
+--------- ----                                                             ----
+SHA256    43CBDA8349EDDD7E52C3E736620437A4C5179C0C8CB31721A5F8AEF176A7779B D:\PROJECTS\Tashkent\2026-10 - Trilliant\fig…
+
+Staged release: D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\output\releases\0.2.1\stage-124391242f0344e9ae0c323f16d92872

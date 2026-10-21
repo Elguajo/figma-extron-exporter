@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Extron.Adapter"><HintPath>../../installed/cli/Extron.Adapter.dll</HintPath></Reference>
+    <Reference Include="Extron.Format"><HintPath>../../installed/cli/Extron.Format.dll</HintPath></Reference>
+    <Reference Include="Extron.Screen"><HintPath>../../installed/cli/Extron.Screen.dll</HintPath></Reference>
+    <Reference Include="System.Formats.Nrbf"><HintPath>../../installed/cli/System.Formats.Nrbf.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

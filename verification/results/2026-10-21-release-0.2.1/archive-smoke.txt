@@ -1,0 +1,4 @@
+PASS archive 0.2.1: blank-caption / tlp-pro-1025m → 73/73 passed
+PASS archive 0.2.1: expanded / tlp-pro-1025m → 103/103 passed
+PASS archive 0.2.1: blank-caption / tlp-pro-300m-portrait → 73/73 passed
+PASS archive 0.2.1: expanded / tlp-pro-300m-portrait → 103/103 passed

@@ -1,0 +1,874 @@
+{
+  "input": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\reexport\\home-021-gui.gdl",
+  "container": "KP-multi-entry-v1",
+  "entries": [
+    {
+      "Name": "ProjectGCP",
+      "CompressionMethod": 8,
+      "CompressedBytes": 1629505,
+      "RawBytes": 2570952,
+      "Crc32": 166829312
+    },
+    {
+      "Name": "home-021-gui.tgz4",
+      "CompressionMethod": 8,
+      "CompressedBytes": 796910,
+      "RawBytes": 822326,
+      "Crc32": 152373434
+    }
+  ],
+  "entry": "ProjectGCP",
+  "compression": 8,
+  "payloadBytes": 2570952,
+  "payloadSha256": "535D2BB3F6E86FE00DCF724517B9436C0AA5F7011BF61F04BE17C134D2D96038",
+  "project": {
+    "rootType": "Extron.GUICPro.PBProject",
+    "rootMembers": [
+      "nameField",
+      "commentsField",
+      "versionInfoField",
+      "jobNumberField",
+      "purchaseOrderNumberField",
+      "creationDateField",
+      "revisionDateField",
+      "applicationBuildVersionInfoField",
+      "resourceSetField",
+      "languageField",
+      "paletteField",
+      "contactsField",
+      "popupPageGroupsField",
+      "defaultPageField",
+      "defaultLevelField",
+      "platformField",
+      "platformTypeField",
+      "platformDpiField",
+      "platformResolutionNameField",
+      "pagesField",
+      "popupPagesField",
+      "buildStatusField",
+      "buildTypeField",
+      "buildPathField",
+      "idField",
+      "isVersionFormattedField",
+      "applicationCategoryField",
+      "numberOfInputsField",
+      "skinField",
+      "previewImageStreamField",
+      "enableOfflineField",
+      "scaleLayouttoFit",
+      "isExtronModeLayoutField",
+      "screenSizeField",
+      "applicationName",
+      "author",
+      "bezelPageLeft",
+      "bezelPageTop",
+      "bezelPageWidth",
+      "bezelPageHeight",
+      "isBezel",
+      "projectFont",
+      "checksum",
+      "<TLPImageFileExtension>k__BackingField",
+      "PBObject+mLocked",
+      "PBObject+typeField"
+    ],
+    "recordCount": 4007,
+    "classCounts": {
+      "Extron.GUICPro.BorderStyleEnum": 62,
+      "Extron.GUICPro.BuildStatusEnum": 1,
+      "Extron.GUICPro.BuildTypeEnum": 1,
+      "Extron.GUICPro.ControlLineCapEnum": 8,
+      "Extron.GUICPro.ControlLinePositionEnum": 8,
+      "Extron.GUICPro.ImageLayoutEnum": 176,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.AlignmentEnum": 264,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.BlinkingEnum": 88,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.ObjectTypeEnum": 338,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.PlatformProTypeEnum": 2,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.ResourceAuthorEnum": 89,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.ResourceTypeEnum": 261,
+      "Extron.GUICPro.Layout.Contracts.Enumerations.SliderOrientationEnum": 1,
+      "Extron.GUICPro.PBBorderInfo": 32,
+      "Extron.GUICPro.PBBorderResource": 32,
+      "Extron.GUICPro.PBButton": 13,
+      "Extron.GUICPro.PBColor": 413,
+      "Extron.GUICPro.PBControlBase+CreateWidgetFlag": 51,
+      "Extron.GUICPro.PBFont": 76,
+      "Extron.GUICPro.PBFontResource": 3,
+      "Extron.GUICPro.PBFontStyle": 76,
+      "Extron.GUICPro.PBImage": 1,
+      "Extron.GUICPro.PBImageResource": 54,
+      "Extron.GUICPro.PBKeyColor": 146,
+      "Extron.GUICPro.PBLabel": 29,
+      "Extron.GUICPro.PBLine": 4,
+      "Extron.GUICPro.PBObjectReference": 1,
+      "Extron.GUICPro.PBPage": 1,
+      "Extron.GUICPro.PBPalette": 1,
+      "Extron.GUICPro.PBPaletteEntry": 141,
+      "Extron.GUICPro.PBPopupPage": 1,
+      "Extron.GUICPro.PBProject": 1,
+      "Extron.GUICPro.PBResourceReferenceBorder": 75,
+      "Extron.GUICPro.PBResourceReferenceFont": 76,
+      "Extron.GUICPro.PBResourceReferenceImage": 21,
+      "Extron.GUICPro.PBResourceSet": 1,
+      "Extron.GUICPro.PBShape": 1,
+      "Extron.GUICPro.PBSlider": 1,
+      "Extron.GUICPro.PBSlider+SliderBitmap": 1,
+      "Extron.GUICPro.PBState": 37,
+      "Extron.GUICPro.PBStates": 51,
+      "Extron.GUICPro.PBTLP1025MPlatform": 1,
+      "Extron.GUICPro.Resolution": 1,
+      "Extron.GUICPro.ShapeTypeEnum": 62,
+      "Extron.GUICPro.SliderFillTypeEnum": 1,
+      "Extron.GUICPro.SliderThumbTypeEnum": 1,
+      "Extron.GUICPro.TransparentPixelsEnum": 51,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.PBContact, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.PBControl, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 2,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.PBControlGroup, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.PBPage, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.PBPaletteEntry, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.PBPopupPage, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.PBPopupReference, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.PBResource, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.PBState, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 51,
+      "System.Collections.Generic.List`1[[Extron.GUICPro.Resolution, GUI Designer, Version=1.28.0.7, Culture=neutral, PublicKeyToken=null]]": 1,
+      "System.Collections.Generic.List`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]": 6,
+      "System.Collections.Generic.List`1[[System.UInt64, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]": 2,
+      "System.Drawing.Bitmap": 55,
+      "System.Drawing.Color": 413,
+      "System.Drawing.Size": 3
+    },
+    "controls": [
+      {
+        "type": "Extron.GUICPro.PBPage",
+        "fields": {
+          "userIdField": 100,
+          "widthField": 1280,
+          "heightField": 800,
+          "PBControl+userIdField": 100,
+          "PBControl+widthField": 1280,
+          "PBControl+heightField": 800,
+          "PBControlBase+nameField": "HomeLayoutReady",
+          "PBControlBase+userIdField": 100,
+          "PBControlBase+widthField": 1280,
+          "PBControlBase+heightField": 800,
+          "PBDrawObject+widthField": 1280,
+          "PBDrawObject+heightField": 800
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 100,
+          "heightField": 22,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 100,
+          "PBControl+heightField": 22,
+          "PBControlBase+nameField": "text_Zones",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 100,
+          "PBControlBase+heightField": 22,
+          "PBDrawObject+widthField": 100,
+          "PBDrawObject+heightField": 22
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 190,
+          "heightField": 22,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 190,
+          "PBControl+heightField": 22,
+          "PBControlBase+nameField": "text_SoundSources",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 190,
+          "PBControlBase+heightField": 22,
+          "PBDrawObject+widthField": 190,
+          "PBDrawObject+heightField": 22
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 120,
+          "heightField": 48,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 120,
+          "PBControl+heightField": 48,
+          "PBControlBase+nameField": "text_Hall",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 120,
+          "PBControlBase+heightField": 48,
+          "PBDrawObject+widthField": 120,
+          "PBDrawObject+heightField": 48
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 300,
+          "heightField": 48,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 300,
+          "PBControl+heightField": 48,
+          "PBControlBase+nameField": "text_HallVolume",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 300,
+          "PBControlBase+heightField": 48,
+          "PBDrawObject+widthField": 300,
+          "PBDrawObject+heightField": 48
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 270,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 270,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_AudioControl",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 270,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 270,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 160,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 160,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_MainPanel",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 160,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 160,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8101,
+          "widthField": 261,
+          "heightField": 107,
+          "PBControl+userIdField": 8101,
+          "PBControl+widthField": 261,
+          "PBControl+heightField": 107,
+          "PBControlBase+nameField": "button_SideHall",
+          "PBControlBase+userIdField": 8101,
+          "PBControlBase+widthField": 261,
+          "PBControlBase+heightField": 107,
+          "PBDrawObject+widthField": 261,
+          "PBDrawObject+heightField": 107
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8102,
+          "widthField": 261,
+          "heightField": 107,
+          "PBControl+userIdField": 8102,
+          "PBControl+widthField": 261,
+          "PBControl+heightField": 107,
+          "PBControlBase+nameField": "button_SideTerrace",
+          "PBControlBase+userIdField": 8102,
+          "PBControlBase+widthField": 261,
+          "PBControlBase+heightField": 107,
+          "PBDrawObject+widthField": 261,
+          "PBDrawObject+heightField": 107
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8103,
+          "widthField": 218,
+          "heightField": 160,
+          "PBControl+userIdField": 8103,
+          "PBControl+widthField": 218,
+          "PBControl+heightField": 160,
+          "PBControlBase+nameField": "button_CH01",
+          "PBControlBase+userIdField": 8103,
+          "PBControlBase+widthField": 218,
+          "PBControlBase+heightField": 160,
+          "PBDrawObject+widthField": 218,
+          "PBDrawObject+heightField": 160
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8104,
+          "widthField": 218,
+          "heightField": 160,
+          "PBControl+userIdField": 8104,
+          "PBControl+widthField": 218,
+          "PBControl+heightField": 160,
+          "PBControlBase+nameField": "button_CH02",
+          "PBControlBase+userIdField": 8104,
+          "PBControlBase+widthField": 218,
+          "PBControlBase+heightField": 160,
+          "PBDrawObject+widthField": 218,
+          "PBDrawObject+heightField": 160
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8105,
+          "widthField": 218,
+          "heightField": 160,
+          "PBControl+userIdField": 8105,
+          "PBControl+widthField": 218,
+          "PBControl+heightField": 160,
+          "PBControlBase+nameField": "button_CH03",
+          "PBControlBase+userIdField": 8105,
+          "PBControlBase+widthField": 218,
+          "PBControlBase+heightField": 160,
+          "PBDrawObject+widthField": 218,
+          "PBDrawObject+heightField": 160
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8106,
+          "widthField": 218,
+          "heightField": 160,
+          "PBControl+userIdField": 8106,
+          "PBControl+widthField": 218,
+          "PBControl+heightField": 160,
+          "PBControlBase+nameField": "button_CH04",
+          "PBControlBase+userIdField": 8106,
+          "PBControlBase+widthField": 218,
+          "PBControlBase+heightField": 160,
+          "PBDrawObject+widthField": 218,
+          "PBDrawObject+heightField": 160
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8107,
+          "widthField": 218,
+          "heightField": 160,
+          "PBControl+userIdField": 8107,
+          "PBControl+widthField": 218,
+          "PBControl+heightField": 160,
+          "PBControlBase+nameField": "button_CH05",
+          "PBControlBase+userIdField": 8107,
+          "PBControlBase+widthField": 218,
+          "PBControlBase+heightField": 160,
+          "PBDrawObject+widthField": 218,
+          "PBDrawObject+heightField": 160
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8108,
+          "widthField": 218,
+          "heightField": 160,
+          "PBControl+userIdField": 8108,
+          "PBControl+widthField": 218,
+          "PBControl+heightField": 160,
+          "PBControlBase+nameField": "button_CH06",
+          "PBControlBase+userIdField": 8108,
+          "PBControlBase+widthField": 218,
+          "PBControlBase+heightField": 160,
+          "PBDrawObject+widthField": 218,
+          "PBDrawObject+heightField": 160
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8109,
+          "widthField": 218,
+          "heightField": 160,
+          "PBControl+userIdField": 8109,
+          "PBControl+widthField": 218,
+          "PBControl+heightField": 160,
+          "PBControlBase+nameField": "button_CH07",
+          "PBControlBase+userIdField": 8109,
+          "PBControlBase+widthField": 218,
+          "PBControlBase+heightField": 160,
+          "PBDrawObject+widthField": 218,
+          "PBDrawObject+heightField": 160
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8110,
+          "widthField": 218,
+          "heightField": 160,
+          "PBControl+userIdField": 8110,
+          "PBControl+widthField": 218,
+          "PBControl+heightField": 160,
+          "PBControlBase+nameField": "button_CH08",
+          "PBControlBase+userIdField": 8110,
+          "PBControlBase+widthField": 218,
+          "PBControlBase+heightField": 160,
+          "PBDrawObject+widthField": 218,
+          "PBDrawObject+heightField": 160
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8111,
+          "widthField": 68,
+          "heightField": 68,
+          "PBControl+userIdField": 8111,
+          "PBControl+widthField": 68,
+          "PBControl+heightField": 68,
+          "PBControlBase+nameField": "button_VolumeDown",
+          "PBControlBase+userIdField": 8111,
+          "PBControlBase+widthField": 68,
+          "PBControlBase+heightField": 68,
+          "PBDrawObject+widthField": 68,
+          "PBDrawObject+heightField": 68
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8112,
+          "widthField": 68,
+          "heightField": 68,
+          "PBControl+userIdField": 8112,
+          "PBControl+widthField": 68,
+          "PBControl+heightField": 68,
+          "PBControlBase+nameField": "button_VolumeUp",
+          "PBControlBase+userIdField": 8112,
+          "PBControlBase+widthField": 68,
+          "PBControlBase+heightField": 68,
+          "PBDrawObject+widthField": 68,
+          "PBDrawObject+heightField": 68
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 8114,
+          "widthField": 110,
+          "heightField": 48,
+          "PBControl+userIdField": 8114,
+          "PBControl+widthField": 110,
+          "PBControl+heightField": 48,
+          "PBControlBase+nameField": "value_VolumeValue",
+          "PBControlBase+userIdField": 8114,
+          "PBControlBase+widthField": 110,
+          "PBControlBase+heightField": 48,
+          "PBDrawObject+widthField": 110,
+          "PBDrawObject+heightField": 48
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBButton",
+        "fields": {
+          "userIdField": 8115,
+          "widthField": 218,
+          "heightField": 68,
+          "PBControl+userIdField": 8115,
+          "PBControl+widthField": 218,
+          "PBControl+heightField": 68,
+          "PBControlBase+nameField": "button_Mute",
+          "PBControlBase+userIdField": 8115,
+          "PBControlBase+widthField": 218,
+          "PBControlBase+heightField": 68,
+          "PBDrawObject+widthField": 218,
+          "PBDrawObject+heightField": 68
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 63,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 63,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_SideHallTitle",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 63,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 63,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 8116,
+          "widthField": 113,
+          "heightField": 19,
+          "PBControl+userIdField": 8116,
+          "PBControl+widthField": 113,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "value_SideHallStatus",
+          "PBControlBase+userIdField": 8116,
+          "PBControlBase+widthField": 113,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 113,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 109,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 109,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_SideTerraceTitle",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 109,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 109,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 8117,
+          "widthField": 157,
+          "heightField": 19,
+          "PBControl+userIdField": 8117,
+          "PBControl+widthField": 157,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "value_SideTerraceStatus",
+          "PBControlBase+userIdField": 8117,
+          "PBControlBase+widthField": 157,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 157,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 89,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 89,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_CH01Title",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 89,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 89,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 64,
+          "heightField": 19,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 64,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "text_CH01Channel",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 64,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 64,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 156,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 156,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_CH02Title",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 156,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 156,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 66,
+          "heightField": 19,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 66,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "text_CH02Channel",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 66,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 66,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 159,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 159,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_CH03Title",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 159,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 159,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 67,
+          "heightField": 19,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 67,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "text_CH03Channel",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 67,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 67,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 160,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 160,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_CH04Title",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 160,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 160,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 67,
+          "heightField": 19,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 67,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "text_CH04Channel",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 67,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 67,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 160,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 160,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_CH05Title",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 160,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 160,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 66,
+          "heightField": 19,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 66,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "text_CH05Channel",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 66,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 66,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 159,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 159,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_CH06Title",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 159,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 159,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 66,
+          "heightField": 19,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 66,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "text_CH06Channel",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 66,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 66,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 139,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 139,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_CH07Title",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 139,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 139,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 65,
+          "heightField": 19,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 65,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "text_CH07Channel",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 65,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 65,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 160,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 160,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_CH08Title",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 160,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 160,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 66,
+          "heightField": 19,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 66,
+          "PBControl+heightField": 19,
+          "PBControlBase+nameField": "text_CH08Channel",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 66,
+          "PBControlBase+heightField": 19,
+          "PBDrawObject+widthField": 66,
+          "PBDrawObject+heightField": 19
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 79,
+          "heightField": 29,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 79,
+          "PBControl+heightField": 29,
+          "PBControlBase+nameField": "text_MuteTitle",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 79,
+          "PBControlBase+heightField": 29,
+          "PBDrawObject+widthField": 79,
+          "PBDrawObject+heightField": 29
+        }
+      },
+      {
+        "type": "Extron.GUICPro.PBLabel",
+        "fields": {
+          "userIdField": 0,
+          "widthField": 400,
+          "heightField": 533,
+          "PBControl+userIdField": 0,
+          "PBControl+widthField": 400,
+          "PBControl+heightField": 533,
+          "PBControlBase+nameField": "Label",
+          "PBControlBase+userIdField": 0,
+          "PBControlBase+widthField": 400,
+          "PBControlBase+heightField": 533,
+          "PBDrawObject+widthField": 400,
+          "PBDrawObject+heightField": 533
+        }
+      }
+    ]
+  },
+  "validation": "container + NRBF decode; GUI Designer not verified"
+}

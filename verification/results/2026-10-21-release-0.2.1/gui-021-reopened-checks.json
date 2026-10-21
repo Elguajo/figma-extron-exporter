@@ -1,0 +1,4147 @@
+{
+  "checks": [
+    {
+      "Id": "profile.platform-class",
+      "Passed": true,
+      "Detail": "PBTLP1025MPlatform (expected PBTLP1025MPlatform)"
+    },
+    {
+      "Id": "profile.platform-type",
+      "Passed": true,
+      "Detail": "PlatformProTypeEnum value 30 (expected 30 = TLP1025M)"
+    },
+    {
+      "Id": "profile.part-number",
+      "Passed": true,
+      "Detail": "60-1566-02 (expected 60-1566-02)"
+    },
+    {
+      "Id": "profile.screen",
+      "Passed": true,
+      "Detail": "screen 1280x800, platform 1280x800 (expected 1280x800)"
+    },
+    {
+      "Id": "profile.app-version",
+      "Passed": true,
+      "Detail": "1.28.0.7"
+    },
+    {
+      "Id": "profile.checksum",
+      "Passed": true,
+      "Detail": "checksum 0"
+    },
+    {
+      "Id": "project.name",
+      "Passed": true,
+      "Detail": "HomeLayoutReady"
+    },
+    {
+      "Id": "page.count",
+      "Passed": true,
+      "Detail": "1 page(s), expected 1"
+    },
+    {
+      "Id": "page.default",
+      "Passed": true,
+      "Detail": "defaultPage 100"
+    },
+    {
+      "Id": "page.order",
+      "Passed": true,
+      "Detail": "pages in plan order"
+    },
+    {
+      "Id": "popup.set",
+      "Passed": true,
+      "Detail": "65535:Offline Page"
+    },
+    {
+      "Id": "popup.offline",
+      "Passed": true,
+      "Detail": "Offline Page 1280x800, 2 control(s)"
+    },
+    {
+      "Id": "page.page.homelayoutready.ids",
+      "Passed": true,
+      "Detail": "id 100, userId 100"
+    },
+    {
+      "Id": "page.page.homelayoutready.name",
+      "Passed": true,
+      "Detail": "HomeLayoutReady"
+    },
+    {
+      "Id": "page.page.homelayoutready.key",
+      "Passed": true,
+      "Detail": "exui-key=page.homelayoutready"
+    },
+    {
+      "Id": "page.page.homelayoutready.size",
+      "Passed": true,
+      "Detail": "1280x800"
+    },
+    {
+      "Id": "page.page.homelayoutready.background",
+      "Passed": true,
+      "Detail": "#FF111315"
+    },
+    {
+      "Id": "page.page.homelayoutready.controls",
+      "Passed": true,
+      "Detail": "47 control(s), expected 47"
+    },
+    {
+      "Id": "page.page.homelayoutready.object-ids-unique",
+      "Passed": true,
+      "Detail": "idField unique within the page or popup"
+    },
+    {
+      "Id": "element.homelayoutready.header.type",
+      "Passed": true,
+      "Detail": "PBLine"
+    },
+    {
+      "Id": "element.homelayoutready.header.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homelayoutready.header.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.header.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.header"
+    },
+    {
+      "Id": "element.homelayoutready.header.name",
+      "Passed": true,
+      "Detail": "line_Header"
+    },
+    {
+      "Id": "element.homelayoutready.header.rect",
+      "Passed": true,
+      "Detail": "0,87,1280,1"
+    },
+    {
+      "Id": "element.homelayoutready.header.line",
+      "Passed": true,
+      "Detail": "line thickness, endpoints, caps and color"
+    },
+    {
+      "Id": "element.homelayoutready.sidebar.type",
+      "Passed": true,
+      "Detail": "PBLine"
+    },
+    {
+      "Id": "element.homelayoutready.sidebar.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homelayoutready.sidebar.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.sidebar.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.sidebar"
+    },
+    {
+      "Id": "element.homelayoutready.sidebar.name",
+      "Passed": true,
+      "Detail": "line_Sidebar"
+    },
+    {
+      "Id": "element.homelayoutready.sidebar.rect",
+      "Passed": true,
+      "Detail": "311,87,1,713"
+    },
+    {
+      "Id": "element.homelayoutready.sidebar.line",
+      "Passed": true,
+      "Detail": "line thickness, endpoints, caps and color"
+    },
+    {
+      "Id": "element.homelayoutready.brand.type",
+      "Passed": true,
+      "Detail": "PBLine"
+    },
+    {
+      "Id": "element.homelayoutready.brand.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homelayoutready.brand.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.brand.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.brand"
+    },
+    {
+      "Id": "element.homelayoutready.brand.name",
+      "Passed": true,
+      "Detail": "line_Brand"
+    },
+    {
+      "Id": "element.homelayoutready.brand.rect",
+      "Passed": true,
+      "Detail": "311,18,1,48"
+    },
+    {
+      "Id": "element.homelayoutready.brand.line",
+      "Passed": true,
+      "Detail": "line thickness, endpoints, caps and color"
+    },
+    {
+      "Id": "element.homelayoutready.volumeseparator.type",
+      "Passed": true,
+      "Detail": "PBLine"
+    },
+    {
+      "Id": "element.homelayoutready.volumeseparator.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homelayoutready.volumeseparator.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.volumeseparator.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.volumeseparator"
+    },
+    {
+      "Id": "element.homelayoutready.volumeseparator.name",
+      "Passed": true,
+      "Detail": "line_VolumeSeparator"
+    },
+    {
+      "Id": "element.homelayoutready.volumeseparator.rect",
+      "Passed": true,
+      "Detail": "345,586,906,1"
+    },
+    {
+      "Id": "element.homelayoutready.volumeseparator.line",
+      "Passed": true,
+      "Detail": "line thickness, endpoints, caps and color"
+    },
+    {
+      "Id": "element.homelayoutready.zones.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.zones.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.zones.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.zones"
+    },
+    {
+      "Id": "element.homelayoutready.zones.name",
+      "Passed": true,
+      "Detail": "text_Zones"
+    },
+    {
+      "Id": "element.homelayoutready.zones.rect",
+      "Passed": true,
+      "Detail": "32,115,100,22"
+    },
+    {
+      "Id": "element.homelayoutready.zones.text",
+      "Passed": true,
+      "Detail": "Zones; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.zones.text-color",
+      "Passed": true,
+      "Detail": "#FFA8ADB5"
+    },
+    {
+      "Id": "element.homelayoutready.soundsources.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.soundsources.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.soundsources.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.soundsources"
+    },
+    {
+      "Id": "element.homelayoutready.soundsources.name",
+      "Passed": true,
+      "Detail": "text_SoundSources"
+    },
+    {
+      "Id": "element.homelayoutready.soundsources.rect",
+      "Passed": true,
+      "Detail": "345,170,190,22"
+    },
+    {
+      "Id": "element.homelayoutready.soundsources.text",
+      "Passed": true,
+      "Detail": "Sound sources; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.soundsources.text-color",
+      "Passed": true,
+      "Detail": "#FFA8ADB5"
+    },
+    {
+      "Id": "element.homelayoutready.hall.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.hall.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.hall.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.hall"
+    },
+    {
+      "Id": "element.homelayoutready.hall.name",
+      "Passed": true,
+      "Detail": "text_Hall"
+    },
+    {
+      "Id": "element.homelayoutready.hall.rect",
+      "Passed": true,
+      "Detail": "345,115,120,48"
+    },
+    {
+      "Id": "element.homelayoutready.hall.text",
+      "Passed": true,
+      "Detail": "Hall; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.hall.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.hallvolume.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.hallvolume.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.hallvolume.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.hallvolume"
+    },
+    {
+      "Id": "element.homelayoutready.hallvolume.name",
+      "Passed": true,
+      "Detail": "text_HallVolume"
+    },
+    {
+      "Id": "element.homelayoutready.hallvolume.rect",
+      "Passed": true,
+      "Detail": "345,620,300,48"
+    },
+    {
+      "Id": "element.homelayoutready.hallvolume.text",
+      "Passed": true,
+      "Detail": "Hall Volume; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.hallvolume.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.audiocontrol.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.audiocontrol.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.audiocontrol.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.audiocontrol"
+    },
+    {
+      "Id": "element.homelayoutready.audiocontrol.name",
+      "Passed": true,
+      "Detail": "text_AudioControl"
+    },
+    {
+      "Id": "element.homelayoutready.audiocontrol.rect",
+      "Passed": true,
+      "Detail": "345,28,270,29"
+    },
+    {
+      "Id": "element.homelayoutready.audiocontrol.text",
+      "Passed": true,
+      "Detail": "AUDIO CONTROL; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.audiocontrol.text-color",
+      "Passed": true,
+      "Detail": "#FFADB1B9"
+    },
+    {
+      "Id": "element.homelayoutready.mainpanel.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.mainpanel.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.mainpanel.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.mainpanel"
+    },
+    {
+      "Id": "element.homelayoutready.mainpanel.name",
+      "Passed": true,
+      "Detail": "text_MainPanel"
+    },
+    {
+      "Id": "element.homelayoutready.mainpanel.rect",
+      "Passed": true,
+      "Detail": "1108,28,160,29"
+    },
+    {
+      "Id": "element.homelayoutready.mainpanel.text",
+      "Passed": true,
+      "Detail": "MAIN PANEL; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.mainpanel.text-color",
+      "Passed": true,
+      "Detail": "#FFADB1B9"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.control-id",
+      "Passed": true,
+      "Detail": "userId 8101 (expected 8101)"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.sidehall"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.name",
+      "Passed": true,
+      "Detail": "button_SideHall"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.rect",
+      "Passed": true,
+      "Detail": "24,170,261,107"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-11-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.sidehall.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.control-id",
+      "Passed": true,
+      "Detail": "userId 8102 (expected 8102)"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.sideterrace"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.name",
+      "Passed": true,
+      "Detail": "button_SideTerrace"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.rect",
+      "Passed": true,
+      "Detail": "24,289,261,107"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-12-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.sideterrace.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.control-id",
+      "Passed": true,
+      "Detail": "userId 8103 (expected 8103)"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch01"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.name",
+      "Passed": true,
+      "Detail": "button_CH01"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.rect",
+      "Passed": true,
+      "Detail": "345,215,218,160"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-13-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.ch01.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.control-id",
+      "Passed": true,
+      "Detail": "userId 8104 (expected 8104)"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch02"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.name",
+      "Passed": true,
+      "Detail": "button_CH02"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.rect",
+      "Passed": true,
+      "Detail": "575,215,218,160"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-14-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.ch02.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.control-id",
+      "Passed": true,
+      "Detail": "userId 8105 (expected 8105)"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch03"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.name",
+      "Passed": true,
+      "Detail": "button_CH03"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.rect",
+      "Passed": true,
+      "Detail": "804,215,218,160"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-15-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.ch03.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.control-id",
+      "Passed": true,
+      "Detail": "userId 8106 (expected 8106)"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch04"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.name",
+      "Passed": true,
+      "Detail": "button_CH04"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.rect",
+      "Passed": true,
+      "Detail": "1033,215,218,160"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-16-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.ch04.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.control-id",
+      "Passed": true,
+      "Detail": "userId 8107 (expected 8107)"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch05"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.name",
+      "Passed": true,
+      "Detail": "button_CH05"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.rect",
+      "Passed": true,
+      "Detail": "345,387,218,160"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-17-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.ch05.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.control-id",
+      "Passed": true,
+      "Detail": "userId 8108 (expected 8108)"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch06"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.name",
+      "Passed": true,
+      "Detail": "button_CH06"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.rect",
+      "Passed": true,
+      "Detail": "575,387,218,160"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-18-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.ch06.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.control-id",
+      "Passed": true,
+      "Detail": "userId 8109 (expected 8109)"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch07"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.name",
+      "Passed": true,
+      "Detail": "button_CH07"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.rect",
+      "Passed": true,
+      "Detail": "804,387,218,160"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-19-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.ch07.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.control-id",
+      "Passed": true,
+      "Detail": "userId 8110 (expected 8110)"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch08"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.name",
+      "Passed": true,
+      "Detail": "button_CH08"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.rect",
+      "Passed": true,
+      "Detail": "1033,387,218,160"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-20-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.state1",
+      "Passed": true,
+      "Detail": "state_Selected: text \u0027\u0027, fill #FFE16716, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.ch08.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.control-id",
+      "Passed": true,
+      "Detail": "userId 8111 (expected 8111)"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.volumedown"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.name",
+      "Passed": true,
+      "Detail": "button_VolumeDown"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.rect",
+      "Passed": true,
+      "Detail": "345,686,68,68"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.state-count",
+      "Passed": true,
+      "Detail": "2 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u2212\u0027, fill #FF14151C, text #FFFFFFFF, image exui-control-21-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.state1",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u2212\u0027, fill #FFFFCC00, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.press-feedback",
+      "Passed": true,
+      "Detail": "press state 1"
+    },
+    {
+      "Id": "element.homelayoutready.volumedown.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.control-id",
+      "Passed": true,
+      "Detail": "userId 8112 (expected 8112)"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.volumeup"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.name",
+      "Passed": true,
+      "Detail": "button_VolumeUp"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.rect",
+      "Passed": true,
+      "Detail": "816,686,68,68"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.state-count",
+      "Passed": true,
+      "Detail": "2 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u002B\u0027, fill #FF14151C, text #FFFFFFFF, image exui-control-22-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.state1",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u002B\u0027, fill #FFFFCC00, text #FF000000, image none, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.press-feedback",
+      "Passed": true,
+      "Detail": "press state 1"
+    },
+    {
+      "Id": "element.homelayoutready.volumeup.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.volume.type",
+      "Passed": true,
+      "Detail": "PBSlider"
+    },
+    {
+      "Id": "element.homelayoutready.volume.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homelayoutready.volume.control-id",
+      "Passed": true,
+      "Detail": "userId 8113 (expected 8113)"
+    },
+    {
+      "Id": "element.homelayoutready.volume.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.volume"
+    },
+    {
+      "Id": "element.homelayoutready.volume.name",
+      "Passed": true,
+      "Detail": "slider_Volume"
+    },
+    {
+      "Id": "element.homelayoutready.volume.rect",
+      "Passed": true,
+      "Detail": "435,704,359,32"
+    },
+    {
+      "Id": "element.homelayoutready.volume.slider",
+      "Passed": true,
+      "Detail": "native slider orientation, range, fill, thumb and track geometry"
+    },
+    {
+      "Id": "element.homelayoutready.volume.track-color",
+      "Passed": true,
+      "Detail": "#FF2A2D31"
+    },
+    {
+      "Id": "element.homelayoutready.volume.thumb-geometry-resource",
+      "Passed": true,
+      "Detail": "vector thumb geometry requires a resolvable bitmap in GUI Designer 1.28.0.7"
+    },
+    {
+      "Id": "element.homelayoutready.volume.thumb-aspect-ratio",
+      "Passed": true,
+      "Detail": "thumb resize factor is height / width"
+    },
+    {
+      "Id": "element.homelayoutready.volume.border",
+      "Passed": true,
+      "Detail": "authored native border resource, shape/radius/thickness/style"
+    },
+    {
+      "Id": "element.homelayoutready.volumevalue.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.volumevalue.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homelayoutready.volumevalue.control-id",
+      "Passed": true,
+      "Detail": "userId 8114 (expected 8114)"
+    },
+    {
+      "Id": "element.homelayoutready.volumevalue.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.volumevalue"
+    },
+    {
+      "Id": "element.homelayoutready.volumevalue.name",
+      "Passed": true,
+      "Detail": "value_VolumeValue"
+    },
+    {
+      "Id": "element.homelayoutready.volumevalue.rect",
+      "Passed": true,
+      "Detail": "904,695,110,48"
+    },
+    {
+      "Id": "element.homelayoutready.volumevalue.dynamic",
+      "Passed": true,
+      "Detail": "dynamic label with an addressable ID"
+    },
+    {
+      "Id": "element.homelayoutready.volumevalue.text",
+      "Passed": true,
+      "Detail": "42%; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.volumevalue.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.company.type",
+      "Passed": true,
+      "Detail": "PBImage"
+    },
+    {
+      "Id": "element.homelayoutready.company.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.company.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.company"
+    },
+    {
+      "Id": "element.homelayoutready.company.name",
+      "Passed": true,
+      "Detail": "logo_Company"
+    },
+    {
+      "Id": "element.homelayoutready.company.rect",
+      "Passed": true,
+      "Detail": "48,28,205,30"
+    },
+    {
+      "Id": "element.homelayoutready.company.image",
+      "Passed": true,
+      "Detail": "exui-graphic-25.png"
+    },
+    {
+      "Id": "element.homelayoutready.company.native-layout",
+      "Passed": true,
+      "Detail": "layout 3, alignment 3"
+    },
+    {
+      "Id": "element.homelayoutready.company.passive-transparent",
+      "Passed": true,
+      "Detail": "passive PBImage, no states/text/shape/background"
+    },
+    {
+      "Id": "element.homelayoutready.mute.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homelayoutready.mute.control-id",
+      "Passed": true,
+      "Detail": "userId 8115 (expected 8115)"
+    },
+    {
+      "Id": "element.homelayoutready.mute.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.mute"
+    },
+    {
+      "Id": "element.homelayoutready.mute.name",
+      "Passed": true,
+      "Detail": "button_Mute"
+    },
+    {
+      "Id": "element.homelayoutready.mute.rect",
+      "Passed": true,
+      "Detail": "1033,686,218,68"
+    },
+    {
+      "Id": "element.homelayoutready.mute.state-count",
+      "Passed": true,
+      "Detail": "3 state(s)"
+    },
+    {
+      "Id": "element.homelayoutready.mute.state0",
+      "Passed": true,
+      "Detail": "Off: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-26-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homelayoutready.mute.state1",
+      "Passed": true,
+      "Detail": "On: text \u0027\u0027, fill #FF111315, text #FFFFFFFF, image exui-control-26-1.png, id 1/1"
+    },
+    {
+      "Id": "element.homelayoutready.mute.state2",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u0027, fill #FF8C3D08, text #FF000000, image none, id 2/2"
+    },
+    {
+      "Id": "element.homelayoutready.mute.press-feedback",
+      "Passed": true,
+      "Detail": "press state 2"
+    },
+    {
+      "Id": "element.homelayoutready.mute.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homelayoutready.sidehalltitle.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.sidehalltitle.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.sidehalltitle.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.sidehalltitle"
+    },
+    {
+      "Id": "element.homelayoutready.sidehalltitle.name",
+      "Passed": true,
+      "Detail": "text_SideHallTitle"
+    },
+    {
+      "Id": "element.homelayoutready.sidehalltitle.rect",
+      "Passed": true,
+      "Detail": "115,195,63,29"
+    },
+    {
+      "Id": "element.homelayoutready.sidehalltitle.text",
+      "Passed": true,
+      "Detail": "Hall; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.sidehalltitle.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.sidehallstatus.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.sidehallstatus.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homelayoutready.sidehallstatus.control-id",
+      "Passed": true,
+      "Detail": "userId 8116 (expected 8116)"
+    },
+    {
+      "Id": "element.homelayoutready.sidehallstatus.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.sidehallstatus"
+    },
+    {
+      "Id": "element.homelayoutready.sidehallstatus.name",
+      "Passed": true,
+      "Detail": "value_SideHallStatus"
+    },
+    {
+      "Id": "element.homelayoutready.sidehallstatus.rect",
+      "Passed": true,
+      "Detail": "115,227,113,19"
+    },
+    {
+      "Id": "element.homelayoutready.sidehallstatus.dynamic",
+      "Passed": true,
+      "Detail": "dynamic label with an addressable ID"
+    },
+    {
+      "Id": "element.homelayoutready.sidehallstatus.text",
+      "Passed": true,
+      "Detail": "Music - 34%; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.sidehallstatus.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracetitle.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracetitle.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracetitle.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.sideterracetitle"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracetitle.name",
+      "Passed": true,
+      "Detail": "text_SideTerraceTitle"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracetitle.rect",
+      "Passed": true,
+      "Detail": "115,314,109,29"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracetitle.text",
+      "Passed": true,
+      "Detail": "Terrace; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracetitle.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracestatus.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracestatus.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracestatus.control-id",
+      "Passed": true,
+      "Detail": "userId 8117 (expected 8117)"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracestatus.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.sideterracestatus"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracestatus.name",
+      "Passed": true,
+      "Detail": "value_SideTerraceStatus"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracestatus.rect",
+      "Passed": true,
+      "Detail": "115,346,157,19"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracestatus.dynamic",
+      "Passed": true,
+      "Detail": "dynamic label with an addressable ID"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracestatus.text",
+      "Passed": true,
+      "Detail": "Broadcast 1 - 34%; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.sideterracestatus.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch01title.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch01title.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch01title.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch01title"
+    },
+    {
+      "Id": "element.homelayoutready.ch01title.name",
+      "Passed": true,
+      "Detail": "text_CH01Title"
+    },
+    {
+      "Id": "element.homelayoutready.ch01title.rect",
+      "Passed": true,
+      "Detail": "419,319,89,29"
+    },
+    {
+      "Id": "element.homelayoutready.ch01title.text",
+      "Passed": true,
+      "Detail": "Music; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch01title.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch01channel.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch01channel.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch01channel.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch01channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch01channel.name",
+      "Passed": true,
+      "Detail": "text_CH01Channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch01channel.rect",
+      "Passed": true,
+      "Detail": "364,233,64,19"
+    },
+    {
+      "Id": "element.homelayoutready.ch01channel.text",
+      "Passed": true,
+      "Detail": "CH 01; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch01channel.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch02title.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch02title.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch02title.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch02title"
+    },
+    {
+      "Id": "element.homelayoutready.ch02title.name",
+      "Passed": true,
+      "Detail": "text_CH02Title"
+    },
+    {
+      "Id": "element.homelayoutready.ch02title.rect",
+      "Passed": true,
+      "Detail": "614,319,156,29"
+    },
+    {
+      "Id": "element.homelayoutready.ch02title.text",
+      "Passed": true,
+      "Detail": "Broadcast 1; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch02title.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch02channel.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch02channel.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch02channel.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch02channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch02channel.name",
+      "Passed": true,
+      "Detail": "text_CH02Channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch02channel.rect",
+      "Passed": true,
+      "Detail": "594,233,66,19"
+    },
+    {
+      "Id": "element.homelayoutready.ch02channel.text",
+      "Passed": true,
+      "Detail": "CH 02; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch02channel.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch03title.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch03title.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch03title.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch03title"
+    },
+    {
+      "Id": "element.homelayoutready.ch03title.name",
+      "Passed": true,
+      "Detail": "text_CH03Title"
+    },
+    {
+      "Id": "element.homelayoutready.ch03title.rect",
+      "Passed": true,
+      "Detail": "843,319,159,29"
+    },
+    {
+      "Id": "element.homelayoutready.ch03title.text",
+      "Passed": true,
+      "Detail": "Broadcast 2; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch03title.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch03channel.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch03channel.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch03channel.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch03channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch03channel.name",
+      "Passed": true,
+      "Detail": "text_CH03Channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch03channel.rect",
+      "Passed": true,
+      "Detail": "823,233,67,19"
+    },
+    {
+      "Id": "element.homelayoutready.ch03channel.text",
+      "Passed": true,
+      "Detail": "CH 03; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch03channel.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch04title.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch04title.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch04title.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch04title"
+    },
+    {
+      "Id": "element.homelayoutready.ch04title.name",
+      "Passed": true,
+      "Detail": "text_CH04Title"
+    },
+    {
+      "Id": "element.homelayoutready.ch04title.rect",
+      "Passed": true,
+      "Detail": "1071,319,160,29"
+    },
+    {
+      "Id": "element.homelayoutready.ch04title.text",
+      "Passed": true,
+      "Detail": "Broadcast 3; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch04title.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch04channel.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch04channel.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch04channel.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch04channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch04channel.name",
+      "Passed": true,
+      "Detail": "text_CH04Channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch04channel.rect",
+      "Passed": true,
+      "Detail": "1052,233,67,19"
+    },
+    {
+      "Id": "element.homelayoutready.ch04channel.text",
+      "Passed": true,
+      "Detail": "CH 04; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch04channel.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch05title.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch05title.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch05title.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch05title"
+    },
+    {
+      "Id": "element.homelayoutready.ch05title.name",
+      "Passed": true,
+      "Detail": "text_CH05Title"
+    },
+    {
+      "Id": "element.homelayoutready.ch05title.rect",
+      "Passed": true,
+      "Detail": "383,491,160,29"
+    },
+    {
+      "Id": "element.homelayoutready.ch05title.text",
+      "Passed": true,
+      "Detail": "Broadcast 4; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch05title.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch05channel.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch05channel.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch05channel.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch05channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch05channel.name",
+      "Passed": true,
+      "Detail": "text_CH05Channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch05channel.rect",
+      "Passed": true,
+      "Detail": "364,405,66,19"
+    },
+    {
+      "Id": "element.homelayoutready.ch05channel.text",
+      "Passed": true,
+      "Detail": "CH 05; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch05channel.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch06title.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch06title.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch06title.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch06title"
+    },
+    {
+      "Id": "element.homelayoutready.ch06title.name",
+      "Passed": true,
+      "Detail": "text_CH06Title"
+    },
+    {
+      "Id": "element.homelayoutready.ch06title.rect",
+      "Passed": true,
+      "Detail": "613,491,159,29"
+    },
+    {
+      "Id": "element.homelayoutready.ch06title.text",
+      "Passed": true,
+      "Detail": "Broadcast 5; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch06title.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch06channel.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch06channel.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch06channel.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch06channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch06channel.name",
+      "Passed": true,
+      "Detail": "text_CH06Channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch06channel.rect",
+      "Passed": true,
+      "Detail": "594,405,66,19"
+    },
+    {
+      "Id": "element.homelayoutready.ch06channel.text",
+      "Passed": true,
+      "Detail": "CH 06; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch06channel.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch07title.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch07title.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch07title.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch07title"
+    },
+    {
+      "Id": "element.homelayoutready.ch07title.name",
+      "Passed": true,
+      "Detail": "text_CH07Title"
+    },
+    {
+      "Id": "element.homelayoutready.ch07title.rect",
+      "Passed": true,
+      "Detail": "853,491,139,29"
+    },
+    {
+      "Id": "element.homelayoutready.ch07title.text",
+      "Passed": true,
+      "Detail": "DJ / Stage; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch07title.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch07channel.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch07channel.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch07channel.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch07channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch07channel.name",
+      "Passed": true,
+      "Detail": "text_CH07Channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch07channel.rect",
+      "Passed": true,
+      "Detail": "823,405,65,19"
+    },
+    {
+      "Id": "element.homelayoutready.ch07channel.text",
+      "Passed": true,
+      "Detail": "CH 07; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch07channel.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch08title.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch08title.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch08title.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch08title"
+    },
+    {
+      "Id": "element.homelayoutready.ch08title.name",
+      "Passed": true,
+      "Detail": "text_CH08Title"
+    },
+    {
+      "Id": "element.homelayoutready.ch08title.rect",
+      "Passed": true,
+      "Detail": "1071,491,160,29"
+    },
+    {
+      "Id": "element.homelayoutready.ch08title.text",
+      "Passed": true,
+      "Detail": "Broadcast 8; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch08title.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.ch08channel.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.ch08channel.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.ch08channel.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.ch08channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch08channel.name",
+      "Passed": true,
+      "Detail": "text_CH08Channel"
+    },
+    {
+      "Id": "element.homelayoutready.ch08channel.rect",
+      "Passed": true,
+      "Detail": "1052,405,66,19"
+    },
+    {
+      "Id": "element.homelayoutready.ch08channel.text",
+      "Passed": true,
+      "Detail": "CH 08; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.ch08channel.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homelayoutready.mutetitle.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homelayoutready.mutetitle.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homelayoutready.mutetitle.key",
+      "Passed": true,
+      "Detail": "exui-key=homelayoutready.mutetitle"
+    },
+    {
+      "Id": "element.homelayoutready.mutetitle.name",
+      "Passed": true,
+      "Detail": "text_MuteTitle"
+    },
+    {
+      "Id": "element.homelayoutready.mutetitle.rect",
+      "Passed": true,
+      "Detail": "1129,705,79,29"
+    },
+    {
+      "Id": "element.homelayoutready.mutetitle.text",
+      "Passed": true,
+      "Detail": "Mute; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homelayoutready.mutetitle.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "groups.registry",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Id": "resource.icon.homelayoutready.ch01.state0",
+      "Passed": true,
+      "Detail": "exui-control-13-0.png: 1 found, 218x160"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.ch02.state0",
+      "Passed": true,
+      "Detail": "exui-control-14-0.png: 1 found, 218x160"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.ch03.state0",
+      "Passed": true,
+      "Detail": "exui-control-15-0.png: 1 found, 218x160"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.ch04.state0",
+      "Passed": true,
+      "Detail": "exui-control-16-0.png: 1 found, 218x160"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.ch05.state0",
+      "Passed": true,
+      "Detail": "exui-control-17-0.png: 1 found, 218x160"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.ch06.state0",
+      "Passed": true,
+      "Detail": "exui-control-18-0.png: 1 found, 218x160"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.ch07.state0",
+      "Passed": true,
+      "Detail": "exui-control-19-0.png: 1 found, 218x160"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.ch08.state0",
+      "Passed": true,
+      "Detail": "exui-control-20-0.png: 1 found, 218x160"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.mute.state0",
+      "Passed": true,
+      "Detail": "exui-control-26-0.png: 1 found, 218x68"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.mute.state1",
+      "Passed": true,
+      "Detail": "exui-control-26-1.png: 1 found, 218x68"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.sidehall.state0",
+      "Passed": true,
+      "Detail": "exui-control-11-0.png: 1 found, 261x107"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.sideterrace.state0",
+      "Passed": true,
+      "Detail": "exui-control-12-0.png: 1 found, 261x107"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.volumedown.state0",
+      "Passed": true,
+      "Detail": "exui-control-21-0.png: 1 found, 68x68"
+    },
+    {
+      "Id": "resource.icon.homelayoutready.volumeup.state0",
+      "Passed": true,
+      "Detail": "exui-control-22-0.png: 1 found, 68x68"
+    },
+    {
+      "Id": "resource.image.homelayoutready.company",
+      "Passed": true,
+      "Detail": "exui-graphic-25.png: 1 found, 205x30"
+    },
+    {
+      "Id": "resource.references",
+      "Passed": true,
+      "Detail": "every state image names an existing image resource"
+    }
+  ],
+  "Build": {
+    "StatusValue": 0,
+    "VersionInfo": "0.0.2",
+    "RevisionDate": "2026-10-21T08:53:51.2341239+05:00"
+  },
+  "entries": [
+    "ProjectGCP",
+    "home-021-gui.tgz4"
+  ],
+  "editableText": [
+    {
+      "Name": "text_Zones",
+      "flattened": false
+    },
+    {
+      "Name": "text_SoundSources",
+      "flattened": false
+    },
+    {
+      "Name": "text_Hall",
+      "flattened": false
+    },
+    {
+      "Name": "text_HallVolume",
+      "flattened": false
+    },
+    {
+      "Name": "text_AudioControl",
+      "flattened": false
+    },
+    {
+      "Name": "text_MainPanel",
+      "flattened": false
+    },
+    {
+      "Name": "button_SideHall",
+      "flattened": false
+    },
+    {
+      "Name": "button_SideTerrace",
+      "flattened": false
+    },
+    {
+      "Name": "button_CH01",
+      "flattened": false
+    },
+    {
+      "Name": "button_CH02",
+      "flattened": false
+    },
+    {
+      "Name": "button_CH03",
+      "flattened": false
+    },
+    {
+      "Name": "button_CH04",
+      "flattened": false
+    },
+    {
+      "Name": "button_CH05",
+      "flattened": false
+    },
+    {
+      "Name": "button_CH06",
+      "flattened": false
+    },
+    {
+      "Name": "button_CH07",
+      "flattened": false
+    },
+    {
+      "Name": "button_CH08",
+      "flattened": false
+    },
+    {
+      "Name": "button_VolumeDown",
+      "flattened": false
+    },
+    {
+      "Name": "button_VolumeUp",
+      "flattened": false
+    },
+    {
+      "Name": "value_VolumeValue",
+      "flattened": false
+    },
+    {
+      "Name": "button_Mute",
+      "flattened": false
+    },
+    {
+      "Name": "text_SideHallTitle",
+      "flattened": false
+    },
+    {
+      "Name": "value_SideHallStatus",
+      "flattened": false
+    },
+    {
+      "Name": "text_SideTerraceTitle",
+      "flattened": false
+    },
+    {
+      "Name": "value_SideTerraceStatus",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH01Title",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH01Channel",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH02Title",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH02Channel",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH03Title",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH03Channel",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH04Title",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH04Channel",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH05Title",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH05Channel",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH06Title",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH06Channel",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH07Title",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH07Channel",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH08Title",
+      "flattened": false
+    },
+    {
+      "Name": "text_CH08Channel",
+      "flattened": false
+    },
+    {
+      "Name": "text_MuteTitle",
+      "flattened": false
+    }
+  ],
+  "controls": [
+    {
+      "Type": "PBLine",
+      "ObjectId": 1,
+      "ControlId": 0,
+      "Name": "line_Header",
+      "Comments": "exui-key=homelayoutready.header",
+      "Left": 0,
+      "Top": 87,
+      "Width": 1280,
+      "Height": 1,
+      "Text": null,
+      "TextColor": null,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 1,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 12,
+        "DynamicText": false,
+        "BorderName": "",
+        "Fill": 4281611576,
+        "Stroke": null,
+        "Slider": null,
+        "Line": {
+          "Thickness": 1,
+          "Start": 6,
+          "End": 2,
+          "StartCap": 0,
+          "EndCap": 0
+        },
+        "Pattern": null
+      },
+      "TextAlignment": 3
+    },
+    {
+      "Type": "PBLine",
+      "ObjectId": 2,
+      "ControlId": 0,
+      "Name": "line_Sidebar",
+      "Comments": "exui-key=homelayoutready.sidebar",
+      "Left": 311,
+      "Top": 87,
+      "Width": 1,
+      "Height": 713,
+      "Text": null,
+      "TextColor": null,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 2,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 12,
+        "DynamicText": false,
+        "BorderName": "",
+        "Fill": 4281611576,
+        "Stroke": null,
+        "Slider": null,
+        "Line": {
+          "Thickness": 1,
+          "Start": 0,
+          "End": 4,
+          "StartCap": 0,
+          "EndCap": 0
+        },
+        "Pattern": null
+      },
+      "TextAlignment": 3
+    },
+    {
+      "Type": "PBLine",
+      "ObjectId": 3,
+      "ControlId": 0,
+      "Name": "line_Brand",
+      "Comments": "exui-key=homelayoutready.brand",
+      "Left": 311,
+      "Top": 18,
+      "Width": 1,
+      "Height": 48,
+      "Text": null,
+      "TextColor": null,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 3,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 12,
+        "DynamicText": false,
+        "BorderName": "",
+        "Fill": 4281611576,
+        "Stroke": null,
+        "Slider": null,
+        "Line": {
+          "Thickness": 1,
+          "Start": 0,
+          "End": 4,
+          "StartCap": 0,
+          "EndCap": 0
+        },
+        "Pattern": null
+      },
+      "TextAlignment": 3
+    },
+    {
+      "Type": "PBLine",
+      "ObjectId": 4,
+      "ControlId": 0,
+      "Name": "line_VolumeSeparator",
+      "Comments": "exui-key=homelayoutready.volumeseparator",
+      "Left": 345,
+      "Top": 586,
+      "Width": 906,
+      "Height": 1,
+      "Text": null,
+      "TextColor": null,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 4,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 12,
+        "DynamicText": false,
+        "BorderName": "",
+        "Fill": 4281611576,
+        "Stroke": null,
+        "Slider": null,
+        "Line": {
+          "Thickness": 1,
+          "Start": 6,
+          "End": 2,
+          "StartCap": 0,
+          "EndCap": 0
+        },
+        "Pattern": null
+      },
+      "TextAlignment": 3
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 5,
+      "ControlId": 0,
+      "Name": "text_Zones",
+      "Comments": "exui-key=homelayoutready.zones",
+      "Left": 32,
+      "Top": 115,
+      "Width": 100,
+      "Height": 22,
+      "Text": "Zones",
+      "TextColor": 4289244597,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 5,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 6,
+      "ControlId": 0,
+      "Name": "text_SoundSources",
+      "Comments": "exui-key=homelayoutready.soundsources",
+      "Left": 345,
+      "Top": 170,
+      "Width": 190,
+      "Height": 22,
+      "Text": "Sound sources",
+      "TextColor": 4289244597,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 6,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 7,
+      "ControlId": 0,
+      "Name": "text_Hall",
+      "Comments": "exui-key=homelayoutready.hall",
+      "Left": 345,
+      "Top": 115,
+      "Width": 120,
+      "Height": 48,
+      "Text": "Hall",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 7,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 8,
+      "ControlId": 0,
+      "Name": "text_HallVolume",
+      "Comments": "exui-key=homelayoutready.hallvolume",
+      "Left": 345,
+      "Top": 620,
+      "Width": 300,
+      "Height": 48,
+      "Text": "Hall Volume",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 8,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 9,
+      "ControlId": 0,
+      "Name": "text_AudioControl",
+      "Comments": "exui-key=homelayoutready.audiocontrol",
+      "Left": 345,
+      "Top": 28,
+      "Width": 270,
+      "Height": 29,
+      "Text": "AUDIO CONTROL",
+      "TextColor": 4289573305,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 9,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 10,
+      "ControlId": 0,
+      "Name": "text_MainPanel",
+      "Comments": "exui-key=homelayoutready.mainpanel",
+      "Left": 1108,
+      "Top": 28,
+      "Width": 160,
+      "Height": 29,
+      "Text": "MAIN PANEL",
+      "TextColor": 4289573305,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 10,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 11,
+      "ControlId": 8101,
+      "Name": "button_SideHall",
+      "Comments": "exui-key=homelayoutready.sidehall",
+      "Left": 24,
+      "Top": 170,
+      "Width": 261,
+      "Height": 107,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-11-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 11
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 12
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 13
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 11,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 12,
+      "ControlId": 8102,
+      "Name": "button_SideTerrace",
+      "Comments": "exui-key=homelayoutready.sideterrace",
+      "Left": 24,
+      "Top": 289,
+      "Width": 261,
+      "Height": 107,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-12-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 14
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 12
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 13
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 14,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 13,
+      "ControlId": 8103,
+      "Name": "button_CH01",
+      "Comments": "exui-key=homelayoutready.ch01",
+      "Left": 345,
+      "Top": 215,
+      "Width": 218,
+      "Height": 160,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-13-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 15
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 16
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 17
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 15,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 14,
+      "ControlId": 8104,
+      "Name": "button_CH02",
+      "Comments": "exui-key=homelayoutready.ch02",
+      "Left": 575,
+      "Top": 215,
+      "Width": 218,
+      "Height": 160,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-14-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 18
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 16
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 17
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 18,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 15,
+      "ControlId": 8105,
+      "Name": "button_CH03",
+      "Comments": "exui-key=homelayoutready.ch03",
+      "Left": 804,
+      "Top": 215,
+      "Width": 218,
+      "Height": 160,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-15-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 18
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 16
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 17
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 18,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 16,
+      "ControlId": 8106,
+      "Name": "button_CH04",
+      "Comments": "exui-key=homelayoutready.ch04",
+      "Left": 1033,
+      "Top": 215,
+      "Width": 218,
+      "Height": 160,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-16-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 18
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 16
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 17
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 18,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 17,
+      "ControlId": 8107,
+      "Name": "button_CH05",
+      "Comments": "exui-key=homelayoutready.ch05",
+      "Left": 345,
+      "Top": 387,
+      "Width": 218,
+      "Height": 160,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-17-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 19
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 16
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 17
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 19,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 18,
+      "ControlId": 8108,
+      "Name": "button_CH06",
+      "Comments": "exui-key=homelayoutready.ch06",
+      "Left": 575,
+      "Top": 387,
+      "Width": 218,
+      "Height": 160,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-18-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 18
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 16
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 17
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 18,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 19,
+      "ControlId": 8109,
+      "Name": "button_CH07",
+      "Comments": "exui-key=homelayoutready.ch07",
+      "Left": 804,
+      "Top": 387,
+      "Width": 218,
+      "Height": 160,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-19-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 20
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 16
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 17
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 20,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 20,
+      "ControlId": 8110,
+      "Name": "button_CH08",
+      "Comments": "exui-key=homelayoutready.ch08",
+      "Left": 1033,
+      "Top": 387,
+      "Width": 218,
+      "Height": 160,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-20-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 21
+        },
+        {
+          "Name": "state_Selected",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": null,
+          "Fill": 4292962070,
+          "TextColor": 4278190080,
+          "TlpImageId": 16
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 17
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 21,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 21,
+      "ControlId": 8111,
+      "Name": "button_VolumeDown",
+      "Comments": "exui-key=homelayoutready.volumedown",
+      "Left": 345,
+      "Top": 686,
+      "Width": 68,
+      "Height": 68,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "\u2212",
+          "Image": "exui-control-21-0.png",
+          "Fill": 4279506204,
+          "TextColor": 4294967295,
+          "TlpImageId": 22
+        },
+        {
+          "Name": "Pressed",
+          "Id": 1,
+          "Index": 1,
+          "Text": "\u2212",
+          "Image": null,
+          "Fill": 4294953984,
+          "TextColor": 4278190080,
+          "TlpImageId": 23
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 1,
+      "TlpImageId": 22,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 22,
+      "ControlId": 8112,
+      "Name": "button_VolumeUp",
+      "Comments": "exui-key=homelayoutready.volumeup",
+      "Left": 816,
+      "Top": 686,
+      "Width": 68,
+      "Height": 68,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "\u002B",
+          "Image": "exui-control-22-0.png",
+          "Fill": 4279506204,
+          "TextColor": 4294967295,
+          "TlpImageId": 22
+        },
+        {
+          "Name": "Pressed",
+          "Id": 1,
+          "Index": 1,
+          "Text": "\u002B",
+          "Image": null,
+          "Fill": 4294953984,
+          "TextColor": 4278190080,
+          "TlpImageId": 23
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 1,
+      "TlpImageId": 22,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBSlider",
+      "ObjectId": 23,
+      "ControlId": 8113,
+      "Name": "slider_Volume",
+      "Comments": "exui-key=homelayoutready.volume",
+      "Left": 435,
+      "Top": 704,
+      "Width": 359,
+      "Height": 32,
+      "Text": null,
+      "TextColor": null,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 25,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 27,
+        "DynamicText": true,
+        "BorderName": "exui-border-homelayoutready.volume",
+        "Fill": 4280954161,
+        "Stroke": 0,
+        "Slider": {
+          "Orientation": 0,
+          "Min": 0,
+          "Max": 100,
+          "Fill": 4292962070,
+          "Thumb": 4294967295,
+          "ThumbType": 0,
+          "ThumbWidth": 28,
+          "ThumbHeight": 28,
+          "TrackWidth": 20,
+          "ThumbImage": "Slider Thumb",
+          "ThumbAspectRatio": 1
+        },
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 3
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 24,
+      "ControlId": 8114,
+      "Name": "value_VolumeValue",
+      "Comments": "exui-key=homelayoutready.volumevalue",
+      "Left": 904,
+      "Top": 695,
+      "Width": 110,
+      "Height": 48,
+      "Text": "42%",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 27,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBImage",
+      "ObjectId": 25,
+      "ControlId": 0,
+      "Name": "logo_Company",
+      "Comments": "exui-key=homelayoutready.company",
+      "Left": 48,
+      "Top": 28,
+      "Width": 205,
+      "Height": 30,
+      "Text": null,
+      "TextColor": null,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 28,
+      "PopupBinding": null,
+      "Graphic": {
+        "Image": "exui-graphic-25.png",
+        "Layout": 3,
+        "Alignment": 3,
+        "Background": 0,
+        "Border": 0,
+        "Shape": 0
+      },
+      "Native": {
+        "ObjectType": 10,
+        "DynamicText": false,
+        "BorderName": "",
+        "Fill": 0,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 3
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 26,
+      "ControlId": 8115,
+      "Name": "button_Mute",
+      "Comments": "exui-key=homelayoutready.mute",
+      "Left": 1033,
+      "Top": 686,
+      "Width": 218,
+      "Height": 68,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Off",
+          "Id": 0,
+          "Index": 0,
+          "Text": "",
+          "Image": "exui-control-26-0.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 29
+        },
+        {
+          "Name": "On",
+          "Id": 1,
+          "Index": 1,
+          "Text": "",
+          "Image": "exui-control-26-1.png",
+          "Fill": 4279309077,
+          "TextColor": 4294967295,
+          "TlpImageId": 30
+        },
+        {
+          "Name": "Pressed",
+          "Id": 2,
+          "Index": 2,
+          "Text": "",
+          "Image": null,
+          "Fill": 4287380744,
+          "TextColor": 4278190080,
+          "TlpImageId": 31
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 2,
+      "TlpImageId": 29,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 27,
+      "ControlId": 0,
+      "Name": "text_SideHallTitle",
+      "Comments": "exui-key=homelayoutready.sidehalltitle",
+      "Left": 115,
+      "Top": 195,
+      "Width": 63,
+      "Height": 29,
+      "Text": "Hall",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 32,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 28,
+      "ControlId": 8116,
+      "Name": "value_SideHallStatus",
+      "Comments": "exui-key=homelayoutready.sidehallstatus",
+      "Left": 115,
+      "Top": 227,
+      "Width": 113,
+      "Height": 19,
+      "Text": "Music - 34%",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 33,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 29,
+      "ControlId": 0,
+      "Name": "text_SideTerraceTitle",
+      "Comments": "exui-key=homelayoutready.sideterracetitle",
+      "Left": 115,
+      "Top": 314,
+      "Width": 109,
+      "Height": 29,
+      "Text": "Terrace",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 34,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 30,
+      "ControlId": 8117,
+      "Name": "value_SideTerraceStatus",
+      "Comments": "exui-key=homelayoutready.sideterracestatus",
+      "Left": 115,
+      "Top": 346,
+      "Width": 157,
+      "Height": 19,
+      "Text": "Broadcast 1 - 34%",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 35,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 31,
+      "ControlId": 0,
+      "Name": "text_CH01Title",
+      "Comments": "exui-key=homelayoutready.ch01title",
+      "Left": 419,
+      "Top": 319,
+      "Width": 89,
+      "Height": 29,
+      "Text": "Music",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 36,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 32,
+      "ControlId": 0,
+      "Name": "text_CH01Channel",
+      "Comments": "exui-key=homelayoutready.ch01channel",
+      "Left": 364,
+      "Top": 233,
+      "Width": 64,
+      "Height": 19,
+      "Text": "CH 01",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 37,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 33,
+      "ControlId": 0,
+      "Name": "text_CH02Title",
+      "Comments": "exui-key=homelayoutready.ch02title",
+      "Left": 614,
+      "Top": 319,
+      "Width": 156,
+      "Height": 29,
+      "Text": "Broadcast 1",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 38,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 34,
+      "ControlId": 0,
+      "Name": "text_CH02Channel",
+      "Comments": "exui-key=homelayoutready.ch02channel",
+      "Left": 594,
+      "Top": 233,
+      "Width": 66,
+      "Height": 19,
+      "Text": "CH 02",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 39,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 35,
+      "ControlId": 0,
+      "Name": "text_CH03Title",
+      "Comments": "exui-key=homelayoutready.ch03title",
+      "Left": 843,
+      "Top": 319,
+      "Width": 159,
+      "Height": 29,
+      "Text": "Broadcast 2",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 40,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 36,
+      "ControlId": 0,
+      "Name": "text_CH03Channel",
+      "Comments": "exui-key=homelayoutready.ch03channel",
+      "Left": 823,
+      "Top": 233,
+      "Width": 67,
+      "Height": 19,
+      "Text": "CH 03",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 41,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 37,
+      "ControlId": 0,
+      "Name": "text_CH04Title",
+      "Comments": "exui-key=homelayoutready.ch04title",
+      "Left": 1071,
+      "Top": 319,
+      "Width": 160,
+      "Height": 29,
+      "Text": "Broadcast 3",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 10,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 38,
+      "ControlId": 0,
+      "Name": "text_CH04Channel",
+      "Comments": "exui-key=homelayoutready.ch04channel",
+      "Left": 1052,
+      "Top": 233,
+      "Width": 67,
+      "Height": 19,
+      "Text": "CH 04",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 41,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 39,
+      "ControlId": 0,
+      "Name": "text_CH05Title",
+      "Comments": "exui-key=homelayoutready.ch05title",
+      "Left": 383,
+      "Top": 491,
+      "Width": 160,
+      "Height": 29,
+      "Text": "Broadcast 4",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 10,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 40,
+      "ControlId": 0,
+      "Name": "text_CH05Channel",
+      "Comments": "exui-key=homelayoutready.ch05channel",
+      "Left": 364,
+      "Top": 405,
+      "Width": 66,
+      "Height": 19,
+      "Text": "CH 05",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 39,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 41,
+      "ControlId": 0,
+      "Name": "text_CH06Title",
+      "Comments": "exui-key=homelayoutready.ch06title",
+      "Left": 613,
+      "Top": 491,
+      "Width": 159,
+      "Height": 29,
+      "Text": "Broadcast 5",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 40,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 42,
+      "ControlId": 0,
+      "Name": "text_CH06Channel",
+      "Comments": "exui-key=homelayoutready.ch06channel",
+      "Left": 594,
+      "Top": 405,
+      "Width": 66,
+      "Height": 19,
+      "Text": "CH 06",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 39,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 43,
+      "ControlId": 0,
+      "Name": "text_CH07Title",
+      "Comments": "exui-key=homelayoutready.ch07title",
+      "Left": 853,
+      "Top": 491,
+      "Width": 139,
+      "Height": 29,
+      "Text": "DJ / Stage",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 42,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 44,
+      "ControlId": 0,
+      "Name": "text_CH07Channel",
+      "Comments": "exui-key=homelayoutready.ch07channel",
+      "Left": 823,
+      "Top": 405,
+      "Width": 65,
+      "Height": 19,
+      "Text": "CH 07",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 43,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 45,
+      "ControlId": 0,
+      "Name": "text_CH08Title",
+      "Comments": "exui-key=homelayoutready.ch08title",
+      "Left": 1071,
+      "Top": 491,
+      "Width": 160,
+      "Height": 29,
+      "Text": "Broadcast 8",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 10,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 46,
+      "ControlId": 0,
+      "Name": "text_CH08Channel",
+      "Comments": "exui-key=homelayoutready.ch08channel",
+      "Left": 1052,
+      "Top": 405,
+      "Width": 66,
+      "Height": 19,
+      "Text": "CH 08",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 39,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 47,
+      "ControlId": 0,
+      "Name": "text_MuteTitle",
+      "Comments": "exui-key=homelayoutready.mutetitle",
+      "Left": 1129,
+      "Top": 705,
+      "Width": 79,
+      "Height": 29,
+      "Text": "Mute",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 44,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    }
+  ]
+}

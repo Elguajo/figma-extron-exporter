@@ -1,0 +1,12 @@
+{
+  "Contract": "exui/5",
+  "Profile": "tlp-pro-1025m",
+  "PackageSha256": "F188D07D06FFF773CE08896531BCA01698E3BE8B47B69C2F8588815588334A0E",
+  "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\smoke\\outside-cwd.gdl",
+  "OutputSha256": "CAAF8467130A9A06497679637A2C8B2EECF38741EE48504E2B3F1D0939FC018B",
+  "checks": "432/432 passed",
+  "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\0.2.1\\smoke\\outside-cwd.gdl.report.json",
+  "GuiDesignerVerified": false,
+  "HardwareVerified": false,
+  "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+}

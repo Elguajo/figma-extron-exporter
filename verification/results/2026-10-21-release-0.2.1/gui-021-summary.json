@@ -1,0 +1,17 @@
+{
+  "editableTextObjects": 41,
+  "verifyErrors": 0,
+  "verifyWarnings": 0,
+  "checks": 426,
+  "buildStatus": 0,
+  "bytes": 2426799,
+  "sha256": "332658D229B23810E47AAEBBBAEE3C724C2F03D7892D7A4189BF86D11EBA6AE9",
+  "entries": [
+    "ProjectGCP",
+    "home-021-gui.tgz4"
+  ],
+  "file": "output/releases/0.2.1/reexport/home-021-gui.gdl",
+  "reopenedVia": "File > recent home-021-gui.gdl",
+  "hardwareVerified": false,
+  "failed": 0
+}

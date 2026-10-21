@@ -1,0 +1,1 @@
+ERROR [donor-missing]: Donor file D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\output\releases\0.2.1\installed-cli\samples\donors\tlp-pro-1025m.gdl does not exist; run prepare-donor tlp-pro-1025m.

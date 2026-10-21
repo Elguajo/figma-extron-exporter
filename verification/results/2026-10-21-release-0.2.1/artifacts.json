@@ -1,0 +1,17 @@
+[
+  {
+    "name": "figma-extron-cli-0.2.1-windows.zip",
+    "bytes": 248231,
+    "sha256": "98DEEB52C82DAE1308D4E0522DD0BE06CC8D9D4F09B20C6167029C69ED91E368"
+  },
+  {
+    "name": "figma-extron-complete-0.2.1-local.zip",
+    "bytes": 5817410,
+    "sha256": "43CBDA8349EDDD7E52C3E736620437A4C5179C0C8CB31721A5F8AEF176A7779B"
+  },
+  {
+    "name": "figma-extron-plugin-0.2.1.zip",
+    "bytes": 85439,
+    "sha256": "E2E691638A733D96A629AE0FB9C5D84F544645A5E10B1832BA02BA05779D4652"
+  }
+]
