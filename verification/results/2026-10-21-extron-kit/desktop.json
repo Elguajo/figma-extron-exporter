@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-21",
+  "figmaFile": "https://www.figma.com/design/Oc7Y0RTUweZQMGvlVCDerX/Extron-Kit",
+  "pluginVersion": "0.3.0",
+  "componentsCreated": 30,
+  "profile": "tlp-pro-1025m",
+  "elements": 9,
+  "pngResources": 14,
+  "package": "output/extron-kit-desktop-2026-10-21/screen-home.exui",
+  "packageSha256": "B729A0F16D2FD2281E3C8875A0C234D6DBC177C3E2F5CB8D8B6DAF8CB3533ECA",
+  "gdl": "output/extron-kit-desktop-2026-10-21/screen-home.gdl",
+  "gdlSha256": "B770A2D7D1F81E7238EF36850BC6623C79DB9428DEE3A47611ADCAA4946A3744",
+  "gdlChecks": "129/129 passed",
+  "resizeTest": "Music instance 220x64 -> 240x64, artwork stretched, restored 220x64",
+  "pngVisualCheck": "Music Normal, Active, Pressed images contain expected text and distinct colors",
+  "guiDesignerVerified": false,
+  "hardwareVerified": false,
+  "figmaMcpUsed": false
+}

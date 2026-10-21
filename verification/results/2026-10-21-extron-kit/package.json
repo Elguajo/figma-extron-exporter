@@ -1,0 +1,14 @@
+{
+  "artifact": "output/extron-kit-0.3.0-desktop-fix/figma-extron-plugin-0.3.0.zip",
+  "sha256": "cc46baa8380e96b522e8846f267fcd41f10177b52261e6bfea009956c337a743",
+  "version": "0.3.0",
+  "bytes": 97240,
+  "mainMatchesBuild": true,
+  "uiMatchesBuild": true,
+  "kitInstructionsIncluded": true,
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ]
+  }
+}

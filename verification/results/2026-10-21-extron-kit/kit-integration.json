@@ -1,0 +1,134 @@
+[
+  {
+    "profile": "tlp-pro-1025m",
+    "name": "screen",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "468DB13828EE502CC16E542AD20B6DC7E01CA095FE709A49C37FA330C69F9244",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 9,
+      "resources": 14,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "468DB13828EE502CC16E542AD20B6DC7E01CA095FE709A49C37FA330C69F9244",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\kit-integration-2026-10-21\\screen-tlp-pro-1025m.gdl",
+      "OutputSha256": "73731421FEB37ECD3B7A1B444A7A9B5F11515F8E2E76567A56A3571859FB1FD8",
+      "checks": "129/129 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\kit-integration-2026-10-21\\screen-tlp-pro-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Figma API and PNG rendering simulated; real CLI, donor, x86 writer and independent NRBF checks. No GUI Build/device claim."
+  },
+  {
+    "profile": "tlp-pro-1025m",
+    "name": "project",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "E0F7F3F66A94A05662725E72FCDE392C425A75408DFB114B52A3D46E874A398D",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 1,
+      "popups": 4,
+      "groups": 1,
+      "elements": 7,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "E0F7F3F66A94A05662725E72FCDE392C425A75408DFB114B52A3D46E874A398D",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\kit-integration-2026-10-21\\project-tlp-pro-1025m.gdl",
+      "OutputSha256": "331394FE4188720CE6CAEC7F89A5FC3CC7836EC64A776281442372E2D30B0A00",
+      "checks": "118/118 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\kit-integration-2026-10-21\\project-tlp-pro-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Figma API and PNG rendering simulated; real CLI, donor, x86 writer and independent NRBF checks. No GUI Build/device claim."
+  },
+  {
+    "profile": "tlp-pro-300m-portrait",
+    "name": "screen",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "B7BBC5A7ADBD2BF0526C0718A49CA3C04F4842D0EF440624E0FD3AD0DFBBFDE6",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 1,
+      "popups": 0,
+      "groups": 0,
+      "elements": 5,
+      "resources": 6,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "B7BBC5A7ADBD2BF0526C0718A49CA3C04F4842D0EF440624E0FD3AD0DFBBFDE6",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\kit-integration-2026-10-21\\screen-tlp-pro-300m-portrait.gdl",
+      "OutputSha256": "1EDCC71E7C292641D0FB44B1C0740CBF7DEE4B7AA86EB88D1F7AB5736DCC3D1E",
+      "checks": "82/82 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\kit-integration-2026-10-21\\screen-tlp-pro-300m-portrait.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Figma API and PNG rendering simulated; real CLI, donor, x86 writer and independent NRBF checks. No GUI Build/device claim."
+  },
+  {
+    "profile": "tlp-pro-300m-portrait",
+    "name": "project",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "641A6E463AAFDD929270B5C601F7D5FC18F54D80D7A4384C72BFA0B1288E4D24",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 1,
+      "popups": 4,
+      "groups": 1,
+      "elements": 7,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "641A6E463AAFDD929270B5C601F7D5FC18F54D80D7A4384C72BFA0B1288E4D24",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\kit-integration-2026-10-21\\project-tlp-pro-300m-portrait.gdl",
+      "OutputSha256": "F10A8A984562E731178E04A0728A30624030595B8D5A92DD3010B32EB67EEEB3",
+      "checks": "118/118 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\kit-integration-2026-10-21\\project-tlp-pro-300m-portrait.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Figma API and PNG rendering simulated; real CLI, donor, x86 writer and independent NRBF checks. No GUI Build/device claim."
+  }
+]
