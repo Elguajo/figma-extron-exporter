@@ -1069,7 +1069,6 @@
         "assets": {
           "type": "array",
           "minItems": 0,
-          "maxItems": 16,
           "items": {
             "type": "object",
             "additionalProperties": false,
@@ -1149,7 +1148,6 @@
         "assets": {
           "type": "array",
           "minItems": 0,
-          "maxItems": 16,
           "items": {
             "type": "object",
             "additionalProperties": false,

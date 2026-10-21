@@ -123,7 +123,8 @@ internal static class ContractJson
         if (v.ValueKind == JsonValueKind.Array && s.TryGetProperty("items", out var items))
         {
             int count = v.GetArrayLength();
-            if (count < s.GetProperty("minItems").GetInt32() || count > s.GetProperty("maxItems").GetInt32()) Error("array length outside supported range.");
+            if (s.TryGetProperty("minItems", out var minItems) && count < minItems.GetInt32() ||
+                s.TryGetProperty("maxItems", out var maxItems) && count > maxItems.GetInt32()) Error("array length outside supported range.");
             int i = 0; foreach (var item in v.EnumerateArray()) Visit(item, items, root, $"{at}[{i++}]", errors);
         }
         if (v.ValueKind == JsonValueKind.String)

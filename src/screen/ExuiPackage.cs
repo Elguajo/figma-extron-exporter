@@ -48,10 +48,8 @@ public sealed class ExuiPackage : IDisposable
         {
             using var memory = new MemoryStream(bytes, false);
             using var zip = new ZipArchive(memory, ZipArchiveMode.Read);
-            if (zip.Entries.Count is < 2 or > 18) throw new ExuiException("package-entries", "Expected 2..18 file entries, no directory entries.");
-            var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+            if (zip.Entries.Count < 2) throw new ExuiException("package-entries", "manifest.json and screen.json are required, no directory entries.");
             var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            long total = 0;
             foreach (var entry in zip.Entries)
             {
                 string name = entry.FullName;
@@ -59,24 +57,34 @@ public sealed class ExuiPackage : IDisposable
                 if (!allowed || !names.Add(name)) throw new ExuiException("package-entry", $"Unsafe, unsupported or duplicate entry: {name}.");
                 // Unix symlinks are not resources. No ZIP entry path is ever used as an extraction target.
                 if (((entry.ExternalAttributes >> 16) & 0xF000) == 0xA000) throw new ExuiException("package-entry", $"Symlink entry: {name}.");
-                int limit = name == "manifest.json" ? 64 * 1024 : name == "screen.json" ? 256 * 1024 : ScreenSpecReader.MaxImageBytes;
-                total += entry.Length;
-                if (entry.Length > limit || total > MaxExpandedBytes) throw new ExuiException("package-size", $"Expanded size limit exceeded at {name}.");
-                using var stream = entry.Open();
-                byte[] data = ReadBounded(stream, limit);
-                if (data.LongLength != entry.Length || ExtronContainer.Crc32(data) != entry.Crc32)
-                    throw new ExuiException("package-integrity", $"ZIP length/CRC mismatch: {name}.");
-                files.Add(name, data);
             }
-            if (!files.TryGetValue("manifest.json", out var manifestBytes) || !files.TryGetValue("screen.json", out var screenBytes))
+            var manifestEntry = zip.GetEntry("manifest.json");
+            if (manifestEntry == null || zip.GetEntry("screen.json") == null)
                 throw new ExuiException("package-entries", "manifest.json and screen.json are required at ZIP root.");
+            // A bounded manifest determines the number of resources before any PNG is read.
+            // This replaces the arbitrary v5 count cap without admitting undeclared ZIP entries.
+            byte[] manifestBytes = ReadEntry(manifestEntry, 64 * 1024);
             var manifest = ContractJson.Read(manifestBytes, "manifest.json");
-            var screen = ContractJson.Read(screenBytes, "screen.json");
-            // The manifest marker selects the contract; there is no fallback between versions.
             int version = manifest.ValueKind == JsonValueKind.Object && manifest.TryGetProperty("schema", out var marker) && marker.ValueKind == JsonValueKind.String
                 ? marker.GetString() switch { "exui/1" => 1, "exui/2" => 2, "exui/3" => 3, "exui/4" => 4, "exui/5" => 5, _ => 0 } : 0;
             if (version == 0) throw new ExuiException("package-schema", "manifest.json: schema must be exui/1 through exui/5.");
+            if (version < 5 && zip.Entries.Count > 18) throw new ExuiException("package-entries", "exui/1–4 allow at most 18 file entries.");
             ContractJson.Validate(manifest, version, "manifest");
+            if (zip.Entries.Count != manifest.GetProperty("resources").GetArrayLength() + 2)
+                throw new ExuiException("package-resource", "ZIP assets must exactly match manifest.resources.");
+            var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+            long total = 0;
+            foreach (var entry in zip.Entries)
+            {
+                string name = entry.FullName;
+                int limit = name == "manifest.json" ? 64 * 1024 : name == "screen.json" ? 256 * 1024 : ScreenSpecReader.MaxImageBytes;
+                total += entry.Length;
+                if (entry.Length > limit || total > MaxExpandedBytes) throw new ExuiException("package-size", $"Expanded size limit exceeded at {name}.");
+                byte[] data = name == "manifest.json" ? manifestBytes : ReadEntry(entry, limit);
+                files.Add(name, data);
+            }
+            byte[] screenBytes = files["screen.json"];
+            var screen = ContractJson.Read(screenBytes, "screen.json");
             ContractJson.Validate(screen, version, "screen");
             var profile = GetProfile(manifest.GetProperty("profile").GetString()!);
             var declared = new HashSet<string>(StringComparer.Ordinal);
@@ -145,6 +153,16 @@ public sealed class ExuiPackage : IDisposable
     }
 
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
+
+    private static byte[] ReadEntry(ZipArchiveEntry entry, int limit)
+    {
+        if (entry.Length > limit) throw new ExuiException("package-size", $"Expanded size limit exceeded at {entry.FullName}.");
+        using var stream = entry.Open();
+        byte[] data = ReadBounded(stream, limit);
+        if (data.LongLength != entry.Length || ExtronContainer.Crc32(data) != entry.Crc32)
+            throw new ExuiException("package-integrity", $"ZIP length/CRC mismatch: {entry.FullName}.");
+        return data;
+    }
 
     private static byte[] ReadBounded(Stream stream, int limit)
     {

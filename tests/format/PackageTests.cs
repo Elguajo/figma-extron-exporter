@@ -17,14 +17,14 @@ static class PackageTests
     {
         var node = JsonNode.Parse(files[name])!; edit(node); files[name] = Encoding.UTF8.GetBytes(node.ToJsonString());
     }
-    static string Zip(string work, Dictionary<string, byte[]> files, string? duplicate = null)
+    static string Zip(string work, Dictionary<string, byte[]> files, string? duplicate = null, CompressionLevel compression = CompressionLevel.NoCompression)
     {
         string path = Path.Combine(work, Guid.NewGuid().ToString("N") + ".exui");
         using var output = File.Create(path);
         using var zip = new ZipArchive(output, ZipArchiveMode.Create);
         foreach (var (name, data) in files.Concat(duplicate == null ? [] : new[] { new KeyValuePair<string, byte[]>(duplicate, files.Values.First()) }))
         {
-            var entry = zip.CreateEntry(name, CompressionLevel.NoCompression);
+            var entry = zip.CreateEntry(name, compression);
             entry.LastWriteTime = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
             using var s = entry.Open(); s.Write(data);
         }
@@ -285,6 +285,46 @@ static class PackageTests
                 var slider=p.Plan.Elements.Single(e=>e.Kind=="slider");Check(slider.Native?.TrackWidth==16&&slider.Native.ThumbWidth==28&&slider.Min==0&&slider.Max==100);
                 var value=p.Plan.Elements.Single(e=>e.Kind=="value");Check(value.ControlId==8207&&value.Behavior?.Visible==false);
                 Check(IdMap.Markdown(p.Plan,p.Profile.Panel).Contains("Доступен при запуске"));
+            });
+            Dictionary<string,byte[]> ManyImages()
+            {
+                var f=V5();
+                for(int i=0;i<17;i++)
+                {
+                    string file=$"assets/extra-{i}.png",key=$"extra.image{i}";
+                    f[file]=f["assets/note-dark.png"].ToArray();
+                    Edit(f,"manifest.json",n=>n["resources"]!.AsArray().Add(new JsonObject { ["path"]=file,["sha256"]=Convert.ToHexString(SHA256.HashData(f[file])) }));
+                    Edit(f,"screen.json",n=>
+                    {
+                        n["assets"]!.AsArray().Add(new JsonObject { ["key"]=key,["file"]=file,["resourceName"]=$"extra-{i}.png" });
+                        n["elements"]!.AsArray().Add(new JsonObject { ["kind"]="graphic",["key"]=$"home.extra{i}", ["objectId"]=100+i,["controlId"]=null,["name"]=$"image_Extra{i}",["rect"]=new JsonArray(0,0,64,64),["image"]=key });
+                    });
+                }
+                return f;
+            }
+            foreach(bool project in new[]{false,true})test($"Package v5: 19 PNGs in {(project?"project":"screen")} retain all native images",()=>
+            {
+                var f=ManyImages();
+                if(project)Edit(f,"screen.json",n=>{var o=n.AsObject();var page=o["page"]!.DeepClone();page["shownBy"]="start";page["elements"]=o["elements"]!.DeepClone();o.Remove("page");o.Remove("elements");o["pages"]=new JsonArray(page);o["popups"]=new JsonArray();o["groups"]=new JsonArray();});
+                using var p=ExuiPackage.Load(Zip(work,f));Check(p.Plan.Images.Count==19);Check(p.Plan.Elements.Count(e=>e.Kind=="graphic")==18);
+            });
+            test("Package v4 retains its resource count limit",()=>
+            {
+                var f=ManyImages();Edit(f,"manifest.json",n=>n["schema"]="exui/4");Edit(f,"screen.json",n=>n["schema"]="exui-screen/4");
+                Reject("package-entries",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+            });
+            test("Package v5 with many images still rejects undeclared files and damaged PNGs",()=>
+            {
+                var f=ManyImages();f["assets/undeclared.png"]=f["assets/note-dark.png"];Reject("package-resource",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+                f=ManyImages();f["assets/extra-16.png"][40]^=1;Edit(f,"manifest.json",n=>n["resources"]!.AsArray().Last()!["sha256"]=Convert.ToHexString(SHA256.HashData(f["assets/extra-16.png"])));
+                Reject("package-image",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+            });
+            test("Package v5 with many images retains the total expanded size limit",()=>
+            {
+                var f=ManyImages();
+                foreach(string file in f.Keys.Where(k=>k.StartsWith("assets/",StringComparison.Ordinal)).Take(5).ToArray())f[file]=new byte[ScreenSpecReader.MaxImageBytes];
+                string input=Zip(work,f,compression:CompressionLevel.SmallestSize);Check(new FileInfo(input).Length<ExuiPackage.MaxPackageBytes);
+                Reject("package-size",()=>{using var p=ExuiPackage.Load(input);});
             });
             test("Package v5 accepts empty Button captions for independent text overlays",()=>
             {
