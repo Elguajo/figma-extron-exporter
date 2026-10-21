@@ -5,7 +5,7 @@ export function tag(node:BaseNode, data:Omit<Metadata,'schema'|'ownerNodeId'>):v
   node.setPluginData(DATA_KEY,JSON.stringify({...data,schema:metadataSchema(data),ownerNodeId:node.id}));
 }
 function paint(hex:string):SolidPaint {return {type:'SOLID',color:{r:parseInt(hex.slice(1,3),16)/255,g:parseInt(hex.slice(3,5),16)/255,b:parseInt(hex.slice(5,7),16)/255}};}
-export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>):Promise<FrameNode> {
+export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>,legacy=false):Promise<FrameNode> {
   const spec=(profile==='tlp-pro-1025m'?large:small) as SingleScreen;
   const fonts=await figma.listAvailableFontsAsync();
   for(const style of ['Regular','Bold']) {
@@ -39,7 +39,8 @@ export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>
         if(e.kind==='level')control.fills=[paint(e.fillColor!)];
         else for(const s of e.states!) {
           const state=makeFrame(s.name,w,h,control);state.fills=[paint(s.fill)];
-          tag(state,{kind:'state',stateId:s.stateId,role:s.role,stateName:s.name});
+          const stateName=legacy?s.name:{normal:'Normal',feedback:'Active',pressed:'Pressed'}[s.role];
+          state.name=stateName;tag(state,{kind:'state',stateId:s.stateId,role:s.role,stateName});
           const label=makeText(state,s.text,w,h,s.textColor,e.font!.size,e.font!.bold,s.textAlign==='bottom-center'?'BOTTOM':'CENTER');label.x=0;label.y=0;
           if(s.image) {
             const asset=spec.assets.find(a=>a.key===s.image)!;
@@ -51,7 +52,7 @@ export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>
         }
       }
       control.name=e.name;control.x=x;control.y=y;
-      tag(control,{kind:e.kind,key:e.key,objectId:e.objectId,controlId:e.controlId});
+      tag(control,{kind:e.kind,key:e.key,objectId:e.objectId,controlId:e.controlId,...(!legacy&&e.kind==='button'?{buttonMode:'feedback' as const}:{})});
     }
     figma.currentPage.selection=[root];figma.viewport.scrollAndZoomIntoView([root]);return root;
   } catch(e) {for(const node of created.reverse())if(!node.removed)node.remove();throw e;}

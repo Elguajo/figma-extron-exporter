@@ -1,22 +1,24 @@
-import { DATA_KEY,PROFILES,ROLE_ID,ELEMENT_KINDS,CONTROL_KINDS,metadataSchema,fail,integer,key,readMetadata,text,type Kind,type Metadata,type Profile,type Role } from './model.ts';
+import { DATA_KEY,PROFILES,ROLE_ID,ELEMENT_KINDS,CONTROL_KINDS,metadataSchema,fail,integer,key,readMetadata,text,type ButtonMode,type Kind,type Metadata,type Profile,type Role } from './model.ts';
 import { capture,designSignature } from './export.ts';
+import { controlText,isControlFrame,isKitNode,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 
 export const REGISTRY_KEY='exui-id-registry';
 interface Registry {schema:'exui-id-registry/1'|'exui-id-registry/2';ownerNodeId:string;nextObjectId:number;nextControlId:number;nextContainerId?:number;nextGroupId?:number}
-export interface RecognitionRow {id:string;name:string;kind:Kind;key?:string;objectId?:number;controlId?:number|null;isNew:boolean}
+export interface RecognitionRow {id:string;name:string;kind:Kind;buttonMode?:ButtonMode;key?:string;objectId?:number;controlId?:number|null;isNew:boolean}
 export interface RecognitionPlan {root:FrameNode;profile:Profile;signature:string;registry:string;writes:{node:SceneNode;metadata:Metadata}[];rows:RecognitionRow[];errors:string[];warnings:string[]}
 const TYPES:Record<string,Kind>={btn:'button',button:'button',lvl:'level',level:'level',txt:'label',text:'label',logo:'graphic',img:'graphic',image:'graphic',val:'value',value:'value',sld:'slider',slider:'slider',shp:'shape',shape:'shape',ln:'line',line:'line',dt:'datetime',datetime:'datetime',pr:'popup-ref',popupref:'popup-ref',gau:'level',gauge:'level',ind:'level',indicator:'level',led:'level',volumeled:'level',mlvl:'level',multilevel:'level'};
-export function namedControl(name:string):{kind:Kind;suffix:string;display?:Metadata['display']}|null {
+export function namedControl(name:string):{kind:Kind;suffix:string;display?:Metadata['display'];buttonMode?:ButtonMode}|null {
   const match=/^([a-z]+)_(.+)$/i.exec(name);if(!match)return null;
-  const prefix=match[1].toLowerCase(),kind=TYPES[prefix];if(!kind)return null;
-  const result:{kind:Kind;suffix:string;display?:Metadata['display']}={kind,suffix:slug(match[2])};
+  const prefix=match[1].toLowerCase(),kind=['fbtn','feedbackbutton'].includes(prefix)?'button':TYPES[prefix];if(!kind)return null;
+  const result:{kind:Kind;suffix:string;display?:Metadata['display'];buttonMode?:ButtonMode}={kind,suffix:slug(match[2])};
+  if(kind==='button')result.buttonMode=['fbtn','feedbackbutton'].includes(prefix)?'feedback':'on-off';
   if(['gau','gauge','ind','indicator'].includes(prefix))result.display='gauge';
   if(['led','volumeled'].includes(prefix))result.display='volume-led';
   if(['mlvl','multilevel'].includes(prefix))result.display='multistate';
   return result;
 }
 function slug(value:string):string {if(!/^[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*$/.test(value))fail('name',`${value}: используйте латинские буквы, цифры и дефисы без пробелов, например VolumeDown.`);return key(value.toLowerCase(),'Имя слоя');}
-export function namedRole(name:string):Role|null {return ({off:'normal',normal:'normal',on:'feedback',feedback:'feedback',pressed:'pressed'} as Record<string,Role>)[name.replace(/^(st|state)_/i,'').toLowerCase()]??null;}
+export function namedRole(name:string):Role|null {return ({off:'normal',normal:'normal',on:'feedback',active:'feedback',feedback:'feedback',pressed:'pressed'} as Record<string,Role>)[name.replace(/^(st|state)_/i,'').toLowerCase()]??null;}
 function signature(root:FrameNode):string {return designSignature(root)+'\n'+root.getPluginData(REGISTRY_KEY);}
 
 export function recognize(root:SceneNode,profile:Profile):RecognitionPlan {
@@ -37,9 +39,9 @@ export function recognize(root:SceneNode,profile:Profile):RecognitionPlan {
     const existing=readMetadata(node),metadata=existing??{...value,schema:metadataSchema(value),ownerNodeId:node.id};
     if(metadata.kind!==value.kind)fail('kind',`${node.name}: сохранённое назначение ${metadata.kind} не соответствует ${value.kind}.`);
     if(!existing){proposed.set(node.id,metadata);plan.writes.push({node,metadata});}else if(!plan.warnings.length)plan.warnings.push('Для уже назначенных элементов сохранённые типы, ключи и ID имеют приоритет над именами слоёв.');
-    plan.rows.push({id:node.id,name:node.name,kind:metadata.kind,key:metadata.key,objectId:metadata.objectId,controlId:metadata.controlId,isNew:!existing});return metadata;
+    plan.rows.push({id:node.id,name:node.name,kind:metadata.kind,...(metadata.buttonMode?{buttonMode:metadata.buttonMode}:{}),key:metadata.key,objectId:metadata.objectId,controlId:metadata.controlId,isNew:!existing});return metadata;
   }
-  function states(button:FrameNode,control:Metadata){
+  function states(button:FrameNode|InstanceNode,control:Metadata){
     if(button.children.length<2||button.children.length>8)fail('states',`${button.name}: нужны 2..8 Frame состояний.`);
     const custom=control.display==='multistate'||button.children.some(s=>!namedRole(s.name)),used=new Set(button.children.map(s=>readMetadata(s)?.stateId).filter((id):id is number=>id!==undefined));
     for(const state of button.children){
@@ -48,21 +50,28 @@ export function recognize(root:SceneNode,profile:Profile):RecognitionPlan {
       const sm=readMetadata(state);let role=sm?.role??namedRole(state.name);
       if(!role){if(!/^(st|state)_[A-Za-z][A-Za-z0-9-]*$/i.test(state.name))fail('states',`${state.name}: используйте Normal, On, Pressed или state_Ready.`);role='feedback';}
       let stateId=sm?.stateId??ROLE_ID[role];if(custom&&!sm){stateId=role==='normal'?0:1;while(used.has(stateId))stateId++;used.add(stateId);}
-      assign(state,{kind:'state',role,stateId,stateName:state.name});
-      for(const icon of state.children.filter(n=>n.type!=='TEXT')){const im=readMetadata(icon);if(!im&&!/^(Icon|(ico|icon)_[A-Za-z][A-Za-z0-9-]*)$/i.test(icon.name))fail('name',`${icon.name}: нужен Icon, ico_Music или icon_Music.`);if(icon.type!=='FRAME')fail('node-type',`${icon.name}: для иконки нужен Frame.`);const file=`control-${control.objectId}-${stateId}.png`;assign(icon,{kind:'image',key:key(`icon.${control.key}.state${stateId}`,'Ключ иконки'),file:'assets/'+file,resourceName:'exui-'+file});}
+      const stateName=control.buttonMode?state.name.replace(/^(st|state)_/i,''):state.name;
+      assign(state,{kind:'state',role,stateId,stateName});
+      for(const icon of state.children.filter(n=>n.type!=='TEXT')){const im=readMetadata(icon),kitArtwork=isKitNode(icon)&&icon.name==='Artwork / '+state.name;if(!im&&!kitArtwork&&!/^(Icon|(ico|icon)_[A-Za-z][A-Za-z0-9-]*)$/i.test(icon.name))fail('name',`${icon.name}: нужен Icon, ico_Music или icon_Music.`);if(icon.type!=='FRAME'&&icon.type!=='SLOT')fail('node-type',`${icon.name}: для иконки нужен Frame или слот кита.`);const file=`control-${control.objectId}-${stateId}.png`;assign(icon,{kind:'image',key:key(`icon.${control.key}.state${stateId}`,'Ключ иконки'),file:'assets/'+file,resourceName:'exui-'+file});}
     }
   }
   function elements(container:FrameNode,namespace:string){
     if(container.children.length<1||container.children.length>64)fail('elements','На экране должно быть 1..64 элемента.');const suffixes=new Set<string>();
+    const reservedKeys=new Set(container.children.map(n=>readMetadata(n)?.key).filter(Boolean));
     for(const node of container.children){try{
       const existing=readMetadata(node);let named:ReturnType<typeof namedControl>=null;try{named=namedControl(node.name);}catch(e){if(!existing)throw e;}
-      if(named){if(suffixes.has(named.suffix))fail('duplicate-name',`${node.name}: повтор имени ${named.suffix}; регистр и префикс не различают элементы.`);suffixes.add(named.suffix);}
+      if(named){
+        const duplicate=suffixes.has(named.suffix);
+        if(duplicate&&node.type!=='INSTANCE')fail('duplicate-name',`${node.name}: повтор имени ${named.suffix}; регистр и префикс не различают элементы.`);
+        if(node.type==='INSTANCE'&&!existing){const base=named.suffix;let index=2;while(suffixes.has(named.suffix)||reservedKeys.has(namespace+'.'+named.suffix))named.suffix=base+'-'+index++;}
+        suffixes.add(named.suffix);
+      }
       if(!existing&&!named){if(/^(video|vid|dynamicimage|dimg)_/i.test(node.name))fail('platform',`${node.name}: видео/динамические картинки не поддержаны профилями 1025M/300M.`);fail('name',`${node.name}: нужен поддерживаемый префикс из справочника.`);}
       const kind=existing?.kind??named!.kind;if(!ELEMENT_KINDS.includes(kind))fail('placement',`${node.name}: недопустимое назначение на экране.`);
       const textKind=['label','value','datetime'].includes(kind),primitive=['shape','line'].includes(kind);
-      if(textKind?node.type!=='TEXT':primitive?!['FRAME','RECTANGLE','ELLIPSE'].includes(node.type):node.type!=='FRAME')fail('node-type',`${node.name}: нужен ${textKind?'Text':primitive?'Frame, Rectangle или Ellipse':'Frame'}.`);
+      if(textKind?!controlText(node):primitive?!['FRAME','RECTANGLE','ELLIPSE'].includes(node.type)&&!isControlFrame(node):!isControlFrame(node))fail('node-type',`${node.name}: нужен ${textKind?'Text или текстовый компонент кита':primitive?'Frame, Rectangle или Ellipse':'Frame или экземпляр компонента кита'}.`);
       const value:Omit<Metadata,'schema'|'ownerNodeId'>=existing??{kind,key:key(namespace+'.'+named!.suffix,node.name),objectId:integer(registry.nextObjectId++,1,1000000,'ID объекта'),controlId:CONTROL_KINDS.includes(kind)?integer(registry.nextControlId++,1,65535,'ID управления'):null};
-      if(!existing){if(kind==='graphic'){value.file=`assets/graphic-${value.objectId}.png`;value.resourceName=`exui-graphic-${value.objectId}.png`;}if(named?.display)value.display=named.display;if(kind==='datetime')value.pattern=(node as TextNode).characters;if(kind==='popup-ref')value.popup='popup.'+named!.suffix;}
+      if(!existing){if(kind==='graphic'){value.file=`assets/graphic-${value.objectId}.png`;value.resourceName=`exui-graphic-${value.objectId}.png`;}if(named?.buttonMode)value.buttonMode=named.buttonMode;if(named?.display)value.display=named.display;if(kind==='datetime')value.pattern=controlText(node)!.characters;if(kind==='popup-ref'){const group=node.getPluginData(KIT_POPUP_GROUP_KEY);if(group)value.group=key(group,'Группа popup');else value.popup='popup.'+named!.suffix;}}
       const control=assign(node,value);if(kind==='button'||control.display==='multistate')states(node as FrameNode,control);
     }catch(e){plan.errors.push(e instanceof Error?e.message:String(e));}}
   }

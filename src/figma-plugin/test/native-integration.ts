@@ -19,7 +19,7 @@ await mkdir(out,{recursive:true});
 function cli(args:string[]){const result=spawnSync(dotnet,[path.join(root,'src/cli/bin/Debug/net10.0/Extron.Cli.dll'),...args],{cwd:root,encoding:'utf8',timeout:180000});if(result.status!==0)throw new Error(result.stderr||result.stdout||String(result.error));return JSON.parse(result.stdout);}
 const evidence:unknown[]=[];
 for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait','300m']] as const){
-  fakeFigma();const frame=await createDemo(profile,icons());const bundle=await exportFrame(frame),bytes=packageExui(bundle);
+  fakeFigma();const frame=await createDemo(profile,icons(),true);const bundle=await exportFrame(frame),bytes=packageExui(bundle);
   const input=path.join(out,`plugin-${suffix}.exui`);await writeFile(input,bytes,{flag:'wx'});
   const validation=cli(['validate-package',input]);assert.equal(validation.elements,4);assert.equal(validation.resources,2);
   const row:Record<string,unknown>={profile,input,validation,figmaBoundary:'fake API; real Figma not exercised'};
@@ -40,7 +40,7 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
 for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait','300m']] as const){
   fakeFigma();const frame=await namedFixture(profile,true);const plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
   const bundle=await exportFrame(frame),input=path.join(out,`named-off-on-${suffix}.exui`);await writeFile(input,packageExui(bundle),{flag:'wx'});
-  const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/3');
+  const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/5');
   const row:Record<string,unknown>={profile,input,validation,figmaBoundary:'fake API; real Figma not exercised'};
   if(registry){
     const output=path.join(out,`named-off-on-${suffix}.gdl`);row.generation=cli(['convert-package',input,output,'--registry',registry]);
@@ -51,7 +51,7 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
     }
     row.twoStatesAndDisabledPressFeedbackVerified=true;
   }
-  evidence.push(row);console.log(`PASS ${profile}: named Off/On → exui/3 → CLI${registry?' → editable GDL, two states, press feedback -1':''}`);
+  evidence.push(row);console.log(`PASS ${profile}: named Off/On → exui/5 → CLI${registry?' → editable GDL, two states, press feedback -1':''}`);
 }
 for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait','300m']] as const){
   fakeFigma();const frame=await graphicFixture(profile);const plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
@@ -112,6 +112,19 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
     row.blankNativeStatesAndSeparateTextVerified=true;
   }
   evidence.push(row);console.log(`PASS ${profile}: empty button captions → exui/5 → native blank button + separate editable label`);
+}
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
+  fakeFigma();const frame=await namedFixture(profile,false);const plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const input=path.join(out,`feedback-button-${profile}.exui`);await writeFile(input,packageExui(await exportFrame(frame)),{flag:'wx'});
+  const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/5');
+  const row:Record<string,unknown>={profile,name:'feedback-button',validation,figmaBoundary:'fake Figma API; native Extron writer and independent NRBF'};
+  if(registry){
+    const output=path.join(out,`feedback-button-${profile}.gdl`);row.generation=cli(['convert-package',input,output,'--registry',registry]);
+    const model=cli(['list-controls',output]).model;
+    for(const button of model.Pages[0].Controls.filter((c:any)=>c.Type==='PBButton')){assert.deepEqual(button.States.map((s:any)=>s.Name),['Normal','Active','Pressed']);assert.equal(button.PressFeedbackState,2);}
+    row.activeAndPressFeedbackVerified=true;
+  }
+  evidence.push(row);console.log(`PASS ${profile}: feedbackbutton_ → Normal/Active/Pressed, native press feedback 2`);
 }
 await writeFile(path.join(out,'integration.json'),JSON.stringify(evidence,null,2)+'\n',{flag:'wx'});
 console.log('Evidence: '+out);

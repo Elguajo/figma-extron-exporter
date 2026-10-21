@@ -13,13 +13,14 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..')
 const out=path.resolve(process.argv[2]??path.join(root,'output/figma-plugin/browser-'+Date.now()));await mkdir(out,{recursive:true});
 const bundles:Record<string,unknown>={};
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){fakeFigma();const b=await exportFrame(await createDemo(profile,icons()));bundles[profile]={...b,resources:b.resources.map(r=>({...r,bytes:[...r.bytes]}))};}
-const ui=await readFile(path.join(root,'src/figma-plugin/dist/ui.html'));
+const ui=await readFile(process.env.EXUI_PLUGIN_UI??path.join(root,'src/figma-plugin/dist/ui.html'));
 const host=`<!doctype html><meta charset=utf-8><title>Extron plugin UI harness — Figma host mocked</title><style>body{margin:0}iframe{width:420px;height:900px;border:0}</style><script>
 const bundles=${JSON.stringify(bundles).replace(/</g,'\\u003c')};let profile='tlp-pro-1025m';window.failExport=false;window.lastMapping=null;
-window.bridgeMessages=0;window.lastPreparation=null;window.failRecognition=false;window.lastRecognitionApply=null;window.lastPreview=null;
+window.bridgeMessages=0;window.lastPreparation=null;window.failRecognition=false;window.lastRecognitionApply=null;window.lastPreview=null;window.lastKitProfile=null;
 const send=m=>{const target=document.querySelector('iframe').contentWindow;if(new URLSearchParams(location.search).get('transport')==='bridge'){target.dispatchEvent(new target.MessageEvent('message',{data:{pluginMessage:m}}));window.bridgeMessages++;}else target.postMessage({pluginMessage:m},location.origin);};
 window.onmessage=e=>{if(e.source!==document.querySelector('iframe').contentWindow)return;const m=e.data.pluginMessage;if(!m)return;
 if(m.type==='ready')send({type:'selection',id:null,name:'Выберите один элемент или Frame экрана'});
+if(m.type==='kit'){window.lastKitProfile=m.profile;send({type:'success',message:'Extron Kit создан: 30 компонентов и шаблоны проекта.'});}
 if(m.type==='demo'){profile=m.profile;send({type:'selection',id:'demo',name:'Главная',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Демо',profile}});send({type:'success',message:'Демо создано. Можно редактировать и экспортировать выбранный экран.'});}
 if(m.type==='prepare'){window.lastPreparation=m;profile=m.profile;send({type:'selection',id:'custom',name:'Свой экран',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Свой экран',profile}});send({type:'success',message:'Назначение «Экран» сохранено. Далее назначьте элементы.'});}
 if(m.type==='check')send({type:'success',message:'Экран проверен: 4 элемента, 2 PNG.'});
@@ -37,6 +38,8 @@ try{
  const failures:string[]=[];page.on('pageerror',e=>failures.push(e.message));page.on('requestfailed',r=>failures.push(r.url()));
  await page.goto(`http://127.0.0.1:${address.port}/`);const frame=page.frameLocator('iframe');
  await frame.getByRole('button',{name:'Создать демо для этого профиля'}).waitFor();assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isDisabled(),true);
+ assert.equal(await frame.getByRole('button',{name:'Создать Extron Kit',exact:true}).isDisabled(),false);
+ await frame.getByRole('button',{name:'Создать Extron Kit',exact:true}).click();await frame.getByRole('status').filter({hasText:'Extron Kit создан'}).waitFor();assert.equal(await page.evaluate(()=>(window as any).lastKitProfile),'tlp-pro-1025m');
  await frame.getByLabel('Профиль панели').focus();await page.keyboard.press('Tab');
  assert.equal(await frame.getByText('Справочник префиксов и состояний',{exact:true}).evaluate(el=>el===el.ownerDocument.activeElement),true);
  await page.keyboard.press('Enter');
@@ -47,6 +50,7 @@ try{
  assert.equal(await frame.locator('body').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
  await page.screenshot({path:path.join(out,'prefix-reference.png'),fullPage:true});
  await page.keyboard.press('Enter');await page.keyboard.press('Tab');
+ assert.equal(await frame.getByRole('button',{name:'Создать Extron Kit',exact:true}).evaluate(el=>el===el.ownerDocument.activeElement),true);await page.keyboard.press('Tab');
  assert.equal(await frame.getByRole('button',{name:'Создать демо для этого профиля'}).evaluate(el=>el===el.ownerDocument.activeElement),true);
  // Custom frame onboarding is distinct from the optional demo.
  await page.evaluate(()=>document.querySelector('iframe')!.contentWindow!.postMessage({pluginMessage:{type:'selection',id:'custom',name:'Свой экран',nodeType:'FRAME',metadata:null}},location.origin));
@@ -116,7 +120,16 @@ try{
  await frame.getByLabel('Назначение').selectOption('popup-ref');
  await frame.getByLabel('Ключ popup',{exact:true}).fill('popup.sources');
  await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.popup==='popup.sources');
+ await page.evaluate(()=>document.querySelector('iframe')!.contentWindow!.postMessage({pluginMessage:{type:'selection',id:'typed-button',name:'button_Music',nodeType:'FRAME',metadata:{kind:'button',buttonMode:'on-off',key:'home.music',objectId:1,controlId:8101},states:[{stateId:0,name:'Off',role:'normal'},{stateId:1,name:'On',role:'feedback'}]}},location.origin));
+ await frame.getByLabel('Тип кнопки',{exact:true}).waitFor();assert.equal(await frame.getByLabel('Тип кнопки',{exact:true}).inputValue(),'on-off');
+ assert.equal(await frame.getByLabel('Просмотр состояния').locator('option').count(),2);
+ assert.deepEqual(await frame.locator('#buttonMode option[value="legacy"]').evaluate((el:HTMLOptionElement)=>({disabled:el.disabled,hidden:el.hidden})),{disabled:true,hidden:true});
+ await frame.getByLabel('Тип кнопки',{exact:true}).selectOption('feedback');
+ await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.buttonMode==='feedback');
+ await page.screenshot({path:path.join(out,'button-mode.png'),fullPage:true});
  await page.evaluate(()=>document.querySelector('iframe')!.contentWindow!.postMessage({pluginMessage:{type:'selection',id:'multistate-button',name:'button_Connection',nodeType:'FRAME',metadata:{kind:'button',key:'home.connection',objectId:9,controlId:8209},states:[{stateId:0,name:'Normal',role:'normal'},{stateId:1,name:'Ready',role:'feedback'},{stateId:2,name:'Error',role:'feedback'},{stateId:3,name:'Pressed',role:'pressed'}]}},location.origin));
+ await page.waitForFunction(()=> (document.querySelector('iframe')!.contentDocument!.querySelector('#buttonMode') as HTMLSelectElement).value==='legacy');
+ await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.buttonMode==='legacy');
  await frame.getByLabel('Просмотр состояния').selectOption('id:2');await frame.getByRole('button',{name:'Показать состояние',exact:true}).click();await page.waitForFunction(()=>(window as any).lastPreview?.stateId===2);
  await page.evaluate(()=>{(window as any).failExport=true;});await frame.getByRole('button',{name:'Скачать .exui',exact:true}).click();await frame.getByRole('alert').filter({hasText:'тестовый отказ'}).waitFor();
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isEnabled(),true);assert.equal(await frame.getByRole('link',{name:'Скачать пакет повторно'}).isVisible(),false);

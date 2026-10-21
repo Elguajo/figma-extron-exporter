@@ -14,7 +14,9 @@ export function expandedFixture(profile:Profile='tlp-pro-1025m') {
  frame(root,'gauge_Signal',20,210,260,16,'#00FF00');
  frame(root,'volumeled_Output',20,245,260,16,'#00FF00');
  multistate(root,'multilevel_Status',20,280);
- multistate(root,'button_Connection',20,340,true);
+ const connection=multistate(root,'button_Connection',20,340,true);
+ // An existing legacy custom-state button remains supported without migration.
+ tag(connection,{kind:'button',key:'home.connection',objectId:9,controlId:8109});
  return root;
 }
 export function projectFixture(profile:Profile='tlp-pro-1025m') {

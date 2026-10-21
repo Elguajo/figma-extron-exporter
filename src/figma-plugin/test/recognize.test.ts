@@ -22,12 +22,12 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)for(cons
 test(`Named ${profile}, ${two?2:3} states: dry run → commit → valid package with stable IDs`,async()=>{
   fakeFigma();const root=await namedFixture(profile,two),before=designSignature(root);
   const plan=recognize(root,profile);assert.deepEqual(plan.errors,[]);assert.equal(designSignature(root),before);assert.equal(root.getPluginData(REGISTRY_KEY),'');
-  assert.equal(plan.rows.find(r=>r.name==='btn_Music')!.key,'home.music');
+  assert.equal(plan.rows.find(r=>r.name===(two?'btn_Music':'fbtn_Music'))!.key,'home.music');
   applyRecognition(plan);const result=await exportFrame(root);
   assert.equal(result.screen.elements.filter(e=>e.kind==='button').every(e=>e.states!.length===(two?2:3)),true);
-  const files=unzipSync(packageExui(result));assert.equal(JSON.parse(strFromU8(files['manifest.json'])).schema,two?'exui/3':'exui/1');
+  const files=unzipSync(packageExui(result));assert.equal(JSON.parse(strFromU8(files['manifest.json'])).schema,'exui/5');
   assert.equal(result.screen.elements[0].press,two?undefined:'Pressed');
-  assert.deepEqual(result.screen.elements[0].states!.map(s=>s.name),two?['Off','On']:['Off','On','Pressed']);
+  assert.deepEqual(result.screen.elements[0].states!.map(s=>s.name),two?['Off','On']:['Normal','Active','Pressed']);
   const ids=result.screen.elements.map(e=>[e.key,e.objectId,e.controlId]).sort();
   root.name='Переименованный экран';root.children[0].name='Любое новое имя';
   const again=recognize(root,profile);assert.deepEqual(again.errors,[]);assert.equal(again.writes.length,0);applyRecognition(again);
@@ -35,7 +35,7 @@ test(`Named ${profile}, ${two?2:3} states: dry run → commit → valid package 
 });
 
 test('Legacy metadata is preserved byte-for-byte; new IDs skip all existing assignments',async()=>{
-  const fake=fakeFigma();const root=await createDemo('tlp-pro-1025m',icons());
+  const fake=fakeFigma();const root=await createDemo('tlp-pro-1025m',icons(),true);
   const originals=[root,...root.children].map(n=>[n,n.getPluginData(DATA_KEY)] as const);
   const level=fake.api.createFrame();level.name='level_Additional';level.resize(100,10);level.x=600;level.y=700;level.fills=[{type:'SOLID',color:{r:1,g:0,b:0}}];root.appendChild(level as never);
   const plan=recognize(root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
@@ -44,9 +44,9 @@ test('Legacy metadata is preserved byte-for-byte; new IDs skip all existing assi
 });
 
 test('Two-state and three-state buttons coexist on one screen without invented states',async()=>{
-  fakeFigma();const root=await namedFixture();(root.children[0] as FrameNode).children[2].remove();
+  fakeFigma();const root=await namedFixture();const ordinary=root.children[0] as FrameNode;ordinary.name='btn_Music';ordinary.children[2].remove();ordinary.children[0].name='Off';ordinary.children[1].name='On';
   applyRecognition(recognize(root,'tlp-pro-1025m'));const bundle=await exportFrame(root);
-  assert.equal(bundle.screen.schema,'exui-screen/3');
+  assert.equal(bundle.screen.schema,'exui-screen/5');
   assert.equal(bundle.screen.elements[0].states!.length,2);assert.equal(bundle.screen.elements[0].press,undefined);
   assert.equal(bundle.screen.elements[3].states!.length,3);assert.equal(bundle.screen.elements[3].press,'Pressed');
 });

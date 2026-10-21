@@ -6,9 +6,29 @@ import { readFileSync } from 'node:fs';
 import { buildSync } from 'esbuild';
 import { icons, fakeFigma } from './fake-figma.ts';
 import { namedFixture } from './named-fixture.ts';
+import { createDemo } from '../src/demo.ts';
 import { projectFixture } from './expanded-fixture.ts';
+import { kitFixture } from './kit-fixture.ts';
 const source=buildSync({entryPoints:[fileURLToPath(new URL('../src/code.ts',import.meta.url))],bundle:true,write:false,target:'es2017',define:{__html__:'"test"',__ICONS__:JSON.stringify(Object.fromEntries(Object.entries(icons()).map(([k,v])=>[k,[...v]])))}}).outputFiles[0].text;
 function plugin(){const fake=fakeFigma();vm.runInNewContext(source,{figma:fake.api,Uint8Array,console});return{...fake,send:fake.api.ui.onmessage as (message:unknown)=>Promise<void>};}
+
+test('Built plugin creates the kit without selection, then recognizes its example',async()=>{
+ const fake=kitFixture();vm.runInNewContext(source,{figma:fake.api,Uint8Array,console});const send=fake.api.ui.onmessage as (m:unknown)=>Promise<void>;
+ await send({type:'kit',profile:'tlp-pro-300m-portrait'});assert.equal(fake.messages.some(m=>m.type==='error'),false);
+ assert.equal(fake.page.selection[0].name,'screen_Home');assert.equal(fake.page.selection[0].width,320);
+ await send({type:'recognize',profile:'tlp-pro-300m-portrait'});const report=fake.messages.filter(m=>m.type==='recognition').at(-1) as any;assert.deepEqual([...report.errors],[]);
+ await send({type:'apply-recognition',profile:'tlp-pro-300m-portrait',token:report.token});await send({type:'export'});
+ assert.equal(fake.messages.some(m=>m.type==='error'),false);assert.ok(fake.messages.some(m=>m.type==='bundle'));
+});
+
+test('Manual mapping refuses an instance as a project/page container without saving metadata',async()=>{
+ const fake=kitFixture();vm.runInNewContext(source,{figma:fake.api,Uint8Array,console});const send=fake.api.ui.onmessage as (m:unknown)=>Promise<void>;
+ const instance=new fake.FakeNode('INSTANCE');fake.page.appendChild(instance);fake.page.selection=[instance];
+ for(const kind of ['project','page']){
+  await send({type:'apply',data:{kind,key:kind+'.test',objectId:'100',profile:'tlp-pro-1025m',projectName:'Test'}});
+  assert.equal(fake.messages.filter(m=>m.type==='error').at(-1)?.code,'node-type');assert.equal(instance.getPluginData('exui'),'');
+ }
+});
 
 test('Built plugin exports the whole project from a selected control, edits range/behavior and previews individual feedback states',async()=>{
  const p=plugin(),root=projectFixture('tlp-pro-300m-portrait');p.page.selection=[root as never];await p.send({type:'recognize',profile:'tlp-pro-300m-portrait'});const report=p.messages.filter(m=>m.type==='recognition').at(-1) as any;assert.deepEqual([...report.errors],[]);await p.send({type:'apply-recognition',profile:'tlp-pro-300m-portrait',token:report.token});
@@ -28,7 +48,7 @@ test('Built plugin recognizes aliases and Off/On, rejects stale tokens and prese
   await p.send({type:'apply-recognition',token:report.token+1,profile:'tlp-pro-1025m'});assert.equal(root.getPluginData('exui'),'');
   await p.send({type:'recognize',profile:'tlp-pro-1025m'});const token=p.messages.filter(m=>m.type==='recognition').at(-1)!.token;
   await p.send({type:'apply-recognition',token,profile:'tlp-pro-1025m'});await p.send({type:'export'});
-  const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;assert.equal(bundle.screen.schema,'exui-screen/3');assert.equal(bundle.screen.elements[0].states.length,2);
+  const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;assert.equal(bundle.screen.schema,'exui-screen/5');assert.equal(bundle.screen.elements[0].states.length,2);
   const before=root.children.map(n=>n.getPluginData('exui'));
   vm.runInNewContext(source,{figma:p.api,Uint8Array,console});const restarted=p.api.ui.onmessage as (m:any)=>Promise<void>;
   await restarted({type:'recognize',profile:'tlp-pro-1025m'});const newToken=p.messages.filter(m=>m.type==='recognition').at(-1)!.token;
@@ -46,6 +66,26 @@ test('Built plugin supports manual static-graphic mapping as a passive Frame on 
   await p.send({type:'export'});const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;
   assert.equal(bundle.screen.schema,'exui-screen/4');assert.equal(bundle.screen.elements[0].kind,'graphic');assert.equal(bundle.resources.length,1);
 });
+test('Manual form persists the chosen button type and rejects unsupported modes without changing metadata',async()=>{
+  const p=plugin();await p.send({type:'demo',profile:'tlp-pro-1025m'});const root=p.page.selection[0],button=root.children[0];p.page.selection=[button];
+  const before=JSON.parse(button.getPluginData('exui'));
+  await p.send({type:'apply',data:{...before,buttonMode:'on-off'}});
+  const assigned=JSON.parse(button.getPluginData('exui'));assert.equal(assigned.schema,'exui-node/3');assert.equal(assigned.buttonMode,'on-off');
+  assert.equal(assigned.objectId,before.objectId);assert.equal(assigned.controlId,before.controlId);
+  // The author must supply Off/On; saving a type never fabricates state artwork.
+  await p.send({type:'export'});assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'button-states');
+  const raw=button.getPluginData('exui');
+  for(const mode of ['auto','legacy']){await p.send({type:'apply',data:{...assigned,buttonMode:mode}});assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'button-mode');assert.equal(button.getPluginData('exui'),raw);}
+});
+
+test('Manual form preserves saved legacy buttons only through the explicit legacy choice',async()=>{
+  const p=plugin();const root=await createDemo('tlp-pro-1025m',icons(),true);p.page.selection=[root.children[0] as never];
+  const before=JSON.parse(root.children[0].getPluginData('exui'));
+  await p.send({type:'apply',data:{...before,buttonMode:'legacy'}});
+  assert.deepEqual(JSON.parse(root.children[0].getPluginData('exui')),before);
+  await p.send({type:'export'});assert.equal(p.messages.some(m=>m.type==='bundle'),true);
+});
+
 test('Built plugin: ready → create demo → check → export; preview retains all state roles',async()=>{
   const p=plugin();await p.send({type:'ready'});assert.equal(p.messages.at(-1)?.id,null);
   await p.send({type:'demo',profile:'tlp-pro-1025m'});assert.equal(p.page.children.length,1);

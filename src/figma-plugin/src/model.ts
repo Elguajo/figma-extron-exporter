@@ -1,4 +1,5 @@
 export type Role = 'normal' | 'feedback' | 'pressed';
+export type ButtonMode = 'on-off' | 'feedback';
 export type Kind = 'project' | 'page' | 'popup' | 'popup-group' | 'popup-ref' | 'button' | 'label' | 'value' | 'level' | 'slider' | 'shape' | 'line' | 'datetime' | 'state' | 'image' | 'graphic';
 export type Profile = 'tlp-pro-1025m' | 'tlp-pro-300m-portrait';
 export const DATA_KEY = 'exui';
@@ -8,7 +9,8 @@ export const PROFILES = {
 } as const;
 export const ROLE_ID: Record<Role, number> = { normal: 0, feedback: 1, pressed: 2 };
 export interface Metadata {
-  schema: 'exui-node/1' | 'exui-node/2'; ownerNodeId: string; kind: Kind;
+  schema: 'exui-node/1' | 'exui-node/2' | 'exui-node/3'; ownerNodeId: string; kind: Kind;
+  buttonMode?: ButtonMode;
   key?: string; objectId?: number; controlId?: number | null;
   projectName?: string; profile?: Profile;
   role?: Role; stateId?: number; stateName?: string;
@@ -45,6 +47,7 @@ export function elementCount(screen:Screen):number {return 'elements' in screen?
 export const CONTROL_KINDS:Kind[]=['button','value','level','slider'];
 export const ELEMENT_KINDS:Kind[]=['button','label','value','level','slider','shape','line','datetime','popup-ref','graphic'];
 export function metadataSchema(value:Omit<Metadata,'schema'|'ownerNodeId'>):Metadata['schema'] {
+  if(value.buttonMode!==undefined)return 'exui-node/3';
   return ['project','popup','popup-group','popup-ref','value','slider','shape','line','datetime'].includes(value.kind)||value.display||value.orientation||value.min!==undefined||value.max!==undefined||value.navigate||value.behavior||value.shownBy||value.stateId!==undefined&&value.role&&value.stateId!==ROLE_ID[value.role]?'exui-node/2':'exui-node/1';
 }
 export interface Bundle { profile: Profile; screen: Screen; resources: { path: string; bytes: Uint8Array }[] }
@@ -73,8 +76,17 @@ export function readMetadata(node: { id: string; name: string; getPluginData(k: 
   if (!raw) return null;
   let data: Metadata;
   try { data = JSON.parse(raw); } catch { return fail('metadata', `${node.name}: повреждены данные Extron.`); }
-  if (!data || !['exui-node/1','exui-node/2'].includes(data.schema) || !['project','page','popup','popup-group',...ELEMENT_KINDS,'state','image'].includes(data.kind))
+  if (!data || !['exui-node/1','exui-node/2','exui-node/3'].includes(data.schema) || !['project','page','popup','popup-group',...ELEMENT_KINDS,'state','image'].includes(data.kind))
     fail('metadata', `${node.name}: неизвестная версия или тип данных Extron.`);
+  if(data.schema==='exui-node/3'?(data.kind!=='button'||!['on-off','feedback'].includes(data.buttonMode!)):data.buttonMode!==undefined)
+    fail('metadata',`${node.name}: повреждён тип кнопки. Используйте плагин 0.2.2 или новее.`);
   if (data.ownerNodeId !== node.id) fail('copied-node', `${node.name}: это копия. Явно назначьте ей собственные ключ и ID через «Сохранить назначение».`);
   return data;
+}
+
+export function validateButtonStates(mode:ButtonMode|undefined,states:Pick<State,'name'|'role'>[],where:string):void {
+  if(!mode)return; // Saved v1/v2 buttons keep their original contract.
+  const expected=mode==='on-off'?[['off','normal'],['on','feedback']]:[['normal','normal'],['active','feedback'],['pressed','pressed']];
+  if(states.length!==expected.length||expected.some(([name,role])=>!states.some(s=>s.name.toLowerCase()===name&&s.role===role)))
+    fail('button-states',`${where}: ${mode==='on-off'?'button_/btn_ требует ровно Off + On. Для Normal + Active + Pressed используйте feedbackbutton_/fbtn_.':'feedbackbutton_/fbtn_ требует ровно Normal + Active + Pressed. Для Off + On используйте button_/btn_.'} Состояния не добавляются и не удаляются автоматически.`);
 }

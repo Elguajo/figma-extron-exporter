@@ -1,5 +1,6 @@
 import { fail,integer,text,type Element,type Metadata,type Orientation } from './model.ts';
 import { color,plain,rect,readText } from './read-node.ts';
+import { controlText,isControlFrame } from './kit-contract.ts';
 
 const orientations:Orientation[]=['left-to-right','right-to-left','bottom-to-top','top-to-bottom'];
 export function range(m:Metadata,node:SceneNode) {
@@ -15,14 +16,15 @@ function radius(node:SceneNode):number {
 function empty(node:SceneNode) {if('children' in node&&node.children.length)fail('structure',`${node.name}: внутри примитива не должно быть слоёв.`);}
 export function nativeElement(node:SceneNode,m:Metadata,e:Element):boolean {
   if(m.kind==='value'||m.kind==='datetime') {
-    if(node.type!=='TEXT')fail('node-type',`${node.name}: нужен Text.`);
-    if(node.textAlignHorizontal!=='LEFT'||node.textAlignVertical!=='CENTER')fail('alignment',`${node.name}: используйте LEFT / CENTER.`);
-    Object.assign(e,readText(node));
-    if(m.kind==='datetime') {e.native={pattern:text(m.pattern??node.characters,'Формат даты/времени')};delete e.text;}
+    const copy=controlText(node);if(!copy)fail('node-type',`${node.name}: нужен Text или текстовый компонент кита.`);
+    if(copy.textAlignHorizontal!=='LEFT'||copy.textAlignVertical!=='CENTER')fail('alignment',`${node.name}: используйте LEFT / CENTER.`);
+    if(copy!==node&&JSON.stringify(rect(copy,node))!==JSON.stringify([0,0,node.width,node.height]))fail('alignment',`${node.name}: Content должен занимать весь текстовый контейнер.`);
+    Object.assign(e,readText(copy));
+    if(m.kind==='datetime') {e.native={pattern:text(m.pattern??copy.characters,'Формат даты/времени')};delete e.text;}
     return true;
   }
   if(m.kind==='shape'||m.kind==='line') {
-    if(!['FRAME','RECTANGLE','ELLIPSE'].includes(node.type))fail('node-type',`${node.name}: нужен Frame, Rectangle или Ellipse.`);
+    if(!['FRAME','RECTANGLE','ELLIPSE','INSTANCE'].includes(node.type))fail('node-type',`${node.name}: нужен Frame, Rectangle, Ellipse или примитив кита.`);
     empty(node);plain(node,false,true);e.fillColor=color(node);
     const thickness=m.kind==='line'?Math.min(node.width,node.height):'strokeWeight' in node?node.strokeWeight:0;
     if(m.kind==='line'){
@@ -40,7 +42,7 @@ export function nativeElement(node:SceneNode,m:Metadata,e:Element):boolean {
     return true;
   }
   if(m.kind!=='slider')return false;
-  if(node.type!=='FRAME')fail('node-type',`${node.name}: нужен Frame с Track, Fill, Thumb.`);
+  if(!isControlFrame(node))fail('node-type',`${node.name}: нужен Frame или компонент кита с Track, Fill, Thumb.`);
   if(!Array.isArray(node.fills)||node.fills.some(p=>p.visible!==false))fail('appearance',`${node.name}: фон Slider задают его части Track/Fill/Thumb.`);
   if(node.children.length!==3)fail('slider',`${node.name}: нужны ровно три части Track, Fill, Thumb.`);
   const parts=new Map(node.children.map(p=>[p.name.toLowerCase(),p]));

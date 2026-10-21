@@ -9,7 +9,7 @@ import { unzipSync, strFromU8 } from 'fflate';
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 import { fakeFigma, icons } from './fake-figma.ts';
-async function fixture(profile='tlp-pro-1025m') {const fake=fakeFigma();const root=await createDemo(profile as never,icons());return{fake,root};}
+async function fixture(profile='tlp-pro-1025m') {const fake=fakeFigma();const root=await createDemo(profile as never,icons(),true);return{fake,root};}
 function semantic(screen:unknown){const result=structuredClone(screen) as any;result.assets.sort((a:any,b:any)=>a.key.localeCompare(b.key));for(const e of result.elements)if(e.states)for(const s of e.states){s.imageAlign??='middle-center';s.textAlign??='middle-center';}return result;}
 function edit(node:any,values:Record<string,unknown>){node.setPluginData(DATA_KEY,JSON.stringify({...JSON.parse(node.getPluginData(DATA_KEY)),...values}));}
 for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait','300m']])

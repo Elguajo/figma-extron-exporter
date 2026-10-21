@@ -1,7 +1,8 @@
-import { DATA_KEY, PROFILES, ROLE_ID, ELEMENT_KINDS, CONTROL_KINDS, fail, integer, key, readMetadata, text, type Asset, type Bundle, type Element, type Font, type Metadata, type Profile, type Role, type Screen, type SingleScreen, type State } from './model.ts';
+import { DATA_KEY, PROFILES, ROLE_ID, ELEMENT_KINDS, CONTROL_KINDS, fail, integer, key, readMetadata, text, validateButtonStates, type Asset, type Bundle, type Element, type Font, type Metadata, type Profile, type Role, type Screen, type SingleScreen, type State } from './model.ts';
 import { color, exportPng, plain, readText, rect } from './read-node.ts';
 import { nativeElement,range } from './extended.ts';
 import { captureProject } from './project.ts';
+import { controlText,isControlFrame,KIT_KEY,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 
 export interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode }[]; signature: string }
 type MetadataReader = (node: SceneNode) => Metadata | null;
@@ -10,12 +11,12 @@ function meta(node: SceneNode, kind: string | undefined, read: MetadataReader): 
   if (!m || kind && m.kind!==kind) fail('unmapped', `${node.name}: назначьте тип ${kind ?? 'элемента'} в плагине.`);
   return m;
 }
-function frame(node: SceneNode): asserts node is FrameNode {
-  if (node.type!=='FRAME') fail('node-type', `${node.name}: нужен подготовленный Frame. Instances и component sets пока не поддержаны.`);
+function frame(node: SceneNode): asserts node is FrameNode|InstanceNode {
+  if (!isControlFrame(node)) fail('node-type', `${node.name}: нужен подготовленный Frame или экземпляр компонента Extron Kit.`);
 }
 function snapshot(node: SceneNode): unknown {
   // Detect edits across async PNG exports; no package may silently combine two design revisions.
-  const props: Record<string,unknown>={ metadata:node.getPluginData(DATA_KEY),registry:node.getPluginData('exui-id-registry') };
+  const props: Record<string,unknown>={ metadata:node.getPluginData(DATA_KEY),registry:node.getPluginData('exui-id-registry'),kit:node.getPluginData(KIT_KEY),kitPopupGroup:node.getPluginData(KIT_POPUP_GROUP_KEY) };
   for(const field of ['id','type','name','visible','opacity','clipsContent','relativeTransform','width','height','fills','strokes','strokeWeight','effects','cornerRadius','blendMode','isMask','reactions','characters','fontName','fontSize','fontWeight','lineHeight','letterSpacing','textCase','textDecoration','textAlignHorizontal','textAlignVertical','vectorPaths','vectorNetwork','arcData','pointCount','innerRadius'])
     if(field in node) props[field]=(node as unknown as Record<string,unknown>)[field];
   if('children' in node) props.children=node.children.map(snapshot);
@@ -74,9 +75,10 @@ export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,in
     }else if(m.kind==='graphic') {
       frame(node);e.image=addImage(node,m,key('image.'+e.key,'Ключ изображения'));
     }else if(m.kind==='label') {
-      if(node.type!=='TEXT') fail('node-type',`${node.name}: label должен быть Text.`);
-      if(node.textAlignHorizontal!=='LEFT'||node.textAlignVertical!=='CENTER') fail('alignment',`${node.name}: для текущего профиля Label используйте LEFT / CENTER.`);
-      Object.assign(e,readText(node));
+      const copy=controlText(node);if(!copy) fail('node-type',`${node.name}: label должен быть Text или текстовым компонентом кита.`);
+      if(copy.textAlignHorizontal!=='LEFT'||copy.textAlignVertical!=='CENTER') fail('alignment',`${node.name}: для текущего профиля Label используйте LEFT / CENTER.`);
+      if(copy!==node&&JSON.stringify(rect(copy,node))!==JSON.stringify([0,0,w,h]))fail('alignment',`${node.name}: Content должен занимать весь текстовый контейнер.`);
+      Object.assign(e,readText(copy));
     } else if(m.kind==='level'&&m.display!=='multistate') {
       frame(node);if(node.children.length) fail('appearance',`${node.name}: Level preview должен быть пустым Frame с цветом fill.`);
       Object.assign(e,{display:m.display??'slider',...range(m,node),fillColor:color(node)});
@@ -113,6 +115,7 @@ export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,in
         states.push(state);
       }
       states.sort((a,b)=>a.stateId-b.stateId);
+      if(m.kind==='button')validateButtonStates(m.buttonMode,states,node.name);
       const roles=states.map(s=>s.role).join(',');
       if(states[0].role!=='normal'||states.slice(1).some(s=>s.role==='normal')||states.filter(s=>s.role==='pressed').length>1||new Set(states.map(s=>s.name.toLowerCase())).size!==states.length||new Set(states.map(s=>s.stateId)).size!==states.length) fail('states',`${node.name}: Normal должен быть первым, Pressed не более одного; имена и ID уникальны.`);
       if(new Set(states.map(s=>JSON.stringify([s.text,s.fill,s.textColor,s.image??null]))).size!==states.length) fail('states',`${node.name}: состояния должны различаться текстом, цветом или изображением; одного выравнивания недостаточно.`);
@@ -129,7 +132,7 @@ export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,in
   if(assets.size>16) fail('images','Допустимо до 16 PNG ресурсов.');
   if(screen.elements.some(e=>e.kind==='graphic'||e.states?.map(s=>s.role).join(',')==='normal,pressed'))screen.schema='exui-screen/4';
   else if(screen.elements.some(e=>e.states?.length===2))screen.schema='exui-screen/3';
-  if(screen.elements.some(e=>e.native||e.kind==='value'||e.kind==='button'&&e.states?.some(s=>s.text==='')||e.states&&!['normal,pressed','normal,feedback','normal,feedback,pressed'].includes(e.states.map(s=>s.role).join(',')))||inProject||root.children.some(n=>read(n)?.schema==='exui-node/2')||screen.elements.some(e=>e.states&&e.states.length>3))screen.schema='exui-screen/5';
+  if(screen.elements.some(e=>e.native||e.kind==='value'||e.kind==='button'&&e.states?.some(s=>s.text==='')||e.states&&!['normal,pressed','normal,feedback','normal,feedback,pressed'].includes(e.states.map(s=>s.role).join(',')))||inProject||root.children.some(n=>['exui-node/2','exui-node/3'].includes(read(n)?.schema??''))||screen.elements.some(e=>e.states&&e.states.length>3))screen.schema='exui-screen/5';
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
   return {profile,screen,images,signature:designSignature(root)};
 }

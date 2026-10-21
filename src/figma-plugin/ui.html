@@ -23,7 +23,7 @@ small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);
 .table-scroll{max-height:240px;overflow:auto}table{border-collapse:collapse;width:100%;min-width:600px;font-size:11px}th,td{text-align:left;vertical-align:top;padding:5px;border-bottom:1px solid var(--figma-color-border,#ddd);white-space:nowrap}caption{text-align:left;font-weight:600;padding:6px 0}#recognitionNotes{padding-left:18px;font-size:11px}
 .prefix-reference{max-height:360px}.prefix-reference table{min-width:0;table-layout:fixed;font-size:10px}.prefix-reference th,.prefix-reference td{white-space:normal;overflow-wrap:anywhere}.prefix-reference th:nth-child(1),.prefix-reference th:nth-child(2){width:28%}
 </style></head><body>
-<h1>Figma → Extron Exporter · 0.2.0</h1><p class="sub">Подготовленный экран → .exui → редактируемый .gdl</p>
+<h1>Figma → Extron Exporter · 0.3.0</h1><p class="sub">Подготовленный экран → .exui → редактируемый .gdl</p>
 <fieldset><legend>Экран</legend>
 <p id="selection" class="selected">Выберите один Frame экрана или проекта</p>
 <label class="stack">Профиль панели<select id="profile"><option value="tlp-pro-1025m">TLP Pro 1025M · 1280×800</option><option value="tlp-pro-300m-portrait">TLP Pro 300M · 320×480</option></select></label>
@@ -32,7 +32,7 @@ small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);
 <button id="check" class="secondary">Проверить экран</button><small>Экспортируется экран или весь project_Name. Ключи и ID сохраняются.</small>
 </fieldset>
 <fieldset><legend>Назначить по именам</legend>
-<small>Выберите экран Home или project_Name. Префиксы: btn_/button_, lvl_/level_, txt_/text_, logo_, img_/image_. Регистр букв не важен. Кнопки: Normal/Pressed, Off/On либо Off/On/Pressed.</small>
+<small>Выберите экран Home или project_Name. button_/btn_: только Off + On. feedbackbutton_/fbtn_: Normal + Active + Pressed. Регистр букв не важен. Прежние сохранённые кнопки сохраняют свои состояния.</small>
 <details><summary>Справочник префиксов и состояний</summary><div class="table-scroll prefix-reference" role="region" aria-label="Справочник префиксов" tabindex="0"><table><caption>Как назвать слой</caption><thead><tr><th scope="col">Коротко</th><th scope="col">Полностью</th><th scope="col">Для чего и где</th></tr></thead><tbody>
 <tr><td>Home / scr_Home</td><td>screen_Home</td><td>Внешний Frame экрана</td></tr>
 <tr><td>prj_Trilliant</td><td>project_Trilliant</td><td>Frame всего проекта: страницы, popup и группы</td></tr>
@@ -52,8 +52,9 @@ small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);
 <tr><td>st_Ready</td><td>state_Ready</td><td>Дополнительное feedback-состояние; до 8 состояний</td></tr>
 <tr><td>vid_Preview</td><td>video_Preview</td><td>Недоступно для профилей 1025M/300M; экспорт отклоняется</td></tr>
 <tr><td>dimg_Cover</td><td>dynamicimage_Cover</td><td>Недоступно для профилей 1025M/300M; экспорт отклоняется</td></tr>
-<tr><td>btn_Music</td><td>button_Music</td><td>Кнопка внутри экрана</td></tr>
-<tr><td>btn_VolumeUp</td><td>button_VolumeUp</td><td>Кнопка «+», увеличить громкость</td></tr>
+<tr><td>btn_Music</td><td>button_Music</td><td>Обычная кнопка: ровно Off + On</td></tr>
+<tr><td>fbtn_Music</td><td>feedbackbutton_Music</td><td>Кнопка с feedback: ровно Normal + Active + Pressed</td></tr>
+<tr><td>btn_VolumeUp</td><td>button_VolumeUp</td><td>Кнопка «+»: Off + On; без отдельного Pressed</td></tr>
 <tr><td>btn_VolumeDown</td><td>button_VolumeDown</td><td>Кнопка «−», уменьшить громкость</td></tr>
 <tr><td>btn_Mute</td><td>button_Mute</td><td>Кнопка заглушения</td></tr>
 <tr><td>lvl_Volume</td><td>level_Volume</td><td>Пустой Frame регулятора 0–100</td></tr>
@@ -68,14 +69,18 @@ small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);
 <button id="recognize" class="secondary">Распознать по именам</button>
 <div id="recognitionReport" hidden><div class="table-scroll" role="region" aria-label="Результат распознавания" tabindex="0"><table><caption>Предлагаемые назначения</caption><thead><tr><th scope="col">Слой</th><th scope="col">Тип</th><th scope="col">Ключ</th><th scope="col">ID объекта</th><th scope="col">ID управления</th><th scope="col">Назначение</th></tr></thead><tbody id="recognitionRows"></tbody></table></div><ul id="recognitionNotes"></ul><button id="applyRecognition" class="secondary" disabled>Сохранить распознанные назначения</button></div>
 </fieldset>
+<fieldset><legend>Библиотека компонентов</legend>
+<button id="kit" class="secondary">Создать Extron Kit</button><small>30 компонентов: универсальные элементы и готовые Mute, Power, источники, зоны и навигация. Свободное оформление в слотах Artwork, шаблоны проекта и пример для выбранной панели. Основные компоненты и экземпляры остаются связанными в Figma.</small>
+</fieldset>
 <fieldset><legend>Пример для знакомства</legend>
 <button id="demo" class="secondary">Создать демо для этого профиля</button><small>Новый Frame «Главная»: Музыка, Громкость и Mute. Все назначения и три состояния кнопок уже подготовлены.</small>
 </fieldset>
 <fieldset><legend>Элементы</legend><details id="editor"><summary>Назначение выбранного элемента</summary>
 <p class="sub">Имена слоёв можно менять. Назначение, ключ и ID хранятся на узле. Копиям явно назначьте новые ключи и ID.</p>
-<p class="sub">На странице/popup: кнопки, Text/Value, Level, Slider, фигуры, линии, дата/время и изображения. Кнопки: Normal/Pressed, Off/On либо Off/On/Pressed; в каждом состоянии — Text и необязательная иконка. Логотип поместите в отдельный Frame logo_Company. Графика внутри логотипа/иконки растрируется; остальные элементы требуют совместимого оформления.</p>
+<p class="sub">Обычная кнопка: Off + On. Кнопка с feedback: Normal + Active + Pressed. В каждом состоянии — Text и необязательная иконка. Active / On задаёт программа управления, Pressed показывается при удержании. Переименование слоя не меняет сохранённый тип кнопки.</p>
 <form id="mapping">
 <label class="stack">Назначение<select id="kind"><option value="project">Проект · Frame</option><option value="page">Экран · Frame</option><option value="popup">Popup · Frame</option><option value="popup-group">Группа popup · Frame</option><option value="popup-ref">Место popup · Frame</option><option value="button">Кнопка · Frame</option><option value="label">Подпись · Text</option><option value="value">Динамическое значение · Text</option><option value="datetime">Дата/время · Text</option><option value="slider">Кастомный Slider · Frame</option><option value="shape">Фигура</option><option value="line">Линия</option><option value="level">Level / Slider · Frame</option><option value="graphic">Логотип / изображение · Frame</option><option value="state">Состояние кнопки · Frame</option><option value="image">PNG-иконка · Frame</option></select></label>
+<label class="stack" data-for="button">Тип кнопки<select id="buttonMode" aria-label="Тип кнопки"><option value="on-off">Обычная · Off / On</option><option value="feedback">С feedback · Normal / Active / Pressed</option><option value="legacy" hidden disabled>Сохранённая · прежние состояния</option></select></label>
 <label class="stack" data-for="project page popup popup-group popup-ref button label value level slider shape line datetime image graphic">Семантический ключ<input id="key" placeholder="source.music" autocomplete="off"></label>
 <div class="row"><label class="stack" data-for="page popup popup-group popup-ref button label value level slider shape line datetime graphic">ID объекта<input id="objectId" type="number" min="1" step="1"></label><label class="stack" data-for="button level value slider">ID управления Extron<input id="controlId" type="number" min="1" max="65535" step="1"></label></div>
 <label class="stack" data-for="project page popup">Имя проекта<input id="projectName" maxlength="256"></label>

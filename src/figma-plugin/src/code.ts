@@ -2,6 +2,8 @@ import { DATA_KEY, PROFILES, ROLE_ID, CONTROL_KINDS, ELEMENT_KINDS, elementCount
 import { capture, exportFrame } from './export.ts';
 import { createDemo, tag } from './demo.ts';
 import { recognize, applyRecognition, type RecognitionPlan } from './recognize.ts';
+import { createKit } from './kit.ts';
+import { controlText,isControlFrame } from './kit-contract.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
@@ -42,7 +44,7 @@ function prepare(profile:Profile|undefined):void {
 function publish():void {
   try {const n=selected();let metadata:Metadata|null=null;let warning='';try{metadata=readMetadata(n);}catch(e){warning=String((e as Error).message);}
     let states:{stateId?:number;name?:string;role?:Role}[]=[];
-    try{if(n.type==='FRAME'&&['button','level'].includes(metadata?.kind??''))states=n.children.map(c=>readMetadata(c)).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}
+    try{if(isControlFrame(n)&&['button','level'].includes(metadata?.kind??''))states=n.children.map(c=>readMetadata(c)).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}
     catch(e){warning=warning||(e instanceof Error?e.message:String(e));}
     figma.ui.postMessage({type:'selection',id:n.id,name:n.name,nodeType:n.type,metadata,warning,states});
   }catch {figma.ui.postMessage({type:'selection',id:null,name:'Выберите один элемент или Frame экрана'});}
@@ -51,6 +53,16 @@ function apply(data:Record<string,unknown>):void {
   const node=selected(),kind=data.kind as Metadata['kind'];
   if(!['project','page','popup','popup-group','state','image',...ELEMENT_KINDS].includes(kind))fail('kind','Выберите назначение.');
   const value:Omit<Metadata,'schema'|'ownerNodeId'>={kind};
+  if(kind==='button'){
+    if(data.buttonMode==='legacy'){
+      const previous=readMetadata(node);
+      if(previous?.kind!=='button'||previous.buttonMode)fail('button-mode','Прежние правила доступны только для уже сохранённой кнопки без нового типа.');
+    }else{
+      const mode=data.buttonMode??'on-off';
+      if(mode!=='on-off'&&mode!=='feedback')fail('button-mode','Выберите Off / On либо Normal / Active / Pressed.');
+      value.buttonMode=mode;
+    }
+  }
   if(!['state','image'].includes(kind))value.key=key(data.key,'Ключ');
   if(!['project','state','image'].includes(kind))value.objectId=integer(Number(data.objectId),1,['page','popup'].includes(kind)?65534:kind==='popup-group'?65535:1000000,'objectId');
   if(ELEMENT_KINDS.includes(kind))value.controlId=CONTROL_KINDS.includes(kind)?integer(Number(data.controlId),1,65535,'controlId'):null;
@@ -81,8 +93,8 @@ function apply(data:Record<string,unknown>):void {
     for(const field of ['enabled','visible'] as const)if(data[field]!==''&&data[field]!==undefined){if(!['true','false'].includes(String(data[field])))fail('behavior','Выберите значение поведения.');behavior[field]=data[field]==='true';}
     if(Object.keys(behavior).length)value.behavior=behavior;
   }
-  const textKind=['label','value','datetime'].includes(kind),primitive=['shape','line'].includes(kind);
-  if(textKind?node.type!=='TEXT':primitive?!['FRAME','RECTANGLE','ELLIPSE'].includes(node.type):node.type!=='FRAME')fail('node-type',textKind?'Для этого назначения нужен Text.':primitive?'Выберите Frame, Rectangle или Ellipse.':'Выберите Frame.');
+  const textKind=['label','value','datetime'].includes(kind),primitive=['shape','line'].includes(kind),containerKind=['project','page','popup','popup-group','state'].includes(kind);
+  if(containerKind?node.type!=='FRAME':textKind?!controlText(node):primitive?!['FRAME','RECTANGLE','ELLIPSE'].includes(node.type)&&!isControlFrame(node):kind==='image'?node.type!=='FRAME'&&node.type!=='SLOT':!isControlFrame(node))fail('node-type',containerKind?'Для контейнера или состояния нужен обычный Frame.':textKind?'Для этого назначения нужен Text или текстовый компонент кита.':primitive?'Выберите Frame, Rectangle или Ellipse.':'Выберите Frame или экземпляр компонента кита.');
   const parentKind=node.parent?readMetadata(node.parent)?.kind:undefined;
   const allowed=kind==='project'?[undefined]:kind==='page'?[undefined,'project']:kind==='popup'?['project','popup-group']:kind==='popup-group'?['project']:kind==='state'?['button','level']:kind==='image'?['state']:['page','popup'];
   if(!allowed.includes(parentKind))fail('placement',`${node.name}: недопустимый родитель для ${kind}.`);
@@ -104,7 +116,10 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       applyRecognition(plan);publish();figma.ui.postMessage({type:'success',message:'Назначения сохранены. Существующие ключи и ID сохранены. Можно проверить экран и скачать .exui.'});
     }else {
     recognition=undefined;
-    if(message.type==='demo') {
+    if(message.type==='kit') {
+      const result=await createKit(message.profile!);
+      publish();figma.ui.postMessage({type:'success',message:`Extron Kit создан: ${result.components.length} компонентов и шаблоны проекта. Выбран пример экрана. Изменяйте оформление в слотах Artwork, затем распознайте экран и сохраните назначения.`});
+    }else if(message.type==='demo') {
       if(!message.profile||!Object.prototype.hasOwnProperty.call(PROFILES,message.profile))fail('profile','Выберите профиль.');
       await createDemo(message.profile,Object.fromEntries(Object.entries(__ICONS__).map(([k,v])=>[k,new Uint8Array(v)])));
       publish();figma.ui.postMessage({type:'success',message:'Демо создано. Можно редактировать и экспортировать выбранный экран.'});
@@ -112,7 +127,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       prepare(message.profile);publish();figma.ui.postMessage({type:'success',message:'Назначение «Экран» сохранено. Далее нажмите «Распознать по именам» либо назначьте элементы вручную, затем нажмите «Проверить экран». Слои макета не изменены.'});
     }else if(message.type==='apply') {apply(message.data??{});publish();figma.ui.postMessage({type:'success',message:'Назначение сохранено в Figma-узле.'});}
     else if(message.type==='preview') {
-      const node=selected();if(node.type!=='FRAME'||!['button','level'].includes(readMetadata(node)?.kind??''))fail('selection','Выберите Frame кнопки.');
+      const node=selected();if(!isControlFrame(node)||!['button','level'].includes(readMetadata(node)?.kind??''))fail('selection','Выберите Frame или экземпляр кнопки кита.');
       const role=message.role;if(message.stateId===undefined&&(!role||!Object.prototype.hasOwnProperty.call(ROLE_ID,role)))fail('states','Выберите состояние.');
       if(message.stateId!==undefined)integer(message.stateId,0,7,'ID состояния');
       const children=node.children.map(n=>({node:n,metadata:readMetadata(n)}));
