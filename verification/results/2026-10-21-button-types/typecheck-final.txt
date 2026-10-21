@@ -1,0 +1,4 @@
+
+> figma-extron-exporter-plugin@0.2.2 typecheck
+> tsc --noEmit && tsc -p tsconfig.ui.json --noEmit
+

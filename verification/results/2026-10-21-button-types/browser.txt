@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('iframe').contentFrame().getByLabel('Тип кнопки', { exact: true }) to be visible
+
+    at D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\src\figma-plugin\test\browser.ts:120:52 {
+  log: [
+    "  - waiting for locator('iframe').contentFrame().getByLabel('Тип кнопки', { exact: true }) to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.21.0

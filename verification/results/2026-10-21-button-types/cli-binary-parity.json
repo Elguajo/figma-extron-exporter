@@ -1,0 +1,27 @@
+[
+  {
+    "matchesReleased021": true,
+    "name": "Extron.Adapter.dll",
+    "sha256": "41907D3B29A1F76CAE6819B8E605B8740017B38899EFCC4169D661B41CD5A5B7"
+  },
+  {
+    "matchesReleased021": true,
+    "name": "Extron.Cli.dll",
+    "sha256": "C60E2ABEB2E2D6A0801ED31A540D0EBAA2BA1831424C4195F06F094A54EA8371"
+  },
+  {
+    "matchesReleased021": true,
+    "name": "Extron.Format.dll",
+    "sha256": "CE86366ADCB8A21E6D76C4E70013932FA0FCB8D2E1016C016F158A92738C9A48"
+  },
+  {
+    "matchesReleased021": true,
+    "name": "Extron.Screen.dll",
+    "sha256": "F5261E3D5025E6EDF77F5D5625A96373238FB3C2C4B7CD06FBBB996A2ADE2E1F"
+  },
+  {
+    "matchesReleased021": true,
+    "name": "System.Formats.Nrbf.dll",
+    "sha256": "CD09DD67A71DEE9DA7BE25AD0DC9D5393118C261B70F8E886AE63C08DCEA2C90"
+  }
+]

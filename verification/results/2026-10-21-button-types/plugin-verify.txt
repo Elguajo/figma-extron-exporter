@@ -1,0 +1,125 @@
+
+> figma-extron-exporter-plugin@0.2.2 verify
+> npm run typecheck && npm test && npm run build
+
+
+> figma-extron-exporter-plugin@0.2.2 typecheck
+> tsc --noEmit && tsc -p tsconfig.ui.json --noEmit
+
+
+> figma-extron-exporter-plugin@0.2.2 test
+> node --test test/*.test.ts
+
+✔ New on-off button: explicit metadata/3, fixed states and stable identity after rename (21.8295ms)
+✔ New feedback button: explicit metadata/3, fixed states and stable identity after rename (7.9923ms)
+✔ Button contract: ordinary cannot acquire Pressed, no writes (1.8564ms)
+✔ Button contract: ordinary requires On, not Active, no writes (1.8104ms)
+✔ Button contract: ordinary requires Off, not Normal, no writes (1.7336ms)
+✔ Button contract: feedback requires Pressed, no writes (2.0028ms)
+✔ Button contract: feedback requires Active, not On, no writes (1.3841ms)
+✔ Button contract: feedback cannot silently use only Off/On, no writes (1.5823ms)
+✔ State prefixes/case are accepted; raw Figma layers are preserved (3.0795ms)
+✔ Saved type is enforced during export, not only during recognition (4.0777ms)
+✔ Malformed metadata/3 cannot lose buttonMode or downgrade silently (3.2928ms)
+✔ Plugin 0.2.1 refuses new metadata/3 instead of ignoring the type (18.4595ms)
+✔ Expanded tlp-pro-1025m: designer names → editable native properties in exui/5 (21.5786ms)
+✔ Project tlp-pro-1025m: pages, popup, modal, group and references exported together (17.8127ms)
+✔ Expanded tlp-pro-300m-portrait: designer names → editable native properties in exui/5 (11.9624ms)
+✔ Project tlp-pro-300m-portrait: pages, popup, modal, group and references exported together (14.4964ms)
+✔ Expanded recognition refuses missing slider part without writing (2.2823ms)
+✔ Expanded recognition refuses duplicate slider part without writing (1.3969ms)
+✔ Expanded recognition refuses misaligned track without writing (1.7072ms)
+✔ Expanded recognition refuses unsupported shadows without writing (1.3782ms)
+✔ Expanded recognition refuses unsupported dynamic image without writing (1.0069ms)
+✔ Expanded recognition refuses duplicate custom state without writing (1.2888ms)
+✔ Project stale nested registry and failing writes retain transaction guarantees (5.0504ms)
+✔ Deleted project containers and controls leave IDs reserved (5.9649ms)
+✔ New short/full prefixes are case insensitive (0.227ms)
+✔ A damaged project registry cannot reset deleted container or group reservations (2.3773ms)
+✔ Vertical Slider, custom range, ellipse stroke and vertical Line retain native intent (1.9309ms)
+✔ Demo 1025m: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256 (34.6203ms)
+✔ Demo 300m: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256 (9.0125ms)
+✔ IDs and explicit state IDs survive layer order, state order, texts and geometry edits (4.9493ms)
+✔ Empty Button captions force exui/5 while separate overlays retain editable text (3.8164ms)
+✔ Empty static labels stay invalid (2.2031ms)
+✔ Export refuses duplicate object ID (2.0303ms)
+✔ Export refuses duplicate control ID (1.1501ms)
+✔ Export refuses copied node owner (0.9181ms)
+✔ Export refuses semantic key inferred from text (1.1065ms)
+✔ Export refuses fractional coordinate (2.129ms)
+✔ Export refuses inherited rotation (1.1724ms)
+✔ Export refuses outside canvas (1.0323ms)
+✔ Export refuses wrong panel size (1.1155ms)
+✔ Export refuses unknown child (1.6325ms)
+✔ Export refuses hidden control (1.2305ms)
+✔ Export refuses gradient (2.1803ms)
+✔ Export refuses effects (1.4145ms)
+✔ Export refuses mixed pressed/feedback (1.1813ms)
+✔ Export refuses missing normal state (1.1528ms)
+✔ Export refuses states different only in alignment (1.4384ms)
+✔ Export refuses different state fonts (1.146ms)
+✔ Export refuses unsupported font (1.1533ms)
+✔ Export refuses unsupported label alignment (1.1637ms)
+✔ Export refuses icon wrong anchor (0.9251ms)
+✔ Export refuses invalid image path (1.0428ms)
+✔ PNG render failure is fatal; no partial bundle is returned (1.7228ms)
+✔ PNG tlp-pro-1025m: hidden preview ancestors never reach rendering; source and selection stay intact (3.7224ms)
+✔ PNG tlp-pro-300m-portrait: hidden preview ancestors never reach rendering; source and selection stay intact (4.3336ms)
+✔ PNG exports retain transparent Frame margins at Native 1x (1.8699ms)
+✔ Failed isolated PNG rendering leaves no temporary nodes or changed preview (2.2132ms)
+✔ Native PNG size mismatch remains fatal and reports received versus expected dimensions (1.7473ms)
+✔ Changes during async rendering abort the export (2.2337ms)
+✔ Identical asset key with different actual PNG bytes is refused (2.6512ms)
+✔ Package rejects unsafe paths, missing assets and oversize resource (26.2357ms)
+✔ Text validation preserves Cyrillic and surrogate pairs, rejects broken Unicode (0.2268ms)
+✔ Figma plugin metadata survives cosmetic changes without rewriting (0.7201ms)
+✔ Built plugin exports the whole project from a selected control, edits range/behavior and previews individual feedback states (16.5141ms)
+✔ A copied state does not hide its parent button mapping; selection carries the repair warning (1.9811ms)
+✔ Built plugin recognizes aliases and Off/On, rejects stale tokens and preserves IDs after restart (14.9436ms)
+✔ Built plugin supports manual static-graphic mapping as a passive Frame on the page (1.9282ms)
+✔ Manual form persists the chosen button type and rejects unsupported modes without changing metadata (1.7927ms)
+✔ Manual form preserves saved legacy buttons only through the explicit legacy choice (3.2246ms)
+✔ Built plugin: ready → create demo → check → export; preview retains all state roles (4.4707ms)
+✔ Built plugin refuses a second command while an export is pending (2.6288ms)
+✔ Built plugin saves explicit metadata, keeps rename-independent IDs and rejects wrong node types (1.2921ms)
+✔ Own unassigned screen: actionable error → prepare → assign label → editable export (1.4611ms)
+✔ Prepare preserves all existing page metadata and refuses a copied page (1.6182ms)
+✔ Prepare rejects wrong profile, node type, existing kind and nested screen without mutation (0.9131ms)
+✔ Short and full prefixes, camel case and Off/On aliases identify the same types (3.9044ms)
+✔ Named tlp-pro-1025m, 3 states: dry run → commit → valid package with stable IDs (37.3227ms)
+✔ Named tlp-pro-1025m, 2 states: dry run → commit → valid package with stable IDs (10.2556ms)
+✔ Named tlp-pro-300m-portrait, 3 states: dry run → commit → valid package with stable IDs (11.2607ms)
+✔ Named tlp-pro-300m-portrait, 2 states: dry run → commit → valid package with stable IDs (7.8206ms)
+✔ Legacy metadata is preserved byte-for-byte; new IDs skip all existing assignments (2.887ms)
+✔ Two-state and three-state buttons coexist on one screen without invented states (2.7375ms)
+✔ Counters survive deletion and reorder; deleted auto IDs are not reused (2.8289ms)
+✔ Recognition blocks duplicate semantic key without any writes (2.1188ms)
+✔ Recognition blocks unknown screen child without any writes (1.8531ms)
+✔ Recognition blocks missing On without any writes (2.3849ms)
+✔ Recognition blocks both Off and Normal without any writes (2.0932ms)
+✔ Recognition blocks unsupported rounded appearance without any writes (1.297ms)
+✔ Changed geometry, metadata or registry invalidates a reviewed plan (4.3038ms)
+✔ Failed write restores the original metadata and registry (1.8362ms)
+✔ Corrupt registry, exhausted IDs, copied nodes and wrong profiles fail safely (2.4071ms)
+✔ Partial restoration failure is reported and keeps IDs reserved (1.5369ms)
+✔ Graphics and Normal/Pressed on tlp-pro-1025m: PNG, passive ID and dense momentary states (6.0637ms)
+✔ Graphics and Normal/Pressed on tlp-pro-300m-portrait: PNG, passive ID and dense momentary states (3.4943ms)
+✔ Logo, img and image are equivalent static graphics; capitalization is ignored (0.1759ms)
+✔ Case-only duplicate names are rejected even against previously stored CamelCase keys (2.3965ms)
+✔ Standalone graphic requires a Frame and cannot acquire a control ID or button states (2.5295ms)
+ℹ tests 97
+ℹ suites 0
+ℹ pass 97
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 662.159
+
+> figma-extron-exporter-plugin@0.2.2 build
+> node build.mjs
+
+
+  dist\code.js  172.5kb
+
+Done in 8ms
