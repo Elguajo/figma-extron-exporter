@@ -73,7 +73,8 @@
           ]
         },
         "text": {
-          "$ref": "#/$defs/text"
+          "type": "string",
+          "maxLength": 256
         },
         "fill": {
           "$ref": "#/$defs/color"

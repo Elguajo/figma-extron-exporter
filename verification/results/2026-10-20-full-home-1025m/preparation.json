@@ -1,0 +1,152 @@
+{
+  "sourceId": "2:3",
+  "resultId": "34:70",
+  "changes": [
+    {
+      "sourceId": "10:145",
+      "resultId": "34:81",
+      "kind": "button",
+      "adaptation": "Title centered; secondary status moved to footer inside PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "10:146",
+      "resultId": "34:96",
+      "kind": "button",
+      "adaptation": "Title centered; secondary status moved to footer inside PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "10:17",
+      "resultId": "34:108",
+      "kind": "button",
+      "adaptation": "Main title uses native bottom-center; channel caption and source vector remain in PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "10:44",
+      "resultId": "34:119",
+      "kind": "button",
+      "adaptation": "Main title uses native bottom-center; channel caption and source vector remain in PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "10:45",
+      "resultId": "34:132",
+      "kind": "button",
+      "adaptation": "Main title uses native bottom-center; channel caption and source vector remain in PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "10:52",
+      "resultId": "34:145",
+      "kind": "button",
+      "adaptation": "Main title uses native bottom-center; channel caption and source vector remain in PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "10:85",
+      "resultId": "34:158",
+      "kind": "button",
+      "adaptation": "Main title uses native bottom-center; channel caption and source vector remain in PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "10:64",
+      "resultId": "34:171",
+      "kind": "button",
+      "adaptation": "Main title uses native bottom-center; channel caption and source vector remain in PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "12:147",
+      "resultId": "34:184",
+      "kind": "button",
+      "adaptation": "Main title uses native bottom-center; channel caption and source vector remain in PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "12:148",
+      "resultId": "34:197",
+      "kind": "button",
+      "adaptation": "Main title uses native bottom-center; channel caption and source vector remain in PNG",
+      "states": "Normal / Selected / Pressed; selected orange, pressed yellow"
+    },
+    {
+      "sourceId": "16:152",
+      "resultId": "34:238",
+      "kind": "mute",
+      "adaptation": "Off/On/Pressed; native centered title, source speaker vector retained in Off/On; default Off"
+    }
+  ],
+  "nativeFonts": [
+    "Arial Regular",
+    "Arial Bold"
+  ],
+  "rasterText": [
+    {
+      "nodeId": "34:85",
+      "text": "Music - 34%",
+      "reason": "Secondary card status"
+    },
+    {
+      "nodeId": "34:100",
+      "text": "Broadcast 1 - 34%",
+      "reason": "Secondary card status"
+    },
+    {
+      "nodeId": "34:112",
+      "text": "CH 01",
+      "reason": "Channel number"
+    },
+    {
+      "nodeId": "34:123",
+      "text": "CH 02",
+      "reason": "Channel number"
+    },
+    {
+      "nodeId": "34:136",
+      "text": "CH 03",
+      "reason": "Channel number"
+    },
+    {
+      "nodeId": "34:149",
+      "text": "CH 04",
+      "reason": "Channel number"
+    },
+    {
+      "nodeId": "34:162",
+      "text": "CH 05",
+      "reason": "Channel number"
+    },
+    {
+      "nodeId": "34:175",
+      "text": "CH 06",
+      "reason": "Channel number"
+    },
+    {
+      "nodeId": "34:188",
+      "text": "CH 07",
+      "reason": "Channel number"
+    },
+    {
+      "nodeId": "34:201",
+      "text": "CH 08",
+      "reason": "Channel number"
+    }
+  ],
+  "boundary": "Authoring adaptation of the actual user Home, no hardware",
+  "elementCount": 26,
+  "descendantCounts": {
+    "FRAME": 73,
+    "TEXT": 54,
+    "RECTANGLE": 14,
+    "GROUP": 13,
+    "VECTOR": 23,
+    "BOOLEAN_OPERATION": 1
+  },
+  "fonts": [
+    "Arial Regular",
+    "Arial Bold"
+  ]
+}

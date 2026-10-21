@@ -93,5 +93,25 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
   evidence.push(row);console.log(`PASS ${profile}: ${name} → exui/5 → CLI${registry?' → native types and independently verified states/containers':''}`);
  }
 }
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
+  fakeFigma();const frame=await graphicFixture(profile);
+  const button=frame.children[0] as FrameNode;
+  for(const state of button.children as FrameNode[])(state.children.find(n=>n.type==='TEXT') as TextNode).characters='';
+  const plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const bundle=await exportFrame(frame),input=path.join(out,`blank-caption-${profile}.exui`);
+  await writeFile(input,packageExui(bundle),{flag:'wx'});
+  const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/5');
+  const row:Record<string,unknown>={profile,name:'blank-caption',validation,figmaBoundary:'fake Figma API; real native writer and independent NRBF'};
+  if(registry){
+    const output=path.join(out,`blank-caption-${profile}.gdl`);row.generation=cli(['convert-package',input,output,'--registry',registry]);
+    const report=JSON.parse(await readFile(output+'.report.json','utf8'));assert.ok(report.Generation.Checks.every((c:any)=>c.Passed));
+    const controls=cli(['list-controls',output]).model.Pages[0].Controls;
+    const native=controls.find((c:any)=>c.Comments==='exui-key=home.volumeup');assert.equal(native.Type,'PBButton');
+    assert.ok(native.States.length>0);assert.ok(native.States.every((s:any)=>s.Text===''));
+    const overlay=controls.find((c:any)=>c.Comments==='exui-key=home.volumevalue');assert.equal(overlay.Type,'PBLabel');assert.ok(overlay.Text.length>0);
+    row.blankNativeStatesAndSeparateTextVerified=true;
+  }
+  evidence.push(row);console.log(`PASS ${profile}: empty button captions → exui/5 → native blank button + separate editable label`);
+}
 await writeFile(path.join(out,'integration.json'),JSON.stringify(evidence,null,2)+'\n',{flag:'wx'});
 console.log('Evidence: '+out);

@@ -10,6 +10,7 @@ static class PackageTests
 {
     static void Check(bool ok, string why = "Assertion failed") { if (!ok) throw new Exception(why); }
     static string Example(string p) => Path.Combine(ScreenTests.Root, "examples", "exui-v1", p);
+    static string RealHome => Path.Combine(ScreenTests.Root, "verification", "results", "2026-10-20-full-home-1025m", "actual-home-1025m.exui");
     static Dictionary<string, byte[]> Files(string p = "1025m") => Directory.GetFiles(Example(p), "*", SearchOption.AllDirectories)
         .ToDictionary(f => Path.GetRelativePath(Example(p), f).Replace('\\', '/'), File.ReadAllBytes);
     static void Edit(Dictionary<string, byte[]> files, string name, Action<JsonNode> edit)
@@ -42,6 +43,45 @@ static class PackageTests
 
     public static void Unit(Action<string, Action> test)
     {
+        test("Real Figma Home layout v5: separate native overlays retain original positions", () =>
+        {
+            using var p = ExuiPackage.Load(Path.Combine(ScreenTests.Root, "verification", "results", "2026-10-21-home-layout-1025m", "actual-home-layout.exui"));
+            Check(p.Contract == "exui/5" && p.Plan.Elements.Count == 47 && p.Plan.Images.Count == 15);
+            Check(p.Plan.Elements.Count(e => e.Kind == "label") == 25 && p.Plan.Elements.Count(e => e.Kind == "value") == 3);
+            var blank = p.Plan.Elements.Where(e => e.Kind == "button" && e.Name is not "button_VolumeUp" and not "button_VolumeDown").ToArray();
+            Check(blank.Length == 11 && blank.All(e => e.States!.All(s => s.Text == "")));
+            var title = p.Plan.Elements.Single(e => e.Name == "text_CH01Title");
+            Check(title.Text == "Music" && title.Rect.SequenceEqual(new[] { 419, 319, 89, 29 }));
+            var channel = p.Plan.Elements.Single(e => e.Name == "text_CH01Channel");
+            Check(channel.Text == "CH 01" && channel.Rect.SequenceEqual(new[] { 364, 233, 64, 19 }));
+            var hall = p.Plan.Elements.Single(e => e.Name == "value_SideHallStatus");
+            Check(hall.ControlId == 8116 && hall.Text == "Music - 34%" && hall.Rect.SequenceEqual(new[] { 115, 227, 113, 19 }));
+            Check(p.Plan.Elements.Single(e => e.Name == "value_SideTerraceStatus").ControlId == 8117);
+            Check(p.Plan.Elements.Single(e => e.Name == "value_VolumeValue").Text == "42%");
+            Check(p.Plan.Elements.Single(e => e.Name == "button_VolumeUp").States!.All(s => s.Text == "+"));
+            Check(p.Plan.Elements.Single(e => e.Kind == "slider").Native!.ThumbWidth == 28);
+        });
+        test("Real Figma Home v5: complete screen, distinct states and clean volume values", () =>
+        {
+            using var p = ExuiPackage.Load(RealHome);
+            Check(p.Contract == "exui/5" && p.Profile.Id == "tlp-pro-1025m");
+            Check(p.Plan.Pages.Count == 1 && p.Plan.Elements.Count == 26 && p.Plan.Images.Count == 15);
+            Check(p.Plan.Elements.Count(e => e.Kind == "button") == 13);
+            Check(p.Plan.Elements.Count(e => e.Kind == "line") == 4);
+            Check(p.Plan.Elements.Count(e => e.Kind == "label") == 6);
+            var channels = p.Plan.Elements.Where(e => e.Name.StartsWith("button_CH", StringComparison.Ordinal)).ToArray();
+            Check(channels.Length == 8 && channels.All(e => e.States!.Select(s => s.Name).SequenceEqual(new[] { "Normal", "state_Selected", "Pressed" })));
+            Check(channels.All(e => e.States![0].Image != null && e.States[1].Image == null && e.States[2].Image == null && e.PressState == 2));
+            var up = p.Plan.Elements.Single(e => e.Name == "button_VolumeUp");
+            Check(up.ControlId == 8112 && up.States!.All(s => s.Text == "+") && up.PressState == 1);
+            var value = p.Plan.Elements.Single(e => e.Kind == "value");
+            Check(value.ControlId == 8114 && value.Text == "42%" && value.Rect.SequenceEqual(new[] { 904, 695, 110, 48 }));
+            var slider = p.Plan.Elements.Single(e => e.Kind == "slider");
+            Check(slider.ControlId == 8113 && slider.Native!.ThumbWidth == 28 && slider.Native.ThumbHeight == 28 && slider.Native.TrackWidth == 20);
+            Check(p.Plan.Elements.Where(e => e.Font != null).All(e => e.Font!.Family == "Arial"));
+            var mute = p.Plan.Elements.Single(e => e.Name == "button_Mute");
+            Check(mute.ControlId == 8115 && mute.States!.Select(s => s.Name).SequenceEqual(new[] { "Off", "On", "Pressed" }));
+        });
         string work = Directory.CreateTempSubdirectory("exui-tests-").FullName;
         try
         {
@@ -246,6 +286,25 @@ static class PackageTests
                 var value=p.Plan.Elements.Single(e=>e.Kind=="value");Check(value.ControlId==8207&&value.Behavior?.Visible==false);
                 Check(IdMap.Markdown(p.Plan,p.Profile.Panel).Contains("Доступен при запуске"));
             });
+            test("Package v5 accepts empty Button captions for independent text overlays",()=>
+            {
+                var f=V5();Edit(f,"screen.json",n=>{foreach(var state in n["elements"]![0]!["states"]!.AsArray())state!["text"]="";});
+                using var p=ExuiPackage.Load(Zip(work,f));
+                Check(p.Plan.Elements[0].States!.All(s=>s.Text==""));
+                Check(p.Plan.Elements[1].Text!=null);
+            });
+            test("Package v4 still refuses empty Button captions",()=>
+            {
+                var f=V4();Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![0]!["text"]="");
+                Reject("package-schema",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+            });
+            test("Package v5 still refuses whitespace Button captions and empty labels",()=>
+            {
+                var f=V5();Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![0]!["text"]=" ");
+                Reject("spec",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+                f=V5();Edit(f,"screen.json",n=>n["elements"]![1]!["text"]="");
+                Reject("package-schema",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+            });
             test("Package v5 uses the same validation for container form",()=>
             {
                 var f=V5();Edit(f,"screen.json",n=>{var o=n.AsObject();var page=o["page"]!.DeepClone();page["shownBy"]="start";page["elements"]=o["elements"]!.DeepClone();o.Remove("page");o.Remove("elements");o["pages"]=new JsonArray(page);o["popups"]=new JsonArray();o["groups"]=new JsonArray();});
@@ -307,6 +366,18 @@ static class PackageTests
             .Distinct().ToDictionary(f=>f,f=>Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(f))));
         try
         {
+            test("Real Figma Home: deterministic native GDL with independent verification", () =>
+            {
+                var a = PackageGenerator.Generate(registry, RealHome, Path.Combine(work, "real-home.gdl"), adapter);
+                var b = PackageGenerator.Generate(registry, RealHome, Path.Combine(work, "real-home-repeat.gdl"), adapter);
+                Check(a.Generation.Checks.All(c => c.Passed) && a.Generation.OutputSha256 == b.Generation.OutputSha256);
+                using var p = ExuiPackage.Load(RealHome);
+                var donor = registry.LoadDonor("tlp-pro-1025m");
+                var model = ProjectModel.Read(ExtronContainer.ReadFile(a.Generation.Output).Payload);
+                Check(ScreenVerifier.Verify(p.Plan, model, donor.Model, donor.Entry.Profile).All(c => c.Passed));
+                Check(model.Pages.Single().Controls.Count == 26);
+                Check(!a.GuiDesignerVerified && !a.HardwareVerified);
+            });
             foreach(string profile in new[]{"1025m","300m"})
                 test($"Package generate {profile}: same GDL bytes as proven experiment, deterministic, full independent checks",()=>
                 {

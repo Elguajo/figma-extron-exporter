@@ -41,9 +41,9 @@ export function font(node: TextNode): Font {
   if (size < 4 || size > 200) fail('font', `${node.name}: размер должен соответствовать 4..200 pt (${(4/0.75).toFixed(2)}..${(200/0.75).toFixed(2)} px).`);
   return { family: 'Arial', size, bold: f.style === 'Bold' };
 }
-export function readText(node: TextNode) {
+export function readText(node: TextNode, allowEmpty = false) {
   plain(node);
-  return { text: text(node.characters,node.name), textColor: color(node), font: font(node) };
+  return { text: allowEmpty && node.characters === '' ? '' : text(node.characters,node.name), textColor: color(node), font: font(node) };
 }
 export async function exportPng(node: SceneNode): Promise<Uint8Array> {
   let temporary:SceneNode|undefined;

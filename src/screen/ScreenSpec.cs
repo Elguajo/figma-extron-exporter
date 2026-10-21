@@ -486,7 +486,10 @@ public static class ScreenSpecReader
             if (s.Name != null && !names.Add(s.Name)) error($"{at}.name: \"{s.Name}\" is used twice.");
             if (s.Role is not ("normal" or "pressed" or "feedback")) error($"{at}.role: normal, pressed or feedback.");
             if ((i == 0) != (s.Role == "normal")) error($"{at}.role: state 0 and only state 0 is \"normal\" (the panel boots into state 0).");
-            CheckText(s.Text, $"{at}.text", required: true, error);
+            // exui/5 Button text may be empty when independent labels overlay
+            // the touch target. Other controls and older contracts stay strict.
+            if (!(extended && e.Kind == "button" && s.Text == ""))
+                CheckText(s.Text, $"{at}.text", required: true, error);
             CheckColor(s.Fill, $"{at}.fill", required: true, error);
             CheckColor(s.TextColor, $"{at}.textColor", required: true, error);
             string? resource = null;

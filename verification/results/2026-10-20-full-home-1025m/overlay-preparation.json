@@ -1,0 +1,398 @@
+{
+  "sourceId": "2:3",
+  "previousId": "34:70",
+  "resultId": "37:329",
+  "overlays": [
+    {
+      "sourceId": "9:81",
+      "resultId": "37:508",
+      "name": "text_SideHallTitle",
+      "text": "Hall",
+      "rect": [
+        115,
+        195,
+        63,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "9:94",
+      "resultId": "37:509",
+      "name": "value_SideHallStatus",
+      "text": "Music - 34%",
+      "rect": [
+        115,
+        227,
+        113,
+        19
+      ],
+      "kind": "value"
+    },
+    {
+      "sourceId": "9:96",
+      "resultId": "37:510",
+      "name": "text_SideTerraceTitle",
+      "text": "Terrace",
+      "rect": [
+        115,
+        314,
+        109,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "9:97",
+      "resultId": "37:511",
+      "name": "value_SideTerraceStatus",
+      "text": "Broadcast 1 - 34%",
+      "rect": [
+        115,
+        346,
+        157,
+        19
+      ],
+      "kind": "value"
+    },
+    {
+      "sourceId": "10:16",
+      "resultId": "37:512",
+      "name": "text_CH01Title",
+      "text": "Music",
+      "rect": [
+        419,
+        319,
+        89,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:12",
+      "resultId": "37:513",
+      "name": "text_CH01Channel",
+      "text": "CH 01",
+      "rect": [
+        364,
+        233,
+        64,
+        19
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:20",
+      "resultId": "37:514",
+      "name": "text_CH02Title",
+      "text": "Broadcast 1",
+      "rect": [
+        614,
+        319,
+        156,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:21",
+      "resultId": "37:515",
+      "name": "text_CH02Channel",
+      "text": "CH 02",
+      "rect": [
+        594,
+        233,
+        66,
+        19
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:47",
+      "resultId": "37:516",
+      "name": "text_CH03Title",
+      "text": "Broadcast 2",
+      "rect": [
+        843,
+        319,
+        159,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:48",
+      "resultId": "37:517",
+      "name": "text_CH03Channel",
+      "text": "CH 03",
+      "rect": [
+        823,
+        233,
+        67,
+        19
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:54",
+      "resultId": "37:518",
+      "name": "text_CH04Title",
+      "text": "Broadcast 3",
+      "rect": [
+        1071,
+        319,
+        160,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:55",
+      "resultId": "37:519",
+      "name": "text_CH04Channel",
+      "text": "CH 04",
+      "rect": [
+        1052,
+        233,
+        67,
+        19
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:87",
+      "resultId": "37:520",
+      "name": "text_CH05Title",
+      "text": "Broadcast 4",
+      "rect": [
+        383,
+        491,
+        160,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:88",
+      "resultId": "37:521",
+      "name": "text_CH05Channel",
+      "text": "CH 05",
+      "rect": [
+        364,
+        405,
+        66,
+        19
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:66",
+      "resultId": "37:522",
+      "name": "text_CH06Title",
+      "text": "Broadcast 5",
+      "rect": [
+        613,
+        491,
+        159,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:67",
+      "resultId": "37:523",
+      "name": "text_CH06Channel",
+      "text": "CH 06",
+      "rect": [
+        594,
+        405,
+        66,
+        19
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:73",
+      "resultId": "37:524",
+      "name": "text_CH07Title",
+      "text": "DJ / Stage",
+      "rect": [
+        853,
+        491,
+        139,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:74",
+      "resultId": "37:525",
+      "name": "text_CH07Channel",
+      "text": "CH 07",
+      "rect": [
+        823,
+        405,
+        65,
+        19
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:80",
+      "resultId": "37:526",
+      "name": "text_CH08Title",
+      "text": "Broadcast 8",
+      "rect": [
+        1071,
+        491,
+        160,
+        29
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "10:81",
+      "resultId": "37:527",
+      "name": "text_CH08Channel",
+      "text": "CH 08",
+      "rect": [
+        1052,
+        405,
+        66,
+        19
+      ],
+      "kind": "label"
+    },
+    {
+      "sourceId": "16:155",
+      "resultId": "37:528",
+      "name": "text_MuteTitle",
+      "text": "Mute",
+      "rect": [
+        1129,
+        705,
+        79,
+        29
+      ],
+      "kind": "label"
+    }
+  ],
+  "buttons": [
+    {
+      "id": "37:340",
+      "name": "button_SideHall",
+      "rect": [
+        24,
+        170,
+        261,
+        107
+      ],
+      "nativeCaption": ""
+    },
+    {
+      "id": "37:355",
+      "name": "button_SideTerrace",
+      "rect": [
+        24,
+        289,
+        261,
+        107
+      ],
+      "nativeCaption": ""
+    },
+    {
+      "id": "37:367",
+      "name": "button_CH01",
+      "rect": [
+        345,
+        215,
+        218,
+        160
+      ],
+      "nativeCaption": ""
+    },
+    {
+      "id": "37:378",
+      "name": "button_CH02",
+      "rect": [
+        575,
+        215,
+        218,
+        160
+      ],
+      "nativeCaption": ""
+    },
+    {
+      "id": "37:391",
+      "name": "button_CH03",
+      "rect": [
+        804,
+        215,
+        218,
+        160
+      ],
+      "nativeCaption": ""
+    },
+    {
+      "id": "37:404",
+      "name": "button_CH04",
+      "rect": [
+        1033,
+        215,
+        218,
+        160
+      ],
+      "nativeCaption": ""
+    },
+    {
+      "id": "37:417",
+      "name": "button_CH05",
+      "rect": [
+        345,
+        387,
+        218,
+        160
+      ],
+      "nativeCaption": ""
+    },
+    {
+      "id": "37:430",
+      "name": "button_CH06",
+      "rect": [
+        575,
+        387,
+        218,
+        160
+      ],
+      "nativeCaption": ""
+    },
+    {
+      "id": "37:443",
+      "name": "button_CH07",
+      "rect": [
+        804,
+        387,
+        218,
+        160
+      ],
+      "nativeCaption": ""
+    },
+    {
+      "id": "37:456",
+      "name": "button_CH08",
+      "rect": [
+        1033,
+        387,
+        218,
+        160
+      ],
+      "nativeCaption": ""
+    }
+  ],
+  "boundary": "Independent native labels over native buttons; touch behavior not verified",
+  "elements": 47,
+  "fonts": [
+    "Arial Regular",
+    "Arial Bold"
+  ]
+}

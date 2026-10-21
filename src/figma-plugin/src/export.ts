@@ -93,7 +93,7 @@ export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,in
         if(JSON.stringify(rect(stateNode,node))!==JSON.stringify([0,0,w,h])) fail('states',`${stateNode.name}: состояние должно занимать весь Frame кнопки.`);
         const labels=stateNode.children.filter(n=>n.type==='TEXT');
         if(labels.length!==1) fail('states',`${stateNode.name}: нужна ровно одна текстовая подпись.`);
-        const label=labels[0] as TextNode, copy=readText(label);
+        const label=labels[0] as TextNode, copy=readText(label,m.kind==='button');
         if(JSON.stringify(rect(label,stateNode))!==JSON.stringify([0,0,w,h]) || label.textAlignHorizontal!=='CENTER' || !['CENTER','BOTTOM'].includes(label.textAlignVertical))
           fail('alignment',`${label.name}: подпись должна занимать всю кнопку, CENTER по горизонтали и CENTER/BOTTOM по вертикали.`);
         if(commonFont&&JSON.stringify(commonFont)!==JSON.stringify(copy.font)) fail('font',`${node.name}: шрифт должен совпадать во всех состояниях.`);
@@ -129,7 +129,7 @@ export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,in
   if(assets.size>16) fail('images','Допустимо до 16 PNG ресурсов.');
   if(screen.elements.some(e=>e.kind==='graphic'||e.states?.map(s=>s.role).join(',')==='normal,pressed'))screen.schema='exui-screen/4';
   else if(screen.elements.some(e=>e.states?.length===2))screen.schema='exui-screen/3';
-  if(screen.elements.some(e=>e.native||e.kind==='value'||e.states&&!['normal,pressed','normal,feedback','normal,feedback,pressed'].includes(e.states.map(s=>s.role).join(',')))||inProject||root.children.some(n=>read(n)?.schema==='exui-node/2')||screen.elements.some(e=>e.states&&e.states.length>3))screen.schema='exui-screen/5';
+  if(screen.elements.some(e=>e.native||e.kind==='value'||e.kind==='button'&&e.states?.some(s=>s.text==='')||e.states&&!['normal,pressed','normal,feedback','normal,feedback,pressed'].includes(e.states.map(s=>s.role).join(',')))||inProject||root.children.some(n=>read(n)?.schema==='exui-node/2')||screen.elements.some(e=>e.states&&e.states.length>3))screen.schema='exui-screen/5';
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
   return {profile,screen,images,signature:designSignature(root)};
 }

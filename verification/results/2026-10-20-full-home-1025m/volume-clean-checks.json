@@ -1,0 +1,596 @@
+{
+  "checks": [
+    {
+      "Id": "profile.platform-class",
+      "Passed": true,
+      "Detail": "PBTLP1025MPlatform (expected PBTLP1025MPlatform)"
+    },
+    {
+      "Id": "profile.platform-type",
+      "Passed": true,
+      "Detail": "PlatformProTypeEnum value 30 (expected 30 = TLP1025M)"
+    },
+    {
+      "Id": "profile.part-number",
+      "Passed": true,
+      "Detail": "60-1566-02 (expected 60-1566-02)"
+    },
+    {
+      "Id": "profile.screen",
+      "Passed": true,
+      "Detail": "screen 1280x800, platform 1280x800 (expected 1280x800)"
+    },
+    {
+      "Id": "profile.app-version",
+      "Passed": true,
+      "Detail": "1.28.0.7"
+    },
+    {
+      "Id": "profile.checksum",
+      "Passed": true,
+      "Detail": "checksum 0"
+    },
+    {
+      "Id": "project.name",
+      "Passed": true,
+      "Detail": "HomeVolumeReady"
+    },
+    {
+      "Id": "page.count",
+      "Passed": true,
+      "Detail": "1 page(s), expected 1"
+    },
+    {
+      "Id": "page.default",
+      "Passed": true,
+      "Detail": "defaultPage 100"
+    },
+    {
+      "Id": "page.order",
+      "Passed": true,
+      "Detail": "pages in plan order"
+    },
+    {
+      "Id": "popup.set",
+      "Passed": true,
+      "Detail": "65535:Offline Page"
+    },
+    {
+      "Id": "popup.offline",
+      "Passed": true,
+      "Detail": "Offline Page 1280x800, 2 control(s)"
+    },
+    {
+      "Id": "page.page.homevolumeready.ids",
+      "Passed": true,
+      "Detail": "id 100, userId 100"
+    },
+    {
+      "Id": "page.page.homevolumeready.name",
+      "Passed": true,
+      "Detail": "HomeVolumeReady"
+    },
+    {
+      "Id": "page.page.homevolumeready.key",
+      "Passed": true,
+      "Detail": "exui-key=page.homevolumeready"
+    },
+    {
+      "Id": "page.page.homevolumeready.size",
+      "Passed": true,
+      "Detail": "1280x800"
+    },
+    {
+      "Id": "page.page.homevolumeready.background",
+      "Passed": true,
+      "Detail": "#FF14151C"
+    },
+    {
+      "Id": "page.page.homevolumeready.controls",
+      "Passed": true,
+      "Detail": "5 control(s), expected 5"
+    },
+    {
+      "Id": "page.page.homevolumeready.object-ids-unique",
+      "Passed": true,
+      "Detail": "idField unique within the page or popup"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.control-id",
+      "Passed": true,
+      "Detail": "userId 8101 (expected 8101)"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.key",
+      "Passed": true,
+      "Detail": "exui-key=homevolumeready.volumedown"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.name",
+      "Passed": true,
+      "Detail": "button_VolumeDown"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.rect",
+      "Passed": true,
+      "Detail": "345,686,68,68"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.state-count",
+      "Passed": true,
+      "Detail": "2 state(s)"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u2212\u0027, fill #FF14151C, text #FFFFFFFF, image exui-control-1-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.state1",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u2212\u0027, fill #FF14151C, text #FF000000, image exui-control-1-2.png, id 1/1"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.press-feedback",
+      "Passed": true,
+      "Detail": "press state 1"
+    },
+    {
+      "Id": "element.homevolumeready.volumedown.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.type",
+      "Passed": true,
+      "Detail": "PBButton"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.control-id",
+      "Passed": true,
+      "Detail": "userId 8102 (expected 8102)"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.key",
+      "Passed": true,
+      "Detail": "exui-key=homevolumeready.volumeup"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.name",
+      "Passed": true,
+      "Detail": "button_VolumeUp"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.rect",
+      "Passed": true,
+      "Detail": "816,686,68,68"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.state-count",
+      "Passed": true,
+      "Detail": "2 state(s)"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.state0",
+      "Passed": true,
+      "Detail": "Normal: text \u0027\u002B\u0027, fill #FF14151C, text #FFFFFFFF, image exui-control-2-0.png, id 0/0"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.state1",
+      "Passed": true,
+      "Detail": "Pressed: text \u0027\u002B\u0027, fill #FF14151C, text #FF000000, image exui-control-2-2.png, id 1/1"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.press-feedback",
+      "Passed": true,
+      "Detail": "press state 1"
+    },
+    {
+      "Id": "element.homevolumeready.volumeup.states-distinct",
+      "Passed": true,
+      "Detail": "every state has its own look"
+    },
+    {
+      "Id": "element.homevolumeready.volume.type",
+      "Passed": true,
+      "Detail": "PBSlider"
+    },
+    {
+      "Id": "element.homevolumeready.volume.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homevolumeready.volume.control-id",
+      "Passed": true,
+      "Detail": "userId 8103 (expected 8103)"
+    },
+    {
+      "Id": "element.homevolumeready.volume.key",
+      "Passed": true,
+      "Detail": "exui-key=homevolumeready.volume"
+    },
+    {
+      "Id": "element.homevolumeready.volume.name",
+      "Passed": true,
+      "Detail": "slider_Volume"
+    },
+    {
+      "Id": "element.homevolumeready.volume.rect",
+      "Passed": true,
+      "Detail": "435,704,359,32"
+    },
+    {
+      "Id": "element.homevolumeready.volume.slider",
+      "Passed": true,
+      "Detail": "native slider orientation, range, fill, thumb and track geometry"
+    },
+    {
+      "Id": "element.homevolumeready.volume.track-color",
+      "Passed": true,
+      "Detail": "#FF2A2D31"
+    },
+    {
+      "Id": "element.homevolumeready.volume.thumb-geometry-resource",
+      "Passed": true,
+      "Detail": "vector thumb geometry requires a resolvable bitmap in GUI Designer 1.28.0.7"
+    },
+    {
+      "Id": "element.homevolumeready.volume.thumb-aspect-ratio",
+      "Passed": true,
+      "Detail": "thumb resize factor is height / width"
+    },
+    {
+      "Id": "element.homevolumeready.volume.border",
+      "Passed": true,
+      "Detail": "authored native border resource, shape/radius/thickness/style"
+    },
+    {
+      "Id": "element.homevolumeready.volumevalue.type",
+      "Passed": true,
+      "Detail": "PBLabel"
+    },
+    {
+      "Id": "element.homevolumeready.volumevalue.native-object-type",
+      "Passed": true,
+      "Detail": "native ObjectTypeEnum agrees with the serialized class"
+    },
+    {
+      "Id": "element.homevolumeready.volumevalue.control-id",
+      "Passed": true,
+      "Detail": "userId 8104 (expected 8104)"
+    },
+    {
+      "Id": "element.homevolumeready.volumevalue.key",
+      "Passed": true,
+      "Detail": "exui-key=homevolumeready.volumevalue"
+    },
+    {
+      "Id": "element.homevolumeready.volumevalue.name",
+      "Passed": true,
+      "Detail": "value_VolumeValue"
+    },
+    {
+      "Id": "element.homevolumeready.volumevalue.rect",
+      "Passed": true,
+      "Detail": "904,695,110,48"
+    },
+    {
+      "Id": "element.homevolumeready.volumevalue.dynamic",
+      "Passed": true,
+      "Detail": "dynamic label with an addressable ID"
+    },
+    {
+      "Id": "element.homevolumeready.volumevalue.text",
+      "Passed": true,
+      "Detail": "42%; alignment 4 (expected MiddleLeft=4)"
+    },
+    {
+      "Id": "element.homevolumeready.volumevalue.text-color",
+      "Passed": true,
+      "Detail": "#FFFFFFFF"
+    },
+    {
+      "Id": "element.homevolumeready.company.type",
+      "Passed": true,
+      "Detail": "PBImage"
+    },
+    {
+      "Id": "element.homevolumeready.company.control-id",
+      "Passed": true,
+      "Detail": "userId 0 (expected 0)"
+    },
+    {
+      "Id": "element.homevolumeready.company.key",
+      "Passed": true,
+      "Detail": "exui-key=homevolumeready.company"
+    },
+    {
+      "Id": "element.homevolumeready.company.name",
+      "Passed": true,
+      "Detail": "logo_Company"
+    },
+    {
+      "Id": "element.homevolumeready.company.rect",
+      "Passed": true,
+      "Detail": "48,28,205,30"
+    },
+    {
+      "Id": "element.homevolumeready.company.image",
+      "Passed": true,
+      "Detail": "exui-graphic-5.png"
+    },
+    {
+      "Id": "element.homevolumeready.company.native-layout",
+      "Passed": true,
+      "Detail": "layout 3, alignment 3"
+    },
+    {
+      "Id": "element.homevolumeready.company.passive-transparent",
+      "Passed": true,
+      "Detail": "passive PBImage, no states/text/shape/background"
+    },
+    {
+      "Id": "groups.registry",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Id": "resource.icon.homevolumeready.volumedown.state0",
+      "Passed": true,
+      "Detail": "exui-control-1-0.png: 1 found, 68x68"
+    },
+    {
+      "Id": "resource.icon.homevolumeready.volumedown.state2",
+      "Passed": true,
+      "Detail": "exui-control-1-2.png: 1 found, 68x68"
+    },
+    {
+      "Id": "resource.icon.homevolumeready.volumeup.state0",
+      "Passed": true,
+      "Detail": "exui-control-2-0.png: 1 found, 68x68"
+    },
+    {
+      "Id": "resource.icon.homevolumeready.volumeup.state2",
+      "Passed": true,
+      "Detail": "exui-control-2-2.png: 1 found, 68x68"
+    },
+    {
+      "Id": "resource.image.homevolumeready.company",
+      "Passed": true,
+      "Detail": "exui-graphic-5.png: 1 found, 205x30"
+    },
+    {
+      "Id": "resource.references",
+      "Passed": true,
+      "Detail": "every state image names an existing image resource"
+    }
+  ],
+  "Build": {
+    "StatusValue": 0,
+    "VersionInfo": "0.0.2",
+    "RevisionDate": "2026-10-20T23:18:27.8200738+05:00"
+  },
+  "entries": [
+    "ProjectGCP",
+    "volume-clean-control.tgz4"
+  ],
+  "controls": [
+    {
+      "Type": "PBButton",
+      "ObjectId": 1,
+      "ControlId": 8101,
+      "Name": "button_VolumeDown",
+      "Comments": "exui-key=homevolumeready.volumedown",
+      "Left": 345,
+      "Top": 686,
+      "Width": 68,
+      "Height": 68,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "\u2212",
+          "Image": "exui-control-1-0.png",
+          "Fill": 4279506204,
+          "TextColor": 4294967295,
+          "TlpImageId": 1
+        },
+        {
+          "Name": "Pressed",
+          "Id": 1,
+          "Index": 1,
+          "Text": "\u2212",
+          "Image": "exui-control-1-2.png",
+          "Fill": 4279506204,
+          "TextColor": 4278190080,
+          "TlpImageId": 2
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 1,
+      "TlpImageId": 1,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBButton",
+      "ObjectId": 2,
+      "ControlId": 8102,
+      "Name": "button_VolumeUp",
+      "Comments": "exui-key=homevolumeready.volumeup",
+      "Left": 816,
+      "Top": 686,
+      "Width": 68,
+      "Height": 68,
+      "Text": null,
+      "TextColor": null,
+      "States": [
+        {
+          "Name": "Normal",
+          "Id": 0,
+          "Index": 0,
+          "Text": "\u002B",
+          "Image": "exui-control-2-0.png",
+          "Fill": 4279506204,
+          "TextColor": 4294967295,
+          "TlpImageId": 1
+        },
+        {
+          "Name": "Pressed",
+          "Id": 1,
+          "Index": 1,
+          "Text": "\u002B",
+          "Image": "exui-control-2-2.png",
+          "Fill": 4279506204,
+          "TextColor": 4278190080,
+          "TlpImageId": 2
+        }
+      ],
+      "Level": null,
+      "PressFeedbackState": 1,
+      "TlpImageId": 1,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 7,
+        "DynamicText": true,
+        "BorderName": null,
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 0
+    },
+    {
+      "Type": "PBSlider",
+      "ObjectId": 3,
+      "ControlId": 8103,
+      "Name": "slider_Volume",
+      "Comments": "exui-key=homevolumeready.volume",
+      "Left": 435,
+      "Top": 704,
+      "Width": 359,
+      "Height": 32,
+      "Text": null,
+      "TextColor": null,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 4,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 27,
+        "DynamicText": true,
+        "BorderName": "exui-border-homevolumeready.volume",
+        "Fill": 4280954161,
+        "Stroke": 0,
+        "Slider": {
+          "Orientation": 0,
+          "Min": 0,
+          "Max": 100,
+          "Fill": 4292962070,
+          "Thumb": 4294967295,
+          "ThumbType": 0,
+          "ThumbWidth": 28,
+          "ThumbHeight": 28,
+          "TrackWidth": 20,
+          "ThumbImage": "Slider Thumb",
+          "ThumbAspectRatio": 1
+        },
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 3
+    },
+    {
+      "Type": "PBLabel",
+      "ObjectId": 4,
+      "ControlId": 8104,
+      "Name": "value_VolumeValue",
+      "Comments": "exui-key=homevolumeready.volumevalue",
+      "Left": 904,
+      "Top": 695,
+      "Width": 110,
+      "Height": 48,
+      "Text": "42%",
+      "TextColor": 4294967295,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 6,
+      "PopupBinding": null,
+      "Graphic": null,
+      "Native": {
+        "ObjectType": 11,
+        "DynamicText": true,
+        "BorderName": "",
+        "Fill": null,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 4
+    },
+    {
+      "Type": "PBImage",
+      "ObjectId": 5,
+      "ControlId": 0,
+      "Name": "logo_Company",
+      "Comments": "exui-key=homevolumeready.company",
+      "Left": 48,
+      "Top": 28,
+      "Width": 205,
+      "Height": 30,
+      "Text": null,
+      "TextColor": null,
+      "States": [],
+      "Level": null,
+      "PressFeedbackState": null,
+      "TlpImageId": 7,
+      "PopupBinding": null,
+      "Graphic": {
+        "Image": "exui-graphic-5.png",
+        "Layout": 3,
+        "Alignment": 3,
+        "Background": 0,
+        "Border": 0,
+        "Shape": 0
+      },
+      "Native": {
+        "ObjectType": 10,
+        "DynamicText": false,
+        "BorderName": "",
+        "Fill": 0,
+        "Stroke": null,
+        "Slider": null,
+        "Line": null,
+        "Pattern": null
+      },
+      "TextAlignment": 3
+    }
+  ]
+}

@@ -1,0 +1,438 @@
+Window: "GUI Designer - [TLP Pro 1025M: home-layout-gui.gdl*]", App: GUI Designer.exe.
+	0 window GUI Designer - [TLP Pro 1025M: home-layout-gui.gdl*] Secondary Actions: Raise ID: FormMain
+		1 pane ID: mDockPanel
+			2 pane ID: 68654
+				3 pane ID: 68812
+					4 pane ID: 68816
+						5 pane ID: 68804
+						6 pane ID: 68808
+			7 pane ID: 68568
+				8 pane ID: 68570
+				9 pane ID: 68572
+					10 pane ID: 68574
+						11 pane ID: 68518
+						12 pane ID: 68520
+					13 pane Properties ID: WindowProperties
+						14 pane PropertyGrid ID: mPropertyGrid
+							15 table Properties Window ID: 68596
+								548 PropertyGrid category Appearance ID: 25515308
+									549 tree item (settable, string) Use Flattened Text Description: Setting this feature to "True" creates an image of that text. Value: False ID: 28311181
+									550 tree item (settable, string) Text Description: This is the text that will appear on the object. Value: Music - 35% ID: 53474037
+									551 tree item (settable, string) Font Description: This is the font for this control. Value: Arial ID: 11504285
+									552 tree item (settable, string) Font Style Description: This is the font style for this control. Value: Regular ID: 36429702
+									553 tree item (settable, string) Font Size Description: This is the font size for this control. Value: 12 ID: 59431865
+									554 tree item (settable, string) Text Color Description: This is the color the text is drawn with. Value: 255, 255, 255 ID: 65124744
+									555 tree item (settable, string) Text Alignment Description: This determines how the text will appear on the object's background. Value: Middle-Left ID: 49251786
+									556 tree item (settable, string) Fill Color Description: This is the color to fill the interior of the border with. Value: Transparent ID: 40612898
+									557 tree item (settable, string) Transparency Description: This is the percentage of alpha blending to apply to the object. A value of 0% means the object will appear fully opaque. Value: 0% ID: 29971768
+								558 PropertyGrid category Design ID: 1310461
+									559 tree item (settable, string) Name Description: This is the object’s name. Value: value_SideHallStatus ID: 11794154
+										29 edit (settable, string) Name Value: value_SideHallStatus ID: 1313122
+									560 tree item (settable, string) ID Description: This is the object's ID. Value: 8116 ID: 39038529
+								561 PropertyGrid category Layout ID: 15802441
+									562 tree item (settable, string) Left Description: This is the horizontal position of the object’s upper-left corner. Value: 115 ID: 8004244
+									563 tree item (settable, string) Top Description: This is the vertical position of the object’s upper-left corner. Value: 227 ID: 4929340
+									564 tree item (settable, string) Width Description: This is the object’s width. Value: 113 ID: 44364065
+									565 tree item (settable, string) Height Description: This is the object’s height. Value: 19 ID: 63732268
+								566 PropertyGrid category Misc ID: 36719502
+									567 tree item (settable, string) Shape Description: This is the type of shape to use for the control. Value: None ID: 62040064
+									568 tree item (settable, string) Description Description: These are any comments that may be entered regarding the object. Value: exui-key=homelayoutready.sidehallstatus ID: 21489667
+							32 pane Description ID: 68590
+								33 text Name ID: 68592
+								34 text This is the object’s name. ID: 68594
+						35 tool bar ID: tsOptions
+							36 button Alphabetical
+							37 separator
+							38 button Expand All
+							39 button Collapse All
+						40 combo box (settable, string) value_SideHallStatus Value: value_SideHallStatus ID: mObjectsComboBox
+							41 text
+							42 button Open
+			43 pane ID: 68606
+				44 pane ID: 68608
+				45 pane ID: 68610
+					46 pane ID: 68612
+						47 pane ID: 68510
+						48 pane ID: 68512
+					49 pane Workspace ID: WindowSystem
+						50 tree ID: mWorkspaceTreeview
+							56 tree item (selectable, settable, string) HomeLayoutReady Value: HomeLayoutReady
+								57 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								58 tree item (selectable, settable, string) HomeLayoutReady Value: HomeLayoutReady
+							59 tree item (selectable, settable, string) HomeExportReady Value: HomeExportReady
+								60 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								61 tree item (selectable, settable, string) HomeExportReady Value: HomeExportReady
+							62 tree item (selectable, settable, string) HomeVolumeReady Value: HomeVolumeReady
+								63 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								64 tree item (selectable, settable, string) HomeVolumeReady Value: HomeVolumeReady
+							65 tree item (selectable, settable, string) HomeVolumeReady Value: HomeVolumeReady
+								66 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								67 tree item (selectable, settable, string) HomeVolumeReady Value: HomeVolumeReady
+							68 tree item (selectable, settable, string) HomeVolumeReady Value: HomeVolumeReady
+								69 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								70 tree item (selectable, settable, string) HomeVolumeReady Value: HomeVolumeReady
+							71 tree item (selectable, settable, string) HomeVolumeReady Value: HomeVolumeReady
+								72 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								73 tree item (selectable, settable, string) HomeVolumeReady Value: HomeVolumeReady
+							74 tree item (selectable, settable, string) Volume smoke - synthetic package Value: Volume smoke - synthetic package
+								75 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								76 tree item (selectable, settable, string) Home Value: Home
+							77 tree item (selectable, settable, string) Volume smoke - synthetic package Value: Volume smoke - synthetic package
+								78 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								79 tree item (selectable, settable, string) Home Value: Home
+							80 tree item (selectable, settable, string) Volume smoke - synthetic package Value: Volume smoke - synthetic package
+								81 tree item (selectable, settable, string) Offline Page Value: Offline Page
+								82 tree item (selectable, settable, string) Home Value: Home
+				83 pane ID: 68618
+					84 pane ID: 68620
+						85 pane ID: 68534
+						86 pane ID: 68536
+					87 pane Controls ID: WindowControls
+						88 list ID: mListView
+							89 scroll bar (settable, float) Vertical Value: 0 ID: NonClientVerticalScrollBar
+								90 button Line up ID: UpButton
+								91 thumb Position ID: ScrollbarThumb
+								92 button Page down ID: DownPageButton
+								93 button Line down ID: DownButton
+							94 scroll bar (settable, float) Horizontal Value: 15 ID: NonClientHorizontalScrollBar
+								95 button Column left ID: UpButton
+								471 button Page left ID: UpPageButton
+								96 thumb Position ID: ScrollbarThumb
+								97 button Page right ID: DownPageButton
+								98 button Column right ID: DownButton
+							99 thumb (disabled)
+							100 list item (selectable) Select
+							101 list item (selectable) Button
+							102 list item (selectable) Level
+							103 list item (selectable) Slider
+							104 list item (selectable) Popup Page Reference
+							105 list item (selectable) Date/Time
+							106 list item (selectable) Image
+							107 list item (selectable) Label
+							108 list item (selectable) Line
+							109 list item (selectable) Shape
+				110 pane ID: 68624
+			111 pane ID: 68630
+				112 pane ID: 68632
+				113 pane ID: 68634
+					114 pane ID: 68636
+						115 pane ID: 68526
+						116 pane ID: 68528
+					117 pane (disabled) Control States ID: WindowStateManager
+						118 pane (disabled) ID: mStatesFlowLayoutPanel
+						119 tool bar (disabled) ID: tsMain
+							120 separator (disabled)
+							121 button (disabled) Add
+							122 edit (disabled, settable, string) 1 Value: 1 ID: 68646
+							123 button (disabled) Insert Before
+							124 edit (disabled, settable, string) 1 Value: 1 ID: 68648
+							125 button (disabled) Move Left
+							126 edit (disabled, settable, string) 1 Value: 1 ID: 68650
+							127 edit (disabled, settable, string) 1 Value: 1 ID: 134188
+							128 button (disabled) Move Right
+							129 button (disabled) Delete
+							130 button (disabled) Select All
+							131 button (disabled) Undo
+							132 button (disabled) Redo
+			133 pane ID: 199384
+			134 pane ID: 199470
+		135 pane ID: 68464
+			136 window HomeLayoutReady.HomeLayoutReady Secondary Actions: Raise ID: DesignView9c282f77-ac64-4e2e-a19a-cc738895c60d100
+				137 pane DesignerFrame ID: 70218
+					138 pane OverlayControl ID: 70110
+						139 pane AdornerWindow ID: 70112
+						140 pane DesignViewRoot ID: 201046
+							141 pane HomeLayoutReady ID: 70116
+								142 pane WidgetControl43 ID: WidgetControl43
+								143 pane WidgetControl42 ID: WidgetControl42
+								144 pane WidgetControl41 ID: WidgetControl41
+								145 pane WidgetControl40 ID: WidgetControl40
+								146 pane WidgetControl39 ID: WidgetControl39
+								147 pane WidgetControl38 ID: WidgetControl38
+								148 pane WidgetControl37 ID: WidgetControl37
+								149 pane WidgetControl36 ID: WidgetControl36
+								150 pane WidgetControl35 ID: WidgetControl35
+								151 pane WidgetControl34 ID: WidgetControl34
+								152 pane WidgetControl33 ID: WidgetControl33
+								153 pane WidgetControl32 ID: WidgetControl32
+								154 pane WidgetControl31 ID: WidgetControl31
+								155 pane WidgetControl30 ID: WidgetControl30
+								156 pane WidgetControl29 ID: WidgetControl29
+								157 pane WidgetControl28 ID: WidgetControl28
+								158 pane WidgetControl27 ID: WidgetControl27
+								159 pane WidgetControl26 ID: WidgetControl26
+								160 pane WidgetControl25 ID: WidgetControl25
+								161 pane WidgetControl24 ID: WidgetControl24
+								162 pane WidgetControl23 ID: WidgetControl23
+								163 pane WidgetControl22 ID: WidgetControl22
+								164 pane WidgetControl21 ID: WidgetControl21
+								165 pane WidgetControl20 ID: WidgetControl20
+								166 pane WidgetControl19 ID: WidgetControl19
+								167 pane WidgetControl18 ID: WidgetControl18
+								168 pane WidgetControl17 ID: WidgetControl17
+								169 pane WidgetControl16 ID: WidgetControl16
+								170 pane WidgetControl15 ID: WidgetControl15
+								171 pane WidgetControl14 ID: WidgetControl14
+								172 pane WidgetControl13 ID: WidgetControl13
+								173 pane WidgetControl12 ID: WidgetControl12
+								174 pane WidgetControl11 ID: WidgetControl11
+								175 pane WidgetControl10 ID: WidgetControl10
+								176 pane WidgetControl9 ID: WidgetControl9
+								177 pane WidgetControl8 ID: WidgetControl8
+								178 pane WidgetControl7 ID: WidgetControl7
+								179 pane WidgetControl6 ID: WidgetControl6
+								180 pane WidgetControl5 ID: WidgetControl5
+								181 pane WidgetControl4 ID: WidgetControl4
+								182 pane WidgetControl3 ID: WidgetControl3
+								183 pane WidgetControl2 ID: WidgetControl2
+								184 pane WidgetControl1 ID: WidgetControl1
+								185 pane WidgetLine4 ID: WidgetLine4
+								186 pane WidgetLine3 ID: WidgetLine3
+								187 pane WidgetLine2 ID: WidgetLine2
+								188 pane WidgetLine1 ID: WidgetLine1
+			200 window HomeExportReady.HomeExportReady Secondary Actions: Raise ID: DesignViewfb1e6701-7560-4dfd-96d7-e8b6075f0ed4100
+				201 pane DesignerFrame ID: 135340
+					202 pane OverlayControl ID: 1183894
+						203 pane AdornerWindow ID: 528288
+						204 pane DesignViewRoot ID: 200812
+							205 pane HomeExportReady ID: 397314
+								206 pane WidgetControl22 ID: WidgetControl22
+								207 pane WidgetControl21 ID: WidgetControl21
+								208 pane WidgetControl20 ID: WidgetControl20
+								209 pane WidgetControl19 ID: WidgetControl19
+								210 pane WidgetControl18 ID: WidgetControl18
+								211 pane WidgetControl17 ID: WidgetControl17
+								212 pane WidgetControl16 ID: WidgetControl16
+								213 pane WidgetControl15 ID: WidgetControl15
+								214 pane WidgetControl14 ID: WidgetControl14
+								215 pane WidgetControl13 ID: WidgetControl13
+								216 pane WidgetControl12 ID: WidgetControl12
+								217 pane WidgetControl11 ID: WidgetControl11
+								218 pane WidgetControl10 ID: WidgetControl10
+								219 pane WidgetControl9 ID: WidgetControl9
+								220 pane WidgetControl8 ID: WidgetControl8
+								221 pane WidgetControl7 ID: WidgetControl7
+								222 pane WidgetControl6 ID: WidgetControl6
+								223 pane WidgetControl5 ID: WidgetControl5
+								224 pane WidgetControl4 ID: WidgetControl4
+								225 pane WidgetControl3 ID: WidgetControl3
+								226 pane WidgetControl2 ID: WidgetControl2
+								227 pane WidgetControl1 ID: WidgetControl1
+								228 pane WidgetLine4 ID: WidgetLine4
+								229 pane WidgetLine3 ID: WidgetLine3
+								230 pane WidgetLine2 ID: WidgetLine2
+								231 pane WidgetLine1 ID: WidgetLine1
+			243 window HomeVolumeReady.HomeVolumeReady Secondary Actions: Raise ID: DesignViewff7772f7-8270-4aab-9d3c-b7b6d20fd66e100
+				244 pane DesignerFrame ID: 266236
+					245 pane OverlayControl ID: 2296500
+						246 pane AdornerWindow ID: 2034216
+						247 pane DesignViewRoot ID: 1248318
+							248 pane HomeVolumeReady ID: 17567190
+								249 pane WidgetControl5 ID: WidgetControl5
+								250 pane WidgetControl4 ID: WidgetControl4
+								251 pane WidgetControl3 ID: WidgetControl3
+								252 pane WidgetControl2 ID: WidgetControl2
+								253 pane WidgetControl1 ID: WidgetControl1
+						254 scroll bar (settable, float) Vertical Value: 0 ID: NonClientVerticalScrollBar
+							255 button Line up ID: UpButton
+							256 thumb Position ID: ScrollbarThumb
+							257 button Page down ID: DownPageButton
+							258 button Line down ID: DownButton
+						259 scroll bar (settable, float) Horizontal Value: 0 ID: NonClientHorizontalScrollBar
+							260 button Column left ID: UpButton
+							261 thumb Position ID: ScrollbarThumb
+							262 button Page right ID: DownPageButton
+							263 button Column right ID: DownButton
+						264 thumb (disabled)
+			265 window HomeVolumeReady.HomeVolumeReady Secondary Actions: Raise ID: DesignViewf4dde858-d6c0-45fc-be72-6306d19050cd100
+				266 pane DesignerFrame ID: 2428850
+					267 pane OverlayControl ID: 462820
+						268 pane AdornerWindow ID: 1511146
+						269 pane DesignViewRoot ID: 200582
+							270 pane HomeVolumeReady ID: 3671986
+								271 pane WidgetControl5 ID: WidgetControl5
+								272 pane WidgetControl4 ID: WidgetControl4
+								273 pane WidgetControl3 ID: WidgetControl3
+								274 pane WidgetControl2 ID: WidgetControl2
+								275 pane WidgetControl1 ID: WidgetControl1
+						276 scroll bar (settable, float) Horizontal Value: 0 ID: NonClientHorizontalScrollBar
+							277 button Column left ID: UpButton
+							278 thumb Position ID: ScrollbarThumb
+							279 button Page right ID: DownPageButton
+							280 button Column right ID: DownButton
+			281 window HomeVolumeReady.HomeVolumeReady Secondary Actions: Raise ID: DesignView13279843-856c-419d-8f37-b8ada2467435100
+				282 pane DesignerFrame ID: 69350
+					283 pane OverlayControl ID: 69326
+						284 pane AdornerWindow ID: 69328
+						285 pane DesignViewRoot ID: 591276
+							286 pane HomeVolumeReady ID: 69332
+								287 pane WidgetControl5 ID: WidgetControl5
+								288 pane WidgetControl4 ID: WidgetControl4
+								289 pane WidgetControl3 ID: WidgetControl3
+								290 pane WidgetControl2 ID: WidgetControl2
+								291 pane WidgetControl1 ID: WidgetControl1
+						292 scroll bar (settable, float) Horizontal Value: 0 ID: NonClientHorizontalScrollBar
+							293 button Column left ID: UpButton
+							294 thumb Position ID: ScrollbarThumb
+							295 button Page right ID: DownPageButton
+							296 button Column right ID: DownButton
+			297 window HomeVolumeReady.HomeVolumeReady Secondary Actions: Raise ID: DesignViewb997bd9a-3066-47c8-b409-d109af7642f7100
+				298 pane DesignerFrame ID: 264886
+					299 pane OverlayControl ID: 459650
+						300 pane AdornerWindow ID: 394134
+						301 pane DesignViewRoot ID: 724536
+							302 pane HomeVolumeReady ID: 656438
+								303 pane WidgetControl5 ID: WidgetControl5
+								304 pane WidgetControl4 ID: WidgetControl4
+								305 pane WidgetControl3 ID: WidgetControl3
+								306 pane WidgetControl2 ID: WidgetControl2
+								307 pane WidgetControl1 ID: WidgetControl1
+						308 scroll bar (settable, float) Horizontal Value: 0 ID: NonClientHorizontalScrollBar
+							309 button Column left ID: UpButton
+							310 thumb Position ID: ScrollbarThumb
+							311 button Page right ID: DownPageButton
+							312 button Column right ID: DownButton
+			313 window Volume smoke - synthetic package.Home Secondary Actions: Raise ID: DesignViewb0919a3d-2568-4abb-a5fb-07593b38853e100
+				314 pane DesignerFrame ID: 134630
+					315 pane OverlayControl ID: 2886504
+						316 pane AdornerWindow ID: 1445360
+						317 pane DesignViewRoot ID: 200132
+							318 pane Home ID: 1379816
+								319 pane WidgetControl5 ID: WidgetControl5
+								320 pane WidgetControl4 ID: WidgetControl4
+								321 pane WidgetControl3 ID: WidgetControl3
+								322 pane WidgetControl2 ID: WidgetControl2
+								323 pane WidgetControl1 ID: WidgetControl1
+						324 scroll bar (settable, float) Horizontal Value: 0 ID: NonClientHorizontalScrollBar
+							325 button Column left ID: UpButton
+							326 thumb Position ID: ScrollbarThumb
+							327 button Page right ID: DownPageButton
+							328 button Column right ID: DownButton
+			329 window Volume smoke - synthetic package.Home Secondary Actions: Raise ID: DesignViewcd4a3d12-087d-4996-add3-64461f185d30100
+				330 pane DesignerFrame ID: 68994
+					331 pane OverlayControl ID: 68970
+						332 pane AdornerWindow ID: 68972
+						333 pane DesignViewRoot ID: 2295692
+							334 pane Home ID: 68976
+								335 pane WidgetControl5 ID: WidgetControl5
+								336 pane WidgetControl4 ID: WidgetControl4
+								337 pane WidgetControl3 ID: WidgetControl3
+								338 pane WidgetControl2 ID: WidgetControl2
+								339 pane WidgetControl1 ID: WidgetControl1
+						340 scroll bar (settable, float) Vertical Value: 0 ID: NonClientVerticalScrollBar
+							341 button Line up ID: UpButton
+							342 thumb Position ID: ScrollbarThumb
+							343 button Page down ID: DownPageButton
+							344 button Line down ID: DownButton
+						345 scroll bar (settable, float) Horizontal Value: 0 ID: NonClientHorizontalScrollBar
+							346 button Column left ID: UpButton
+							347 thumb Position ID: ScrollbarThumb
+							348 button Page right ID: DownPageButton
+							349 button Column right ID: DownButton
+						350 thumb (disabled)
+			351 window Volume smoke - synthetic package.Home Secondary Actions: Raise ID: DesignView2cb5058d-eae6-44de-b4a2-43ba06b42ee1100
+				352 pane DesignerFrame ID: 68810
+					353 pane OverlayControl ID: 68776
+						354 pane AdornerWindow ID: 68778
+						355 pane DesignViewRoot ID: 265266
+							356 pane Home ID: 68782
+								357 pane WidgetControl6 ID: WidgetControl6
+								358 pane WidgetControl5 ID: WidgetControl5
+								359 pane WidgetControl4 ID: WidgetControl4
+								360 pane WidgetControl3 ID: WidgetControl3
+								361 pane WidgetControl2 ID: WidgetControl2
+								362 pane WidgetControl1 ID: WidgetControl1
+						363 scroll bar (settable, float) Horizontal Value: 0 ID: NonClientHorizontalScrollBar
+							364 button Column left ID: UpButton
+							365 thumb Position ID: ScrollbarThumb
+							366 button Page right ID: DownPageButton
+							367 button Column right ID: DownButton
+		368 tool bar ID: tsProGroup1
+			369 button New Project
+			370 button Open Project
+			371 button Save
+			372 button Save And Build
+			373 separator
+			374 button Print
+			375 button Print Preview
+			376 separator
+			377 button Cut
+			378 button Copy
+			379 button (disabled) Paste
+			380 separator
+			381 button Undo
+			382 button (disabled) Redo
+			383 separator
+			384 button Show Control Info
+			385 button Show Object Layer Indicator
+			386 button Monochrome Mode
+			387 button Hide Popup Page References
+			388 separator
+			389 button Verify
+			390 separator
+			391 button Character Map
+			392 button Font Dialog
+			393 separator
+			394 button Align Lefts
+			395 button Align Horizontal Centers
+			396 button Align Rights
+			397 button Align Tops
+			398 button Align Vertical Centers
+			399 button Align Bottoms
+			400 separator
+			401 button Align Page Tops
+			402 button Align Page Vertical Center
+			403 button Align Page Bottom
+			404 button Align Page Left
+			405 button Align Page Horizontal Center
+			406 button Align Page Right
+			407 separator
+			408 button Bring to Front
+			409 button Bring Forward
+			410 button Send Backward
+			411 button Send to Back
+			412 separator
+			413 button Make Same Width
+			414 button Make Same Height
+			415 button Make Same Size
+			416 button Vertical Spacing Make Same
+			417 button Vertical Spacing Increase
+			418 button Vertical Spacing Decrease
+			419 button Vertical Spacing Remove
+			472 button Horizontal Spacing Make Same
+			473 button Horizontal Spacing Increase
+			474 button Horizontal Spacing Decrease
+			475 button Horizontal Spacing Remove
+		421 status bar Main Status Strip ID: mStatusStrip
+			422 slider (settable, string) Value: 38 ID: 133838
+				620 button Page left
+				621 thumb Position
+				622 button Page right
+			426 text HomeLayoutReady.HomeLayoutReady
+			427 text
+			428 text Panel RAM Usage 1%
+			429 progress bar Value: 1 ID: 133956
+			430 text khusan.turaev@red-mouse.com
+			431 button 75%
+			432 button Active View Zoom Out
+			433 button Active View Zoom In
+			434 button Active View Fit to Page
+		435 menu bar Main Menu ID: mMainMenuBar
+			436 menu item File
+			437 menu item Edit
+			438 menu item Project
+			439 menu item Layout
+			440 menu item Tools
+			441 menu item View
+			442 menu item Window
+			443 menu item Help
+		444 title bar (settable, string) Value: GUI Designer - [TLP Pro 1025M: home-layout-gui.gdl*]
+			445 menu bar System ID: MenuBar
+				446 menu item System
+			447 button Minimize
+			448 button Restore
+			449 button Close
+
+Document text: ```
+1
+```

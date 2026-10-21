@@ -30,6 +30,19 @@ test('IDs and explicit state IDs survive layer order, state order, texts and geo
   const ids=(s:any)=>s.elements.map((e:any)=>[e.key,e.objectId,e.controlId]).sort();assert.deepEqual(ids(before),ids(after));
   assert.equal(after.elements[0].key,'volume.mute');assert.deepEqual(after.elements[0].states!.map(s=>[s.stateId,s.role]),[[0,'normal'],[1,'feedback'],[2,'pressed']]);
 });
+test('Empty Button captions force exui/5 while separate overlays retain editable text',async()=>{
+  const {root}=await fixture();const button=root.children[0] as FrameNode;
+  for(const state of button.children as FrameNode[])(state.children.find(n=>n.type==='TEXT') as TextNode).characters='';
+  const screen=(await exportFrame(root)).screen;assert.ok('elements'in screen);
+  assert.equal(screen.schema,'exui-screen/5');assert.ok(screen.elements[0].states!.every(s=>s.text===''));
+  assert.equal(screen.elements[1].text,'Громкость');
+  (button.children[0] as FrameNode).children.find(n=>n.type==='TEXT')!.characters=' ';
+  assert.throws(()=>capture(root),(e:any)=>e.code==='text');
+});
+test('Empty static labels stay invalid',async()=>{
+  const {root}=await fixture();(root.children[1] as TextNode).characters='';
+  assert.throws(()=>capture(root),(e:any)=>e.code==='text');
+});
 for(const [name,change,code] of [
   ['duplicate object ID',(r:any)=>edit(r.children[0],{objectId:2}),'duplicate-id'],
   ['duplicate control ID',(r:any)=>edit(r.children[0],{controlId:8103}),'duplicate-id'],

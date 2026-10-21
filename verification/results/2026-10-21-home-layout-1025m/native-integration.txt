@@ -1,0 +1,15 @@
+PASS tlp-pro-1025m: .exui → CLI validation → editable .gdl, 65/65, IDs preserved
+PASS tlp-pro-300m-portrait: .exui → CLI validation → editable .gdl, 65/65, IDs preserved
+PASS tlp-pro-1025m: named Off/On → exui/3 → CLI → editable GDL, two states, press feedback -1
+PASS tlp-pro-300m-portrait: named Off/On → exui/3 → CLI → editable GDL, two states, press feedback -1
+PASS tlp-pro-1025m: logo + yellow Normal/Pressed → exui/4 → CLI → PBImage + press feedback 1
+PASS tlp-pro-300m-portrait: logo + yellow Normal/Pressed → exui/4 → CLI → PBImage + press feedback 1
+PASS tlp-pro-1025m: expanded → exui/5 → CLI → native types and independently verified states/containers
+PASS tlp-pro-1025m: project → exui/5 → CLI → native types and independently verified states/containers
+PASS tlp-pro-1025m: vertical → exui/5 → CLI → native types and independently verified states/containers
+PASS tlp-pro-300m-portrait: expanded → exui/5 → CLI → native types and independently verified states/containers
+PASS tlp-pro-300m-portrait: project → exui/5 → CLI → native types and independently verified states/containers
+PASS tlp-pro-300m-portrait: vertical → exui/5 → CLI → native types and independently verified states/containers
+PASS tlp-pro-1025m: empty button captions → exui/5 → native blank button + separate editable label
+PASS tlp-pro-300m-portrait: empty button captions → exui/5 → native blank button + separate editable label
+Evidence: D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\output\home-layout-20261020\native-integration
