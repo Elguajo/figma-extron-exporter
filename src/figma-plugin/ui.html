@@ -2,85 +2,30 @@
 <!-- UI adapted from Baolv/figma-export ui.html, commit 6312d15. See THIRD_PARTY_NOTICES.md. -->
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-:root{color-scheme:light dark;font:12px/1.4 Inter,-apple-system,Segoe UI,sans-serif}
-*{box-sizing:border-box}body{margin:0;padding:14px;color:var(--figma-color-text,#333);background:var(--figma-color-bg,#fff)}
-h1{margin:0 0 2px;font-size:13px}.sub{color:var(--figma-color-text-secondary,#666);margin:0 0 12px;font-size:11px}
-fieldset{min-width:0;border:1px solid var(--figma-color-border,#e5e5e5);border-radius:6px;margin:0 0 10px;padding:8px 10px}
-legend{padding:0 4px;font-weight:600;color:var(--figma-color-text-secondary,#666);text-transform:uppercase;font-size:10px;letter-spacing:.04em}
-label{display:flex;align-items:center;gap:6px;margin:4px 0}.stack{display:block}.stack input,.stack select{margin-top:4px}
-select,input{width:100%;box-sizing:border-box;padding:5px 6px;border:1px solid var(--figma-color-border,#ccc);border-radius:4px;background:var(--figma-color-bg,#fff);color:inherit;font:inherit;min-height:30px}
-.row{display:flex;gap:12px}.row>*{min-width:0;flex:1}
-button{width:100%;padding:9px;border:0;border-radius:6px;background:var(--figma-color-bg-brand-strong,#1769aa);color:var(--figma-color-text-onbrand,#fff);font-weight:600;font:inherit;cursor:pointer;margin-top:6px}
-button:disabled{opacity:.5;cursor:default}.secondary{background:transparent;color:var(--figma-color-text,#333);border:1px solid var(--figma-color-border,#ccc);padding:6px;font-weight:500}
-summary{font-weight:600;cursor:pointer;padding:2px 0}details[open] summary{margin-bottom:8px}
-small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);margin:6px 0}.selected{margin:0 0 8px;overflow-wrap:anywhere;font-weight:600}
-#bar{height:6px;border-radius:3px;background:var(--figma-color-bg-secondary,#eee);overflow:hidden;margin:10px 0 6px}
-#bar>div{height:100%;width:35%;background:var(--figma-color-bg-brand-strong,#1769aa)}#bar[data-complete=true]>div{width:100%}
-#status{font-size:11px;color:var(--figma-color-text-secondary,#666);white-space:pre-wrap;overflow-wrap:anywhere;min-height:16px;margin:8px 0}
-#status[data-kind=error]{color:var(--figma-color-text-danger,#a52720)}#status[data-kind=success]{color:var(--figma-color-text-success,#1a7f37)}
-#download{font-size:11px;color:var(--figma-color-text-brand,#1769aa)}footer{margin-top:12px}footer small{border-top:1px solid var(--figma-color-border,#e5e5e5);padding-top:8px}
-[hidden]{display:none!important}:focus-visible{outline:2px solid var(--figma-color-border-brand,#1769aa);outline-offset:3px}
-.table-scroll{max-height:240px;overflow:auto}table{border-collapse:collapse;width:100%;min-width:600px;font-size:11px}th,td{text-align:left;vertical-align:top;padding:5px;border-bottom:1px solid var(--figma-color-border,#ddd);white-space:nowrap}caption{text-align:left;font-weight:600;padding:6px 0}#recognitionNotes{padding-left:18px;font-size:11px}
-.prefix-reference{max-height:360px}.prefix-reference table{min-width:0;table-layout:fixed;font-size:10px}.prefix-reference th,.prefix-reference td{white-space:normal;overflow-wrap:anywhere}.prefix-reference th:nth-child(1),.prefix-reference th:nth-child(2){width:28%}
+:root{color-scheme:light dark;font:12px/1.5 Inter,-apple-system,"Segoe UI",sans-serif;--bg:var(--figma-color-bg,#fff);--surface:var(--figma-color-bg-secondary,#f5f5f5);--text:var(--figma-color-text,#242424);--muted:var(--figma-color-text-secondary,#656565);--border:var(--figma-color-border,#dedede);--brand:var(--figma-color-bg-brand,#1769aa);--on-brand:var(--figma-color-text-onbrand,#fff);--danger:var(--figma-color-text-danger,#a52720);--success:var(--figma-color-text-success,#16723c);--radius:10px;--gap:12px}
+*{box-sizing:border-box}body{margin:0;color:var(--text);background:var(--bg);height:100vh;display:flex;flex-direction:column}button,input,select{font:inherit}h1,h2,p{margin:0}h1{font-size:15px;line-height:1.4;font-weight:650}h2{font-size:12px;font-weight:650;display:flex;align-items:center;gap:8px}.app-header{padding:16px 18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex:none}.app-mark{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;background:var(--text);color:var(--bg);font-size:12px;font-weight:750;flex:none}.version{font-size:10px;font-weight:500;color:var(--muted);margin-left:6px}.sub,small{color:var(--muted);font-size:11px}main{flex:1;min-height:0;overflow:auto;padding:14px 16px;scrollbar-gutter:stable;display:flex;flex-direction:column;gap:var(--gap)}.card{border:1px solid var(--border);border-radius:var(--radius);padding:12px;flex:none;min-width:0}.step{font-size:10px;font-weight:600;color:var(--muted);border:1px solid var(--border);border-radius:50%;width:20px;height:20px;display:grid;place-items:center;flex:none}.section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.badge{font-size:10px;font-weight:550;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:2px 6px;white-space:nowrap}.selected{font-weight:600;font-size:13px;overflow-wrap:anywhere;margin:0 0 3px}.scope{overflow-wrap:anywhere;margin-bottom:10px}.stack{display:block;margin:10px 0 0;font-weight:500}input,select{width:100%;min-width:0;min-height:36px;padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);margin-top:5px}button{width:100%;min-height:36px;padding:8px 10px;border:1px solid transparent;border-radius:6px;background:var(--brand);color:var(--on-brand);font-weight:600;cursor:pointer}button:hover:not(:disabled){filter:brightness(.94)}button:disabled{opacity:.45;cursor:default}.secondary{background:var(--bg);color:var(--text);border-color:var(--border)}.action{margin-top:10px}.row{display:flex;gap:12px}.row>*{min-width:0;flex:1}small{display:block;margin-top:7px;line-height:1.5}details.card{padding:0}summary{font-weight:600;cursor:pointer;min-height:44px;padding:12px;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px}summary::-webkit-details-marker{display:none}summary::after{content:'+';font-size:16px;font-weight:400;color:var(--muted)}details[open]>summary::after{content:'−'}details[open]>summary{border-bottom:1px solid var(--border)}.disclosure-body{padding:0 12px 12px}.disclosure-body>p:first-child{margin-top:10px}form{margin-top:12px;padding-top:2px;border-top:1px solid var(--border)}form button{margin-top:14px}#statePreview{margin-top:14px;border-top:1px solid var(--border);padding-top:4px}#statePreview button{margin-top:8px}.table-scroll{max-height:320px;overflow:auto;margin-top:10px}table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:11px}th,td{text-align:left;vertical-align:top;padding:7px 5px;border-bottom:1px solid var(--border);overflow-wrap:anywhere}th:nth-child(1),th:nth-child(2){width:28%}caption{text-align:left;font-weight:600;padding-bottom:8px}.recognition-list{list-style:none;padding:0;margin:10px 0 0;max-height:250px;overflow:auto}.recognition-item{padding:9px 0;border-bottom:1px solid var(--border)}.recognition-item:last-child{border-bottom:0}.recognition-title{display:flex;gap:8px;justify-content:space-between;align-items:flex-start}.recognition-name{font-weight:600;overflow-wrap:anywhere;min-width:0}.recognition-meta{font-size:11px;color:var(--muted);overflow-wrap:anywhere;margin-top:3px}#recognitionSummary{font-size:11px;font-weight:600;margin-top:10px}#recognitionNotes{padding-left:18px;font-size:11px;margin:8px 0}#recognitionNotes:empty{display:none}#recognitionReport{margin-top:10px;border-top:1px solid var(--border)}.export-panel{padding:12px 16px;border-top:1px solid var(--border);background:var(--bg);flex:none}.export-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:8px}.export-hint{font-size:10px;color:var(--muted);margin-top:8px}#status{font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:100px;overflow:auto;margin-top:8px;color:var(--muted)}#status[data-kind=error]{color:var(--danger)}#status[data-kind=success]{color:var(--success)}#bar{height:4px;border-radius:2px;background:var(--surface);overflow:hidden;margin-top:10px}#bar>div{height:100%;width:35%;background:var(--brand)}#bar[data-complete=true]>div{width:100%}#download{display:inline-block;margin-top:6px;color:var(--figma-color-text-brand,#1769aa);font-size:11px}[hidden]{display:none!important}:focus-visible{outline:2px solid var(--figma-color-border-brand,#1769aa);outline-offset:3px}@media(max-width:340px){main{padding:10px}.app-header{padding:12px}.export-panel{padding:10px}.row{flex-direction:column;gap:0}.version{display:block;margin-left:0}}
 </style></head><body>
-<h1>Figma → Extron Exporter · 0.3.0</h1><p class="sub">Подготовленный экран → .exui → редактируемый .gdl</p>
-<fieldset><legend>Экран</legend>
-<p id="selection" class="selected">Выберите один Frame экрана или проекта</p>
+<header class="app-header"><div class="app-mark" aria-hidden="true">EX</div><div><h1>Figma → Extron Exporter <span class="version">· 0.3.2</span></h1><p class="sub">Экран или проект → пакет .exui</p></div></header>
+<main aria-label="Подготовка макета">
+<section class="card" aria-labelledby="selectionTitle">
+<div class="section-head"><h2 id="selectionTitle"><span class="step" aria-hidden="true">1</span>Макет и панель</h2><span id="selectionType" class="badge">Нет выбора</span></div>
+<p id="selection" class="selected">Выберите секцию проекта или Frame экрана</p>
+<p id="scope" class="sub scope">Секция объединяет страницы в один проект.</p>
 <label class="stack">Профиль панели<select id="profile"><option value="tlp-pro-1025m">TLP Pro 1025M · 1280×800</option><option value="tlp-pro-300m-portrait">TLP Pro 300M · 320×480</option></select></label>
-<button id="prepare" class="secondary" hidden>Подготовить выбранный экран</button>
-<small id="preparationHelp" hidden>Это собственный макет без назначения Extron. Используйте «Распознать по именам» ниже либо подготовьте экран и назначьте элементы вручную.</small>
-<button id="check" class="secondary">Проверить экран</button><small>Экспортируется экран или весь project_Name. Ключи и ID сохраняются.</small>
-</fieldset>
-<fieldset><legend>Назначить по именам</legend>
-<small>Выберите экран Home или project_Name. button_/btn_: только Off + On. feedbackbutton_/fbtn_: Normal + Active + Pressed. Регистр букв не важен. Прежние сохранённые кнопки сохраняют свои состояния.</small>
-<details><summary>Справочник префиксов и состояний</summary><div class="table-scroll prefix-reference" role="region" aria-label="Справочник префиксов" tabindex="0"><table><caption>Как назвать слой</caption><thead><tr><th scope="col">Коротко</th><th scope="col">Полностью</th><th scope="col">Для чего и где</th></tr></thead><tbody>
-<tr><td>Home / scr_Home</td><td>screen_Home</td><td>Внешний Frame экрана</td></tr>
-<tr><td>prj_Trilliant</td><td>project_Trilliant</td><td>Frame всего проекта: страницы, popup и группы</td></tr>
-<tr><td>pop_Sources</td><td>popup_Sources</td><td>Обычный popup внутри проекта</td></tr>
-<tr><td>mdl_Confirm</td><td>modalpopup_Confirm</td><td>Модальный popup размером с панель</td></tr>
-<tr><td>pgrp_Zones</td><td>popupgroup_Zones</td><td>Frame группы взаимоисключающих popup</td></tr>
-<tr><td>pr_Sources</td><td>popupref_Sources</td><td>Пустой Frame места popup; цель popup.sources</td></tr>
-<tr><td>sld_Volume</td><td>slider_Volume</td><td>Нативный Slider: Track, Fill, Thumb</td></tr>
-<tr><td>gau_Signal</td><td>gauge_Signal</td><td>Пустой Frame индикатора уровня</td></tr>
-<tr><td>ind_Status</td><td>indicator_Status</td><td>Индикатор значения, режим Gauge</td></tr>
-<tr><td>led_Audio</td><td>volumeled_Audio</td><td>Пустой Frame уровня, режим Volume LED</td></tr>
-<tr><td>mlvl_Status</td><td>multilevel_Status</td><td>Level с 2–8 Frame состояний</td></tr>
-<tr><td>val_VolumeValue</td><td>value_VolumeValue</td><td>Text с динамическим значением и управляющим ID</td></tr>
-<tr><td>shp_Card</td><td>shape_Card</td><td>Пустой Frame, Rectangle или Ellipse; редактируемая фигура</td></tr>
-<tr><td>ln_Divider</td><td>line_Divider</td><td>Пустой Frame/Rectangle; толщина — меньшая сторона</td></tr>
-<tr><td>dt_Clock</td><td>datetime_Clock</td><td>Text с форматом HH:mm или dd.MM.yyyy HH:mm</td></tr>
-<tr><td>st_Ready</td><td>state_Ready</td><td>Дополнительное feedback-состояние; до 8 состояний</td></tr>
-<tr><td>vid_Preview</td><td>video_Preview</td><td>Недоступно для профилей 1025M/300M; экспорт отклоняется</td></tr>
-<tr><td>dimg_Cover</td><td>dynamicimage_Cover</td><td>Недоступно для профилей 1025M/300M; экспорт отклоняется</td></tr>
-<tr><td>btn_Music</td><td>button_Music</td><td>Обычная кнопка: ровно Off + On</td></tr>
-<tr><td>fbtn_Music</td><td>feedbackbutton_Music</td><td>Кнопка с feedback: ровно Normal + Active + Pressed</td></tr>
-<tr><td>btn_VolumeUp</td><td>button_VolumeUp</td><td>Кнопка «+»: Off + On; без отдельного Pressed</td></tr>
-<tr><td>btn_VolumeDown</td><td>button_VolumeDown</td><td>Кнопка «−», уменьшить громкость</td></tr>
-<tr><td>btn_Mute</td><td>button_Mute</td><td>Кнопка заглушения</td></tr>
-<tr><td>lvl_Volume</td><td>level_Volume</td><td>Пустой Frame регулятора 0–100</td></tr>
-<tr><td>txt_Title</td><td>text_Title</td><td>Самостоятельный Text на экране</td></tr>
-<tr><td>logo_Company</td><td>logo_Company</td><td>Frame логотипа внутри экрана, без состояний</td></tr>
-<tr><td>img_Photo</td><td>image_Photo</td><td>Frame статичной картинки внутри экрана</td></tr>
-<tr><td>Icon / ico_Music</td><td>icon_Music</td><td>Frame иконки внутри состояния кнопки</td></tr>
-<tr><td>Off / Normal / st_Normal</td><td>state_Off / state_Normal</td><td>Исходное состояние кнопки</td></tr>
-<tr><td>On / Feedback / st_On</td><td>state_On / state_Feedback</td><td>Состояние от программы управления</td></tr>
-<tr><td>Pressed / st_Pressed</td><td>state_Pressed</td><td>Вид при удержании; после отпускания возврат</td></tr>
-</tbody></table></div><small>VolumeUp и volumeup равнозначны. Текст на кнопке задаётся внутри Text и может быть «+» или «−». Логотип и картинка экспортируются в PNG, сохраняя отдельный объект PBImage в GDL. Новые типы требуют CLI с exui/5. Переходы и обновление значений выполняет программа управления.</small></details>
-<button id="recognize" class="secondary">Распознать по именам</button>
-<div id="recognitionReport" hidden><div class="table-scroll" role="region" aria-label="Результат распознавания" tabindex="0"><table><caption>Предлагаемые назначения</caption><thead><tr><th scope="col">Слой</th><th scope="col">Тип</th><th scope="col">Ключ</th><th scope="col">ID объекта</th><th scope="col">ID управления</th><th scope="col">Назначение</th></tr></thead><tbody id="recognitionRows"></tbody></table></div><ul id="recognitionNotes"></ul><button id="applyRecognition" class="secondary" disabled>Сохранить распознанные назначения</button></div>
-</fieldset>
-<fieldset><legend>Библиотека компонентов</legend>
-<button id="kit" class="secondary">Создать Extron Kit</button><small>30 компонентов: универсальные элементы и готовые Mute, Power, источники, зоны и навигация. Свободное оформление в слотах Artwork, шаблоны проекта и пример для выбранной панели. Основные компоненты и экземпляры остаются связанными в Figma.</small>
-</fieldset>
-<fieldset><legend>Пример для знакомства</legend>
-<button id="demo" class="secondary">Создать демо для этого профиля</button><small>Новый Frame «Главная»: Музыка, Громкость и Mute. Все назначения и три состояния кнопок уже подготовлены.</small>
-</fieldset>
-<fieldset><legend>Элементы</legend><details id="editor"><summary>Назначение выбранного элемента</summary>
-<p class="sub">Имена слоёв можно менять. Назначение, ключ и ID хранятся на узле. Копиям явно назначьте новые ключи и ID.</p>
-<p class="sub">Обычная кнопка: Off + On. Кнопка с feedback: Normal + Active + Pressed. В каждом состоянии — Text и необязательная иконка. Active / On задаёт программа управления, Pressed показывается при удержании. Переименование слоя не меняет сохранённый тип кнопки.</p>
+</section>
+<section class="card" aria-labelledby="recognitionTitle">
+<h2 id="recognitionTitle"><span class="step" aria-hidden="true">2</span>Назначения Extron</h2>
+<small id="recognitionHelp">Выберите секцию или экран. Плагин распознает имена слоёв и предложит ключи и ID.</small>
+<button id="recognize" class="secondary action">Распознать по именам</button>
+<div id="recognitionReport" hidden><p id="recognitionSummary"></p><ul id="recognitionRows" class="recognition-list" aria-label="Результат распознавания" tabindex="0"></ul><ul id="recognitionNotes"></ul><button id="applyRecognition" class="action" disabled>Сохранить распознанные назначения</button></div>
+</section>
+<details id="editor" class="card"><summary>Назначение выбранного элемента</summary><div class="disclosure-body">
+<p class="sub">Выберите элемент на холсте. Здесь можно изменить его тип, переход и свойства. Сохранённые ключи и ID сохраняются при распознавании.</p>
+<button id="prepare" class="secondary action" hidden>Подготовить выбранный экран</button>
+<small id="preparationHelp" hidden>Ручная подготовка Frame без распознавания дочерних элементов.</small>
 <form id="mapping">
-<label class="stack">Назначение<select id="kind"><option value="project">Проект · Frame</option><option value="page">Экран · Frame</option><option value="popup">Popup · Frame</option><option value="popup-group">Группа popup · Frame</option><option value="popup-ref">Место popup · Frame</option><option value="button">Кнопка · Frame</option><option value="label">Подпись · Text</option><option value="value">Динамическое значение · Text</option><option value="datetime">Дата/время · Text</option><option value="slider">Кастомный Slider · Frame</option><option value="shape">Фигура</option><option value="line">Линия</option><option value="level">Level / Slider · Frame</option><option value="graphic">Логотип / изображение · Frame</option><option value="state">Состояние кнопки · Frame</option><option value="image">PNG-иконка · Frame</option></select></label>
-<label class="stack" data-for="button">Тип кнопки<select id="buttonMode" aria-label="Тип кнопки"><option value="on-off">Обычная · Off / On</option><option value="feedback">С feedback · Normal / Active / Pressed</option><option value="legacy" hidden disabled>Сохранённая · прежние состояния</option></select></label>
+<label class="stack">Назначение<select id="kind"><option value="project">Проект · Section / Frame</option><option value="page">Экран · Frame</option><option value="popup">Popup · Frame</option><option value="popup-group">Группа popup · Frame</option><option value="popup-ref">Место popup · Frame</option><option value="button">Кнопка · Frame</option><option value="label">Подпись · Text</option><option value="value">Динамическое значение · Text</option><option value="datetime">Дата/время · Text</option><option value="slider">Кастомный Slider · Frame</option><option value="shape">Фигура</option><option value="line">Линия</option><option value="level">Level / Slider · Frame</option><option value="graphic">Логотип / изображение · Frame</option><option value="state">Состояние кнопки · Frame</option><option value="image">PNG-иконка · Frame</option></select></label>
+<label class="stack" data-for="button">Тип кнопки<select id="buttonMode" aria-label="Тип кнопки"><option value="on-off">Обычная · 2 состояния</option><option value="feedback">С feedback · Pressed необязателен</option><option value="legacy" hidden disabled>Сохранённая · прежние состояния</option></select></label>
 <label class="stack" data-for="project page popup popup-group popup-ref button label value level slider shape line datetime image graphic">Семантический ключ<input id="key" placeholder="source.music" autocomplete="off"></label>
 <div class="row"><label class="stack" data-for="page popup popup-group popup-ref button label value level slider shape line datetime graphic">ID объекта<input id="objectId" type="number" min="1" step="1"></label><label class="stack" data-for="button level value slider">ID управления Extron<input id="controlId" type="number" min="1" max="65535" step="1"></label></div>
 <label class="stack" data-for="project page popup">Имя проекта<input id="projectName" maxlength="256"></label>
@@ -97,18 +42,59 @@ small{font-size:10px;display:block;color:var(--figma-color-text-secondary,#666);
 <label class="stack" data-for="level slider">Направление<select id="orientation"><option value="left-to-right">Слева направо</option><option value="right-to-left">Справа налево</option><option value="bottom-to-top">Снизу вверх</option><option value="top-to-bottom">Сверху вниз</option></select></label>
 <div class="row" data-for="level slider"><label class="stack">Минимум<input id="min" type="number" min="0" step="1" value="0"></label><label class="stack">Максимум<input id="max" type="number" min="1" step="1" value="100"></label></div>
 <label class="stack" data-for="datetime">Формат даты/времени<input id="pattern" placeholder="dd.MM.yyyy HH:mm"></label>
-<label class="stack" data-for="button">Ключ цели перехода<input id="navigate" placeholder="page.home или popup.sources"></label>
+<label class="stack" data-for="button">Открыть страницу или popup<select id="navigate" aria-describedby="navigationHelp"><option value="">Без перехода</option></select></label>
+<small id="navigationHelp" data-for="button">Выберите цель из текущего проекта. Переход подключается в программе управления Extron.</small>
 <label class="stack" data-for="button">Группа выбора<input id="selectionGroup" placeholder="sources.hall"></label>
 <label class="stack" data-for="button level value slider">Доступность при запуске<select id="enabled"><option value="">Без указания</option><option value="true">Доступен</option><option value="false">Недоступен</option></select></label>
 <label class="stack" data-for="button level value slider">Видимость при запуске<select id="visible"><option value="">Без указания</option><option value="true">Виден</option><option value="false">Скрыт</option></select></label>
 <small data-for="button level value slider">Переходы, группа выбора, доступность и видимость — указания в карте ID. Их применяет программа управления; GDL сам их не исполняет.</small>
-<button class="secondary" type="submit">Сохранить назначение</button>
+<button type="submit">Сохранить назначение</button>
 </form>
-<div id="statePreview" data-for="button level"><label class="stack">Просмотр состояния<select id="previewRole"><option value="normal">normal</option><option value="feedback">feedback</option><option value="pressed">pressed</option></select></label><button id="preview" class="secondary">Показать состояние</button></div>
-</details></fieldset>
-<button id="export">Скачать .exui</button>
-<div id="bar" role="progressbar" aria-label="Экспорт экрана" aria-valuemin="0" aria-valuemax="100" hidden><div></div></div>
-<p id="status" role="status" aria-live="polite">Выберите подготовленный экран или создайте демо.</p>
+<div id="statePreview" data-for="button level"><label class="stack">Просмотр состояния<select id="previewRole"></select></label><button id="preview" class="secondary">Показать состояние</button><small>Экспорт включает все существующие состояния, в том числе скрытые.</small></div>
+</div></details>
+<details class="card" id="library"><summary>Библиотека компонентов</summary><div class="disclosure-body"><p class="sub">Готовые кнопки, регуляторы и другие элементы для новых макетов.</p><button id="kit" class="secondary action">Создать Extron Kit</button><small>Добавит библиотеку и пример рядом с макетами на текущем холсте.</small></div></details>
+<details class="card" id="reference"><summary>Справочник префиксов и состояний</summary><div class="disclosure-body">
+<div class="table-scroll prefix-reference" role="region" aria-label="Справочник префиксов" tabindex="0"><table><caption>Как назвать слой</caption><thead><tr><th scope="col">Коротко</th><th scope="col">Полностью</th><th scope="col">Для чего и где</th></tr></thead><tbody>
+<tr><td>Секция</td><td>Любое имя</td><td>Проект из нескольких Frame экранов и popup</td></tr>
+<tr><td>Home / scr_Home</td><td>screen_Home</td><td>Внешний Frame экрана</td></tr>
+<tr><td>prj_Trilliant</td><td>project_Trilliant</td><td>Frame проекта; также можно использовать секцию с любым именем</td></tr>
+<tr><td>pop_Sources</td><td>popup_Sources</td><td>Обычный popup внутри проекта</td></tr>
+<tr><td>mdl_Confirm</td><td>modalpopup_Confirm</td><td>Модальный popup размером с панель</td></tr>
+<tr><td>pgrp_Zones</td><td>popupgroup_Zones</td><td>Frame группы взаимоисключающих popup</td></tr>
+<tr><td>pr_Sources</td><td>popupref_Sources</td><td>Пустой Frame места popup; цель popup.sources</td></tr>
+<tr><td>sld_Volume</td><td>slider_Volume</td><td>Нативный Slider: Track, Fill, Thumb</td></tr>
+<tr><td>gau_Signal</td><td>gauge_Signal</td><td>Пустой Frame индикатора уровня</td></tr>
+<tr><td>ind_Status</td><td>indicator_Status</td><td>Индикатор значения, режим Gauge</td></tr>
+<tr><td>led_Audio</td><td>volumeled_Audio</td><td>Пустой Frame уровня, режим Volume LED</td></tr>
+<tr><td>mlvl_Status</td><td>multilevel_Status</td><td>Level с 2–8 Frame состояний</td></tr>
+<tr><td>val_VolumeValue</td><td>value_VolumeValue</td><td>Text с динамическим значением и управляющим ID</td></tr>
+<tr><td>shp_Card</td><td>shape_Card</td><td>Пустой Frame, Rectangle или Ellipse; редактируемая фигура</td></tr>
+<tr><td>ln_Divider</td><td>line_Divider</td><td>Пустой Frame/Rectangle; толщина — меньшая сторона</td></tr>
+<tr><td>dt_Clock</td><td>datetime_Clock</td><td>Text с форматом HH:mm или dd.MM.yyyy HH:mm</td></tr>
+<tr><td>st_Ready</td><td>state_Ready</td><td>Дополнительное feedback-состояние; до 8 состояний</td></tr>
+<tr><td>vid_Preview</td><td>video_Preview</td><td>Недоступно для профилей 1025M/300M; экспорт отклоняется</td></tr>
+<tr><td>dimg_Cover</td><td>dynamicimage_Cover</td><td>Недоступно для профилей 1025M/300M; экспорт отклоняется</td></tr>
+<tr><td>btn_Music</td><td>button_Music</td><td>2 состояния: Off / On, Passive / Active или Normal / Pressed</td></tr>
+<tr><td>fbtn_Music</td><td>feedbackbutton_Music</td><td>Normal / Active; Pressed необязателен</td></tr>
+<tr><td>btn_VolumeUp</td><td>button_VolumeUp</td><td>Кнопка «+»: Normal / Pressed</td></tr>
+<tr><td>btn_VolumeDown</td><td>button_VolumeDown</td><td>Кнопка «−», уменьшить громкость</td></tr>
+<tr><td>btn_Mute</td><td>button_Mute</td><td>Кнопка заглушения</td></tr>
+<tr><td>lvl_Volume</td><td>level_Volume</td><td>Пустой Frame регулятора 0–100</td></tr>
+<tr><td>txt_Title</td><td>text_Title</td><td>Самостоятельный Text на экране</td></tr>
+<tr><td>logo_Company</td><td>logo_Company</td><td>Frame логотипа внутри экрана, без состояний</td></tr>
+<tr><td>img_Photo</td><td>image_Photo</td><td>Frame статичной картинки внутри экрана</td></tr>
+<tr><td>Icon / ico_Music</td><td>icon_Music</td><td>Frame иконки внутри состояния кнопки</td></tr>
+<tr><td>Off / Normal / st_Normal</td><td>state_Off / state_Normal</td><td>Исходное состояние кнопки</td></tr>
+<tr><td>On / Feedback / st_On</td><td>state_On / state_Feedback</td><td>Состояние от программы управления</td></tr>
+<tr><td>Pressed / st_Pressed</td><td>state_Pressed</td><td>Вид при удержании; после отпускания возврат</td></tr>
+</tbody></table></div><small>VolumeUp и volumeup равнозначны. Текст на кнопке задаётся внутри Text и может быть «+» или «−». Логотип и картинка экспортируются в PNG, сохраняя отдельный объект PBImage в GDL. Новые типы требуют CLI с exui/5. Переходы и обновление значений выполняет программа управления.</small>
+</div></details>
+</main>
+<footer class="export-panel" aria-label="Проверка и экспорт">
+<div class="export-actions"><button id="check" class="secondary">Проверить макет</button><button id="export">Скачать .exui</button></div>
+<div id="bar" role="progressbar" aria-label="Экспорт макета" aria-valuemin="0" aria-valuemax="100" hidden><div></div></div>
+<p id="status" role="status" aria-live="polite">Выберите секцию проекта или Frame экрана.</p>
 <a id="download" hidden download>Скачать пакет повторно</a>
-<footer><small>Arial · PNG · Slider · индикаторы · страницы и popup<br>Пакет преобразуется локальным CLI. Build выполняется вручную в GUI Designer.</small></footer>
+<p class="export-hint">После экспорта: CLI → .gdl → GUI Designer.</p>
+</footer>
 <script>/*__BUNDLE__*/</script></body></html>

@@ -7,10 +7,32 @@ import { buildSync } from 'esbuild';
 import { icons, fakeFigma } from './fake-figma.ts';
 import { namedFixture } from './named-fixture.ts';
 import { createDemo } from '../src/demo.ts';
-import { projectFixture } from './expanded-fixture.ts';
+import { projectFixture,sectionFixture } from './expanded-fixture.ts';
 import { kitFixture } from './kit-fixture.ts';
 const source=buildSync({entryPoints:[fileURLToPath(new URL('../src/code.ts',import.meta.url))],bundle:true,write:false,target:'es2017',define:{__html__:'"test"',__ICONS__:JSON.stringify(Object.fromEntries(Object.entries(icons()).map(([k,v])=>[k,[...v]])))}}).outputFiles[0].text;
 function plugin(){const fake=fakeFigma();vm.runInNewContext(source,{figma:fake.api,Uint8Array,console});return{...fake,send:fake.api.ui.onmessage as (message:unknown)=>Promise<void>};}
+
+test('Section project: recognize → map navigation by target list → check/export from a child',async()=>{
+ const p=plugin(),root=sectionFixture('tlp-pro-300m-portrait');p.page.selection=[root as never];
+ await p.send({type:'recognize',profile:'tlp-pro-300m-portrait'});const report=p.messages.filter(m=>m.type==='recognition').at(-1) as any;assert.deepEqual([...report.errors],[]);
+ await p.send({type:'apply-recognition',token:report.token,profile:'tlp-pro-300m-portrait'});
+ const home=root.children[0] as FrameNode,button=home.children.find(n=>n.name==='button_Connection')!;p.page.selection=[button as never];p.emit('selectionchange');
+ const selection=p.messages.filter(m=>m.type==='selection').at(-1) as any;assert.equal(selection.scope.id,root.id);assert.equal(selection.scope.kind,'project');assert.equal(selection.scope.profile,'tlp-pro-300m-portrait');
+ assert.ok(selection.targets.some((t:any)=>t.key==='page.settings'));assert.equal(selection.targets.some((t:any)=>t.key==='page.home'),false);
+ const m=JSON.parse(button.getPluginData('exui'));await p.send({type:'apply',data:{...m,buttonMode:'legacy',navigate:'page.settings'}});
+ p.page.selection=[root.children[1] as never];const settings=JSON.parse(root.children[1].getPluginData('exui'));await p.send({type:'apply',data:{...settings,shownBy:'navigation'}});
+ p.page.selection=[button as never];await p.send({type:'check'});await p.send({type:'export'});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;
+ assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.pages[0].elements.find((e:any)=>e.key===m.key).navigate,'page.settings');
+});
+
+test('Manual mapping supports Section only as a project and preserves an invalid selection',async()=>{
+ const p=plugin(),section=p.api.createSection();section.name='Trilliant';p.page.selection=[section];
+ await p.send({type:'apply',data:{kind:'project',key:'project.trilliant',projectName:'Trilliant',profile:'tlp-pro-1025m'}});
+ assert.equal(JSON.parse(section.getPluginData('exui')).kind,'project');const before=section.getPluginData('exui');
+ await p.send({type:'apply',data:{kind:'page',key:'page.home',objectId:'100',projectName:'Trilliant',profile:'tlp-pro-1025m'}});
+ assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'node-type');assert.equal(section.getPluginData('exui'),before);
+});
 
 test('Built plugin creates the kit without selection, then recognizes its example',async()=>{
  const fake=kitFixture();vm.runInNewContext(source,{figma:fake.api,Uint8Array,console});const send=fake.api.ui.onmessage as (m:unknown)=>Promise<void>;
@@ -72,7 +94,7 @@ test('Manual form persists the chosen button type and rejects unsupported modes 
   await p.send({type:'apply',data:{...before,buttonMode:'on-off'}});
   const assigned=JSON.parse(button.getPluginData('exui'));assert.equal(assigned.schema,'exui-node/3');assert.equal(assigned.buttonMode,'on-off');
   assert.equal(assigned.objectId,before.objectId);assert.equal(assigned.controlId,before.controlId);
-  // The author must supply Off/On; saving a type never fabricates state artwork.
+  // An ordinary button requires two states; saving its type never deletes a third.
   await p.send({type:'export'});assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'button-states');
   const raw=button.getPluginData('exui');
   for(const mode of ['auto','legacy']){await p.send({type:'apply',data:{...assigned,buttonMode:mode}});assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'button-mode');assert.equal(button.getPluginData('exui'),raw);}

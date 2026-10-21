@@ -32,7 +32,7 @@ export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,in
   const pm=meta(root,undefined,read);if(pm.kind!=='page'&&!(inProject&&pm.kind==='popup'))fail('kind',`${root.name}: нужен экран или popup проекта.`);
   if(!pm.profile || !(pm.profile in PROFILES)) fail('profile','Выберите один из двух профилей панели.');
   const profile=pm.profile, canvas=PROFILES[profile];
-  if(!inProject&&pm.shownBy&&pm.shownBy!=='start')fail('page','Для способа показа navigation/program нужен общий Frame project_Name.');
+  if(!inProject&&pm.shownBy&&pm.shownBy!=='start')fail('page','Для способа показа navigation/program нужна общая секция проекта или Frame project_Name.');
   if(pm.kind==='popup'&&!pm.modal){if(root.width<1||root.height<1||root.width>canvas.width||root.height>canvas.height)fail('profile','Popup должен помещаться в холст.');}
   else if(root.width!==canvas.width || root.height!==canvas.height) fail('profile',`Холст должен быть ${canvas.width}×${canvas.height}; масштабирование не выполняется.`);
   const keys=new Set<string>(), ids=new Set<number>(), controls=new Set<number>();
@@ -63,7 +63,7 @@ export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,in
     const bounds=rect(node,root), [x,y,w,h]=bounds;
     if(x<0||y<0||w<1||h<1||x+w>root.width||y+h>root.height) fail('bounds',`${node.name}: элемент выходит за холст.`);
     const e: Element={key:addKey(m.key,node.name),kind:m.kind as Element['kind'],objectId,controlId,name:text(node.name,'Имя элемента'),rect:bounds};
-    if(m.navigate){if(!inProject)fail('navigation','Для переходов нужен project_Name.');if(m.kind!=='button')fail('navigation','Переход допустим только у кнопки.');e.navigate=key(m.navigate,'Цель перехода');}
+    if(m.navigate){if(!inProject)fail('navigation','Для переходов нужна секция проекта или Frame project_Name.');if(m.kind!=='button')fail('navigation','Переход допустим только у кнопки.');e.navigate=key(m.navigate,'Цель перехода');}
     if(m.behavior){if(passive)fail('behavior','Поведение требует управляющего ID.');if(Object.keys(m.behavior).some(k=>!['selectionGroup','enabled','visible'].includes(k))||['enabled','visible'].some(k=>k in m.behavior!&&typeof m.behavior![k as 'enabled'|'visible']!=='boolean'))fail('behavior','Неизвестные или некорректные поля поведения.');if(m.behavior.selectionGroup){if(m.kind!=='button')fail('behavior','Группа выбора применяется к кнопкам.');key(m.behavior.selectionGroup,'Группа выбора');}e.behavior=m.behavior;}
     if(nativeElement(node,m,e)) {
       // Native controls carry editable appearance rather than a raster snapshot.
@@ -129,16 +129,16 @@ export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,in
     }
     screen.elements.push(e);
   }
-  if(assets.size>16) fail('images','Допустимо до 16 PNG ресурсов.');
   if(screen.elements.some(e=>e.kind==='graphic'||e.states?.map(s=>s.role).join(',')==='normal,pressed'))screen.schema='exui-screen/4';
   else if(screen.elements.some(e=>e.states?.length===2))screen.schema='exui-screen/3';
   if(screen.elements.some(e=>e.native||e.kind==='value'||e.kind==='button'&&e.states?.some(s=>s.text==='')||e.states&&!['normal,pressed','normal,feedback','normal,feedback,pressed'].includes(e.states.map(s=>s.role).join(',')))||inProject||root.children.some(n=>['exui-node/2','exui-node/3'].includes(read(n)?.schema??''))||screen.elements.some(e=>e.states&&e.states.length>3))screen.schema='exui-screen/5';
+  if(assets.size>16)screen.schema='exui-screen/5'; // Larger asset sets require the updated v5 reader.
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
   return {profile,screen,images,signature:designSignature(root)};
 }
 
 export async function exportFrame(root:SceneNode, progress:(message:string)=>void=()=>{}):Promise<Bundle> {
-  const captured=capture(root);const byPath=new Map<string,Uint8Array>();
+  const captured=capture(root);const byPath=new Map<string,Uint8Array>();let imageBytes=0;
   for(const {asset,node} of captured.images) {
     progress('PNG: '+asset.key);
     const bytes=await exportPng(node);
@@ -148,6 +148,7 @@ export async function exportFrame(root:SceneNode, progress:(message:string)=>voi
     if(size.getUint32(16)!==Math.round(node.width)||size.getUint32(20)!==Math.round(node.height)) fail('image-size',`${asset.key}: PNG ${size.getUint32(16)}×${size.getUint32(20)}, ожидался Native размер Frame ${Math.round(node.width)}×${Math.round(node.height)}.`);
     const previous=byPath.get(asset.file);
     if(previous&&(previous.length!==bytes.length||previous.some((v,i)=>v!==bytes[i]))) fail('image-conflict',`${asset.key}: один ключ использован для разных изображений.`);
+    if(!previous){imageBytes+=bytes.length;if(imageBytes>16*1024*1024)fail('package-size','Изображения превышают 16 MiB. Уменьшите PNG перед повторным экспортом.');}
     byPath.set(asset.file,bytes);
   }
   if(root.removed||capture(root).signature!==captured.signature) fail('design-changed','Дизайн изменился во время экспорта. Повторите экспорт после завершения правок.');

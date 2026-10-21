@@ -4,23 +4,24 @@ import { createDemo, tag } from './demo.ts';
 import { recognize, applyRecognition, type RecognitionPlan } from './recognize.ts';
 import { createKit } from './kit.ts';
 import { controlText,isControlFrame } from './kit-contract.ts';
+import { projectMembers, type ProjectNode } from './project.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
 figma.showUI(__html__,{width:420,height:720,themeColors:true});
 let busy=false;
 let recognition:RecognitionPlan|undefined, recognitionToken=0;
-function selected():SceneNode {const selection=figma.currentPage.selection;if(selection.length!==1)fail('selection','Выберите один Frame экрана или один его элемент.');return selection[0];}
-function screenOf(node:SceneNode):FrameNode {
+function selected():SceneNode {const selection=figma.currentPage.selection;if(selection.length!==1)fail('selection','Выберите одну секцию, Frame экрана или его элемент.');return selection[0];}
+function screenOf(node:SceneNode):ProjectNode {
   let current:BaseNode|null=node,found:FrameNode|undefined;
   while(current&&current.type!=='PAGE') {
     const metadata=readMetadata(current);
-    if(metadata?.kind==='project'&&current.type==='FRAME')return current;
+    if(metadata?.kind==='project'&&(current.type==='FRAME'||current.type==='SECTION'))return current;
     if(metadata?.kind==='page'&&current.type==='FRAME')found=current;
     current=current.parent;
   }
   if(found)return found;
-  return fail('screen-unprepared','У выбранного макета ещё нет назначения «Экран». Выберите внешний Frame и профиль, затем нажмите «Распознать по именам» и сохраните назначения. Для ручной подготовки используйте «Подготовить выбранный экран» и «Назначение выбранного элемента».');
+  return fail('screen-unprepared','У выбранного макета ещё нет назначения Extron. Выберите секцию проекта или внешний Frame и профиль, затем нажмите «Распознать по именам» и сохраните назначения. Для ручной подготовки экрана используйте «Подготовить выбранный экран» и «Назначение выбранного элемента».');
 }
 function prepare(profile:Profile|undefined):void {
   const node=selected();
@@ -46,8 +47,19 @@ function publish():void {
     let states:{stateId?:number;name?:string;role?:Role}[]=[];
     try{if(isControlFrame(n)&&['button','level'].includes(metadata?.kind??''))states=n.children.map(c=>readMetadata(c)).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}
     catch(e){warning=warning||(e instanceof Error?e.message:String(e));}
-    figma.ui.postMessage({type:'selection',id:n.id,name:n.name,nodeType:n.type,metadata,warning,states});
-  }catch {figma.ui.postMessage({type:'selection',id:null,name:'Выберите один элемент или Frame экрана'});}
+    let scope:{id:string;name:string;kind:string;profile?:Profile}|undefined;
+    let targets:{key:string;name:string;kind:string}[]=[];
+    try {
+      const root=screenOf(n),rm=readMetadata(root)!;
+      scope={id:root.id,name:root.name,kind:rm.kind,profile:rm.profile};
+      if(rm.kind==='project'){
+        let container:BaseNode|null=n;
+        while(container&& !['page','popup'].includes(readMetadata(container)?.kind??''))container=container.parent;
+        targets=projectMembers(root,readMetadata).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:readMetadata(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
+      }
+    }catch { /* Unassigned or invalid projects are explained by recognition/check. */ }
+    figma.ui.postMessage({type:'selection',id:n.id,name:n.name,nodeType:n.type,metadata,warning,states,scope,targets});
+  }catch {figma.ui.postMessage({type:'selection',id:null,name:'Выберите секцию проекта или Frame экрана'});}
 }
 function apply(data:Record<string,unknown>):void {
   const node=selected(),kind=data.kind as Metadata['kind'];
@@ -59,7 +71,7 @@ function apply(data:Record<string,unknown>):void {
       if(previous?.kind!=='button'||previous.buttonMode)fail('button-mode','Прежние правила доступны только для уже сохранённой кнопки без нового типа.');
     }else{
       const mode=data.buttonMode??'on-off';
-      if(mode!=='on-off'&&mode!=='feedback')fail('button-mode','Выберите Off / On либо Normal / Active / Pressed.');
+      if(mode!=='on-off'&&mode!=='feedback')fail('button-mode','Выберите обычную кнопку с двумя состояниями либо кнопку с обратной связью и необязательным Pressed.');
       value.buttonMode=mode;
     }
   }
@@ -94,7 +106,7 @@ function apply(data:Record<string,unknown>):void {
     if(Object.keys(behavior).length)value.behavior=behavior;
   }
   const textKind=['label','value','datetime'].includes(kind),primitive=['shape','line'].includes(kind),containerKind=['project','page','popup','popup-group','state'].includes(kind);
-  if(containerKind?node.type!=='FRAME':textKind?!controlText(node):primitive?!['FRAME','RECTANGLE','ELLIPSE'].includes(node.type)&&!isControlFrame(node):kind==='image'?node.type!=='FRAME'&&node.type!=='SLOT':!isControlFrame(node))fail('node-type',containerKind?'Для контейнера или состояния нужен обычный Frame.':textKind?'Для этого назначения нужен Text или текстовый компонент кита.':primitive?'Выберите Frame, Rectangle или Ellipse.':'Выберите Frame или экземпляр компонента кита.');
+  if(kind==='project'?node.type!=='FRAME'&&node.type!=='SECTION':containerKind?node.type!=='FRAME':textKind?!controlText(node):primitive?!['FRAME','RECTANGLE','ELLIPSE'].includes(node.type)&&!isControlFrame(node):kind==='image'?node.type!=='FRAME'&&node.type!=='SLOT':!isControlFrame(node))fail('node-type',kind==='project'?'Для проекта нужна секция или Frame.':containerKind?'Для контейнера или состояния нужен обычный Frame.':textKind?'Для этого назначения нужен Text или текстовый компонент кита.':primitive?'Выберите Frame, Rectangle или Ellipse.':'Выберите Frame или экземпляр компонента кита.');
   const parentKind=node.parent?readMetadata(node.parent)?.kind:undefined;
   const allowed=kind==='project'?[undefined]:kind==='page'?[undefined,'project']:kind==='popup'?['project','popup-group']:kind==='popup-group'?['project']:kind==='state'?['button','level']:kind==='image'?['state']:['page','popup'];
   if(!allowed.includes(parentKind))fail('placement',`${node.name}: недопустимый родитель для ${kind}.`);

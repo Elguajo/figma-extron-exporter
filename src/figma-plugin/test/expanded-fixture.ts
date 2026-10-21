@@ -30,6 +30,11 @@ export function projectFixture(profile:Profile='tlp-pro-1025m') {
  const ref=frame(home,'popupref_ZonePanel',200,125,80,60,'');tag(ref,{kind:'popup-ref',key:'home.zonepanel',objectId:500,controlId:null,group:'group.zones'});
  return project;
 }
+export function sectionFixture(profile:Profile='tlp-pro-1025m') {
+ const project=projectFixture(profile),section=figma.createSection();section.name='Триллиант / AV панели';section.x=250;section.y=180;
+ for(const child of [...project.children])section.appendChild(child);
+ project.remove();return section;
+}
 export function verticalFixture(profile:Profile='tlp-pro-1025m') {
  const root=expandedFixture(profile),slider=root.children[0] as FrameNode;slider.resize(32,260);
  const track=slider.children[0] as FrameNode,fill=slider.children[1] as FrameNode,thumb=slider.children[2] as FrameNode;

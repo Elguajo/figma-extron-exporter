@@ -30,7 +30,7 @@ export function fakeFigma() {
   const create=(type:string)=>{const n=new FakeNode(type);page.appendChild(n);return n;};
   const api={currentPage:page,mixed:Symbol('mixed'),root:{name:'fixture'},viewport:{scrollAndZoomIntoView(){}},
     listAvailableFontsAsync:async()=>['Regular','Bold'].map(style=>({fontName:{family:'Arial',style}})),loadFontAsync:async()=>{},
-    createFrame:()=>create('FRAME'),createText:()=>create('TEXT'),createEllipse:()=>create('ELLIPSE'),createImage:(bytes:Uint8Array)=>{const hash=String(images.size+1);images.set(hash,bytes);return{hash};},
+    createFrame:()=>create('FRAME'),createSection:()=>create('SECTION'),createText:()=>create('TEXT'),createEllipse:()=>create('ELLIPSE'),createImage:(bytes:Uint8Array)=>{const hash=String(images.size+1);images.set(hash,bytes);return{hash};},
     showUI:()=>{},ui:{postMessage:(m:Record<string,unknown>)=>messages.push(m),onmessage:undefined as unknown},
     on:(name:string,callback:()=>void)=>listeners.set(name,[...(listeners.get(name)??[]),callback]),
   };

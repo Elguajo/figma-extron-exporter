@@ -86,7 +86,11 @@ export function readMetadata(node: { id: string; name: string; getPluginData(k: 
 
 export function validateButtonStates(mode:ButtonMode|undefined,states:Pick<State,'name'|'role'>[],where:string):void {
   if(!mode)return; // Saved v1/v2 buttons keep their original contract.
-  const expected=mode==='on-off'?[['off','normal'],['on','feedback']]:[['normal','normal'],['active','feedback'],['pressed','pressed']];
-  if(states.length!==expected.length||expected.some(([name,role])=>!states.some(s=>s.name.toLowerCase()===name&&s.role===role)))
-    fail('button-states',`${where}: ${mode==='on-off'?'button_/btn_ требует ровно Off + On. Для Normal + Active + Pressed используйте feedbackbutton_/fbtn_.':'feedbackbutton_/fbtn_ требует ровно Normal + Active + Pressed. Для Off + On используйте button_/btn_.'} Состояния не добавляются и не удаляются автоматически.`);
+  const aliases:Record<string,Role>={normal:'normal',off:'normal',passive:'normal',on:'feedback',active:'feedback',feedback:'feedback',pressed:'pressed'};
+  const count=(role:Role)=>states.filter(s=>s.role===role).length;
+  const named=states.every(s=>aliases[s.name.toLowerCase()]===s.role);
+  const pair=states.length===2&&count('normal')===1&&(count('feedback')===1||count('pressed')===1);
+  const feedback=count('normal')===1&&count('feedback')===1&&((states.length===2&&count('pressed')===0)||(states.length===3&&count('pressed')===1));
+  if(!named||!(mode==='on-off'?pair:feedback))
+    fail('button-states',`${where}: ${mode==='on-off'?'button_/btn_ требует ровно 2 состояния: Off / On, Passive / Active или Normal / Pressed.':'feedbackbutton_/fbtn_ требует Normal / Active (или Passive / Active, Off / On); Pressed необязателен.'} Состояния не добавляются и не удаляются автоматически.`);
 }

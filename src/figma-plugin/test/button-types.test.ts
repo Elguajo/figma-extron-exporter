@@ -6,8 +6,10 @@ import { unzipSync, strFromU8 } from 'fflate';
 import { fakeFigma } from './fake-figma.ts';
 import { namedFixture } from './named-fixture.ts';
 import { recognize, applyRecognition, namedControl } from '../src/recognize.ts';
-import { capture, designSignature } from '../src/export.ts';
+import { capture, designSignature, exportFrame } from '../src/export.ts';
 import { DATA_KEY, readMetadata } from '../src/model.ts';
+import { kitFixture } from './kit-fixture.ts';
+import { createKit } from '../src/kit.ts';
 
 for(const [two,mode,names,roles] of [[true,'on-off',['Off','On'],['normal','feedback']],[false,'feedback',['Normal','Active','Pressed'],['normal','feedback','pressed']]] as const) {
   test(`New ${mode} button: explicit metadata/3, fixed states and stable identity after rename`,async()=>{
@@ -27,16 +29,52 @@ for(const [two,mode,names,roles] of [[true,'on-off',['Off','On'],['normal','feed
 }
 
 for(const [name,two,edit] of [
-  ['ordinary cannot acquire Pressed',false,(b:FrameNode)=>{b.name='button_Music';}],
-  ['ordinary requires On, not Active',true,(b:FrameNode)=>{b.children[1].name='Active';}],
-  ['ordinary requires Off, not Normal',true,(b:FrameNode)=>{b.children[0].name='Normal';}],
-  ['feedback requires Pressed',false,(b:FrameNode)=>{b.children[2].remove();}],
-  ['feedback requires Active, not On',false,(b:FrameNode)=>{b.children[1].name='On';}],
-  ['feedback cannot silently use only Off/On',true,(b:FrameNode)=>{b.name='fbtn_Music';}],
+  ['ordinary cannot have three states',false,(b:FrameNode)=>{b.name='button_Music';}],
+  ['ordinary cannot have two normal states',true,(b:FrameNode)=>{b.children[1].name='Normal';}],
+  ['ordinary requires a normal state',true,(b:FrameNode)=>{b.children[0].name='Active';}],
+  ['feedback requires feedback, not just Pressed',false,(b:FrameNode)=>{b.children[1].remove();}],
+  ['feedback rejects unknown feedback names',false,(b:FrameNode)=>{b.children[1].name='state_Disabled';}],
+  ['ordinary rejects unknown feedback names',true,(b:FrameNode)=>{b.children[1].name='state_Disabled';}],
 ] as const)test(`Button contract: ${name}, no writes`,async()=>{
   fakeFigma();const root=await namedFixture('tlp-pro-1025m',two);edit(root.children[0] as FrameNode);
   const before=designSignature(root),plan=recognize(root,'tlp-pro-1025m');
-  assert.ok(plan.errors.some(e=>e.includes('ровно')));assert.throws(()=>applyRecognition(plan));assert.equal(designSignature(root),before);
+  assert.ok(plan.errors.some(e=>e.includes('требует')));assert.throws(()=>applyRecognition(plan));assert.equal(designSignature(root),before);
+});
+
+for(const [prefix,names,roles,press] of [
+  ['button',['Normal','Pressed'],['normal','pressed'],'Pressed'],
+  ['button',['Passive','Active'],['normal','feedback'],undefined],
+  ['feedbackbutton',['Normal','Active'],['normal','feedback'],undefined],
+  ['feedbackbutton',['Passive','Active'],['normal','feedback'],undefined],
+  ['feedbackbutton',['Off','On'],['normal','feedback'],undefined],
+  ['feedbackbutton',['Passive','Active','Pressed'],['normal','feedback','pressed'],'Pressed'],
+] as const)test(`${prefix} ${names.join('/')}: only authored states exported, identity and source layers preserved`,async()=>{
+  fakeFigma();const root=await namedFixture();const button=root.children[0] as FrameNode;
+  button.name=prefix+'_VolumeDown';
+  if(names.length===2)button.children[names[1]==='Pressed'?1:2].remove();
+  button.children.forEach((s,i)=>s.name='state_'+names[i]);
+  const beforeNames=button.children.map(s=>s.name);
+  const plan=recognize(root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const before=designSignature(root),bundle=await exportFrame(root),element=bundle.screen.elements[0];
+  assert.deepEqual(element.states!.map(s=>s.name),names);assert.deepEqual(element.states!.map(s=>s.role),roles);
+  assert.deepEqual(element.states!.map(s=>s.stateId),names.map((_,i)=>i));assert.equal(element.press,press);
+  assert.deepEqual(button.children.map(s=>s.name),beforeNames);assert.equal(designSignature(root),before);
+  const ids=[element.objectId,element.controlId];applyRecognition(recognize(root,'tlp-pro-1025m'));
+  assert.deepEqual([capture(root).screen.elements[0].objectId,capture(root).screen.elements[0].controlId],ids);
+});
+
+test('Two-state kit button exports only its two Artwork PNGs, including hidden Active',async()=>{
+  kitFixture();const kit=await createKit('tlp-pro-1025m');
+  const button=kit.example.children.find(n=>n.name==='feedbackbutton_Hall') as FrameNode;
+  for(const node of [...kit.example.children])if(node!==button)node.remove();
+  button.children[2].remove();
+  // Artwork slots retain their service names; they remain image resources.
+  const plan=recognize(kit.example,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const source=designSignature(kit.example),bundle=await exportFrame(kit.example);
+  assert.deepEqual(bundle.screen.elements[0].states!.map(s=>s.name),['Normal','Active']);
+  assert.equal(bundle.screen.elements[0].press,undefined);assert.equal(bundle.resources.length,2);
+  assert.equal(bundle.screen.assets.length,2);assert.equal(button.children[1].visible,false);
+  assert.equal(designSignature(kit.example),source);
 });
 
 test('State prefixes/case are accepted; raw Figma layers are preserved',async()=>{
@@ -47,10 +85,33 @@ test('State prefixes/case are accepted; raw Figma layers are preserved',async()=
   assert.deepEqual(namedControl('fbtn_Music'),namedControl('feedbackbutton_music'));
 });
 
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)test(`${profile}: button_side.hall keeps its name, dotted key and persistent IDs`,async()=>{
+  fakeFigma();const root=await namedFixture(profile,true),button=root.children[0] as FrameNode;
+  button.name='button_side.hall';button.children.forEach((s,i)=>s.name=['Passive','Active'][i]);
+  const plan=recognize(root,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const bundle=await exportFrame(root),first=bundle.screen.elements[0];
+  assert.equal(first.name,'button_side.hall');assert.equal(first.key,'home.side.hall');
+  assert.deepEqual(first.states!.map(s=>s.name),['Passive','Active']);
+  button.name='button_SideHall';applyRecognition(recognize(root,profile));
+  const again=capture(root).screen.elements[0];
+  assert.deepEqual([again.key,again.objectId,again.controlId],[first.key,first.objectId,first.controlId]);
+});
+
+test('Dotted layer names reject empty segments and case-only duplicates without writing metadata',async()=>{
+  fakeFigma();const root=await namedFixture('tlp-pro-1025m',true),button=root.children[0] as FrameNode;
+  for(const name of ['button_.hall','button_side.','button_side..hall']){
+    button.name=name;const before=designSignature(root);
+    assert.throws(()=>recognize(root,'tlp-pro-1025m'),(e:any)=>e.code==='name');assert.equal(designSignature(root),before);
+  }
+  button.name='button_side.hall';root.children[3].name='button_SIDE.HALL';
+  const before=designSignature(root),plan=recognize(root,'tlp-pro-1025m');
+  assert.ok(plan.errors.some(e=>e.includes('повтор')));assert.throws(()=>applyRecognition(plan));assert.equal(designSignature(root),before);
+});
+
 test('Saved type is enforced during export, not only during recognition',async()=>{
   fakeFigma();const root=await namedFixture();applyRecognition(recognize(root,'tlp-pro-1025m'));
   const button=root.children[0] as FrameNode,active=button.children[1];
-  const raw=JSON.parse(active.getPluginData(DATA_KEY));active.setPluginData(DATA_KEY,JSON.stringify({...raw,stateName:'On'}));
+  const raw=JSON.parse(active.getPluginData(DATA_KEY));active.setPluginData(DATA_KEY,JSON.stringify({...raw,stateName:'Passive'}));
   assert.throws(()=>capture(root),(e:any)=>e.code==='button-states');
 });
 

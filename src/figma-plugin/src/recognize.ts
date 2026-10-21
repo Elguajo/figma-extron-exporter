@@ -1,11 +1,12 @@
 import { DATA_KEY,PROFILES,ROLE_ID,ELEMENT_KINDS,CONTROL_KINDS,metadataSchema,fail,integer,key,readMetadata,text,type ButtonMode,type Kind,type Metadata,type Profile,type Role } from './model.ts';
+import type { ProjectNode } from './project.ts';
 import { capture,designSignature } from './export.ts';
 import { controlText,isControlFrame,isKitNode,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 
 export const REGISTRY_KEY='exui-id-registry';
 interface Registry {schema:'exui-id-registry/1'|'exui-id-registry/2';ownerNodeId:string;nextObjectId:number;nextControlId:number;nextContainerId?:number;nextGroupId?:number}
 export interface RecognitionRow {id:string;name:string;kind:Kind;buttonMode?:ButtonMode;key?:string;objectId?:number;controlId?:number|null;isNew:boolean}
-export interface RecognitionPlan {root:FrameNode;profile:Profile;signature:string;registry:string;writes:{node:SceneNode;metadata:Metadata}[];rows:RecognitionRow[];errors:string[];warnings:string[]}
+export interface RecognitionPlan {root:ProjectNode;profile:Profile;signature:string;registry:string;writes:{node:SceneNode;metadata:Metadata}[];rows:RecognitionRow[];errors:string[];warnings:string[]}
 const TYPES:Record<string,Kind>={btn:'button',button:'button',lvl:'level',level:'level',txt:'label',text:'label',logo:'graphic',img:'graphic',image:'graphic',val:'value',value:'value',sld:'slider',slider:'slider',shp:'shape',shape:'shape',ln:'line',line:'line',dt:'datetime',datetime:'datetime',pr:'popup-ref',popupref:'popup-ref',gau:'level',gauge:'level',ind:'level',indicator:'level',led:'level',volumeled:'level',mlvl:'level',multilevel:'level'};
 export function namedControl(name:string):{kind:Kind;suffix:string;display?:Metadata['display'];buttonMode?:ButtonMode}|null {
   const match=/^([a-z]+)_(.+)$/i.exec(name);if(!match)return null;
@@ -17,21 +18,21 @@ export function namedControl(name:string):{kind:Kind;suffix:string;display?:Meta
   if(['mlvl','multilevel'].includes(prefix))result.display='multistate';
   return result;
 }
-function slug(value:string):string {if(!/^[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*$/.test(value))fail('name',`${value}: используйте латинские буквы, цифры и дефисы без пробелов, например VolumeDown.`);return key(value.toLowerCase(),'Имя слоя');}
-export function namedRole(name:string):Role|null {return ({off:'normal',normal:'normal',on:'feedback',active:'feedback',feedback:'feedback',pressed:'pressed'} as Record<string,Role>)[name.replace(/^(st|state)_/i,'').toLowerCase()]??null;}
-function signature(root:FrameNode):string {return designSignature(root)+'\n'+root.getPluginData(REGISTRY_KEY);}
+function slug(value:string):string {if(!/^[A-Za-z][A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*$/.test(value))fail('name',`${value}: используйте латинские буквы, цифры, точки и дефисы между частями имени без пробелов, например side.hall или VolumeDown.`);return key(value.toLowerCase(),'Имя слоя');}
+export function namedRole(name:string):Role|null {return ({off:'normal',normal:'normal',passive:'normal',on:'feedback',active:'feedback',feedback:'feedback',pressed:'pressed'} as Record<string,Role>)[name.replace(/^(st|state)_/i,'').toLowerCase()]??null;}
+function signature(root:ProjectNode):string {return designSignature(root)+'\n'+root.getPluginData(REGISTRY_KEY);}
 
 export function recognize(root:SceneNode,profile:Profile):RecognitionPlan {
-  if(root.type!=='FRAME')fail('selection','Выберите внешний Frame экрана или project_Name.');
+  if(root.type!=='FRAME'&&root.type!=='SECTION')fail('selection','Выберите секцию проекта или внешний Frame экрана / project_Name.');
   if(!Object.prototype.hasOwnProperty.call(PROFILES,profile))fail('profile','Выберите профиль панели.');
   let parent=root.parent;while(parent&&parent.type!=='PAGE'){if(['page','popup'].includes(readMetadata(parent)?.kind??''))fail('placement','Для распознавания выберите внешний Frame экрана.');parent=parent.parent;}
-  const existingRoot=readMetadata(root),isProject=existingRoot?.kind==='project'||!existingRoot&&/^(prj|project)_/i.test(root.name);
+  const existingRoot=readMetadata(root),isProject=root.type==='SECTION'||existingRoot?.kind==='project'||!existingRoot&&/^(prj|project)_/i.test(root.name);
   if(existingRoot&&existingRoot.kind!==(isProject?'project':'page'))fail('placement','Выбран элемент с другим назначением.');
   if(existingRoot?.profile&&existingRoot.profile!==profile)fail('profile','Выбранный профиль отличается от сохранённого профиля экрана.');
   const canvas=PROFILES[profile];if(!isProject&&(root.width!==canvas.width||root.height!==canvas.height))fail('profile',`Для этого профиля нужен Frame ${canvas.width}×${canvas.height}.`);
   const registry:Registry={schema:isProject?'exui-id-registry/2':'exui-id-registry/1',ownerNodeId:root.id,nextObjectId:1,nextControlId:8101,...(isProject?{nextContainerId:100,nextGroupId:1}:{})};
   function importRegistry(node:SceneNode,main=false){const raw=node.getPluginData(REGISTRY_KEY);if(!raw)return;let r:Registry;try{r=JSON.parse(raw);}catch{fail('registry','Повреждён реестр ID экрана.');}if(!r||!['exui-id-registry/1','exui-id-registry/2'].includes(r.schema)||r.ownerNodeId!==node.id)fail('registry','Неизвестный или скопированный реестр ID экрана.');if(r.schema==='exui-id-registry/2'){integer(r.nextContainerId,1,65535,'Следующий ID контейнера');integer(r.nextGroupId,1,65536,'Следующий ID группы');}integer(r.nextObjectId,1,1000001,'Следующий ID объекта');integer(r.nextControlId,1,65536,'Следующий ID управления');registry.nextObjectId=Math.max(registry.nextObjectId,r.nextObjectId);registry.nextControlId=Math.max(registry.nextControlId,r.nextControlId);if(isProject){registry.nextContainerId=Math.max(registry.nextContainerId!,integer(r.nextContainerId??100,1,65535,'Следующий ID контейнера'));registry.nextGroupId=Math.max(registry.nextGroupId!,integer(r.nextGroupId??1,1,65536,'Следующий ID группы'));}else if(main&&r.schema!=='exui-id-registry/1')fail('registry','Для экрана ожидается реестр ID экрана.');}
-  function scan(node:SceneNode){importRegistry(node,node.id===root.id);const m=readMetadata(node);if(m&&ELEMENT_KINDS.includes(m.kind)){registry.nextObjectId=Math.max(registry.nextObjectId,integer(m.objectId,1,1000000,node.name+'.objectId')+1);if(CONTROL_KINDS.includes(m.kind))registry.nextControlId=Math.max(registry.nextControlId,integer(m.controlId,1,65535,node.name+'.controlId')+1);}if(isProject&&m&&['page','popup','popup-group'].includes(m.kind)){if(m.kind==='popup-group')registry.nextGroupId=Math.max(registry.nextGroupId!,integer(m.objectId,1,65535,'ID группы')+1);else registry.nextContainerId=Math.max(registry.nextContainerId!,integer(m.objectId,1,65534,'ID контейнера')+1);}if('children' in node&&!['graphic','image','slider'].includes(m?.kind??namedControl(node.name)?.kind??''))for(const child of node.children)scan(child);}
+  function scan(node:SceneNode){importRegistry(node,node.id===root.id);const m=readMetadata(node);if(m&&ELEMENT_KINDS.includes(m.kind)){registry.nextObjectId=Math.max(registry.nextObjectId,integer(m.objectId,1,1000000,node.name+'.objectId')+1);if(CONTROL_KINDS.includes(m.kind))registry.nextControlId=Math.max(registry.nextControlId,integer(m.controlId,1,65535,node.name+'.controlId')+1);}if(isProject&&m&&['page','popup','popup-group'].includes(m.kind)){if(m.kind==='popup-group')registry.nextGroupId=Math.max(registry.nextGroupId!,integer(m.objectId,1,65535,'ID группы')+1);else registry.nextContainerId=Math.max(registry.nextContainerId!,integer(m.objectId,1,65534,'ID контейнера')+1);}if('children' in node&&(node.type==='SECTION'||!['graphic','image','slider'].includes(m?.kind??namedControl(node.name)?.kind??'')))for(const child of node.children)scan(child);}
   scan(root);
   const plan:RecognitionPlan={root,profile,signature:signature(root),registry:'',writes:[],rows:[],errors:[],warnings:[]},proposed=new Map<string,Metadata>();
   const read=(node:SceneNode)=>proposed.get(node.id)??readMetadata(node);
@@ -75,9 +76,11 @@ export function recognize(root:SceneNode,profile:Profile):RecognitionPlan {
       const control=assign(node,value);if(kind==='button'||control.display==='multistate')states(node as FrameNode,control);
     }catch(e){plan.errors.push(e instanceof Error?e.message:String(e));}}
   }
-  if(!isProject){const namespace=existingRoot?key(existingRoot.key,'Ключ экрана').replace(/^page\./,''):slug(root.name.replace(/^(scr|screen)_/i,''));assign(root,existingRoot??{kind:'page',key:'page.'+namespace,objectId:100,profile,projectName:text(root.name,'Имя проекта')});elements(root,namespace);}
+  if(!isProject){if(root.type!=='FRAME')fail('node-type','Для экрана нужен Frame.');const namespace=existingRoot?key(existingRoot.key,'Ключ экрана').replace(/^page\./,''):slug(root.name.replace(/^(scr|screen)_/i,''));assign(root,existingRoot??{kind:'page',key:'page.'+namespace,objectId:100,profile,projectName:text(root.name,'Имя проекта')});elements(root,namespace);}
   else {
-    assign(root,existingRoot??{kind:'project',key:'project.'+slug(root.name.replace(/^(prj|project)_/i,'')),profile,projectName:text(root.name,'Имя проекта')});let pageNumber=0;
+    // A section is the project boundary regardless of its user-facing name.
+    // Its key is local to the root; child keys/IDs use the existing project registry.
+    assign(root,existingRoot??{kind:'project',key:root.type==='SECTION'?'project.section':'project.'+slug(root.name.replace(/^(prj|project)_/i,'')),profile,projectName:text(root.name,'Имя проекта')});let pageNumber=0;
     function container(node:SceneNode,group?:string){
       if(node.type!=='FRAME')fail('node-type',`${node.name}: нужен Frame экрана/popup.`);
       const existing=readMetadata(node),match=/^(scr|screen|pop|popup|mdl|modalpopup)_(.+)$/i.exec(node.name),prefix=match?.[1].toLowerCase();

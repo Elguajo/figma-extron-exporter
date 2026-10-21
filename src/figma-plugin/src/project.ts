@@ -1,7 +1,8 @@
 import { fail,integer,key,text,PROFILES,type Metadata,type Container,type ProjectScreen,type Asset } from './model.ts';
 import type { Capture } from './export.ts';
+export type ProjectNode = FrameNode | SectionNode;
 
-export function projectMembers(root:FrameNode,read:(n:SceneNode)=>Metadata|null):{containers:SceneNode[];groups:SceneNode[]} {
+export function projectMembers(root:ProjectNode,read:(n:SceneNode)=>Metadata|null):{containers:SceneNode[];groups:SceneNode[]} {
   const containers:SceneNode[]=[],groups:SceneNode[]=[];
   for(const child of root.children){
     if(read(child)?.kind==='popup-group'){
@@ -13,7 +14,7 @@ export function projectMembers(root:FrameNode,read:(n:SceneNode)=>Metadata|null)
 }
 
 export function captureProject(root:SceneNode,read:(n:SceneNode)=>Metadata|null,single:(n:SceneNode,r:(n:SceneNode)=>Metadata|null,p:boolean)=>Capture,signature:(n:SceneNode)=>string):Capture {
-  if(root.type!=='FRAME')fail('node-type','Проект должен быть внешним Frame project_Name.');
+  if(root.type!=='FRAME'&&root.type!=='SECTION')fail('node-type','Проект должен быть секцией или внешним Frame project_Name.');
   const pm=read(root)!;if(!pm.profile||!(pm.profile in PROFILES))fail('profile','Выберите профиль проекта.');
   const profile=pm.profile,canvas=PROFILES[profile];
   const screen:ProjectScreen={schema:'exui-screen/5',project:{name:text(pm.projectName,'Имя проекта')},pages:[],popups:[],groups:[],assets:[]};
@@ -47,7 +48,6 @@ export function captureProject(root:SceneNode,read:(n:SceneNode)=>Metadata|null,
   for(const p of screen.popups){if(p.group&&!screen.groups.some(g=>g.key===p.group))fail('popup-group',`Неизвестная группа ${p.group}.`);if(!p.modal&&!refs.some(r=>r.popup===p.key||!!p.group&&r.group===p.group))fail('popup-ref',`${p.name}: нужен popupref на странице.`);}
   for(const ref of refs){const targets=ref.popup?screen.popups.filter(p=>p.key===ref.popup):screen.popups.filter(p=>p.group===ref.group);if(!targets.length||targets.some(p=>p.modal||!!ref.popup&&!!p.group||p.size?.[0]!==ref.rect[2]||p.size?.[1]!==ref.rect[3]))fail('popup-ref',`${ref.name}: цель должна быть обычным popup/группой того же размера.`);}
   for(const c of all){for(const e of c.elements){if(e.navigate&&(!all.some(t=>t.key===e.navigate)||e.navigate===c.key))fail('navigation',`${e.name}: неизвестная или собственная цель перехода.`);}if(c.shownBy==='navigation'&&!all.some(p=>p.elements.some(e=>e.navigate===c.key)))fail('navigation',`${c.name}: нужна кнопка, ведущая к контейнеру.`);}
-  if(assets.size>16)fail('images','До 16 PNG на весь проект.');
   const paths=[...assets.values()].map(a=>a.file),resourceNames=[...assets.values()].map(a=>a.resourceName.toLowerCase());if(new Set(paths).size!==paths.length||new Set(resourceNames).size!==resourceNames.length)fail('image-conflict','Разные PNG имеют одинаковый путь или resourceName.');
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
   return {profile,screen,images,signature:signature(root)};

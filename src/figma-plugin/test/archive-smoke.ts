@@ -7,9 +7,11 @@ import path from 'node:path';
 import { unzipSync, strFromU8 } from 'fflate';
 import { fakeFigma } from './fake-figma.ts';
 import { graphicFixture, namedFixture } from './named-fixture.ts';
-import { expandedFixture } from './expanded-fixture.ts';
+import { expandedFixture,sectionFixture } from './expanded-fixture.ts';
 import { packageExui } from '../src/package.ts';
 import type { Bundle } from '../src/model.ts';
+import { kitFixture } from './kit-fixture.ts';
+import { manyAssetsFixture } from './many-assets-fixture.ts';
 
 const [archive, kit, output] = process.argv.slice(2);
 assert.ok(archive && kit && output, 'Usage: node test/archive-smoke.ts <plugin.zip> <unpacked-kit> <new-output-dir>');
@@ -18,7 +20,7 @@ const version = JSON.parse(strFromU8(files['version.json'])).version;
 const manifest = JSON.parse(strFromU8(files['manifest.json']));
 assert.equal(manifest.id, 'figma-extron-exporter-local-dev');
 const ui = strFromU8(files[manifest.ui]);
-assert.ok(ui.includes(`Figma → Extron Exporter · ${version}`));
+assert.ok(ui.includes('Figma → Extron Exporter')&&ui.includes(`· ${version}`));
 const out = path.resolve(output), installed = path.resolve(kit);
 await mkdir(out, { recursive: true });
 function cli(args: string[]) {
@@ -27,10 +29,16 @@ function cli(args: string[]) {
   return JSON.parse(result.stdout);
 }
 const evidence: unknown[] = [];
+const scenarios=['blank-caption','expanded','on-off','feedback','dotted-name','many-assets','section'] as const;
+const selectedScenarios=process.argv[5]?scenarios.filter(s=>s===process.argv[5]):scenarios.slice(0,4);
+assert.ok(selectedScenarios.length,'Unknown archive smoke scenario');
 for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
-  for (const scenario of ['blank-caption', 'expanded', 'on-off', 'feedback'] as const) {
-    const fixture = fakeFigma();
-    const frame = scenario === 'expanded' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'?await namedFixture(profile,scenario==='on-off'):await graphicFixture(profile);
+  for (const scenario of selectedScenarios) {
+    const fixture = scenario==='many-assets'?kitFixture():fakeFigma();
+    const frame = scenario==='section'?sectionFixture(profile):scenario==='many-assets'?await manyAssetsFixture(profile):scenario === 'expanded' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'||scenario==='dotted-name'?await namedFixture(profile,scenario!=='feedback'):await graphicFixture(profile);
+    if(scenario==='dotted-name'){
+      const button=frame.children[0] as FrameNode;button.name='button_side.hall';button.children.forEach((s,i)=>s.name=['Passive','Active'][i]);
+    }
     if (scenario === 'blank-caption') {
       const button = frame.children[0] as FrameNode;
       for (const state of button.children as FrameNode[]) (state.children.find(n => n.type === 'TEXT') as TextNode).characters = '';
@@ -46,6 +54,12 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     assert.ok(plan, JSON.stringify(fixture.messages));
     assert.deepEqual(JSON.parse(JSON.stringify(plan.errors)), []);
     await send({ type: 'apply-recognition', profile, token: plan.token });
+    if(scenario==='section'){
+      const home=frame.children[0] as FrameNode,button=home.children.find(n=>n.name==='button_Connection')!,settings=frame.children[1];
+      fixture.page.selection=[button as any];await send({type:'apply',data:{...JSON.parse(button.getPluginData('exui')),buttonMode:'legacy',navigate:'page.settings'}});
+      fixture.page.selection=[settings as any];await send({type:'apply',data:{...JSON.parse(settings.getPluginData('exui')),shownBy:'navigation'}});
+      fixture.page.selection=[button as any];
+    }
     await send({ type: 'check' });
     await send({ type: 'export' });
     assert.deepEqual(fixture.messages.filter(m => m.type === 'error'), [], JSON.stringify(fixture.messages));
@@ -54,10 +68,24 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     await writeFile(input, packageExui(bundle), { flag: 'wx' });
     const validation = cli(['validate-package', input]);
     assert.equal(validation.contract, 'exui/5');
+    if(scenario==='section'){
+      assert.ok('pages' in bundle.screen);assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.popups.length,4);
+      const map=spawnSync(process.env.DOTNET_EXE??'dotnet',[path.join(installed,'cli/Extron.Cli.dll'),'id-map',input],{cwd:out,encoding:'utf8',timeout:30000});
+      assert.equal(map.status,0,map.stderr);assert.ok(map.stdout.includes('screen_Settings'));
+    }
     const gdl = path.join(out, `${scenario}-${profile}.gdl`);
     const generation = cli(['convert-package', input, gdl, '--registry', path.join(installed, 'samples/donors.json')]);
     const report = JSON.parse(await readFile(gdl + '.report.json', 'utf8'));
     assert.ok(report.Generation.Checks.every((c: { Passed: boolean }) => c.Passed));
+    if(scenario==='dotted-name'){
+      const button=cli(['list-controls',gdl]).model.Pages[0].Controls.find((c:any)=>c.Comments==='exui-key=home.side.hall');
+      assert.ok(button);assert.equal(button.Name,'button_side.hall');assert.deepEqual(button.States.map((s:any)=>s.Name),['Passive','Active']);assert.equal(button.PressFeedbackState,-1);
+    }
+    if(scenario==='many-assets'){
+      const expected=profile==='tlp-pro-1025m'?36:18;assert.equal(validation.resources,expected);
+      const buttons=cli(['list-controls',gdl]).model.Pages[0].Controls;
+      assert.equal(buttons.length,expected/3);assert.ok(buttons.every((c:any)=>c.Type==='PBButton'&&c.States.length===3&&c.States.every((s:any)=>s.Image)));
+    }
     if(scenario==='on-off'||scenario==='feedback'){
       const controls=cli(['list-controls',gdl]).model.Pages[0].Controls;
       for(const button of controls.filter((c:any)=>c.Type==='PBButton')){

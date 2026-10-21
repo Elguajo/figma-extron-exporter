@@ -35,7 +35,7 @@ foreach ($dir in @('samples/donors', 'samples/original', 'examples/home-1025m', 
 }
 Copy-Item -LiteralPath (Join-Path $repo 'scripts/ExtronExporter.ps1') -Destination $stage
 $cliReadme = Get-Content -Raw -LiteralPath (Join-Path $repo "releases/cli/$cliVersion/README.md")
-$cliReadme.Replace("figma-extron-complete-$cliVersion-local.zip", "figma-extron-complete-$version-local.zip").Replace("CLI для плагина $cliVersion", "CLI для плагина $version").Replace("заголовок плагина должен показывать **$cliVersion**", "заголовок плагина должен показывать **$version**") | Set-Content -Encoding utf8 -LiteralPath (Join-Path $stage 'README.md')
+$cliReadme.Replace("figma-extron-complete-$cliVersion-local.zip", "figma-extron-complete-$version-local.zip").Replace("CLI для плагина $cliVersion", "CLI для плагина $version").Replace("Комплект для плагина $cliVersion", "Комплект для плагина $version").Replace("заголовок плагина должен показывать **$cliVersion**", "заголовок плагина должен показывать **$version**") | Set-Content -Encoding utf8 -LiteralPath (Join-Path $stage 'README.md')
 foreach ($file in @('donors.json', 'manifest.json')) {
     Copy-Item -LiteralPath (Join-Path $repo "samples/$file") -Destination (Join-Path $stage 'samples')
 }

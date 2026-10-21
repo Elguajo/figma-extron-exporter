@@ -12,6 +12,8 @@ import { namedFixture, graphicFixture } from './named-fixture.ts';
 import { recognize, applyRecognition } from '../src/recognize.ts';
 import { expandedFixture,projectFixture,verticalFixture } from './expanded-fixture.ts';
 import { readMetadata } from '../src/model.ts';
+import { kitFixture } from './kit-fixture.ts';
+import { manyAssetsFixture } from './many-assets-fixture.ts';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 const dotnet=process.env.DOTNET_EXE??'dotnet',registry=process.env.EXUI_DONOR_REGISTRY;
 const out=path.resolve(process.argv[2]??path.join(root,'output/figma-plugin',new Date().toISOString().replace(/[:.]/g,'-')));
@@ -125,6 +127,51 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
     row.activeAndPressFeedbackVerified=true;
   }
   evidence.push(row);console.log(`PASS ${profile}: feedbackbutton_ → Normal/Active/Pressed, native press feedback 2`);
+}
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
+ for(const [name,prefix,names] of [
+  ['momentary','button',['Normal','Pressed']],
+  ['passive-active','button',['Passive','Active']],
+  ['feedback-two','feedbackbutton',['Normal','Active']],
+ ] as const){
+  fakeFigma();const frame=await namedFixture(profile,false),button=frame.children[0] as FrameNode;
+  button.name=prefix+'_VolumeDown';button.children[names[1]==='Pressed'?1:2].remove();
+  button.children.forEach((s,i)=>s.name=names[i]);
+  const plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const bundle=await exportFrame(frame),expected=bundle.screen.elements[0];
+  assert.deepEqual(expected.states!.map(s=>s.name),names);assert.deepEqual(expected.states!.map(s=>s.stateId),[0,1]);
+  const input=path.join(out,`${name}-${profile}.exui`);await writeFile(input,packageExui(bundle),{flag:'wx'});
+  const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/5');
+  const row:Record<string,unknown>={profile,name,validation,figmaBoundary:'fake Figma API; real CLI/native writer'};
+  if(registry){
+    const output=path.join(out,`${name}-${profile}.gdl`);row.generation=cli(['convert-package',input,output,'--registry',registry]);
+    const report=JSON.parse(await readFile(output+'.report.json','utf8'));assert.ok(report.Generation.Checks.every((c:any)=>c.Passed));
+    const control=cli(['list-controls',output]).model.Pages[0].Controls.find((c:any)=>c.Comments==='exui-key='+expected.key);
+    assert.equal(control.Type,'PBButton');assert.equal(control.ControlId,expected.controlId);
+    assert.deepEqual(control.States.map((s:any)=>s.Name),names);
+    assert.equal(control.PressFeedbackState,names[1]==='Pressed'?1:-1);
+    row.twoAuthoredStatesVerified=true;
+  }
+  evidence.push(row);console.log(`PASS ${profile}: ${name} → two authored native states, no fabricated third state`);
+ }
+}
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
+ for(const project of [false,true]){
+  kitFixture();const frame=await manyAssetsFixture(profile,project),plan=recognize(frame,profile);
+  assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const bundle=await exportFrame(frame),name=project?'many-assets-project':'many-assets-screen',expected=profile==='tlp-pro-1025m'?36:18;
+  const input=path.join(out,`${name}-${profile}.exui`);await writeFile(input,packageExui(bundle),{flag:'wx'});
+  const validation=cli(['validate-package',input]);assert.equal(validation.resources,expected);
+  const row:Record<string,unknown>={profile,name,validation,figmaBoundary:'fake Figma API/PNG; real CLI/native writer'};
+  if(registry){
+    const output=path.join(out,`${name}-${profile}.gdl`);row.generation=cli(['convert-package',input,output,'--registry',registry]);
+    const report=JSON.parse(await readFile(output+'.report.json','utf8'));assert.ok(report.Generation.Checks.every((c:any)=>c.Passed));
+    const controls=cli(['list-controls',output]).model.Pages[0].Controls;
+    assert.equal(controls.length,expected/3);assert.ok(controls.every((c:any)=>c.Type==='PBButton'&&c.States.length===3&&c.States.every((s:any)=>s.Image)));
+    row.allArtworkResourcesAndNativeStatesVerified=true;
+  }
+  evidence.push(row);console.log(`PASS ${profile}: ${name} → ${expected} PNGs → CLI/native GDL`);
+ }
 }
 await writeFile(path.join(out,'integration.json'),JSON.stringify(evidence,null,2)+'\n',{flag:'wx'});
 console.log('Evidence: '+out);
