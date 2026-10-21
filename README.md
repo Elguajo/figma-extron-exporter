@@ -1,6 +1,14 @@
 # Figma → Extron Exporter
 
-**Extron Kit 0.3.0 preview:** библиотека из 30 компонентов, созданная в pen.dev, теперь генерируется в Figma локальным плагином без MCP и платной подписки. [Инструкция](src/figma-plugin/EXTRON_KIT.md) · [исходный кит и превью](design/extron-kit/README.md). Свободное оформление кнопок/изображений, экземпляры компонентов и уникальные ID проверены автоматически; новый реальный Desktop/Build-цикл ещё не пройден. Стабильный комплект ниже остаётся 0.2.1.
+**Плагин 0.3.2 preview:** секции Figma поддерживаются как проекты, убрано демо из UI, настройки свёрнуты, проверка и экспорт закреплены внизу. Переходы выбираются по имени страницы. [Обновлённый плагин](releases/figma-plugin/0.3.2/README.md).
+
+**Extron Kit:** библиотека из 30 компонентов, созданная в pen.dev, теперь генерируется в Figma локальным плагином без MCP и платной подписки. [Инструкция](src/figma-plugin/EXTRON_KIT.md) · [исходный кит и превью](design/extron-kit/README.md). Свободное оформление кнопок/изображений, экземпляры компонентов и уникальные ID проверены автоматически; новый реальный Desktop/Build-цикл ещё не пройден. Стабильный комплект ниже остаётся 0.2.1.
+
+В обновлённом preview снят отдельный предел **16 PNG** для exui/5: количество изображений ограничивается размерами пакета и JSON. Нужны обновлённые **плагин 0.3.2 и CLI 0.3.0**; старый CLI 0.2.1 по-прежнему принимает до 16 PNG. Сохраняются 4 MiB на PNG, 16 MiB распакованный пакет, manifest.json 64 KiB и screen.json 256 KiB. Старые форматы exui/1–4 не изменены.
+
+Текущие состояния кнопок, имена с точками и большие пакеты проверены на native-конвертации обеих панелей: [протокол и локальный комплект 0.3.0](verification/results/2026-10-21-flexible-authoring.md). GUI Designer Build и оборудование для этой ревизии ещё не проверены.
+
+Актуальная упаковка — [плагин 0.3.2 preview с CLI 0.3.0](releases/figma-plugin/0.3.2/README.md). Секции и существующие Frame-проекты используют прежний EXUI; plugin ID и старые сборки сохранены.
 
 [![Плагин 0.2.2](https://img.shields.io/badge/plugin-0.2.2-2ea44f)](releases/figma-plugin/0.2.2/README.md)
 [![Figma Design](https://img.shields.io/badge/Figma-Design-F24E1E?logo=figma&logoColor=white)](src/figma-plugin/README.md)
@@ -13,9 +21,9 @@
 
 **Плагин 0.2.2 + CLI 0.2.1:** [скачать плагин](releases/figma-plugin/0.2.2/figma-extron-plugin-0.2.2.zip) · [скачать CLI для Windows](releases/cli/0.2.1/figma-extron-cli-0.2.1-windows.zip) · [инструкция CLI](releases/cli/0.2.1/README.md).
 
-[Быстрый старт](#быстрый-старт) · [Рабочий процесс](#рабочий-процесс-figma--extron) · [Запуск из исходников](#разработка-из-исходников) · [Структура проекта](#структура-проекта)
+[Быстрый старт](#быстрый-старт) · [Рабочий процесс](#рабочий-процесс-figma--extron) · [Все префиксы](#все-префиксы-слоёв-figma) · [Запуск из исходников](#разработка-из-исходников) · [Структура проекта](#структура-проекта)
 
-Новые `button_` / `btn_` требуют **Off + On**; `feedbackbutton_` / `fbtn_` — **Normal + Active + Pressed**. Старые назначения и ID сохраняются. [Протокол разделения кнопок](verification/results/2026-10-21-button-types.md). Прежний GUI-прогон ниже относится к Home 0.2.1; новые типы в 0.2.2 проверены на UI и native-конвертацию обеих панелей.
+В текущем **0.3.2 preview** `button_` / `btn_` принимает два состояния: **Off / On**, **Passive / Active** либо **Normal / Pressed**. Для `feedbackbutton_` / `fbtn_` достаточно **Normal / Active**; **Pressed необязателен**. Экспортируются только существующие состояния и PNG. Старые назначения и ID сохраняются. Архив 0.2.2 ещё требует строгие Off / On либо Normal / Active / Pressed; [его протокол](verification/results/2026-10-21-button-types.md). Прежний GUI-прогон ниже относится к Home 0.2.1.
 
 ![Home 1025M после конвертации и повторного открытия в GUI Designer: выбор зоны и источника, Slider, значение громкости и Mute](verification/results/2026-10-21-release-0.2.1/gui-021-reopened.png)
 
@@ -23,7 +31,7 @@ Home 1025M из установленного плагина 0.2.1 прошёл V
 
 ## Быстрый старт
 
-Для первого результата использовать готовые архивы **плагина 0.2.2 и CLI 0.2.1** по инструкции ниже. Проверить пример `.exui` можно сразу после установки Runtime; для получения `.gdl` понадобятся Extron и доноры. Для сборки текущего preview 0.3.0 перейти к [запуску из исходников](#разработка-из-исходников), для работы с библиотекой компонентов — к [инструкции Extron Kit](src/figma-plugin/EXTRON_KIT.md).
+Для первого результата использовать готовые архивы **плагина 0.2.2 и CLI 0.2.1** по инструкции ниже. Проверить пример `.exui` можно сразу после установки Runtime; для получения `.gdl` понадобятся Extron и доноры. Для сборки текущего preview 0.3.2 перейти к [запуску из исходников](#разработка-из-исходников), для работы с библиотекой компонентов — к [инструкции Extron Kit](src/figma-plugin/EXTRON_KIT.md).
 
 ### 1. Установить комплект и экспортировать демо
 
@@ -71,7 +79,7 @@ New-Item -ItemType Directory -Force .\converted | Out-Null
 
 | Этап | Действие и результат |
 |---|---|
-| Дизайн | Подготовить макет по [стандарту](src/figma-plugin/AUTHORING_STANDARD.md) или собрать экран из [Extron Kit](src/figma-plugin/EXTRON_KIT.md) в preview 0.3.0 |
+| Дизайн | Подготовить макет по [стандарту](src/figma-plugin/AUTHORING_STANDARD.md) или собрать экран из [Extron Kit](src/figma-plugin/EXTRON_KIT.md) в preview 0.3.2 |
 | Назначения | Распознать имена, проверить отчёт, сохранить назначения; при дальнейших правках сохранять ключи и ID |
 | Экспорт | Проверить выбранный экран/проект и скачать `.exui`; включённые скрытые состояния экспортируются вместе с видимыми |
 | Конвертация | Проверить пакет, получить карту ID, создать новый `.gdl` и изучить отчёт независимой проверки |
@@ -83,21 +91,73 @@ New-Item -ItemType Directory -Force .\converted | Out-Null
 ## Подготовить собственный макет
 
 1. Создать Frame нужного размера. Для одного экрана использовать `Home`, `scr_Home` или `screen_Home`; для нескольких страниц и popup — структуру `project_` по стандарту.
-2. Назвать элементы поддержанными префиксами, например `button_Music`, `feedbackbutton_Mute`, `slider_Volume`, `value_Volume`, `logo_Company`. Для новых button_/btn_ подготовить ровно Off + On; для feedbackbutton_/fbtn_ — ровно Normal + Active + Pressed. Прежние сохранённые назначения продолжают работать без миграции.
+2. Назвать элементы поддержанными префиксами, например `button_Music`, `feedbackbutton_Mute`, `slider_Volume`, `value_VolumeValue`, `logo_Company`. В текущем preview для button_/btn_ подготовить два состояния: Off / On, Passive / Active или Normal / Pressed; для feedbackbutton_/fbtn_ — Normal / Active с необязательным Pressed. Прежние сохранённые назначения продолжают работать без миграции.
 3. Выбрать внешний Frame и профиль, нажать **«Распознать по именам»**, изучить отчёт и **«Сохранить распознанные назначения»**. Существующие назначения приоритетны; ключи и ID сохраняются при изменении оформления. Для копий нужно явно назначить новые ID.
 4. Выполнить **«Проверить экран» → «Скачать .exui»**, затем валидацию и конвертацию CLI.
 
-[Справочник префиксов с примерами](src/figma-plugin/PREFIXES.md) · [Полный стандарт подготовки макета v2.0](src/figma-plugin/AUTHORING_STANDARD.md).
+[Справочник префиксов с примерами](src/figma-plugin/PREFIXES.md) · [Таблица назначения элементов](docs/figma-prefix-reference.md) · [Шпаргалка в PDF](docs/prefix_map/figma-extron-prefix-cheatsheet.pdf) · [Полный стандарт подготовки макета v2.3](src/figma-plugin/AUTHORING_STANDARD.md).
 
-| Из Figma | В проекте Extron |
-|---|---|
-| Кнопки с 2–8 состояниями | PBButton с отдельными normal, feedback и необязательным pressed |
-| Статичный текст и динамическое значение | PBLabel; у Value — dynamicText и собственный controlId |
-| Slider с Track/Fill/Thumb | PBSlider с направлением, диапазоном, дорожкой и бегунком |
-| Gauge, VolumeLED, Multistate Level | Режимы PBLevel, у Multistate — до 8 состояний |
-| Фигуры, линии, дата/время | PBShape, PBLine, PBDateTime |
-| Логотипы и иконки | PNG; самостоятельный логотип — PBImage, внутренние части растра отдельно не редактируются |
-| Страницы, обычные и модальные popup, группы и ссылки | Контейнеры и привязки Extron; карта ID для программиста |
+## Все префиксы слоёв Figma
+
+Короткие и полные варианты равнозначны, регистр не важен: `btn_Music` и `BUTTON_MUSIC` обозначают один тип. После префикса — имя латиницей, начинающееся с буквы; допустимы цифры, точки и дефисы между непустыми частями, пробелы и дополнительные `_` запрещены. В текущем preview можно оставить `button_side.hall`: имя сохраняется, новый ключ — `home.side.hall`. Другие примеры: `slider_HallVolume`, `value_HallVolumeValue`, `button_HallMute`. Видимый текст может быть русским.
+
+### Проект, страницы и popup
+
+| Назначение | Короткий префикс | Полный префикс | Пример и структура |
+|---|---|---|---|
+| Проект | `prj_` | `project_` | `project_Trilliant` — внешний Frame со страницами, popup и группами |
+| Страница / отдельный экран | `scr_` | `screen_` | `screen_Home`; можно просто `Home`. Frame точного размера панели |
+| Обычный popup | `pop_` | `popup_` | `popup_Sources` — Frame внутри проекта или группы popup |
+| Модальный popup | `mdl_` | `modalpopup_` | `modalpopup_Confirm` — Frame внутри проекта, размером с панель |
+| Группа popup | `pgrp_` | `popupgroup_` | `popupgroup_Zones` — Frame с обычными popup одинакового размера |
+| Место popup на странице | `pr_` | `popupref_` | `popupref_Sources` — пустой Frame размера popup; автоцель `popup.sources`, группу задают через форму |
+
+### Элементы страницы или popup
+
+| Назначение | Короткий префикс | Полный префикс | Пример и результат в Extron |
+|---|---|---|---|
+| Обычная кнопка | `btn_` | `button_` | `button_Music` — PBButton, 2 состояния: **Off / On**, **Passive / Active** либо **Normal / Pressed** в preview |
+| Кнопка с обратной связью | `fbtn_` | `feedbackbutton_` | `feedbackbutton_Mute` — PBButton, **Normal / Active**, необязательный **Pressed** в preview |
+| Простой регулятор уровня | `lvl_` | `level_` | `level_Volume` — PBLevel в режиме Slider; пустой Frame со сплошной заливкой |
+| Кастомный ползунок | `sld_` | `slider_` | `slider_Volume` — PBSlider; Frame с частями Track, Fill, Thumb |
+| Индикатор уровня | `gau_` | `gauge_` | `gauge_Signal` — PBLevel в режиме Gauge |
+| Индикатор значения | `ind_` | `indicator_` | `indicator_Status` — тот же PBLevel Gauge, не отдельная лампа |
+| Светодиодная шкала | `led_` | `volumeled_` | `volumeled_Audio` — PBLevel в режиме VolumeLED |
+| Уровень с несколькими состояниями | `mlvl_` | `multilevel_` | `multilevel_Status` — PBLevel MultistateLevel, 2–8 состояний, без Pressed |
+| Статичная подпись | `txt_` | `text_` | `text_Title` — Text → PBLabel без управляющего ID |
+| Обновляемая подпись | `val_` | `value_` | `value_VolumeValue` — Text → PBLabel с dynamicText и собственным controlId |
+| Логотип | `logo_` | `logo_` | `logo_Company` — Frame → PNG и самостоятельный PBImage; сокращения нет |
+| Статичная картинка | `img_` | `image_` | `image_Cover` — Frame → PNG и самостоятельный PBImage |
+| Фигура | `shp_` | `shape_` | `shape_Card` — Frame/Rectangle/Ellipse → PBShape |
+| Линия | `ln_` | `line_` | `line_Divider` — Frame/Rectangle → PBLine; меньшая сторона задаёт толщину |
+| Дата и время | `dt_` | `datetime_` | `datetime_Clock` — Text с форматом, например `HH:mm`, → PBDateTime |
+
+Элементы размещаются непосредственно в странице или popup. Суффикс должен быть уникальным внутри контейнера независимо от префикса и регистра: рядом со `slider_Volume` использовать `value_VolumeValue`, а не `value_Volume`. В preview 0.3.2 свежие экземпляры компонентов Extron Kit могут иметь одинаковые имена: распознавание выдаёт им разные ключи и ID. Для обычных слоёв дубликаты имён отклоняются. Сохранённые назначения имеют приоритет над переименованием.
+
+### Состояния и внутренние части
+
+| Назначение | Префиксы / имена | Пример и расположение |
+|---|---|---|
+| Состояние | `st_`, `state_` | Frame внутри Button или Multistate Level: `state_Normal`, `st_On`, `state_Ready` |
+| Исходный вид | `Normal`, `Off`, `Passive` | Также с `st_` / `state_`; роль normal, Passive добавлен в текущем preview |
+| Обратная связь | `On`, `Active`, `Feedback` | Также с `st_` / `state_`: `st_On`, `state_Active`, `state_Feedback`; роль feedback |
+| Нажатие | `Pressed` | Также `st_Pressed`, `state_Pressed`; роль pressed, пока кнопку удерживают |
+| Дополнительный feedback | `st_Name`, `state_Name` | Например `state_Ready`, `state_Error`, `state_Disabled`; Multistate Level и прежние назначения кнопок |
+| Иконка состояния | `ico_`, `icon_`, отдельное имя `Icon` | `icon_Music` — Frame внутри состояния → PNG-ресурс; не отдельный элемент экрана |
+| Части Slider | `Track`, `Fill`, `Thumb` | Имена без префикса, три дочерних слоя внутри `slider_Volume` |
+
+В текущем preview **новые** `button_` / `btn_` имеют ровно два состояния: normal и feedback либо pressed. Для `feedbackbutton_` / `fbtn_` нужны normal и feedback; pressed необязателен. Normal / Off / Passive — синонимы, On / Active / Feedback — синонимы; префиксы `st_` / `state_` допустимы. Существующие имена и оформление сохраняются, отсутствующие состояния не создаются. Прежние сохранённые назначения поддерживают свои схемы состояний. Общий предел — 8 состояний; Disabled задаёт внешний вид, блокировку выполняет программа управления. Архив 0.2.2 имеет прежние строгие наборы.
+
+В Extron Kit preview 0.3.2 есть служебные слоты `Artwork / Off`, `Artwork / On`, `Artwork / Normal`, `Artwork / Active`, `Artwork / Pressed`. Это внутренние имена кита, их следует сохранять. [Правила редактирования экземпляров](src/figma-plugin/EXTRON_KIT.md).
+
+### Зарезервированные префиксы
+
+| Назначение | Короткий префикс | Полный префикс | Статус |
+|---|---|---|---|
+| Видео | `vid_` | `video_` | `video_Preview` — явная ошибка для 1025M/300M; экспорт не поддержан |
+| Динамическая картинка | `dimg_` | `dynamicimage_` | `dynamicimage_Cover` — явная ошибка для 1025M/300M; для статичной картинки использовать `image_` |
+
+Префикс определяет тип объекта. Имена `button_VolumeUp`, `button_VolumeDown`, `button_Mute` или `value_VolumeValue` сами по себе не назначают AV-команды и не создают связь между элементами. Размеры, оформление и вложенность проверяются дополнительно по [стандарту подготовки](src/figma-plugin/AUTHORING_STANDARD.md).
 
 В 0.2.1 кнопка может иметь ровно пустую собственную подпись в `.exui/5`, а видимый текст — отдельные нативные Label/Value поверх неё. Для этого нужны **плагин и CLI 0.2.1**. Цвет таких подписей не следует за состоянием кнопки автоматически; касания под ними и удержания ещё требуют проверки на панели.
 
@@ -159,7 +219,7 @@ npm run verify --prefix src/figma-plugin
 npm run package --prefix src/figma-plugin
 ```
 
-`verify` выполняет typecheck, тесты и сборку. Готовый архив создаётся в `output/figma-plugin/`; существующий архив не заменяется. В Figma Desktop импортировать `src/figma-plugin/manifest.json` после сборки. Текущие исходники — preview 0.3.0: для первого экрана создать демо либо воспользоваться [Extron Kit](src/figma-plugin/EXTRON_KIT.md), затем экспортировать `.exui` и передать его CLI по описанному выше процессу. [Browser QA, интеграция с CLI и разработка плагина](src/figma-plugin/README.md#сборка-и-проверки-из-корня-репозитория).
+`verify` выполняет typecheck, тесты и сборку. Готовый архив создаётся в `output/figma-plugin/`; существующий архив не заменяется. В Figma Desktop импортировать `src/figma-plugin/manifest.json` после сборки. Текущие исходники — preview 0.3.2: для первого экрана создать демо либо воспользоваться [Extron Kit](src/figma-plugin/EXTRON_KIT.md), затем экспортировать `.exui` и передать его CLI по описанному выше процессу. [Browser QA, интеграция с CLI и разработка плагина](src/figma-plugin/README.md#сборка-и-проверки-из-корня-репозитория).
 
 ### Проверки и упаковка
 
