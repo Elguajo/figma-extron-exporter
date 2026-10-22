@@ -1,100 +1,196 @@
-"""Render the reviewed three-column designer reference as a Russian PDF.
+"""Build the three-page Russian prefix cheat sheet with practical usage examples.
 
-Run with Python + reportlab from the repository root. Source content remains in
-docs/figma-prefix-reference.md. Fonts are embedded from the local Windows install.
+Run with Python + ReportLab. Optional first argument: output PDF.
+Reviewed against PREFIXES.md, BUTTON_STATES.md, NATIVE_TEXT.md, recognize.ts.
 """
 from pathlib import Path
 import html
 import re
 import sys
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, PageBreak, KeepTogether
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, PageBreak
 
 ROOT = Path(__file__).resolve().parents[1]
-target = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'output/pdf/figma-extron-prefixes-0.2.0.pdf'
-target.parent.mkdir(parents=True, exist_ok=True)
-source = (ROOT / 'docs/figma-prefix-reference.md').read_text(encoding='utf-8')
+TARGET = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'output/pdf/figma-extron-prefix-cheatsheet.pdf'
+VERSION, DATE = '0.5.2', '22.10.2026'
+PAGE_W, PAGE_H = landscape(A4)
+MARGIN = 32
+WIDTH = PAGE_W - 2 * MARGIN
+INK, MUTED = colors.HexColor('#182025'), colors.HexColor('#566169')
+ACCENT, PALE, LINE = colors.HexColor('#D65A08'), colors.HexColor('#F3F5F6'), colors.HexColor('#DCE1E4')
 for name, filename in [('Guide', 'arial.ttf'), ('GuideBold', 'arialbd.ttf'), ('GuideCode', 'consola.ttf')]:
     pdfmetrics.registerFont(TTFont(name, str(Path('C:/Windows/Fonts') / filename)))
 pdfmetrics.registerFontFamily('Guide', normal='Guide', bold='GuideBold')
-
-ink, muted, blue = colors.HexColor('#172330'), colors.HexColor('#52616F'), colors.HexColor('#146B98')
-styles = {
-    'title': ParagraphStyle('title', fontName='GuideBold', fontSize=21, leading=26, textColor=ink, spaceAfter=8),
-    'intro': ParagraphStyle('intro', fontName='Guide', fontSize=9.6, leading=13, textColor=muted),
-    'cell': ParagraphStyle('cell', fontName='Guide', fontSize=9.3, leading=12.6, textColor=ink),
-    'entity': ParagraphStyle('entity', fontName='Guide', fontSize=9.3, leading=13, textColor=ink),
-    'head': ParagraphStyle('head', fontName='GuideBold', fontSize=9.6, leading=12.8, textColor=colors.white),
-    'note': ParagraphStyle('note', fontName='Guide', fontSize=8.7, leading=11.8, textColor=muted),
+STYLES = {
+    'section': ParagraphStyle('section', fontName='GuideBold', fontSize=11, leading=14, textColor=INK, spaceBefore=10, spaceAfter=6),
+    'cell': ParagraphStyle('cell', fontName='Guide', fontSize=9.1, leading=12, textColor=INK),
+    'head': ParagraphStyle('head', fontName='GuideBold', fontSize=8.2, leading=10.5, textColor=colors.white),
+    'note': ParagraphStyle('note', fontName='Guide', fontSize=8.5, leading=11.5, textColor=MUTED),
+    'card': ParagraphStyle('card', fontName='Guide', fontSize=9, leading=12, textColor=INK),
 }
 
-def clean(value):
-    return value.replace('\u2011', '-').replace('\u2013', '-').replace('\u2014', '-')
-
 def rich(value):
-    value = html.escape(clean(value))
-    return re.sub(r'`([^`]+)`', r'<font name="GuideCode" size="8.7">\1</font>', value)
+    value = html.escape(re.sub('[\u2010-\u2015\u2212]', '-', value))
+    value = re.sub(r'`([^`]+)`', r'<font name="GuideCode" size="8.6">\1</font>', value)
+    value = re.sub(r'\*\*([^*]+)\*\*', r'<b>\1</b>', value)
+    return value.replace('\n', '<br/>')
 
-sections = []
-for block in re.split(r'^## ', source, flags=re.M)[1:]:
-    title = block.splitlines()[0]
-    rows = []
-    for line in block.splitlines()[1:]:
-        if not line.startswith('|') or line.startswith('|---'):
-            continue
-        cells = [part.strip() for part in line.strip('|').split('|')]
-        if cells[0] == 'Сущность':
-            continue
-        assert len(cells) == 3
-        rows.append(cells)
-    sections.append((title, rows))
-assert len(sections) == 4 and sum(len(rows) for _, rows in sections) == 30
+def p(value, style='cell'):
+    return Paragraph(rich(value), STYLES[style])
 
-page_w, page_h = landscape(A4)
-doc = SimpleDocTemplate(str(target), pagesize=(page_w,page_h), leftMargin=36, rightMargin=36,
-                        topMargin=32, bottomMargin=36, title='Figma > Extron - таблица префиксов 0.2.0',
-                        author='Trilliant / Figma > Extron Exporter')
-headers = ['Сущность', 'Для чего нужна в твоём проекте', 'Что у нас сейчас / что добавить']
-story = []
-for index, (title, rows) in enumerate(sections):
-    if index:
-        story.append(PageBreak())
-    story.append(Paragraph('Figma &gt; Extron: таблица префиксов', styles['title']))
-    story.append(Paragraph(f'<b>{html.escape(title)}</b> &nbsp; | &nbsp; Плагин 0.2.0 &nbsp; | &nbsp; 20.10.2026', styles['intro']))
-    story.append(Spacer(1, 12))
-    table_rows = [[Paragraph(h, styles['head']) for h in headers]]
-    for cells in rows:
-        table_rows.append([Paragraph(rich(cell), styles['entity' if col == 0 else 'cell']) for col,cell in enumerate(cells)])
-    table = Table(table_rows, colWidths=[215, 229, page_w-72-215-229], repeatRows=1, hAlign='LEFT')
-    table.setStyle(TableStyle([
-        ('BACKGROUND',(0,0),(-1,0),blue), ('VALIGN',(0,0),(-1,-1),'TOP'),
-        ('LEFTPADDING',(0,0),(-1,-1),9), ('RIGHTPADDING',(0,0),(-1,-1),9),
-        ('TOPPADDING',(0,0),(-1,-1),8), ('BOTTOMPADDING',(0,0),(-1,-1),8),
-        ('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.HexColor('#F1F5F8'),colors.white]),
-        ('LINEBELOW',(0,0),(-1,0),0.8,blue), ('LINEBELOW',(0,1),(-1,-1),0.35,colors.HexColor('#DCE4EA')),
+def table(headers, rows, widths):
+    data = [[p(s, 'head') for s in headers]] + [[p(s) for s in row] for row in rows]
+    result = Table(data, colWidths=widths, repeatRows=1, hAlign='LEFT')
+    result.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), INK), ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8), ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 4), ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [PALE, colors.white]),
+        ('LINEBELOW', (0, 1), (-1, -1), 0.35, LINE),
     ]))
-    story.append(table)
-    story.append(Spacer(1,10))
-    notes = [
-        'Один Frame страницы - один экран. Для общего экспорта выбрать project_Name. Страницы и popup сохраняют собственные ключи и ID. Переходы исполняет программа управления.',
-        'Track/Fill/Thumb описывают внешний вид Slider. Положение бегунка в Figma - preview; начальное значение, шаг кнопок и обратную связь задаёт программа Extron.',
-        'После префикса - уникальное имя на экране: slider_Volume и value_VolumeValue. Регистр не важен. Графика внутри logo_/image_/icon_ растрируется; нативные элементы остаются отдельными объектами.',
-        'Новые функции требуют плагин 0.2.0 и текущий CLI с exui/5. Команды, feedback, доступность и видимость подключает программист. Наличие состояния Disabled само по себе не запрещает нажатия.',
-    ]
-    story.append(Paragraph(notes[index], styles['note']))
+    return result
 
-def footer(canvas, doc):
+STRUCTURE = [
+    ('Проект', '`prj_` / `project_`', '`project_Trilliant`: внешний Frame; внутри экраны и popup. Секция проекта может иметь любое имя.'),
+    ('Экран', '`scr_` / `screen_`\nили `Home`', '`screen_Main`: Frame 1280x800 (1025M) или 320x480 (300M portrait).'),
+    ('Popup', '`pop_` / `popup_`', '`popup_Sources`: Frame своего размера. На странице нужен popupref такого же размера.'),
+    ('Модальный popup', '`mdl_` / `modalpopup_`', '`modalpopup_Confirm`: Frame размером с панель, вне группы popup.'),
+    ('Группа popup', '`pgrp_` / `popupgroup_`', '`popupgroup_Zones`: Frame с обычными popup одинакового размера.'),
+    ('Место popup', '`pr_` / `popupref_`', '`popupref_Sources`: пустой Frame размера цели; цель popup или группы задаётся в форме.'),
+]
+CONTROLS = [
+    ('Кнопка', '`btn_` / `button_`', '`button_Power`: **Off / On**. Для нажатия и удержания: **Normal / Pressed**.'),
+    ('Кнопка с feedback', '`fbtn_` / `feedbackbutton_`', '`feedbackbutton_Mute`: **Normal / Active / Pressed**. Group или Frame.'),
+    ('Кастомный Slider', '`sld_` / `slider_`', '`slider_Volume`: Frame без фона; внутри **Track, Fill, Thumb**.'),
+    ('Простой регулятор', '`lvl_` / `level_`', '`level_Volume`: пустой Frame с SOLID-заливкой; PBLevel Slider.'),
+    ('Уровень сигнала', '`gau_` / `gauge_`', '`gauge_Signal`: пустой Frame с SOLID-заливкой; PBLevel Gauge.'),
+    ('Индикатор', '`ind_` / `indicator_`', '`indicator_Status`: тот же числовой Gauge; отдельную лампу не создаёт.'),
+    ('LED-шкала', '`led_` / `volumeled_`', '`volumeled_Audio`: пустой Frame с заливкой; PBLevel VolumeLED.'),
+    ('Несколько видов', '`mlvl_` / `multilevel_`', '`multilevel_Status`: Frame, внутри 2-8 состояний; normal первым, без Pressed.'),
+]
+GRAPHICS = [
+    ('Статичный текст', '`txt_` / `text_`', '`text_Title`: Text Arial Regular/Bold, Inter / Inter Display; Label или PNG.'),
+    ('Обновляемый текст', '`val_` / `value_`', '`value_VolumeValue`: Text с начальным «42%»; собственный controlId, обновляет программа.'),
+    ('Дата / время', '`dt_` / `datetime_`', '`datetime_Clock`: Text с форматом **HH:mm** или **dd.MM.yyyy HH:mm**.'),
+    ('Логотип', '`logo_`', '`logo_Company`: Frame с графикой; PNG / PBImage, без controlId и нажатий.'),
+    ('Картинка', '`img_` / `image_`', '`image_Photo`: Frame с графикой; статичный PNG / PBImage.'),
+    ('Иконка состояния', '`Icon`, `ico_` / `icon_`', '`icon_Music`: Frame внутри состояния; часть его PNG, а не отдельная кнопка.'),
+    ('Фигура', '`shp_` / `shape_`', '`shape_Card`: пустой Frame, Rectangle или Ellipse; SOLID, единое скругление, Stroke INSIDE.'),
+    ('Линия', '`ln_` / `line_`', '`line_Divider`: Line / Vector: горизонталь/вертикаль, SOLID Stroke CENTER, Uniform.'),
+]
+STATES = [
+    ('Включение или выбор', '**Off / On**', '`button_Power`, `button_Zone`: On задаёт программа управления.'),
+    ('Нажатие и удержание', '**Normal / Pressed**', '`button_VolumeUp`, `button_VolumeDown`: Pressed виден во время удержания.'),
+    ('Выбор с видом нажатия', '**Normal / Active / Pressed**', '`feedbackbutton_Mute`: Active от программы; Pressed во время удержания.'),
+]
+
+USAGE = {
+    'project_Trilliant': 'Весь AV-интерфейс с экранами залов.',
+    'screen_Main': 'Главный экран выбора Hall / Terrace.',
+    'popup_Sources': 'Меню источников HDMI / Bluetooth.',
+    'modalpopup_Confirm': 'Подтверждение «Выключить систему?»',
+    'popupgroup_Zones': 'Панели Hall / Terrace в одной области.',
+    'popupref_Sources': 'Область показа меню источников.',
+    'button_Power': 'Включить / выключить питание.',
+    'feedbackbutton_Mute': 'Mute с отдельным видом нажатия.',
+    'slider_Volume': 'Менять громкость бегунком.',
+    'level_Volume': 'Простой регулятор громкости.',
+    'gauge_Signal': 'Показывать уровень аудиосигнала.',
+    'indicator_Status': 'Показ числового уровня без ввода.',
+    'volumeled_Audio': 'Сегментная шкала аудиоуровня.',
+    'multilevel_Status': 'Виды «Нет связи» / «Готов» / «Ошибка».',
+    'text_Title': 'Заголовок «Hall», подпись «Громкость».',
+    'value_VolumeValue': 'Обновлять текущие «42%» громкости.',
+    'datetime_Clock': 'Часы в шапке главного экрана.',
+    'logo_Company': 'Логотип Trilliant в шапке экрана.',
+    'image_Photo': 'Фото зала или статичная обложка.',
+    'icon_Music': 'Нота внутри кнопки выбора Music.',
+    'shape_Card': 'Фоновая плашка аудиоблока.',
+    'line_Divider': 'Разделитель блоков Hall / Terrace.',
+}
+
+def chrome(canvas, doc):
     canvas.saveState()
-    canvas.setStrokeColor(colors.HexColor('#DCE4EA'));canvas.setLineWidth(.5);canvas.line(36,28,page_w-36,28)
-    canvas.setFont('Guide',7.6);canvas.setFillColor(muted)
-    canvas.drawString(36,17,'Проверено автоматически. Настоящий Figma, GUI Designer/Build и оборудование версии 0.2.0 ещё не проверены.')
-    canvas.drawRightString(page_w-36,17,f'{doc.page} / 4')
+    canvas.setFillColor(ACCENT)
+    canvas.rect(MARGIN, PAGE_H - 34, 26, 3, fill=1, stroke=0)
+    canvas.setFillColor(INK)
+    canvas.setFont('GuideBold', 20)
+    canvas.drawString(MARGIN, PAGE_H - 59, 'Figma > Extron / Prefix Cheat Sheet')
+    canvas.setFont('Guide', 8.4)
+    canvas.setFillColor(MUTED)
+    canvas.drawRightString(PAGE_W - MARGIN, PAGE_H - 36, f'Плагин + CLI {VERSION}  |  EXUI/5')
+    canvas.drawRightString(PAGE_W - MARGIN, PAGE_H - 49, DATE)
+    canvas.setStrokeColor(LINE)
+    canvas.line(MARGIN, 30, PAGE_W - MARGIN, 30)
+    canvas.setFont('Guide', 7.5)
+    canvas.drawString(MARGIN, 18, 'TRILLIANT  /  Короткие и полные префиксы равнозначны. Регистр букв не важен.')
+    canvas.drawRightString(PAGE_W - MARGIN, 18, f'{doc.page} / 3')
     canvas.restoreState()
 
-doc.build(story,onFirstPage=footer,onLaterPages=footer)
-print(target.resolve())
+story = []
+headers = ['ЭЛЕМЕНТ', 'КОРОТКОЕ / ПОЛНОЕ ИМЯ', 'ПРИМЕР ПРИМЕНЕНИЯ', 'КАК ПОДГОТОВИТЬ']
+widths = [108, 163, 224, WIDTH - 495]
+
+def prefix_table(rows):
+    # Keep an explicit example column, separate from the preparation rule.
+    expanded = []
+    for entity, prefix, description in rows:
+        example, preparation = description.split(': ', 1)
+        usage = USAGE[example.strip('`')]
+        expanded.append((entity, prefix, example + '\n' + usage, preparation))
+    return table(headers, expanded, widths)
+
+story.append(p('01 / Структура проекта', 'section'))
+story.append(prefix_table(STRUCTURE))
+story.append(Spacer(1, 7))
+story.append(p('Элементы размещайте непосредственно в Frame экрана / popup. Несколько экранов можно выделить вместе и экспортировать одним проектом; project_ или секция для этого не обязательны.', 'note'))
+story.append(p('02 / Подготовка и экспорт', 'section'))
+cards = [
+    '**Button Styles / подготовка**\n'
+    '1. Вне экранов: Group или Frame **Button Styles**, внутри Rectangle **Off** и **On** с разным оформлением.\n'
+    '2. Дизайн кнопки: Group / Frame `button_Power`. Выберите экран > «Применить оформление». Для готовых кнопок явно выберите пропуск или обновление.\n'
+    '3. `button_` > Off / On; `feedbackbutton_` > Normal / Active. **Pressed добавьте вручную**; Normal / Pressed подготовьте вручную.\n'
+    'Переносятся заливка и обводка фона; скругление - по настройке. Иконки, подписи, Pressed и ID сохраняются.',
+    '**Имена / экспорт**\n'
+    'После префикса: латинская буква, затем латиница, цифры, точки и дефисы между непустыми частями. Без пробелов и второго `_`. Пример: `button_side.hall`.\n'
+    'Экран > профиль панели > «Проверить макет» > «Скачать .exui». Ключи и ID назначаются автоматически.\n'
+    'Нативные координаты и размеры округляются: 218.21 > 218, 218.7 > 219. Исходный макет не меняется.\n'
+    '**AV-команды, feedback и переходы выполняет программа Extron.**\n'
+    'На 1025M / 300M недоступны: `vid_` / `video_`, `dimg_` / `dynamicimage_`.',
+]
+card_table = Table([[p(s, 'card') for s in cards]], colWidths=[WIDTH / 2, WIDTH / 2])
+card_table.setStyle(TableStyle([
+    ('BACKGROUND', (0, 0), (-1, -1), PALE), ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ('LEFTPADDING', (0, 0), (-1, -1), 10), ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+    ('TOPPADDING', (0, 0), (-1, -1), 8), ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ('LINEBEFORE', (1, 0), (1, 0), 6, colors.white),
+]))
+story.append(card_table)
+story.append(PageBreak())
+story.append(p('03 / Кнопки, регуляторы и индикаторы', 'section'))
+story.append(prefix_table(CONTROLS))
+story.append(p('04 / Три схемы кнопок для новых макетов', 'section'))
+story.append(table(['ПОВЕДЕНИЕ', 'СОСТОЯНИЯ', 'ПРИМЕР'], STATES, [145, 190, WIDTH - 335]))
+story.append(Spacer(1, 7))
+story.append(p('Совместимость: Passive / Active, Normal / Active без Pressed и прежние поддержанные синонимы сохраняются. Off / Normal / Passive - одна роль; On / Active / Feedback - другая. Одну роль внутри кнопки не дублировать. `st_` / `state_` - префиксы состояний; например, `state_Pressed`.', 'note'))
+story.append(PageBreak())
+story.append(p('05 / Текст и графика', 'section'))
+story.append(prefix_table(GRAPHICS))
+story.append(p('06 / Пример: блок громкости Hall', 'section'))
+story.append(table(['СЛОЙ ВНУТРИ ЭКРАНА', 'ЧТО ВИДИТ ПОЛЬЗОВАТЕЛЬ', 'КАК СВЯЗАТЬ'], [
+    ('`button_HallVolumeDown`\n`button_HallVolumeUp`', 'Кнопки «-» / «+» со схемой Normal / Pressed.', 'Шаг изменения и повтор при удержании задаёт программа Extron.'),
+    ('`slider_HallVolume`\n`value_HallVolumeValue`', 'Ползунок и отдельный текущий процент «42%».', 'Программа обновляет и позицию Slider, и текст Value. Связь по имени не создаётся.'),
+    ('`button_HallMute`', 'Off / On: видно, включено ли заглушение.', 'Программа отправляет команду Mute и возвращает feedback для On.'),
+], [215, 250, WIDTH - 465]))
+TARGET.parent.mkdir(parents=True, exist_ok=True)
+doc = SimpleDocTemplate(str(TARGET), pagesize=(PAGE_W, PAGE_H), leftMargin=MARGIN,
+                        rightMargin=MARGIN, topMargin=70, bottomMargin=39,
+                        title=f'Figma > Extron / Prefix Cheat Sheet {VERSION}',
+                        author='Trilliant / Figma > Extron Exporter',
+                        subject='Префиксы Figma, состояния кнопок и подготовка к экспорту EXUI/5')
+doc.build(story, onFirstPage=chrome, onLaterPages=chrome)
+print(str(TARGET.resolve()).encode('ascii', errors='backslashreplace').decode('ascii'))
