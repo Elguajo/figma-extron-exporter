@@ -4,7 +4,7 @@ const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(
 const input=(id:string)=>$<HTMLInputElement>(id);
 let packing=false,operationBusy=false,selectedId:string|null=null,downloadUrl:string|undefined;
 let recognitionToken:number|undefined;
-let legacyButton=false;
+let legacyButton=false,loadedKey='';
 let canRecognize=false,hasScope=false;
 let buttonCanApply=false,buttonResultReady=false;
 let buttonSummary:ButtonPreparationSummary|undefined,buttonStylesReady=false,buttonScopeReady=false,buttonScopeKey='';
@@ -84,6 +84,7 @@ $('preview').onclick=()=>{const value=input('previewRole').value;send('preview',
 $('mapping').onsubmit=event=>{
   event.preventDefault();
   const data:Record<string,string>={};for(const id of ['kind','buttonMode','key','objectId','controlId','projectName','profile','role','stateName','file','resourceName','stateId','shownBy','modal','display','orientation','min','max','pattern','popup','group','navigate','selectionGroup','enabled','visible'])data[id]=input(id).value;
+  data.keyEdited=String(data.key!==loadedKey);
   send('apply',{data});
 };
 window.onmessage=async(event:MessageEvent)=>{
@@ -107,6 +108,7 @@ window.onmessage=async(event:MessageEvent)=>{
     $('prepare').hidden=msg.nodeType!=='FRAME'||!!m.kind;
     $('preparationHelp').hidden=msg.nodeType!=='FRAME'||!!m.kind;
     for(const id of ['key','objectId','controlId','projectName','stateName','file','resourceName','stateId','shownBy','pattern','popup','group'])input(id).value=String(m[id as keyof Metadata]??'');
+    loadedKey=input('key').value;
     const navigation=$<HTMLSelectElement>('navigate');navigation.replaceChildren();
     const addTarget=(value:string,label:string)=>{const option=document.createElement('option');option.value=value;option.textContent=label;navigation.appendChild(option);};
     addTarget('','Без перехода');

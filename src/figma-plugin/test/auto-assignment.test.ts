@@ -31,7 +31,7 @@ for(const profile of Object.keys(PROFILES) as Profile[])for(const command of ['c
 test('Copied renamed slider keeps custom range and behavior while the original wins even after reordering',async()=>{
  const p=plugin(),root=expandedFixture();applyRecognition(recognize(root,'tlp-pro-1025m'));const slider=root.children[0];
  tag(slider,{...readMetadata(slider)!,min:10,max:255,orientation:'right-to-left',behavior:{enabled:true,visible:false}});(slider as FrameNode).children.find(n=>n.name==='Fill')!.x=156;
- const original=slider.getPluginData(DATA_KEY),copy=slider.clone();copy.name='Громкость второго зала';copy.y=350;
+ const original=slider.getPluginData(DATA_KEY),copy=slider.clone();copy.name='slider_SecondHallVolume';copy.y=350;
  (root.children as any).splice((root.children as any).indexOf(copy),1);(root.children as any).unshift(copy);
  p.page.selection=[copy as never];await p.send({type:'export'});const bundle=latestBundle(p),m=readMetadata(copy)!;
  assert.equal(slider.getPluginData(DATA_KEY),original);assert.equal(m.ownerNodeId,copy.id);assert.notEqual(m.key,readMetadata(slider)!.key);assert.notEqual(m.objectId,readMetadata(slider)!.objectId);assert.notEqual(m.controlId,readMetadata(slider)!.controlId);
@@ -47,11 +47,11 @@ test('Copied button repairs its states and PNGs without changing the original or
  assert.ok(bundle.resources.length>2);assert.equal(new Set(bundle.resources.map((r:any)=>r.path)).size,bundle.resources.length);const stable=designSignature(root);await p.send({type:'export'});latestBundle(p);assert.equal(designSignature(root),stable);
 });
 
-test('Independently prepared Main Dashboard and Audio Control with page.home/100 export together',async()=>{
+test('Independently prepared Main Dashboard and Audio Control with page.home/100 export together under name-derived keys',async()=>{
  const p=plugin(),{main,audio}=twoScreens();main.name='Main Dashboard';audio.name='Audio Control';
  for(const screen of [main,audio])tag(screen,{kind:'page',key:'page.home',objectId:100,profile:'tlp-pro-1025m',projectName:'Trilliant'});
  const first=main.getPluginData(DATA_KEY);p.page.selection=[main as never,audio as never];p.emit('selectionchange');await p.send({type:'export',scopeMode:'selected-frames',profile:'tlp-pro-1025m'});
- const bundle=latestBundle(p);assert.equal(main.getPluginData(DATA_KEY),first);assert.notEqual(readMetadata(main)!.key,readMetadata(audio)!.key);assert.notEqual(readMetadata(main)!.objectId,readMetadata(audio)!.objectId);
+ const bundle=latestBundle(p);assert.deepEqual({...readMetadata(main),key:undefined},{...JSON.parse(first),key:undefined});assert.deepEqual([readMetadata(main)!.key,readMetadata(audio)!.key],['page.main-dashboard','page.audio-control']);assert.notEqual(readMetadata(main)!.objectId,readMetadata(audio)!.objectId);
  assert.equal(bundle.screen.pages.length,2);assert.deepEqual([...bundle.screen.pages.map((c:any)=>c.shownBy)],['start','program']);assert.equal(bundle.screen.pages[0].name,'Main Dashboard');
 });
 

@@ -37,18 +37,22 @@ test(`Named ${profile}, ${two?2:3} states: dry run → commit → valid package 
   const files=unzipSync(packageExui(result));assert.equal(JSON.parse(strFromU8(files['manifest.json'])).schema,'exui/5');
   assert.equal(result.screen.elements[0].press,two?undefined:'Pressed');
   assert.deepEqual(result.screen.elements[0].states!.map(s=>s.name),two?['Off','On']:['Normal','Active','Pressed']);
-  const ids=result.screen.elements.map(e=>[e.key,e.objectId,e.controlId]).sort();
-  root.name='Переименованный экран';root.children[0].name='Любое новое имя';
-  const again=recognize(root,profile);assert.deepEqual(again.errors,[]);assert.equal(again.writes.length,0);applyRecognition(again);
-  assert.deepEqual((await exportFrame(root)).screen.elements.map(e=>[e.key,e.objectId,e.controlId]).sort(),ids);
+  const ids=result.screen.elements.map(e=>[e.objectId,e.controlId]).sort();
+  // Renaming moves the readable keys only; object and control IDs stay.
+  root.name='screen_Renamed';root.children[0].name=(two?'btn_':'fbtn_')+'AnyName';
+  const again=recognize(root,profile);assert.deepEqual(again.errors,[]);applyRecognition(again);
+  const renamed=(await exportFrame(root)).screen;assert.deepEqual(renamed.elements.map(e=>[e.objectId,e.controlId]).sort(),ids);
+  assert.equal(renamed.page.key,'page.renamed');assert.equal(renamed.elements[0].key,'renamed.anyname');assert.ok(renamed.elements.every(e=>e.key.startsWith('renamed.')));
+  assert.equal(recognize(root,profile).writes.length,0);
 });
 
-test('Legacy metadata is preserved byte-for-byte; new IDs skip all existing assignments',async()=>{
-  const fake=fakeFigma();const root=await createDemo('tlp-pro-1025m',icons(),true);
+test('Legacy metadata keeps its schema and IDs; only keys follow Latin names; new IDs skip all existing assignments',async()=>{
+  const fake=fakeFigma();const root=await createDemo('tlp-pro-1025m',icons(),true);root.name='Home';['button_SourceMusic','text_VolumeCaption','level_Volume','button_Mute'].forEach((name,i)=>root.children[i].name=name);
   const originals=[root,...root.children].map(n=>[n,n.getPluginData(DATA_KEY)] as const);
   const level=fake.api.createFrame();level.name='level_Additional';level.resize(100,10);level.x=600;level.y=700;level.fills=[{type:'SOLID',color:{r:1,g:0,b:0}}];root.appendChild(level as never);
   const plan=recognize(root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
-  for(const [n,data] of originals)assert.equal(n.getPluginData(DATA_KEY),data);
+  for(const [n,data] of originals)assert.deepEqual({...JSON.parse(n.getPluginData(DATA_KEY)),key:undefined},{...JSON.parse(data),key:undefined});
+  assert.deepEqual([root,...root.children.slice(0,4)].map(n=>JSON.parse(n.getPluginData(DATA_KEY)).key),['page.home','home.sourcemusic','home.volumecaption','home.volume','home.mute']);
   const metadata=JSON.parse(level.getPluginData(DATA_KEY));assert.ok(metadata.objectId>4);assert.ok(metadata.controlId>8104);
 });
 
@@ -127,12 +131,12 @@ test('Logo, img and image are equivalent static graphics; capitalization is igno
   assert.deepEqual(namedControl('text_VolumeValue'),namedControl('TXT_volumevalue'));
 });
 
-test('Case-only duplicate names receive distinct keys while the previous saved key remains intact',async()=>{
+test('Case-only duplicate names receive distinct keys; the saved element moves to its name-derived key',async()=>{
   const fake=fakeFigma();const root=await graphicFixture();applyRecognition(recognize(root,'tlp-pro-1025m'));
   // Represents a key written by the previous plugin normalization.
   const first=root.children[0],m=JSON.parse(first.getPluginData(DATA_KEY));m.key='home.volume-up';first.setPluginData(DATA_KEY,JSON.stringify(m));
   const other=first.clone();other.setPluginData(DATA_KEY,'');other.name='btn_volumeup';root.appendChild(other as never);
-  const plan=recognize(root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);assert.equal(other.getPluginData(DATA_KEY),'');applyRecognition(plan);assert.equal(JSON.parse(first.getPluginData(DATA_KEY)).key,'home.volume-up');assert.notEqual(JSON.parse(other.getPluginData(DATA_KEY)).key,'home.volume-up');await exportFrame(root);
+  const plan=recognize(root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);assert.equal(other.getPluginData(DATA_KEY),'');applyRecognition(plan);assert.deepEqual([JSON.parse(first.getPluginData(DATA_KEY)).key,JSON.parse(first.getPluginData(DATA_KEY)).objectId],['home.volumeup',m.objectId]);assert.equal(JSON.parse(other.getPluginData(DATA_KEY)).key,'home.volumeup-2');await exportFrame(root);
 });
 
 test('Standalone graphic requires a Frame and cannot acquire a control ID or button states',async()=>{

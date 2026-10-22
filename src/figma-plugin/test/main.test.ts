@@ -16,7 +16,7 @@ function plugin(){const fake=fakeFigma();vm.runInNewContext(source,{figma:fake.a
 test('Manual Pen line mapping → check/export from a child; invalid curves do not overwrite metadata',async()=>{
  const p=plugin(),root=await strokeLineFixture(),line=root.children[0] as VectorNode;
  p.page.selection=[root as never];await p.send({type:'prepare',profile:'tlp-pro-1025m'});
- p.page.selection=[line as never];await p.send({type:'apply',data:{kind:'line',key:'home.pen',objectId:'7'}});
+ p.page.selection=[line as never];await p.send({type:'apply',data:{kind:'line',key:'home.pen',objectId:'7',keyEdited:'true'}});
  const metadata=line.getPluginData('exui');assert.equal(JSON.parse(metadata).kind,'line');
  // The other lines are unmapped, so recognize the complete screen before exporting.
  p.page.selection=[root as never];await p.send({type:'recognize',profile:'tlp-pro-1025m'});
@@ -121,7 +121,7 @@ test('Manual form persists the chosen button type and rejects unsupported modes 
 });
 
 test('Manual form preserves saved legacy buttons only through the explicit legacy choice',async()=>{
-  const p=plugin();const root=await createDemo('tlp-pro-1025m',icons(),true);p.page.selection=[root.children[0] as never];
+  const p=plugin();const root=await createDemo('tlp-pro-1025m',icons(),true);root.name='Home';['button_SourceMusic','text_VolumeCaption','level_Volume','button_Mute'].forEach((name,i)=>root.children[i].name=name);p.page.selection=[root.children[0] as never];
   const before=JSON.parse(root.children[0].getPluginData('exui'));
   await p.send({type:'apply',data:{...before,buttonMode:'legacy'}});
   assert.deepEqual(JSON.parse(root.children[0].getPluginData('exui')),before);
@@ -158,9 +158,9 @@ test('Built plugin saves explicit metadata, keeps rename-independent IDs and rej
 });
 
 test('Own unassigned screen: unsupported child is reported → optional prepare → assign label → editable export',async()=>{
-  const p=plugin();const root=p.api.createFrame();root.name='Свой экран';root.resize(1280,800);
+  const p=plugin();const root=p.api.createFrame();root.name='My Screen';root.resize(1280,800);
   root.fills=[{type:'SOLID',color:{r:0,g:0,b:0}}];root.x=300;root.y=200;
-  const label=p.api.createText();root.appendChild(label);label.name='Зал';label.characters='Hall';label.resize(120,40);
+  const label=p.api.createText();root.appendChild(label);label.name='Hall';label.characters='Hall';label.resize(120,40);
   label.x=20;label.y=30;label.textAlignVertical='CENTER';label.fills=[{type:'SOLID',color:{r:1,g:1,b:1}}];
   p.page.selection=[root];const before=JSON.stringify({bounds:root.absoluteBoundingBox,fills:root.fills,children:root.children.map(n=>[n.id,n.name,n.x,n.y,n.width,n.height,n.characters])});
   await p.send({type:'export'});
@@ -168,7 +168,7 @@ test('Own unassigned screen: unsupported child is reported → optional prepare 
   assert.ok(report.errors.join('\n').includes('префикс'));assert.equal(report.issues[0].nodeId,label.id);
   assert.equal(p.messages.filter(m=>m.type==='bundle').length,0);
   await p.send({type:'prepare',profile:'tlp-pro-1025m'});
-  assert.deepEqual(JSON.parse(root.getPluginData('exui')),{schema:'exui-node/1',ownerNodeId:root.id,kind:'page',key:'page.screen',objectId:100,profile:'tlp-pro-1025m',projectName:'Свой экран'});
+  assert.deepEqual(JSON.parse(root.getPluginData('exui')),{schema:'exui-node/1',ownerNodeId:root.id,kind:'page',key:'page.my-screen',objectId:100,profile:'tlp-pro-1025m',projectName:'My Screen'});
   assert.equal(JSON.stringify({bounds:root.absoluteBoundingBox,fills:root.fills,children:root.children.map(n=>[n.id,n.name,n.x,n.y,n.width,n.height,n.characters])}),before);
   assert.equal(label.getPluginData('exui'),'');
   await p.send({type:'export'});assert.ok((p.messages.filter(m=>m.type==='recognition').at(-1) as any).issues.some((i:any)=>i.nodeId===label.id));
@@ -189,7 +189,7 @@ test('Prepare preserves all existing page metadata and refuses a copied page',as
 });
 
 test('Prepare rejects wrong profile, node type, existing kind and nested screen without mutation',async()=>{
-  const p=plugin();const root=p.api.createFrame();root.name='Свой экран';root.resize(1280,800);p.page.selection=[root];
+  const p=plugin();const root=p.api.createFrame();root.name='My Screen';root.resize(1280,800);p.page.selection=[root];
   for(const profile of ['unknown','tlp-pro-300m-portrait']) {
     await p.send({type:'prepare',profile});assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'profile');assert.equal(root.getPluginData('exui'),'');
   }

@@ -1,10 +1,16 @@
 import large from '../../../examples/exui-v1/1025m/screen.json' with { type:'json' };
 import small from '../../../examples/exui-v1/300m/screen.json' with { type:'json' };
+import { MANUAL_KEY } from './key-sync.ts';
 import { DATA_KEY, integer, isControlKind, metadataSchema, type MetadataInput, type Metadata, type Profile, type SingleScreen } from './model.ts';
 export function tag(node:BaseNode, data:MetadataInput):void {
   node.setPluginData(DATA_KEY,JSON.stringify({...data,schema:metadataSchema(data),ownerNodeId:node.id}));
 }
 function paint(hex:string):SolidPaint {return {type:'SOLID',color:{r:parseInt(hex.slice(1,3),16)/255,g:parseInt(hex.slice(3,5),16)/255,b:parseInt(hex.slice(5,7),16)/255}};}
+// Legacy reproduces examples/exui-v1 exactly, including its Russian layer names.
+// The plugin demo uses Latin layer names and keeps the curated keys as manual.
+const pascal=(value:string)=>value.split(/[.-]/).map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join('');
+const DEMO_PREFIX:Record<string,string>={button:'button_',label:'text_',level:'level_'};
+function curated(node:BaseNode,legacy:boolean){if(!legacy)node.setPluginData(MANUAL_KEY,node.id);}
 export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>,legacy=false):Promise<FrameNode> {
   const spec=(profile==='tlp-pro-1025m'?large:small) as Omit<SingleScreen,'schema'>;
   const fonts=await figma.listAvailableFontsAsync();
@@ -26,8 +32,8 @@ export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>
   try {
     const width=profile==='tlp-pro-1025m'?1280:320,height=profile==='tlp-pro-1025m'?800:480;
     const right=Math.max(0,...figma.currentPage.children.map(n=>n.x+('width' in n?n.width:0)));
-    root=makeFrame(spec.page.name,width,height);root.x=right+120;root.y=120;root.fills=[paint(spec.page.background)];
-    tag(root,{kind:'page',key:spec.page.key,objectId:spec.page.objectId,profile,projectName:spec.project.name});
+    root=makeFrame(legacy?spec.page.name:pascal(spec.page.key.replace(/^page\./,'')),width,height);root.x=right+120;root.y=120;root.fills=[paint(spec.page.background)];
+    tag(root,{kind:'page',key:spec.page.key,objectId:spec.page.objectId,profile,projectName:spec.project.name});curated(root,legacy);
     const imageHashes:Record<string,string>={};
     for(const [k,bytes] of Object.entries(icons)) imageHashes[k]=figma.createImage(bytes).hash;
     for(const e of spec.elements) {
@@ -51,9 +57,9 @@ export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>
           state.visible=s.role==='normal';
         }
       }
-      control.name=e.name;control.x=x;control.y=y;
+      control.name=legacy?e.name:(DEMO_PREFIX[e.kind]??'')+pascal(e.key);control.x=x;control.y=y;
       const identity={key:e.key,objectId:e.objectId};
-      tag(control,isControlKind(e.kind)?{kind:e.kind,...identity,controlId:integer(e.controlId,1,65535,'controlId'),...(!legacy&&e.kind==='button'?{buttonMode:'feedback' as const}:{})}:{kind:e.kind,...identity,controlId:null});
+      tag(control,isControlKind(e.kind)?{kind:e.kind,...identity,controlId:integer(e.controlId,1,65535,'controlId'),...(!legacy&&e.kind==='button'?{buttonMode:'feedback' as const}:{})}:{kind:e.kind,...identity,controlId:null});curated(control,legacy);
     }
     figma.currentPage.selection=[root];figma.viewport.scrollAndZoomIntoView([root]);return root;
   } catch(e) {for(const node of created.reverse())if(!node.removed)node.remove();throw e;}

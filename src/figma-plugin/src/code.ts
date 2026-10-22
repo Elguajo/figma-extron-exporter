@@ -12,6 +12,8 @@ import { isButtonContainer } from './button-artwork.ts';
 import { buttonPreparationSummary, markBackground, prepareButtons, presetPreviews, rememberPreset } from './button-preparation.ts';
 import type { ButtonPreparationSummary } from './model.ts';
 import { focusNode } from './focus-node.ts';
+import { MANUAL_KEY } from './key-sync.ts';
+import { requireLatinName } from './latin-name.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
@@ -44,6 +46,7 @@ function prepare(profile:Profile|undefined):void {
     if(readMetadata(parent)?.kind==='page')fail('placement','Выбран элемент внутри подготовленного экрана. Выберите внешний Frame экрана.');
     parent=parent.parent;
   }
+  requireLatinName(node,'screen_');
   const used=new Set<string>();let nextId=100;
   function collect(parent:BaseNode&ChildrenMixin){for(const child of parent.children){const m=stored(child);if(m?.key)used.add(m.key);if(m&&['page','popup'].includes(m.kind))nextId=Math.max(nextId,integer(m.objectId,1,65534,'ID контейнера')+1);if('children' in child&&(!m||['project','popup-group'].includes(m.kind)))collect(child);}}
   collect(figma.currentPage);
@@ -57,7 +60,7 @@ function exportRoot():{root:ProjectNode;options:ProjectOptions;captured:Capture;
   if(plan.errors.length){postRecognition(plan);return null;}
   const captured=applyRecognition(plan);
   const previewCount=new Set(plan.visibility.map(change=>change.node.parent!.id)).size;
-  const assignmentSummary=[plan.writes.length?`Автоматически сохранено назначений: ${plan.writes.length}.`:'',previewCount?`Автоматически настроен предпросмотр кнопок: ${previewCount}. Все состояния сохранены.`:''].filter(Boolean).join(' ');
+  const assignmentSummary=[plan.writes.length?`Автоматически сохранено назначений: ${plan.writes.length}.`:'',plan.keys.length?`Ключи обновлены по именам слоёв: ${plan.keys.length}; ID не изменены.`:'',previewCount?`Автоматически настроен предпросмотр кнопок: ${previewCount}. Все состояния сохранены.`:''].filter(Boolean).join(' ');
   publish();return {...resolved,captured,assignmentSummary};
 }
 function publish(keepRecognition=false):void {
@@ -92,9 +95,19 @@ function publish(keepRecognition=false):void {
   const buttonPresets={normal:buttonStylePreviews.normal.name,feedback:buttonStylePreviews.feedback.name};
   figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,warning,states,scope,targets,buttonPresets,buttonStylePreviews,buttonWorkflow,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
 }
-function apply(data:Record<string,unknown>):void {
-  const node=selected(),kind=data.kind as Metadata['kind'];
+function apply(input:Record<string,unknown>):void {
+  const node=selected(),kind=input.kind as Metadata['kind'];
   if(!['project','page','popup','popup-group','state','image',...ELEMENT_KINDS].includes(kind))fail('kind','Выберите назначение.');
+  // A key typed in the form stays fixed; an emptied field returns it to the
+  // automatic key, which the next check derives from the layer name.
+  const previous=stored(node),automatic=kind!=='state'&&input.key===''&&!!previous?.key;
+  const data=automatic?{...input,key:previous!.key}:input;
+  const manual=kind!=='state'&&!automatic&&input.keyEdited==='true'&&data.key!==previous?.key;
+  const previousFlag=node.getPluginData(MANUAL_KEY);
+  if(manual)node.setPluginData(MANUAL_KEY,node.id);else if(automatic)node.setPluginData(MANUAL_KEY,'');
+  try{assignNode(node,kind,data);}catch(e){node.setPluginData(MANUAL_KEY,previousFlag);throw e;}
+}
+function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unknown>):void {
   let value:MetadataInput;
   switch(kind){
     case 'project': case 'page': case 'popup': {
@@ -194,7 +207,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
     }else if(message.type==='apply-recognition') {
       const plan=recognition;recognition=undefined;
       if(!plan||message.token!==recognitionToken||(plan.root.type==='PAGE'?figma.currentPage.id!==plan.root.id:selected().id!==plan.root.id)||recognitionMode!==scopeContext.mode||message.profile!==plan.profile)fail('recognition','Результат распознавания устарел. Распознайте выбранный экран ещё раз.');
-      applyRecognition(plan);publish();figma.ui.postMessage({type:'success',message:`Назначения сохранены. ${plan.visibility.length?'Лишние состояния скрыты в предпросмотре; все состояния сохраняются в экспорте. ':''}Существующие ключи и ID сохранены. Можно проверить экран и скачать .exui.`});
+      applyRecognition(plan);publish();figma.ui.postMessage({type:'success',message:`Назначения сохранены. ${plan.visibility.length?'Лишние состояния скрыты в предпросмотре; все состояния сохраняются в экспорте. ':''}ID сохранены, ключи следуют именам слоёв. Можно проверить экран и скачать .exui.`});
     }else {
     recognition=undefined;
     if(message.type==='button-preset-normal'||message.type==='button-preset-active') {

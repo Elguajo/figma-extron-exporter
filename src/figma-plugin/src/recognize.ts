@@ -5,6 +5,8 @@ import { controlText,isControlFrame,isKitNode,KIT_POPUP_GROUP_KEY } from './kit-
 import { isStrokeLine } from './stroke-line.ts';
 import { containerSuffix,freeKey,repairAssignments } from './assignment-repair.ts';
 import { requireNodeForKind } from './assignment-rules.ts';
+import { syncKeys } from './key-sync.ts';
+import { requireLatinName } from './latin-name.ts';
 import { recognitionIssue } from './recognition-issue.ts';
 import type { RecognitionIssue } from './model.ts';
 import { usesButtonArtwork, validateArtwork, type ButtonContainer } from './button-artwork.ts';
@@ -12,7 +14,8 @@ import { usesButtonArtwork, validateArtwork, type ButtonContainer } from './butt
 export const REGISTRY_KEY='exui-id-registry';
 interface Registry {schema:'exui-id-registry/1'|'exui-id-registry/2';ownerNodeId:string;nextObjectId:number;nextControlId:number;nextContainerId?:number;nextGroupId?:number}
 export interface RecognitionRow {id:string;name:string;kind:Kind;buttonMode?:ButtonMode;key?:string;objectId?:number;controlId?:number|null;isNew:boolean}
-export interface RecognitionPlan {root:ProjectNode;options:ProjectOptions;profile:Profile;signature:string;registry:string;writes:{node:SceneNode|PageNode;metadata:Metadata}[];visibility:{node:SceneNode;visible:boolean}[];rows:RecognitionRow[];errors:string[];issues:RecognitionIssue[];warnings:string[]}
+export interface RecognitionPlan {root:ProjectNode;options:ProjectOptions;profile:Profile;signature:string;registry:string;writes:{node:SceneNode|PageNode;metadata:Metadata}[];visibility:{node:SceneNode;visible:boolean}[];rows:RecognitionRow[];keys:{name:string;from:string;to:string}[];errors:string[];issues:RecognitionIssue[];warnings:string[]}
+const KIND_PREFIX:Partial<Record<Kind,string>>={button:'button_',label:'text_',value:'value_',level:'level_',slider:'slider_',shape:'shape_',line:'line_',datetime:'datetime_','popup-ref':'popupref_',graphic:'image_'};
 const TYPES:Record<string,Kind>={btn:'button',button:'button',lvl:'level',level:'level',txt:'label',text:'label',logo:'graphic',img:'graphic',image:'graphic',val:'value',value:'value',sld:'slider',slider:'slider',shp:'shape',shape:'shape',ln:'line',line:'line',dt:'datetime',datetime:'datetime',pr:'popup-ref',popupref:'popup-ref',gau:'level',gauge:'level',ind:'level',indicator:'level',led:'level',volumeled:'level',mlvl:'level',multilevel:'level'};
 export function namedControl(name:string):{kind:Kind;suffix:string;display?:Metadata['display'];buttonMode?:ButtonMode}|null {
   const match=/^([a-z]+)_(.+)$/i.exec(name);if(!match)return null;
@@ -54,9 +57,12 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
   function scan(node:SceneNode|PageNode){importRegistry(node,node.id===root.id);nodes.push(node);const m=stored(node);if(m)saved.set(node.id,m);if(m&&ELEMENT_KINDS.includes(m.kind)){registry.nextObjectId=Math.max(registry.nextObjectId,integer(m.objectId,1,1000000,node.name+'.objectId')+1);if(CONTROL_KINDS.includes(m.kind))registry.nextControlId=Math.max(registry.nextControlId,integer(m.controlId,1,65535,node.name+'.controlId')+1);}if(m&&['page','popup','popup-group'].includes(m.kind)){if(m.kind==='popup-group'){if(isProject)registry.nextGroupId=Math.max(registry.nextGroupId!,integer(m.objectId,1,65535,'ID группы')+1);}else{const next=integer(m.objectId,1,65534,'ID контейнера')+1;if(isProject)registry.nextContainerId=Math.max(registry.nextContainerId!,next);else singleContainerId=Math.max(singleContainerId,next);}}let kind=m?.kind;if(!kind){try{kind=namedControl(node.name)?.kind;}catch{ /* Report invalid names in the plan, before any write. */ }}if('children' in node&&(node.type==='SECTION'||node.type==='PAGE'||!['graphic','image','slider'].includes(kind??'')))for(const child of node===root?(options.members??node.children):node.children)scan(child);}
   scan(root);
   const repaired=repairAssignments(nodes,saved,{object:()=>integer(registry.nextObjectId++,1,1000000,'ID объекта'),control:()=>integer(registry.nextControlId++,1,65535,'ID управления'),container:()=>integer(isProject?registry.nextContainerId!++:singleContainerId++,1,65534,'ID контейнера'),group:()=>integer(registry.nextGroupId!++,1,65535,'ID группы')});
+  // Keys follow the current layer names; the repaired IDs stay unchanged.
+  const keyChanges=syncKeys(root,options.members??('children' in root?root.children:[]),isProject,repaired,name=>namedControl(name)?.suffix??null);
   const existingFor=(node:SceneNode|PageNode)=>repaired.get(node.id)??null;
   existingRoot=existingFor(root);
-  const plan:RecognitionPlan={root,options,profile,signature:signature(root),registry:'',writes:[],visibility:[],rows:[],errors:[],issues:[],warnings:[]},proposed=new Map<string,Metadata>();
+  const plan:RecognitionPlan={root,options,profile,signature:signature(root),registry:'',writes:[],visibility:[],rows:[],keys:keyChanges.map(c=>({name:c.node.name,from:c.from,to:c.to})),errors:[],issues:[],warnings:[]},proposed=new Map<string,Metadata>();
+  if(keyChanges.length)plan.warnings.push(`Ключи обновлены по именам слоёв: ${keyChanges.slice(0,3).map(c=>`${c.from} → ${c.to}`).join(', ')}${keyChanges.length>3?` и ещё ${keyChanges.length-3}`:''}. ID не изменены.`);
   let problemNode:SceneNode|PageNode=root;
   function report(error:unknown){const nodeId=(error as {nodeId?:string})?.nodeId;const node=nodes.find(n=>n.id===nodeId)??problemNode;plan.errors.push(error instanceof Error?error.message:String(error));plan.issues.push(recognitionIssue(node,root,error));}
   const reservedKeys=new Set([...repaired.values()].map(m=>m.key).filter((k):k is string=>!!k));
@@ -65,7 +71,7 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
     const original=saved.get(node.id),prior=existingFor(node),edit=edits.get(node.id);
     const metadata=edit?{...edit,schema:metadataSchema(edit),ownerNodeId:node.id}:node===root&&root.type==='PAGE'&&prior?.kind==='project'?{...prior,profile,projectName:options.projectName??prior.projectName}:prior??{...value,schema:metadataSchema(value),ownerNodeId:node.id};
     if(metadata.kind!==value.kind)fail('kind',`${node.name}: сохранённое назначение ${metadata.kind} не соответствует ${value.kind}.`);
-    if(!original||JSON.stringify(metadata)!==JSON.stringify(original)){proposed.set(node.id,metadata);plan.writes.push({node,metadata});}else if(!plan.warnings.length)plan.warnings.push('Существующие уникальные ключи, ID и свойства сохраняются. Копии и совпадения получают свободные назначения.');
+    if(!original||JSON.stringify(metadata)!==JSON.stringify(original)){proposed.set(node.id,metadata);plan.writes.push({node,metadata});}else if(!plan.warnings.length)plan.warnings.push('ID и свойства сохраняются, ключи следуют именам слоёв. Копии и совпадения получают свободные назначения.');
     plan.rows.push({id:node.id,name:node.name,kind:metadata.kind,...(metadata.buttonMode?{buttonMode:metadata.buttonMode}:{}),key:metadata.key,objectId:metadata.objectId,controlId:metadata.controlId,isNew:!original||original.ownerNodeId!==node.id});return metadata;
   }
   function states(button:ButtonContainer,control:Metadata){
@@ -102,7 +108,7 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
     if(container.children.length<1||container.children.length>64)fail('elements','На экране должно быть 1..64 элемента.');
     for(const node of container.children){try{
       problemNode=node;
-      const existing=existingFor(node);let named:ReturnType<typeof namedControl>=null;try{named=namedControl(node.name);}catch(e){if(!existing)throw e;}
+      const existing=existingFor(node);requireLatinName(node,KIND_PREFIX[existing?.kind??'button']??'');let named:ReturnType<typeof namedControl>=null;try{named=namedControl(node.name);}catch(e){if(!existing)throw e;}
       if(!existing&&!named){if(/^(video|vid|dynamicimage|dimg)_/i.test(node.name))fail('platform',`${node.name}: видео/динамические картинки не поддержаны профилями 1025M/300M.`);fail('name',`${node.name}: нужен поддерживаемый префикс из справочника.`);}
       const kind=existing?.kind??named!.kind;if(!isElementKind(kind))fail('placement',`${node.name}: недопустимое назначение на экране.`);
       requireNodeForKind(node,kind);
@@ -116,10 +122,11 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
       const control=assign(node,value);if(kind==='button'||control.display==='multistate')states(node as ButtonContainer,control);
     }catch(e){report(e);}}
   }
-  if(!isProject){if(root.type!=='FRAME')fail('node-type','Для экрана нужен Frame.');const namespace=existingRoot?key(existingRoot.key,'Ключ экрана').replace(/^page\./,''):containerSuffix(root.name);assign(root,existingRoot??{kind:'page',key:freeKey('page.'+namespace,reservedKeys),objectId:100,profile,projectName:text(options.projectName??root.name,'Имя проекта')});elements(root,namespace);}
+  if(!isProject){if(root.type!=='FRAME')fail('node-type','Для экрана нужен Frame.');try{requireLatinName(root,'screen_');}catch(e){report(e);}const namespace=existingRoot?key(existingRoot.key,'Ключ экрана').replace(/^page\./,''):containerSuffix(root.name);assign(root,existingRoot??{kind:'page',key:freeKey('page.'+namespace,reservedKeys),objectId:100,profile,projectName:text(options.projectName??root.name,'Имя проекта')});elements(root,namespace);}
   else {
     // A section is the project boundary regardless of its user-facing name.
     // Its key is local to the root; child keys/IDs use the existing project registry.
+    if(root.type==='FRAME')try{requireLatinName(root,'project_');}catch(e){report(e);}
     assign(root,existingRoot??{kind:'project',key:freeKey(root.type==='PAGE'?'project.page':root.type==='SECTION'?'project.section':'project.'+containerSuffix(root.name),reservedKeys),profile,projectName:text(options.projectName??root.name,'Имя проекта')});let pageNumber=0;
     function container(node:SceneNode,group?:string){
       problemNode=node;
@@ -127,11 +134,12 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
       const existing=existingFor(node),match=/^(scr|screen|pop|popup|mdl|modalpopup)_(.+)$/i.exec(node.name),prefix=match?.[1].toLowerCase();
       const kind=existing?.kind??(prefix&&['pop','popup','mdl','modalpopup'].includes(prefix)?'popup':'page');if(kind!=='page'&&kind!=='popup')fail('placement','В проекте допустимы страницы и popup.');
       if(group&&kind!=='popup')fail('placement','В группе допустимы только popup.');
+      try{requireLatinName(node,kind==='popup'?'popup_':'screen_');}catch(e){report(e);}
       const containerKey=existing?key(existing.key,'Ключ контейнера'):freeKey((kind==='page'?'page.':'popup.')+containerSuffix(node.name),reservedKeys),suffix=containerKey.replace(/^(page|popup)\./,'');
       assign(node,existing??{kind,key:containerKey,objectId:integer(registry.nextContainerId!++,1,65534,'ID контейнера'),profile,projectName:text(options.projectName??root.name,'Имя проекта'),shownBy:kind==='page'&&pageNumber===0?'start':'program',...(kind==='popup'?{modal:prefix==='mdl'||prefix==='modalpopup',...(group?{group}:{})}:{})});
       if(kind==='page')pageNumber++;elements(node,suffix);
     }
-    for(const node of options.members??root.children){try{problemNode=node;const existing=existingFor(node),groupMatch=/^(pgrp|popupgroup)_(.+)$/i.exec(node.name);if(existing?.kind==='popup-group'||groupMatch){requireNodeForKind(node,'popup-group');const m=assign(node,existing??{kind:'popup-group',key:freeKey('group.'+containerSuffix(node.name),reservedKeys),objectId:integer(registry.nextGroupId!++,1,65535,'ID группы')});for(const child of node.children)container(child,m.key);}else container(node);}catch(e){report(e);}}
+    for(const node of options.members??root.children){try{problemNode=node;const existing=existingFor(node),groupMatch=/^(pgrp|popupgroup)_(.+)$/i.exec(node.name);if(existing?.kind==='popup-group'||groupMatch){requireNodeForKind(node,'popup-group');try{requireLatinName(node,'popupgroup_');}catch(e){report(e);}const m=assign(node,existing??{kind:'popup-group',key:freeKey('group.'+containerSuffix(node.name),reservedKeys),objectId:integer(registry.nextGroupId!++,1,65535,'ID группы')});for(const child of node.children)container(child,m.key);}else container(node);}catch(e){report(e);}}
   }
   if(!plan.errors.length){try{
     // Separately exported screens can have distinct keys but the same generated
