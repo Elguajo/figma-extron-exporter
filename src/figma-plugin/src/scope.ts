@@ -95,7 +95,7 @@ export class ExportScope {
   }
   refreshSelection(): void {
     const selection = figma.currentPage.selection;
-    if (this.mode === 'selection' && selection.length > 1 && selection.every(n => n.type === 'FRAME')) this.mode = 'selected-frames';
+    if (this.mode === 'selection' && selection.length > 1 && selection.every(n => n.type === 'FRAME'&&!['button','state','graphic','image','slider','shape','line','level','popup-ref'].includes(selectionKind(n)??'')&&!/^(button|btn|feedbackbutton|fbtn)_/i.test(n.name))) this.mode = 'selected-frames';
     if (this.mode === 'selected-frames') this.rememberFrames();
   }
   get canRecognize(): boolean {

@@ -2,6 +2,13 @@ export type Role = 'normal' | 'feedback' | 'pressed';
 export interface RecognitionIssue {nodeId:string;nodeName:string;nodeType:string;path:string;message:string;fix:string}
 export type ButtonMode = 'on-off' | 'feedback';
 export interface PresetPreview { name: string; ready: boolean; hint: string; fill?: string; stroke?: string; radius?: number }
+export interface LinkTarget {id:string;name:string}
+export interface AuthoringLinks {
+  pages:LinkTarget[];startId?:string;
+  reference?:{id:string;targets:LinkTarget[];targetId?:string;members:LinkTarget[];missing:boolean};
+  groups:{key:string;name:string}[];
+  buttons?:{ids:string[];names:string[];group?:string;mixed:boolean};
+}
 export interface ButtonPreparationSummary { total: number; create: number; update: number; issue?: string; updateIssue?: string }
 export type ElementKind = 'popup-ref' | 'button' | 'label' | 'value' | 'level' | 'slider' | 'shape' | 'line' | 'datetime' | 'graphic';
 export type ControlKind = 'button' | 'value' | 'level' | 'slider';

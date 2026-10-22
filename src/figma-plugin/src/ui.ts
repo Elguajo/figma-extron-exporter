@@ -1,6 +1,7 @@
 import { packageExui } from './package.ts';
 import { elementCount, type Bundle, type Metadata, type RecognitionIssue, type ButtonPreparationSummary, type PresetPreview } from './model.ts';
 import { DATETIME_FORMATS, formatDateTime, patternProblem } from './datetime-format.ts';
+import type { AuthoringLinks } from './model.ts';
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const input=(id:string)=>$<HTMLInputElement>(id);
 let packing=false,operationBusy=false,selectedId:string|null=null,downloadUrl:string|undefined;
@@ -9,6 +10,8 @@ let legacyButton=false,loadedKey='',loadedPattern='';
 let designPattern:{pattern?:string;preview?:string;source?:string;error?:string}|undefined;
 let canRecognize=false,canPrepare=false,hasScope=false;
 let bindingPopupIds:string[]=[],canBindPopups=false;
+let links:AuthoringLinks|undefined,navigationTargets:{id:string;key:string}[]=[];
+const NEW_GROUP='__create__';
 let buttonCanApply=false,buttonResultReady=false;
 let buttonSummary:ButtonPreparationSummary|undefined,buttonStylesReady=false,buttonScopeReady=false,buttonScopeKey='';
 const send=(type:string,extra:Record<string,unknown>={})=>{if(!['recognize','apply-recognition','select-issue'].includes(type))clearRecognition();setBusy(true);if(type==='export'){const bar=$('bar');bar.hidden=false;bar.dataset.complete='false';bar.removeAttribute('aria-valuenow');bar.setAttribute('aria-valuetext','Подготовка экспорта');}parent.postMessage({pluginMessage:{type,scopeMode:input('scopeMode').value,profile:input('profile').value,...extra}},'*');};
@@ -23,6 +26,12 @@ function setBusy(busy:boolean) {
   document.querySelectorAll<HTMLInputElement>('#buttonExistingChoice input').forEach(e=>e.disabled=busy);
   $<HTMLButtonElement>('bindPopups').disabled=busy||!canBindPopups;
   $<HTMLSelectElement>('popupPlace').disabled=busy||!canBindPopups;
+  for(const id of ['referenceTarget','choiceGroup','startPage'])input(id).disabled=busy;
+  $<HTMLButtonElement>('saveReference').disabled=busy||!links?.reference;
+  $<HTMLButtonElement>('saveChoiceGroup').disabled=busy||!links?.buttons?.ids.length||input('choiceGroup').value==='__mixed__';
+  $<HTMLButtonElement>('saveStartPage').disabled=busy||!input('startPage').value;
+  $<HTMLButtonElement>('showNavigation').disabled=busy||!navigationTargets.some(t=>t.key===input('navigate').value&&t.id);
+  document.querySelectorAll<HTMLButtonElement>('[data-linked-node]').forEach(b=>b.disabled=busy);
   $('buttonStates').setAttribute('aria-busy',String(busy));
 }
 function clearButtonResult() { buttonResultReady=false;$('buttonResult').hidden=true;$('buttonExport').hidden=true;$('applyButtonStyles').classList.remove('secondary'); }
@@ -98,6 +107,24 @@ $('scopeMode').addEventListener('change',()=>{revokeDownload();send('context');}
 $('check').onclick=()=>send('check');$('export').onclick=()=>{revokeDownload();send('export');};
 $('preview').onclick=()=>{const value=input('previewRole').value;send('preview',value.startsWith('id:')?{stateId:Number(value.slice(3))}:{role:value});};
 $('bindPopups').onclick=()=>send('bind-popups',{referenceId:input('popupPlace').value,popupIds:bindingPopupIds});
+$('saveReference').onclick=()=>send('reference-target',{nodeId:selectedId,targetId:input('referenceTarget').value});
+$('saveStartPage').onclick=()=>send('start-page',{nodeId:selectedId,targetId:input('startPage').value});
+$('saveChoiceGroup').onclick=()=>send('selection-group',{buttonIds:links?.buttons?.ids,group:input('choiceGroup').value===NEW_GROUP?'':input('choiceGroup').value,create:input('choiceGroup').value===NEW_GROUP});
+$('choiceGroup').onchange=$('startPage').onchange=$('navigate').onchange=()=>setBusy(operationBusy||packing);
+$('showNavigation').onclick=()=>send('show-linked',{nodeId:selectedId,targetId:navigationTargets.find(t=>t.key===input('navigate').value)?.id});
+function fillOptions(id:string,options:{value:string;name:string}[],value:string){const select=$<HTMLSelectElement>(id);select.replaceChildren();for(const item of options){const option=document.createElement('option');option.value=item.value;option.textContent=item.name;select.appendChild(option);}select.value=value;}
+function renderLinks(value:AuthoringLinks|undefined){
+  links=value;const ref=value?.reference,buttons=value?.buttons;
+  $('referenceLinks').hidden=!ref;$('selectionGroups').hidden=!buttons;$('projectStart').hidden=!value?.pages.length||!!ref||!!buttons;
+  fillOptions('referenceTarget',[{value:'',name:'Без связи'},...(ref?.targets??[]).map(t=>({value:t.id,name:t.name})),...(ref?.targetId&&!ref.targets.some(t=>t.id===ref.targetId)?[{value:ref.targetId,name:'Сохранённая цель недоступна — выберите другую'}]:[])],ref?.targetId??'');
+  $('referenceHelp').textContent=ref?.missing?'Сохранённая цель не найдена. Выберите другую или «Без связи» и сохраните.':'Выберите содержимое по имени и сохраните связь. В списке — цели этого проекта с подходящими размерами. «Без связи» снимает связь, сохраняя popup на холсте; до нового связывания проверка экспорта может сообщить об ошибках.';
+  $('referenceSaved').textContent=ref?.targetId?`Сохранено: ${ref.targets.find(t=>t.id===ref.targetId)?.name??'цель недоступна'}. Связанные popup:`:ref?.missing?'Сохранённая связь требует исправления.':'Связь пока не сохранена.';
+  const members=$('referenceMembers');members.replaceChildren();
+  for(const member of ref?.members??[]){const li=document.createElement('li');li.className='recognition-item';const button=document.createElement('button');button.type='button';button.className='secondary';button.textContent=`Показать ${member.name}`;button.dataset.linkedNode=member.id;button.onclick=()=>send('show-linked',{nodeId:selectedId,targetId:member.id});li.appendChild(button);members.appendChild(li);}
+  $('selectionGroupNames').textContent=buttons?.names.join(', ')??'';
+  fillOptions('choiceGroup',[...(buttons?.mixed?[{value:'__mixed__',name:'У выделенных кнопок разные группы'}]:[]),{value:'',name:'Без группы'},...(buttons&&buttons.ids.length>=2?[{value:NEW_GROUP,name:'Создать группу из выделенных кнопок'}]:[]),...(value?.groups??[]).map(g=>({value:g.key,name:g.name}))],buttons?.mixed?'__mixed__':buttons?.group??'');
+  fillOptions('startPage',[{value:'',name:'Выберите стартовый экран'},...(value?.pages??[]).map(p=>({value:p.id,name:p.name}))],value?.startId??'');
+}
 $('mapping').onsubmit=event=>{
   event.preventDefault();
   const data:Record<string,string>={};for(const id of ['kind','buttonMode','key','objectId','controlId','projectName','profile','role','stateName','file','resourceName','stateId','shownBy','modal','display','orientation','min','max','pattern','popup','group','navigate','selectionGroup','enabled','visible'])data[id]=input(id).value;
@@ -115,6 +142,7 @@ window.onmessage=async(event:MessageEvent)=>{
     if(selectedId!==msg.id)revokeDownload();
     selectedId=msg.id;$('selection').textContent=msg.name;
     const m=(msg.metadata??{}) as Partial<Metadata>;
+    renderLinks(msg.links);
     const binding=msg.popupBinding as {popupIds:string[];names:string[];targets:{id:string;name:string}[];referenceId?:string;error?:string}|undefined;
     $('popupBinding').hidden=!binding;
     bindingPopupIds=binding?.popupIds??[];canBindPopups=!!bindingPopupIds.length&&!!binding?.targets.length&&!binding.error;
@@ -145,6 +173,7 @@ window.onmessage=async(event:MessageEvent)=>{
     designPattern=msg.datetime;input('pattern').value=msg.datetime?.manual?m.pattern??'':'';loadedPattern=input('pattern').value;
     input('pattern').placeholder=designPattern?.pattern??'Из макета';patternPreview();
     const navigation=$<HTMLSelectElement>('navigate');navigation.replaceChildren();
+    navigationTargets=msg.targets??[];
     const addTarget=(value:string,label:string)=>{const option=document.createElement('option');option.value=value;option.textContent=label;navigation.appendChild(option);};
     addTarget('','Без перехода');
     for(const target of msg.targets??[])addTarget(target.key,`${target.name}${target.kind==='popup'?' · Popup':''}`);

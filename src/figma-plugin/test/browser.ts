@@ -48,6 +48,7 @@ if(m.type.startsWith('button-')){window.lastButtonCommand=m;if(m.type==='button-
 if(m.type==='prepare'){window.lastPreparation=m;profile=m.profile;window.selectNode({id:'custom',name:'Свой экран',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Свой экран',profile}});send({type:'success',message:'Назначение «Экран» сохранено. Далее назначьте элементы.'});}
 if(m.type==='check'&&!window.failRecognition)send({type:'success',message:'Экран проверен: 4 элемента, 2 PNG.'});
 if(m.type==='apply'){window.lastMapping=m.data;send({type:'success',message:'Назначение сохранено в Figma-узле.'});}
+if(['reference-target','selection-group','start-page','show-linked'].includes(m.type)){window.lastLinksCommand=m;send({type:'success',message:m.type==='show-linked'?'Элемент показан на холсте.':'Связь сохранена в файле Figma.'});}
 if(m.type==='bind-popups'){window.lastPopupBinding=m;window.selectNode({id:m.referenceId,name:'popupref_AudioControls',nodeType:'FRAME',metadata:{kind:'popup-ref',key:'audio.controls',objectId:7,group:'group.audiocontrols',controlId:null},scope:{id:'project',name:'AV panels',kind:'project',profile}});send({type:'success',message:'Popup связаны с выбранным местом.'});}
 if(m.type==='preview'){window.lastPreview=m;send({type:'success',message:'Состояние показано.'});}
 if(m.type==='select-issue'){window.lastIssueNode=m.nodeId;const issue=issueReport.issues.find(i=>i.nodeId===m.nodeId);window.selectNode({id:issue.nodeId,name:issue.nodeName,nodeType:issue.nodeType,keepRecognition:true,scope:{id:'custom',name:'screen_MainDashboard',kind:'page',profile}});}
@@ -67,7 +68,7 @@ try{
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isDisabled(),true);
  assert.equal(await frame.locator('#demo').count(),0);
  // Popup prefixes and saved assignments disable screen-only actions before a click.
- await frame.locator('#editor summary').click();
+ await frame.locator('#editor > summary').click();
  for(const [name,kind] of [['modalpopup_Confirm','popup'],['popupgroup_AudioControls','popup-group'],['popupref_Sources','popup-ref']])for(const assigned of [false,true]){
   await page.evaluate(({name,kind,assigned})=>(window as any).selectNode({id:'popup-action',name,nodeType:'FRAME',selectionKind:kind,canPrepare:false,canRecognize:false,...(assigned?{metadata:{kind,key:'test.popup',objectId:101}}:{})}),{name,kind,assigned});
   await frame.locator('#selection').filter({hasText:name}).waitFor();
@@ -83,7 +84,7 @@ try{
    await page.screenshot({path:path.join(out,'popupgroup-disabled-actions.png'),fullPage:true});
   }
  }
- await frame.locator('#editor summary').click();
+ await frame.locator('#editor > summary').click();
  await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выберите экраны на холсте'}));
  // The binding action is available for multi-selection without an active node.
  await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выбрано popup: 2',scope:{id:'project',name:'AV panels',kind:'project',profile:'tlp-pro-1025m'},popupBinding:{popupIds:['hall','terrace'],names:['popup_HallSources','popup_TerraceSources'],targets:[{id:'place',name:'screen_AudioControl → popupref_AudioControls'}]}}));
@@ -335,6 +336,7 @@ try{
  await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.key==='home.clock');
  assert.deepEqual(await page.evaluate(()=>[(window as any).lastMapping.pattern,(window as any).lastMapping.patternEdited]),['','false']);
  await frame.getByLabel('Назначение').selectOption('popup-ref');
+ await frame.getByText('Ключи связи вручную',{exact:true}).click();
  await frame.getByLabel('Ключ popup',{exact:true}).fill('popup.sources');
  assert.equal(await frame.getByLabel('Экспортировать фон Frame',{exact:true}).isChecked(),false);
  assert.equal(await frame.getByLabel('Экспортировать обводку Frame',{exact:true}).isChecked(),false);
@@ -394,14 +396,34 @@ try{
  await frame.getByRole('button',{name:'Сохранить распознанные назначения'}).click();
  await frame.getByRole('status').filter({hasText:'Назначения сохранены'}).waitFor();
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isEnabled(),true);
+ // Named links: explicit save, multi-selection, keyboard, scoping supplied by the host.
+ const links={pages:[{id:'main',name:'screen_MainDashboard'},{id:'audio',name:'screen_AudioControl'}],startId:'main',groups:[{key:'hall.choice.1',name:'popup_HallSources · 8: button_Broadcast1, button_Broadcast2…'}],reference:{id:'ref',targets:[{id:'group',name:'popupgroup_AudioControls'}],targetId:'group',members:[{id:'hall',name:'popup_HallSources'},{id:'terrace',name:'popup_TerraceSources'}],missing:false}};
+ await page.evaluate(links=>(window as any).selectNode({id:'ref',name:'popupref_AudioControls',nodeType:'FRAME',metadata:{kind:'popup-ref',key:'audio.controls',objectId:7,controlId:null,group:'group.audiocontrols'},links}),links);
+ await frame.locator('#referenceLinks').waitFor();assert.equal(await frame.locator('#referenceTarget').inputValue(),'group');
+ await page.evaluate(()=>(window as any).lastLinksCommand=null);await frame.locator('#referenceTarget').selectOption('');assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand),null);
+ await frame.getByRole('button',{name:'Сохранить связь popup',exact:true}).click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.type==='reference-target');assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand.targetId),'');
+ await frame.getByRole('button',{name:'Показать popup_TerraceSources',exact:true}).click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.targetId==='terrace');
+ for(const width of [420,320]){await page.setViewportSize({width,height:720});assert.equal(await frame.locator('main').evaluate(el=>el.scrollWidth<=el.clientWidth),true);await frame.locator('#referenceLinks').screenshot({path:path.join(out,`named-popup-links-${width}.png`)});}
+ await page.evaluate(links=>(window as any).selectNode({id:'project',name:'project_Trilliant',nodeType:'FRAME',metadata:{kind:'project',key:'project.trilliant'},links:{...links,reference:undefined}}),links);
+ await frame.locator('#startPage').selectOption('audio');await frame.getByRole('button',{name:'Сохранить стартовую страницу',exact:true}).click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.type==='start-page');assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand.targetId),'audio');
+ await page.evaluate(links=>(window as any).selectNode({id:null,name:'Выбрано кнопок: 8',links:{...links,reference:undefined,buttons:{ids:['b1','b2'],names:['button_Broadcast1','button_Broadcast2'],mixed:false}}}),links);
+ await frame.locator('#selectionGroups').waitFor();assert.equal(await frame.locator('#referenceLinks').isVisible(),false);await frame.locator('#choiceGroup').selectOption('__create__');
+ await frame.locator('#choiceGroup').focus();await page.keyboard.press('Tab');assert.equal(await frame.locator('#saveChoiceGroup').evaluate(el=>el===document.activeElement),true);await page.keyboard.press('Enter');
+ await page.waitForFunction(()=>(window as any).lastLinksCommand?.type==='selection-group');assert.deepEqual(await page.evaluate(()=>(window as any).lastLinksCommand.buttonIds),['b1','b2']);assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand.create),true);
+ await frame.locator('#choiceGroup').selectOption('hall.choice.1');await frame.locator('#saveChoiceGroup').click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.group==='hall.choice.1');
+ await frame.locator('#selectionGroups').screenshot({path:path.join(out,'selection-group-320.png')});
+ await page.setViewportSize({width:420,height:720});
  // Navigation shows target names and keeps unknown saved keys until explicitly changed.
- await page.evaluate(()=>(window as any).selectNode({id:'nav',name:'button_AudioControl',nodeType:'FRAME',metadata:{kind:'button',key:'main.audiocontrol',buttonMode:'on-off',objectId:1,controlId:8101,navigate:'page.removed'},scope:{id:'section',name:'Триллиант / AV панели',kind:'project',profile:'tlp-pro-1025m'},targets:[{key:'page.audiocontrol',name:'Audio Control',kind:'page'},{key:'popup.sources',name:'Sources',kind:'popup'}]}));
+ await page.evaluate(()=>(window as any).selectNode({id:'nav',name:'button_AudioControl',nodeType:'FRAME',metadata:{kind:'button',key:'main.audiocontrol',buttonMode:'on-off',objectId:1,controlId:8101,navigate:'page.removed'},scope:{id:'section',name:'Триллиант / AV панели',kind:'project',profile:'tlp-pro-1025m'},targets:[{id:'audio',key:'page.audiocontrol',name:'Audio Control',kind:'page'},{id:'sources',key:'popup.sources',name:'Sources',kind:'popup'}]}));
  const target=frame.getByLabel('Открыть страницу или popup');
  assert.equal(await target.inputValue(),'page.removed');
+ assert.equal(await frame.locator('#showNavigation').isDisabled(),true);
+ await target.selectOption({label:'Audio Control'});await frame.locator('#showNavigation').click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.type==='show-linked'&&(window as any).lastLinksCommand?.targetId==='audio');
  await target.selectOption({label:'Audio Control'});await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();
  await page.waitForFunction(()=>(window as any).lastMapping.navigate==='page.audiocontrol');
  await page.screenshot({path:path.join(out,'navigation.png')});
  await target.selectOption('');await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();
+ assert.equal(await frame.locator('#showNavigation').isDisabled(),true);
  await page.waitForFunction(()=>(window as any).lastMapping.navigate==='');
  await page.evaluate(()=>(window as any).selectNode({id:'section',name:'Триллиант / AV панели',nodeType:'SECTION',metadata:{kind:'project',key:'project.section',projectName:'Триллиант / AV панели',profile:'tlp-pro-1025m'}}));
  await frame.locator('#editor').evaluate((el:HTMLDetailsElement)=>el.open=false);await frame.locator('main').evaluate(el=>el.scrollTop=0);

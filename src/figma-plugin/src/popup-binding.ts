@@ -6,14 +6,14 @@ import { hasTransform } from './read-node.ts';
 import { MANUAL_KEY } from './key-sync.ts';
 import { requireLatinName } from './latin-name.ts';
 
-type Context={root:ProjectNode;options:ProjectOptions};
+export type Context={root:ProjectNode;options:ProjectOptions};
 const stored=(node:BaseNode)=>readMetadata(node,{allowCopied:true});
 const isProject=(node:BaseNode)=>stored(node)?.kind==='project'||node.type==='SECTION'||node.type==='FRAME'&&/^(project|prj)_/i.test(node.name);
 function owner(node:BaseNode):ProjectNode {
   let p=node.parent;while(p&&p.type!=='PAGE'){if(isProject(p))return p as ProjectNode;p=p.parent;}
   if(p?.type==='PAGE')return p;return fail('popup-binding','Frame удалён или не принадлежит открытой странице.');
 }
-function context(node:SceneNode,profile:Profile):Context {
+export function popupContext(node:SceneNode,profile:Profile):Context {
   const root=owner(node);
   if(root.type!=='PAGE')return {root,options:{}};
   const size=PROFILES[profile];
@@ -31,7 +31,7 @@ function reference(node:SceneNode):asserts node is FrameNode {
   if(!parent||parent.type!=='FRAME'||selectionKind(parent)==='popup'||selectionKind(parent)==='popup-group'||!(/^(screen|scr)_/i.test(parent.name)||/^home$/i.test(parent.name)||stored(parent)?.kind==='page'))
     fail('popup-binding','Место popup должно находиться непосредственно внутри Frame экрана.');
 }
-function draft(plan:RecognitionPlan,node:SceneNode|PageNode):Metadata {
+export function draft(plan:RecognitionPlan,node:SceneNode|PageNode):Metadata {
   const current=stored(node);
   const value=current?.ownerNodeId===node.id?current:plan.writes.find(w=>w.node.id===node.id)?.metadata;
   if(!value||!plan.rows.some(row=>row.id===node.id))fail('popup-binding',`${node.name}: не удалось подготовить назначение. Проверьте имя и положение Frame.`);
@@ -43,7 +43,7 @@ function ancestors(nodes:SceneNode[],root:ProjectNode):Set<string> {
 }
 // Authoring a connection may precede artwork validation. Persist only the
 // selected containers/place and their new ancestors, never unrelated controls.
-function saveDraft(plan:RecognitionPlan,nodes:SceneNode[],values:Map<string,Metadata>,manual?:{node:SceneNode;value:string}):()=>void {
+export function saveDraft(plan:RecognitionPlan,nodes:SceneNode[],values:Map<string,Metadata>,manual?:{node:SceneNode;value:string}):()=>void {
   const ids=ancestors(nodes,plan.root),writes=plan.writes.filter(w=>ids.has(w.node.id)&&!stored(w.node));
   for(const node of nodes){const value=values.get(node.id);if(value){const i=writes.findIndex(w=>w.node.id===node.id);if(i>=0)writes.splice(i,1);writes.push({node,metadata:value});}}
   const old=writes.map(w=>({node:w.node,value:w.node.getPluginData(DATA_KEY)})),registry=plan.root.getPluginData(REGISTRY_KEY),oldManual=manual?.node.getPluginData(MANUAL_KEY);
@@ -63,7 +63,7 @@ function saveDraft(plan:RecognitionPlan,nodes:SceneNode[],values:Map<string,Meta
 }
 export function savePopupPlace(node:SceneNode,data:Record<string,unknown>,profile:Profile):void {
   reference(node);
-  const ctx=context(node,profile);
+  const ctx=popupContext(node,profile);
   // A standalone screen can have a draft place before popups are drawn nearby.
   const root=ctx.root.type==='PAGE'&&ctx.options.members?.length===1?node.parent as FrameNode:ctx.root;
   const options=root===ctx.root?ctx.options:{};
@@ -86,7 +86,7 @@ export function savePopupPlace(node:SceneNode,data:Record<string,unknown>,profil
 export function saveContainerSettings(node:SceneNode,data:Record<string,unknown>,profile:Profile):void {
   frame(node);const kind=data.kind;
   if(!['page','popup','popup-group'].includes(String(kind)))fail('kind','Выберите тип контейнера.');
-  const ctx=context(node,profile),root=ctx.root.type==='PAGE'&&ctx.options.members?.length===1&&kind==='page'?node:ctx.root;
+  const ctx=popupContext(node,profile),root=ctx.root.type==='PAGE'&&ctx.options.members?.length===1&&kind==='page'?node:ctx.root;
   const plan=recognize(root,profile,root===ctx.root?ctx.options:{}),m=draft(plan,node),before=stored(node);
   if(m.kind!==kind)fail('kind','Имя Frame не соответствует выбранному типу. Используйте screen_, popup_ или popupgroup_.');
   if(data.key)m.key=key(data.key,'Ключ');
@@ -157,7 +157,7 @@ export function bindPopups(referenceId:string,popupIds:readonly string[],profile
   let target:SceneNode|undefined;
   function find(node:SceneNode|PageNode){if(node.id===referenceId&&node.type!=='PAGE')target=node;else if('children' in node)for(const c of node.children)find(c);}
   find(figma.currentPage);if(!target)fail('popup-binding','Место popup удалено.');reference(target);
-  const ref=target,ctx=context(ref,profile),parent=popups[0].parent;
+  const ref=target,ctx=popupContext(ref,profile),parent=popups[0].parent;
   for(const popup of popups){requireLatinName(popup,'popup_');if(stored(popup)?.profile&&stored(popup)?.profile!==profile)fail('popup-binding','Popup и место должны использовать один профиль панели.');}
   if(!parent||popups.some(p=>p.parent!==parent))fail('popup-binding','Выберите popup, расположенные рядом внутри одного Frame или секции.');
   if(popups.some(p=>hasTransform(p))||hasTransform(ref))fail('popup-binding','Для связывания нужны Frame без поворота, отражения и масштаба.');

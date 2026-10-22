@@ -8,7 +8,7 @@
 .button-workflow>summary>span{display:flex;align-items:center;gap:8px}.button-context{padding-top:12px}.button-context p+p{margin-top:4px}.button-styles{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-top:12px}.button-style{min-width:0;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface)}.button-style strong{display:block;font-size:11px}.button-swatch{height:42px;margin:8px 0;border:1px solid var(--border);border-radius:6px;background:var(--bg)}.button-style small{overflow-wrap:anywhere;margin-top:4px}.button-style [data-ready=false]{border-style:dashed}.button-plan{margin-top:12px;color:var(--muted);font-size:11px}.button-check{display:flex;gap:8px;align-items:center}.button-check input{width:16px;min-height:16px;margin:0;flex:none}.button-result{margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);overflow-wrap:anywhere}.button-result[data-kind=error]{border-color:var(--danger)}.button-result p{font-size:11px}.button-advanced{margin-top:12px;border-top:1px solid var(--border)}.button-advanced>summary{padding:10px 0;font-size:11px}.button-advanced[open]>summary{border-bottom:0}.button-advanced small:first-child{margin-top:0}#patternPreview{overflow-wrap:anywhere}#patternPreview[data-kind=error]{color:var(--danger)}
 #buttonExistingChoice{min-width:0;margin:12px 0 0;padding:8px 10px;border:1px solid var(--border);border-radius:6px}#buttonExistingChoice legend{padding:0 4px;font-size:11px;font-weight:600}.button-choice{display:flex;align-items:center;gap:8px;min-height:36px;font-size:11px;cursor:pointer}.button-choice input{width:16px;min-height:16px;margin:0;flex:none}
 </style></head><body>
-<header class="app-header"><div class="app-mark" aria-hidden="true">EX</div><div><h1>Figma → Extron Exporter <span class="version">· 0.6.4</span></h1><p class="sub">Экран или проект → пакет .exui</p></div></header>
+<header class="app-header"><div class="app-mark" aria-hidden="true">EX</div><div><h1>Figma → Extron Exporter <span class="version">· 0.6.5</span></h1><p class="sub">Экран или проект → пакет .exui</p></div></header>
 <main aria-label="Подготовка макета">
 <section class="card" aria-labelledby="selectionTitle">
 <div class="section-head"><h2 id="selectionTitle"><span class="step" aria-hidden="true">1</span>Макет и панель</h2><span id="selectionType" class="badge">Нет выбора</span></div>
@@ -54,6 +54,27 @@
 <small id="popupBindingHelp">Выберите место по имени. Существующая группа используется повторно; для отдельных popup группа создаётся автоматически. Размеры Frame должны совпадать.</small>
 <button id="bindPopups" class="action" type="button">Связать с местом popup</button>
 </section>
+<section id="referenceLinks" class="card" aria-labelledby="referenceLinksTitle" hidden>
+<h2 id="referenceLinksTitle">Содержимое места popup</h2>
+<label class="stack">Popup или группа<select id="referenceTarget" aria-describedby="referenceHelp"></select></label>
+<small id="referenceHelp">Выберите содержимое по имени и сохраните связь. В списке — цели этого проекта с подходящими размерами.</small>
+<small id="referenceSaved"></small>
+<ul id="referenceMembers" class="recognition-list" aria-label="Связанные popup"></ul>
+<button id="saveReference" class="action" type="button">Сохранить связь popup</button>
+</section>
+<section id="selectionGroups" class="card" aria-labelledby="selectionGroupsTitle" hidden>
+<h2 id="selectionGroupsTitle">Группа выбора кнопок</h2>
+<p id="selectionGroupNames" class="sub" style="margin-top:8px;overflow-wrap:anywhere"></p>
+<label class="stack">Объединить с группой<select id="choiceGroup" aria-describedby="choiceHelp"></select></label>
+<small id="choiceHelp">Новая группа создаётся из выделенных кнопок. Выбор и обратную связь подключает программа управления Extron.</small>
+<button id="saveChoiceGroup" class="action" type="button">Сохранить группу выбора</button>
+</section>
+<section id="projectStart" class="card" aria-labelledby="projectStartTitle" hidden>
+<h2 id="projectStartTitle">Запуск проекта</h2>
+<label class="stack">При запуске открыть<select id="startPage"></select></label>
+<small>После сохранения выбранный экран станет единственной стартовой страницей проекта.</small>
+<button id="saveStartPage" class="action" type="button">Сохранить стартовую страницу</button>
+</section>
 <details id="editor" class="card"><summary>Назначение выбранного элемента</summary><div class="disclosure-body">
 <p class="sub">Для экспорта заполнять эту форму не нужно. Ключи и свободные ID назначаются автоматически, диапазон по умолчанию — 0–100. Здесь можно задать особые свойства.</p>
 <small>«Сохранить назначение» записывает тип и свойства в файл Figma. При повторном выборе слоя и после перезапуска плагина они восстановятся. Профиль панели и состав проекта запоминаются отдельно на текущей странице Figma.</small>
@@ -74,8 +95,10 @@
 <label class="stack" data-for="image graphic">Имя ресурса Extron<input id="resourceName" placeholder="exui-note-light.png"></label>
 <label class="stack" data-for="page popup">Показывается<select id="shownBy"><option value="">По умолчанию</option><option value="start">Стартовая страница</option><option value="program">Программой управления</option><option value="navigation">По кнопке, указанной в карте ID</option></select></label>
 <label class="stack" data-for="popup">Модальный popup<select id="modal"><option value="false">Нет</option><option value="true">Да</option></select></label>
-<label class="stack" data-for="popup-ref">Ключ popup<input id="popup" placeholder="popup.sources"></label>
-<label class="stack" data-for="popup-ref">Или ключ группы popup<input id="group" placeholder="group.zones"></label>
+<details data-for="popup-ref"><summary>Ключи связи вручную</summary><div class="disclosure-body">
+<label class="stack">Ключ popup<input id="popup" placeholder="popup.sources"></label>
+<label class="stack">Или ключ группы popup<input id="group" placeholder="group.zones"></label>
+</div></details>
 <small data-for="popup-ref">Можно сохранить место без ключей и ID — они подготовятся автоматически. Затем выделите popup-фреймы вместе, выберите это место в блоке «Размещение popup» и нажмите «Связать с местом popup». До связывания экспорт проекта недоступен.</small>
 <div data-for="popup popup-ref" style="margin-top:12px">
 <label class="button-check"><input id="exportBackground" type="checkbox" aria-describedby="popupAppearanceHelp">Экспортировать фон Frame</label>
@@ -89,6 +112,7 @@
 <small id="patternPreview" data-for="datetime" role="status"></small>
 <small id="patternHelp" data-for="datetime">Пусто — формат берётся из макета: свойство Format компонента datetime_Clock из Extron Kit, Text-слой «Pattern: HH:mm» внутри компонента или текст-пример из каталога, например «September 28, 12:00 AM». Введённый здесь формат сохраняется и важнее макета.</small>
 <label class="stack" data-for="button">Открыть страницу или popup<select id="navigate" aria-describedby="navigationHelp"><option value="">Без перехода</option></select></label>
+<button id="showNavigation" class="secondary action" type="button" data-for="button">Показать цель в Figma</button>
 <small id="navigationHelp" data-for="button">Выберите цель из текущего проекта. Переход подключается в программе управления Extron.</small>
 <label class="stack" data-for="button">Группа выбора<input id="selectionGroup" placeholder="sources.hall"></label>
 <label class="stack" data-for="button level value slider">Доступность при запуске<select id="enabled"><option value="">Без указания</option><option value="true">Доступен</option><option value="false">Недоступен</option></select></label>

@@ -16,7 +16,8 @@ import { MANUAL_KEY } from './key-sync.ts';
 import { requireLatinName } from './latin-name.ts';
 import { controlText,formatVariant } from './kit-contract.ts';
 import { MANUAL_PATTERN,hasManualPattern,patternProblem,resolvePattern } from './datetime-format.ts';
-import { bindPopups,popupBindingInfo,savePopupPlace,saveContainerSettings } from './popup-binding.ts';
+import { bindPopups,popupBindingInfo,savePopupPlace,saveContainerSettings,popupContext } from './popup-binding.ts';
+import { authoringLinks,setReferenceTarget,setSelectionGroup,setStartPage,linkedNode,type LinkContext,type AuthoringLinks } from './authoring-links.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
@@ -31,6 +32,12 @@ function postRecognition(plan:RecognitionPlan):void {
   figma.ui.postMessage({type:'recognition',token:++recognitionToken,rows:plan.rows,errors:plan.errors,issues:plan.issues,warnings:plan.warnings});
 }
 const stored=(node:BaseNode)=>readMetadata(node,{allowCopied:true});
+function linksContext():LinkContext {
+  let profile=scopeContext.profile;
+  try{const resolved=scopeContext.resolve();profile=resolved.profile;if(resolved.scope.kind==='project')return resolved;}catch{ /* Multi-selection can be authored before choosing an export scope. */ }
+  const node=figma.currentPage.selection[0];if(!node)fail('links','Выберите элемент проекта.');
+  return {...popupContext(node,profile),profile};
+}
 
 function prepare(profile:Profile|undefined):void {
   const node=selected();
@@ -75,7 +82,7 @@ function publish(keepRecognition=false):void {
   let states:{stateId?:number;name?:string;role?:Role}[]=[];
   try{if(n&&isButtonContainer(n)&&['button','level'].includes(metadata?.kind??''))states=n.children.map(c=>readMetadata(c)).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}catch(e){warning=warning||(e as Error).message;}
   let scope:{id:string;name:string;kind:string;profile?:Profile}|undefined;
-  let targets:{key:string;name:string;kind:string}[]=[],scopeHint='';
+  let targets:{id:string;key:string;name:string;kind:string}[]=[],scopeHint='';
   let canRecognize=false;
   let canPrepare=false,kind:Metadata['kind']|undefined;
   try{if(n)kind=selectionKind(n);canPrepare=scopeContext.canPrepare;}catch{ /* Invalid saved assignments remain available for manual repair. */ }
@@ -99,7 +106,7 @@ function publish(keepRecognition=false):void {
         if(n)metadata=read(n);
         let container:BaseNode|null=n??null;
         while(container&&!['page','popup'].includes(read(container as SceneNode|PageNode)?.kind??''))container=container.parent;
-        targets=projectMembers(root,read,options).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:read(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
+        targets=projectMembers(root,read,options).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:read(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({id:c.node.id,key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
     }
   }catch(e){if(scopeContext.mode!=='selection'){canRecognize=false;scopeHint=(e as Error).message;}}
   let datetime:{pattern?:string;preview?:string;source?:string;error?:string;manual:boolean}|undefined;
@@ -112,8 +119,9 @@ function publish(keepRecognition=false):void {
   }catch(e){warning=warning||(e as Error).message;}
   const buttonStylePreviews=presetPreviews();
   const buttonPresets={normal:buttonStylePreviews.normal.name,feedback:buttonStylePreviews.feedback.name};
+  let links:AuthoringLinks|undefined;try{links=authoringLinks(linksContext(),selection);}catch{ /* Incomplete layouts retain manual assignment fields. */ }
   try{scopeContext.persist(scope?.profile??scopeContext.profile);}catch{warning=warning||'Не удалось сохранить настройки текущей страницы. Назначения слоёв остаются в файле Figma.';}
-  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,popupBinding:popupBindingInfo(scope?.profile??scopeContext.profile),buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
+  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,links,popupBinding:popupBindingInfo(scope?.profile??scopeContext.profile),buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
 }
 function apply(input:Record<string,unknown>):void {
   const node=selected(),kind=input.kind as Metadata['kind'];
@@ -215,7 +223,7 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
 }
 figma.on('selectionchange',()=>{if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){publish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;publish();});
 figma.on('currentpagechange',()=>{recognition=undefined;diagnosticSelectionId=undefined;scopeContext.reset();publish();});
-figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;existing?:'skip'|'update';referenceId?:string;popupIds?:string[]})=>{
+figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean})=>{
   if(message.type==='ready'){publish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
@@ -223,6 +231,23 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
     if(message.scopeMode){if(!['selection','selected-frames','page'].includes(message.scopeMode))fail('scope','Выберите область экспорта.');scopeContext.mode=message.scopeMode;}
     if(message.profile&&Object.prototype.hasOwnProperty.call(PROFILES,message.profile))scopeContext.profile=message.profile;
     if(message.type==='context'){recognition=undefined;publish();return;}
+    if(['reference-target','selection-group','start-page','show-linked'].includes(message.type)){
+      if(message.nodeId&&selected().id!==message.nodeId)fail('links','Выделение изменилось. Повторите действие для выбранного элемента.');
+      const ctx=linksContext();
+      if(message.type==='show-linked'){
+        if(typeof message.targetId!=='string')fail('links','Выберите цель.');
+        const node=linkedNode(ctx,message.targetId);figma.currentPage.selection=[node];focusNode(node);
+      }else if(message.type==='reference-target'){
+        if(typeof message.targetId!=='string')fail('links','Выберите popup или группу.');
+        setReferenceTarget(ctx,selected().id,message.targetId);
+      }else if(message.type==='start-page'){
+        if(typeof message.targetId!=='string')fail('links','Выберите стартовую страницу.');setStartPage(ctx,message.targetId);
+      }else {
+        if(!Array.isArray(message.buttonIds)||message.buttonIds.some(id=>typeof id!=='string')||typeof message.group!=='string')fail('links','Выберите кнопки и группу.');
+        setSelectionGroup(ctx,message.buttonIds,message.group,message.create===true);
+      }
+      recognition=undefined;publish();figma.ui.postMessage({type:'success',message:message.type==='show-linked'?'Элемент показан на холсте.':'Связь сохранена в файле Figma.'});return;
+    }
     if(message.type==='bind-popups'){
       if(typeof message.referenceId!=='string'||!Array.isArray(message.popupIds)||message.popupIds.some(id=>typeof id!=='string'))fail('popup-binding','Выберите место popup и фреймы для связывания.');
       const result=bindPopups(message.referenceId,message.popupIds,scopeContext.profile);

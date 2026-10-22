@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { unzipSync,strFromU8 } from 'fflate';
 import { fakeFigma } from './fake-figma.ts';
 import { frame,label } from './expanded-fixture.ts';
-import { PROFILES,type Bundle } from '../src/model.ts';
+import { PROFILES,readMetadata,type Bundle } from '../src/model.ts';
 import { packageExui } from '../src/package.ts';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 const out=path.resolve(process.argv[2]??path.join(root,'output/figma-plugin','popup-binding-'+Date.now()));await mkdir(out,{recursive:true});
@@ -22,6 +22,7 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)for(cons
   const group=grouped?frame(null,'popupgroup_AudioControls',size.width+40,0,300,100,''):undefined;
   const hall=frame(group??null,'popup_HallSources',group?0:size.width+40,0,120,100,'#101010'),terrace=frame(group??null,'popup_TerraceSources',group?160:size.width+200,0,120,100,'#101010');
   label(hall,'text_Title','Hall',5,5,100,30);label(terrace,'text_Title','Terrace',5,5,100,30);
+  const buttons=['Hall','Terrace'].map((name,i)=>{const n=frame(main,'button_'+name,10+i*100,10,90,40,'');for(const [j,state] of ['Normal','Active'].entries()){const s=frame(n,state,0,0,90,40,j?'#0077AA':'#202020');s.visible=j===0;label(s,'Text',name,0,0,90,40).textAlignHorizontal='CENTER';}return n;});
   const positions=[hall.absoluteBoundingBox,terrace.absoluteBoundingBox];
   runInNewContext(code,{figma:f.api,Uint8Array,console});let send=f.api.ui.onmessage as (m:unknown)=>Promise<void>;
   f.page.selection=[ref as never];await send({type:'apply',profile,data:{kind:'popup-ref',key:'',objectId:'',popup:'',group:''}});
@@ -29,13 +30,17 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)for(cons
   await send({type:'bind-popups',profile,referenceId:ref.id,popupIds:[hall.id,terrace.id]});
   assert.deepEqual([hall.absoluteBoundingBox,terrace.absoluteBoundingBox],positions);
   if(grouped)assert.equal(hall.parent,group);
-  f.page.selection=[main as never];await send({type:'apply',profile,data:{kind:'page',shownBy:'start',key:'',objectId:'',projectName:''}});
+  f.page.selection=[ref as never];await send({type:'reference-target',profile,nodeId:ref.id,targetId:hall.parent!.id});
+  f.page.selection=buttons as never;await send({type:'selection-group',profile,buttonIds:buttons.map(n=>n.id),group:'',create:true});const choice=readMetadata(buttons[0])!.behavior!.selectionGroup;
+  f.page.selection=[main as never];await send({type:'start-page',profile,nodeId:main.id,targetId:main.id});
   // Fresh plugin runtime must restore the project members without reselecting.
   runInNewContext(code,{figma:f.api,Uint8Array,console});send=f.api.ui.onmessage as (m:unknown)=>Promise<void>;await send({type:'export',profile});
   assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);
-  const bundle=f.messages.filter(m=>m.type==='bundle').at(-1)!.bundle as Bundle;
+  const exported=f.messages.filter(m=>m.type==='bundle').at(-1);assert.ok(exported,JSON.stringify(f.messages.filter(m=>m.type==='recognition'||m.type==='error')));
+  const bundle=exported.bundle as Bundle;
   assert.ok('pages' in bundle.screen);assert.equal(bundle.screen.pages[0].shownBy,'start');assert.equal(bundle.screen.groups.length,1);assert.equal(bundle.screen.popups.length,2);
-  assert.equal(bundle.screen.pages[0].elements[0].group,bundle.screen.groups[0].key);
+  assert.equal(bundle.screen.pages[0].elements.find(e=>e.kind==='popup-ref')!.group,bundle.screen.groups[0].key);
+  assert.equal(bundle.screen.pages[0].elements.filter(e=>e.kind==='button'&&e.behavior?.selectionGroup===choice).length,2);
   const name=profile+'-'+(grouped?'reuse-group':'create-group'),input=path.join(out,name+'.exui');await writeFile(input,packageExui(bundle),{flag:'wx'});
   const row:Record<string,unknown>={name,archive:process.env.EXUI_PLUGIN_ARCHIVE,validation:cli(['validate-package',input]),boundary:'fake Figma API; actual bundle, saved pluginData across runtimes, real CLI'};
   if(registry){const output=path.join(out,name+'.gdl');row.generation=cli(['convert-package',input,output,'--registry',registry]);const report=JSON.parse(await readFile(output+'.report.json','utf8'));assert.ok(report.Generation.Checks.every((c:any)=>c.Passed));row.checks=report.Generation.Checks.length;
