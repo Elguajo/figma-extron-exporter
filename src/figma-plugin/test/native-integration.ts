@@ -10,9 +10,9 @@ import { exportFrame } from '../src/export.ts';
 import { packageExui } from '../src/package.ts';
 import { namedFixture, graphicFixture } from './named-fixture.ts';
 import { recognize, applyRecognition } from '../src/recognize.ts';
-import { expandedFixture,projectFixture,verticalFixture } from './expanded-fixture.ts';
-import { readMetadata } from '../src/model.ts';
-import { kitFixture } from './kit-fixture.ts';
+import { expandedFixture,projectFixture,verticalFixture,frame as makeFrame } from './expanded-fixture.ts';
+import { readMetadata,PROFILES } from '../src/model.ts';
+import { kitFixture,png } from './kit-fixture.ts';
 import { manyAssetsFixture } from './many-assets-fixture.ts';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 const dotnet=process.env.DOTNET_EXE??'dotnet',registry=process.env.EXUI_DONOR_REGISTRY;
@@ -27,9 +27,9 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
   const row:Record<string,unknown>={profile,input,validation,figmaBoundary:'fake API; real Figma not exercised'};
   if(registry){
     const output=path.join(out,`plugin-${suffix}.gdl`);const generation=cli(['convert-package',input,output,'--registry',registry]);
-    assert.equal(generation.checks,'65/65 passed');assert.equal(generation.GuiDesignerVerified,false);assert.equal(generation.HardwareVerified,false);
+    assert.equal(generation.checks,'71/71 passed');assert.equal(generation.GuiDesignerVerified,false);assert.equal(generation.HardwareVerified,false);
     const report=JSON.parse(await readFile(output+'.report.json','utf8'));
-    assert.equal(report.Generation.Checks.length,65);assert.ok(report.Generation.Checks.every((c:{Passed:boolean})=>c.Passed));row.generation=generation;
+    assert.equal(report.Generation.Checks.length,71);assert.ok(report.Generation.Checks.every((c:{Passed:boolean})=>c.Passed));row.generation=generation;
     const model=cli(['list-controls',output]).model;assert.equal(model.Pages[0].Controls.length,4);
     const before=model.Pages[0].Controls.map((c:any)=>[c.Comments,c.ObjectId,c.ControlId]).sort();
     (frame.children as any).reverse();for(const c of frame.children)c.x+=1;
@@ -37,7 +37,7 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
     const movedOutput=path.join(out,`plugin-${suffix}-moved.gdl`);cli(['convert-package',moved,movedOutput,'--registry',registry]);
     const after=cli(['list-controls',movedOutput]).model.Pages[0].Controls.map((c:any)=>[c.Comments,c.ObjectId,c.ControlId]).sort();assert.deepEqual(before,after);row.idsPreservedAfterMoveAndReorder=true;
   }
-  evidence.push(row);console.log(`PASS ${profile}: .exui → CLI validation${registry?' → editable .gdl, 65/65, IDs preserved':''}`);
+  evidence.push(row);console.log(`PASS ${profile}: .exui → CLI validation${registry?' → editable .gdl, 71/71, IDs preserved':''}`);
 }
 for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait','300m']] as const){
   fakeFigma();const frame=await namedFixture(profile,true);const plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
@@ -172,6 +172,26 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
   }
   evidence.push(row);console.log(`PASS ${profile}: ${name} → ${expected} PNGs → CLI/native GDL`);
  }
+}
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
+  const fake=fakeFigma(),size=PROFILES[profile];
+  const frame=makeFrame(null,'screen_StartPage',250,180,size.width,size.height);
+  frame.clipsContent=true;makeFrame(frame,'image_Background',0,-99,size.width,size.height+198);
+  const plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  fake.setRenderHook(node=>png(node.width,node.height));
+  const bundle=await exportFrame(frame),input=path.join(out,`clipped-background-${profile}.exui`);
+  assert.deepEqual(bundle.screen.elements[0].rect,[0,0,size.width,size.height]);
+  await writeFile(input,packageExui(bundle),{flag:'wx'});
+  const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/5');assert.equal(validation.resources,1);
+  const row:Record<string,unknown>={profile,name:'clipped-background',validation,figmaBoundary:'fake Figma API/PNG; real CLI/native writer'};
+  if(registry){
+    const output=path.join(out,`clipped-background-${profile}.gdl`);row.generation=cli(['convert-package',input,output,'--registry',registry]);
+    const report=JSON.parse(await readFile(output+'.report.json','utf8'));assert.ok(report.Generation.Checks.every((c:any)=>c.Passed));
+    const control=cli(['list-controls',output]).model.Pages[0].Controls[0];
+    assert.equal(control.Type,'PBImage');assert.equal(control.ControlId,0);assert.equal(control.Comments,'exui-key=startpage.background');
+    row.nativeImageVerified=true;
+  }
+  evidence.push(row);console.log(`PASS ${profile}: clipped background → viewport PNG → CLI/native GDL`);
 }
 await writeFile(path.join(out,'integration.json'),JSON.stringify(evidence,null,2)+'\n',{flag:'wx'});
 console.log('Evidence: '+out);

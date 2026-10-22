@@ -20,13 +20,25 @@ function meta(node: SceneNode, kind: string | undefined, read: MetadataReader): 
 function frame(node: SceneNode): asserts node is FrameNode|InstanceNode {
   if (!isControlFrame(node)) fail('node-type', `${node.name}: нужен подготовленный Frame или экземпляр компонента Extron Kit.`);
 }
-function graphicBounds(node:SceneNode,parent:SceneNode):{rect:number[];artwork?:ArtworkRender} {
+function graphicBounds(node:SceneNode,parent:SceneNode,clipToParent=false):{rect:number[];artwork?:ArtworkRender} {
   const a=node.absoluteBoundingBox,b=parent.absoluteBoundingBox;
   if(!a||!b)fail('geometry',`${node.name}: нет геометрии.`,node);
   const values=[a.x-b.x,a.y-b.y,a.width,a.height];
   if(values.some(v=>!Number.isFinite(v))||a.width<=0||a.height<=0)fail('geometry',`${node.name}: нужна конечная геометрия положительного размера.`,node);
-  if(values.every(v=>Math.abs(v-Math.round(v))<=.001))return {rect:values.map(Math.round)};
-  const [x,y,w,h]=values,left=Math.floor(x),top=Math.floor(y),width=Math.ceil(x+w)-left,height=Math.ceil(y+h)-top;
+  const integral=values.every(v=>Math.abs(v-Math.round(v))<=.001);
+  // Preserve the existing integer tolerance and pixel envelope. Clip only raster
+  // graphics: changing a native control's rect would resize its appearance/hit area.
+  const [x,y,w,h]=integral?values.map(Math.round):values;
+  let left=Math.floor(x),top=Math.floor(y),right=Math.ceil(x+w),bottom=Math.ceil(y+h);
+  if(clipToParent&&'clipsContent'in parent&&parent.clipsContent){
+    left=Math.max(0,left);top=Math.max(0,top);
+    right=Math.min(Math.round(parent.width),right);bottom=Math.min(Math.round(parent.height),bottom);
+  }
+  const width=right-left,height=bottom-top;
+  if(width<1||height<1)fail('bounds',`${node.name}: элемент полностью за пределами холста; переместите его внутрь или удалите из экспорта.`,node);
+  if(integral&&left===x&&top===y&&width===w&&height===h)return {rect:[x,y,w,h]};
+  // Negative offsets crop the cloned PNG in a temporary clipping viewport;
+  // the original layer and all its descendants keep their authored geometry.
   return {rect:[left,top,width,height],artwork:{width,height,offsetX:x-left,offsetY:y-top}};
 }
 function nativeStaticText(node:SceneNode):(ReturnType<typeof readText>&{textAlign?:Element['textAlign']})|undefined {
@@ -170,7 +182,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
     const controlId=passive?null:integer(m.controlId,1,65535,node.name+'.controlId');
     if(passive && m.controlId!==null) fail('id',`${node.name}: у ${m.kind} controlId должен быть null.`);
     if(controlId!==null) {if(controls.has(controlId)) fail('duplicate-id',`${node.name}: controlId ${controlId} уже используется.`);controls.add(controlId);}
-    const graphic=m.kind==='graphic'||m.kind==='label'?graphicBounds(node,root):undefined;
+    const graphic=m.kind==='graphic'||m.kind==='label'?graphicBounds(node,root,m.kind==='graphic'):undefined;
     const bounds=strokeLine?.rect??graphic?.rect??rect(node,root), [x,y,w,h]=bounds;
     if(x<0||y<0||w<1||h<1||x+w>Math.round(root.width)||y+h>Math.round(root.height)) fail('bounds',`${node.name}: элемент выходит за холст.`);
     const e: Element={key:addKey(m.key,node.name),kind:m.kind as Element['kind'],objectId,controlId,name:text(node.name,'Имя элемента'),rect:bounds};
