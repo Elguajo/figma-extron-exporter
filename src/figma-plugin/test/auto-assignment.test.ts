@@ -52,7 +52,7 @@ test('Independently prepared Main Dashboard and Audio Control with page.home/100
  for(const screen of [main,audio])tag(screen,{kind:'page',key:'page.home',objectId:100,profile:'tlp-pro-1025m',projectName:'Trilliant'});
  const first=main.getPluginData(DATA_KEY);p.page.selection=[main as never,audio as never];p.emit('selectionchange');await p.send({type:'export',scopeMode:'selected-frames',profile:'tlp-pro-1025m'});
  const bundle=latestBundle(p);assert.deepEqual({...readMetadata(main),key:undefined},{...JSON.parse(first),key:undefined});assert.deepEqual([readMetadata(main)!.key,readMetadata(audio)!.key],['page.main-dashboard','page.audio-control']);assert.notEqual(readMetadata(main)!.objectId,readMetadata(audio)!.objectId);
- assert.equal(bundle.screen.pages.length,2);assert.deepEqual([...bundle.screen.pages.map((c:any)=>c.shownBy)],['start','program']);assert.equal(bundle.screen.pages[0].name,'Main Dashboard');
+ assert.equal(bundle.screen.pages.length,2);assert.deepEqual(Array.from(bundle.screen.pages,(c:any)=>[c.name,c.shownBy]),[['Audio Control','program'],['Main Dashboard','start']]);
 });
 
 test('Standalone screens with colliding control IDs and PNG paths merge without collisions',async()=>{

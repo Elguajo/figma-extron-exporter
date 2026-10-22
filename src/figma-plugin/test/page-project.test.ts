@@ -78,9 +78,11 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
   await p.send({type:'apply',scopeMode:'selected-frames',profile,data:{...readMetadata(audio),shownBy:'navigation'}});
   await p.send({type:'check',scopeMode:'selected-frames',profile});await p.send({type:'export',scopeMode:'selected-frames',profile});
   assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;
-  assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.pages[0].shownBy,'start');assert.equal(bundle.screen.project.name,'fixture');
-  assert.equal(bundle.screen.pages[0].elements.find((e:any)=>e.kind==='button').navigate,'page.audiocontrol');assert.equal(designSignature(scratch),untouched);
-  assert.equal(bundle.screen.pages[1].shownBy,'navigation');
+  // Pages are ordered by name; the first selected page remains the start page.
+  const [audioPage,mainPage]=bundle.screen.pages;assert.deepEqual([audioPage.name,mainPage.name],['screen_AudioControl','screen_Main']);
+  assert.equal(bundle.screen.pages.length,2);assert.equal(mainPage.shownBy,'start');assert.equal(bundle.screen.project.name,'fixture');
+  assert.equal(mainPage.elements.find((e:any)=>e.kind==='button').navigate,'page.audiocontrol');assert.equal(designSignature(scratch),untouched);
+  assert.equal(audioPage.shownBy,'navigation');
  });
 }
 

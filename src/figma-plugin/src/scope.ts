@@ -1,5 +1,5 @@
 import { PROFILES, fail, readMetadata, type Profile } from './model.ts';
-import { pageScreens, type ProjectNode, type ProjectOptions } from './project.ts';
+import { byName, pageScreens, type ProjectNode, type ProjectOptions } from './project.ts';
 
 export type ScopeMode = 'selection' | 'selected-frames' | 'page';
 export interface ScopeContext {
@@ -84,7 +84,7 @@ export class ExportScope {
         profile,
       },
       canRecognize: this.canRecognize,
-      hint: this.mode === 'selection' ? '' : `В проекте: ${options.members!.map(n => n.name).join(', ')}`,
+      hint: this.mode === 'selection' ? '' : `В проекте: ${byName(options.members!).map(n => n.name).join(', ')}`,
     };
   }
 }

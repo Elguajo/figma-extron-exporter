@@ -73,3 +73,16 @@ test('Manual prepare rejects a Russian screen name without writing and suggests 
   assert.equal(error?.code,'name');assert.match(error.message,/screen_Glavnaya/);assert.equal(root.getPluginData('exui'),'');
 });
 
+test('Numbered frames set the GDL page order by name; the number is not part of the key and the start page stays',async()=>{
+  const p=plugin(),{main,audio,button:open}=project();main.name='screen_01-MainDashboard';audio.name='screen_02-AudioControl';
+  const video=frame(null,'screen_10-Video',0,1000,1280,800,'#101010');label(video,'text_Title','Video',12,12,100,30);
+  // Selected in an unrelated order; the first selected new page becomes the start page.
+  const result=await exportBoth(p,[audio,video,main]);
+  assert.deepEqual(Array.from(result.bundle.screen.pages,(c:any)=>c.name),['screen_01-MainDashboard','screen_02-AudioControl','screen_10-Video']);
+  assert.deepEqual(Array.from(result.bundle.screen.pages,(c:any)=>c.shownBy),['program','start','program']);
+  assert.deepEqual([main,audio,video].map(keyOf),['page.maindashboard','page.audiocontrol','page.video']);assert.equal(keyOf(open),'maindashboard.audiocontrol');
+  // Renumbering keeps keys and IDs, only the order changes.
+  const ids=[main,audio,video].map(n=>readMetadata(n)!.objectId);main.name='screen_03-MainDashboard';
+  const again=await exportBoth(p,[audio,video,main]);assert.deepEqual(Array.from(again.bundle.screen.pages,(c:any)=>c.name),['screen_02-AudioControl','screen_03-MainDashboard','screen_10-Video']);
+  assert.deepEqual([main,audio,video].map(keyOf),['page.maindashboard','page.audiocontrol','page.video']);assert.deepEqual([main,audio,video].map(n=>readMetadata(n)!.objectId),ids);
+});

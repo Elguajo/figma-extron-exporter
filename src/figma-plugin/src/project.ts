@@ -18,12 +18,25 @@ export function pageScreens(page:PageNode,profile:Profile):FrameNode[] {
   visit(page.children);return screens;
 }
 
+// GDL page order follows the frame names, numbers compared by value, so
+// screen_02-Audio comes before screen_10-Video regardless of selection order.
+export function compareNames(a:string,b:string):number {
+  const pa=a.toLowerCase().match(/\d+|\D+/g)??[],pb=b.toLowerCase().match(/\d+|\D+/g)??[];
+  for(let i=0;i<Math.min(pa.length,pb.length);i++){
+    const x=pa[i],y=pb[i];if(x===y)continue;
+    if(/^\d/.test(x)&&/^\d/.test(y)){const nx=x.replace(/^0+(?=\d)/,''),ny=y.replace(/^0+(?=\d)/,'');if(nx.length!==ny.length)return nx.length-ny.length;if(nx!==ny)return nx<ny?-1:1;continue;}
+    return x<y?-1:1;
+  }
+  return pa.length-pb.length||(a<b?-1:a>b?1:0);
+}
+export function byName<T extends {name:string}>(nodes:readonly T[]):T[] {return nodes.map((node,index)=>({node,index})).sort((a,b)=>compareNames(a.node.name,b.node.name)||a.index-b.index).map(e=>e.node);}
+
 export function projectMembers(root:ProjectNode,read:(n:SceneNode)=>Metadata|null,options:ProjectOptions={}):{containers:SceneNode[];groups:SceneNode[]} {
   const containers:SceneNode[]=[],groups:SceneNode[]=[];
-  for(const child of options.members??root.children){
+  for(const child of byName(options.members??root.children)){
     if(read(child)?.kind==='popup-group'){
       if(child.type!=='FRAME')fail('node-type','Группа popup должна быть Frame.');groups.push(child);
-      for(const popup of child.children){if(read(popup)?.kind!=='popup')fail('placement','В группе popup допустимы только popup.');containers.push(popup);}
+      for(const popup of byName(child.children)){if(read(popup)?.kind!=='popup')fail('placement','В группе popup допустимы только popup.');containers.push(popup);}
     }else containers.push(child);
   }
   return {containers,groups};
@@ -38,6 +51,8 @@ export function captureProject(root:SceneNode|PageNode,read:(n:SceneNode|PageNod
   const screen:ProjectScreen={schema:'exui-screen/5',project:{name:text(pm.projectName,'Имя проекта')},pages:[],popups:[],groups:[],assets:[]};
   const members=projectMembers(root,read,options),images:Capture['images']=[],assets=new Map<string,Asset>(),keys=new Set<string>(),names=new Set<string>(['offline page']),containerIds=new Set<number>(),controlIds=new Set<number>(),groupIds=new Set<number>();
   const reservedNames=new Set(members.containers.map(n=>n.name.toLowerCase()));
+  // Without a saved choice the start page is still the first selected page, not the first by name.
+  const firstPage=(options.members??root.children).find(n=>read(n)?.kind==='page');
   const addKey=(v:unknown)=>{const k=key(v,'Ключ проекта');if(keys.has(k))fail('duplicate-key',`Повтор ключа ${k}.`);keys.add(k);return k;};
   const groupNames=new Set<string>();
   for(const node of members.groups){const m=read(node)!;const groupId=integer(m.objectId,1,65535,'ID группы');if(groupIds.has(groupId))fail('duplicate-id','Повтор ID группы.');groupIds.add(groupId);const name=text(node.name,'Имя группы');if(groupNames.has(name.toLowerCase()))fail('duplicate-name','Повтор имени группы popup.');groupNames.add(name.toLowerCase());screen.groups.push({key:addKey(m.key),groupId,name});}
@@ -53,7 +68,7 @@ export function captureProject(root:SceneNode|PageNode,read:(n:SceneNode|PageNod
     const page=captured.screen.page;
     addKey(page.key);if(containerIds.has(page.objectId))fail('duplicate-id','Страницы и popup должны иметь разные ID.');containerIds.add(page.objectId);
     if(names.has(page.name.toLowerCase())){const base=page.name;let index=2;do{page.name=base.slice(0,245)+` (${index++})`;}while(names.has(page.name.toLowerCase())||reservedNames.has(page.name.toLowerCase()));}names.add(page.name.toLowerCase());
-    const c:Container={...page,shownBy:m.shownBy??(m.kind==='page'&&screen.pages.length===0?'start':'program'),elements:captured.screen.elements};
+    const c:Container={...page,shownBy:m.shownBy??(m.kind==='page'&&node===firstPage?'start':'program'),elements:captured.screen.elements};
     for(const e of c.elements){addKey(e.key);if(e.controlId!==null){if(controlIds.has(e.controlId))fail('duplicate-id',`ID управления ${e.controlId} повторяется в проекте.`);controlIds.add(e.controlId);}}
     if(m.kind==='popup'){if(c.shownBy==='start')fail('popup','Popup не может быть стартовой страницей.');c.modal=m.modal??false;if(!c.modal)c.size=rect(node,node).slice(2);if(group)c.group=key(group,'Группа popup');screen.popups.push(c);}else screen.pages.push(c);
     for(const asset of captured.screen.assets){const previous=assets.get(asset.key);if(previous&&JSON.stringify(previous)!==JSON.stringify(asset))fail('image-conflict','Несовместимые объявления PNG.');if(!previous){addKey(asset.key);assets.set(asset.key,asset);}}

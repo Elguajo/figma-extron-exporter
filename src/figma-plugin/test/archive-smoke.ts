@@ -99,7 +99,8 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     await writeFile(input, packageExui(bundle), { flag: 'wx' });
     const validation = cli(['validate-package', input]);
     assert.equal(validation.contract, 'exui/5');
-    if(batch){assert.ok('pages' in bundle.screen);assert.deepEqual(Array.from(bundle.screen.pages,p=>p.name),['screen_Main','screen_AudioControl']);assert.equal(bundle.screen.pages[0].elements.find(e=>e.kind==='button')!.navigate,'page.audiocontrol');}
+    // Pages follow the frame names; the first selected page stays the start page.
+    if(batch){assert.ok('pages' in bundle.screen);assert.deepEqual(Array.from(bundle.screen.pages,p=>[p.name,p.shownBy]),[['screen_AudioControl','navigation'],['screen_Main','start']]);assert.equal(bundle.screen.pages[1].elements.find(e=>e.kind==='button')!.navigate,'page.audiocontrol');}
     if(scenario==='section'){
       assert.ok('pages' in bundle.screen);assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.popups.length,4);
       const map=spawnSync(process.env.DOTNET_EXE??'dotnet',[path.join(installed,'cli/Extron.Cli.dll'),'id-map',input],{cwd:out,encoding:'utf8',timeout:30000});
@@ -109,6 +110,10 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     const generation = cli(['convert-package', input, gdl, '--registry', path.join(installed, 'samples/donors.json')]);
     const report = JSON.parse(await readFile(gdl + '.report.json', 'utf8'));
     assert.ok(report.Generation.Checks.every((c: { Passed: boolean }) => c.Passed));
+    if(batch&&'pages' in bundle.screen){
+      const model=cli(['list-controls',gdl]).model,start=bundle.screen.pages.find(p=>p.shownBy==='start')!;
+      assert.deepEqual(model.Pages.map((p:any)=>p.Name),Array.from(bundle.screen.pages,p=>p.name));assert.equal(model.DefaultPage,start.objectId);
+    }
     if(scenario==='pen-lines'){
       const controls=cli(['list-controls',gdl]).model.Pages[0].Controls;
       assert.equal(validation.resources,0);assert.equal(bundle.resources.length,0);
