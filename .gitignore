@@ -2,6 +2,7 @@
 **/bin/
 **/obj/
 output/
+tmp/
 samples/original/*
 !samples/original/.gitkeep
 *.user
@@ -10,4 +11,5 @@ samples/donors/*
 **/node_modules/
 src/figma-plugin/dist/
 releases/figma-plugin/*/unpacked/
+releases/figma-plugin/*/figma-extron-plugin-*/
 verification/results/**/*.gdl
