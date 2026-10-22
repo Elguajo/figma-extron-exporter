@@ -1,6 +1,7 @@
 // Adapted from Baolv/figma-export, commit 6312d15, src/lib/traverse.ts and assets.ts.
 // See ../THIRD_PARTY_NOTICES.md. The Extron restrictions and metadata handling are ours.
 import { fail, text, nodeError, type Font, type TextAlignment } from './model.ts';
+import { paintColor } from './paint-color.ts';
 
 export function rect(node: SceneNode, parent: SceneNode): number[] {
   const a = node.absoluteBoundingBox, b = parent.absoluteBoundingBox;
@@ -27,11 +28,12 @@ export function plain(node: SceneNode, allowHidden = false, decorated = false, a
   if (!decorated && !options.ignoreCornerRadius && 'cornerRadius' in node && node.cornerRadius !== 0) fail('appearance', `${node.name}: скругление не поддержано для этого нативного элемента.`);
   if ('reactions' in node && node.reactions.length) fail('interaction', `${node.name}: переходы Figma не экспортируются. Уберите prototype interactions.`);
 }
-export function color(node: SceneNode): string {
+export function color(node: SceneNode, allowAlpha=false): string {
   if (!('fills' in node) || !Array.isArray(node.fills)) return fail('color', `${node.name}: нужен один сплошной цвет.`);
   const fills = node.fills.filter(f => f.visible !== false);
-  if (fills.length !== 1 || fills[0].type !== 'SOLID' || (fills[0].opacity ?? 1) !== 1)
+  if (fills.length !== 1 || fills[0].type !== 'SOLID' || (!allowAlpha && (fills[0].opacity ?? 1) !== 1))
     fail('color', `${node.name}: нужен один непрозрачный SOLID fill.`);
+  if(allowAlpha)return paintColor(fills[0] as SolidPaint,node.name,'opacity' in node?node.opacity:1);
   const { r, g, b } = (fills[0] as SolidPaint).color;
   return '#'+[r,g,b].map(v => Math.round(v*255).toString(16).padStart(2,'0')).join('').toUpperCase();
 }

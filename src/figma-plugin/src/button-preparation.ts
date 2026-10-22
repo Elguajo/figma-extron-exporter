@@ -21,7 +21,6 @@ function styleOf(node: Surface, corners: boolean): Style {
 function setStyle(node: Surface, style: Style): void {
   for (const [field, value] of Object.entries(style)) (node as unknown as Style)[field] = copy(value);
 }
-function pageNodes(): SceneNode[] { return figma.currentPage.children.flatMap(descendants); }
 function savedPresets(): Partial<Record<PresetRole, string>> {
   const raw = figma.currentPage.getPluginData(PRESETS_KEY);
   if (!raw) return {};
@@ -31,23 +30,36 @@ function savedPresets(): Partial<Record<PresetRole, string>> {
     return value;
   } catch { return fail('button-presets', 'Повреждены ссылки на эталоны. Назначьте обычный и активный эталоны заново.'); }
 }
-function presetNode(role: PresetRole): SceneNode | undefined {
-  const nodes = pageNodes(), saved = savedPresets()[role];
-  // An explicitly selected but deleted preset must not silently switch sources.
-  if (saved) return nodes.find(n => n.id === saved);
-  const matches = nodes.filter(n => /^(Button Styles|button_styles)$/i.test(n.parent?.name ?? '') && stateRole(n.name) === role);
-  return matches.length === 1 ? matches[0] : undefined;
+function presetSources() {
+  const saved=savedPresets(),matches:Record<PresetRole,SceneNode[]>={normal:[],feedback:[]},found=new Map<string,SceneNode>();
+  // Share one traversal for both roles, without flattening every artwork tree.
+  // Explicit references stop the search as soon as both nodes are found.
+  const pending=[...figma.currentPage.children];
+  while(pending.length){
+    const node=pending.pop()!;
+    if(node.id===saved.normal||node.id===saved.feedback)found.set(node.id,node);
+    if(/^(Button Styles|button_styles)$/i.test(node.parent?.name??'')){
+      const role=stateRole(node.name);if(role==='normal'||role==='feedback')matches[role].push(node);
+    }
+    if(saved.normal&&saved.feedback&&found.has(saved.normal)&&found.has(saved.feedback))break;
+    if('children' in node)for(const child of node.children)pending.push(child);
+  }
+  const get=(role:PresetRole)=>saved[role]?found.get(saved[role]!):matches[role].length===1?matches[role][0]:undefined;
+  return {saved,matches,get};
 }
 export function presetSummary(): {normal: string; feedback: string} {
-  return { normal: presetNode('normal')?.name ?? 'Не выбран', feedback: presetNode('feedback')?.name ?? 'Не выбран' };
+  const sources=presetSources();
+  return { normal: sources.get('normal')?.name ?? 'Не выбран', feedback: sources.get('feedback')?.name ?? 'Не выбран' };
 }
 export function presetPreviews(): Record<PresetRole, PresetPreview> {
+  let sources:ReturnType<typeof presetSources>;
+  try{sources=presetSources();}catch(error){const preview:PresetPreview={name:'Проверьте образец',ready:false,hint:(error as Error).message};return {normal:{...preview},feedback:{...preview}};}
   function preview(role: PresetRole): PresetPreview {
     try {
-      const node = presetNode(role);
+      const node = sources.get(role);
       if (!node) {
-        const saved = savedPresets()[role];
-        const matches = pageNodes().filter(n => /^(Button Styles|button_styles)$/i.test(n.parent?.name ?? '') && stateRole(n.name) === role);
+        const saved = sources.saved[role];
+        const matches = sources.matches[role];
         return {name:'Не выбран',ready:false,hint:saved?'Образец удалён. Выберите новый в дополнительных настройках.':matches.length>1?'Найдено несколько образцов. Выберите нужный в дополнительных настройках.':'Добавьте образец в Button Styles или выберите его вручную.'};
       }
       const surface = node.type === 'RECTANGLE' ? node : background(node);
@@ -138,8 +150,9 @@ export function buttonPreparationSummary(root: ProjectNode, options: ProjectOpti
 export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, update: boolean | 'apply' | 'apply-new' = false, corners = false): {buttons: number; states: number; skipped: number} {
   const all = targets(root, options), pending = all.filter(t => update && update!=='apply-new' ? (update==='apply'&&t.missing.length)||t.states.some(s => ['normal', 'feedback'].includes(roleOf(s) ?? '')) : t.missing.length);
   if (!pending.length) return {buttons: 0, states: 0, skipped: all.length};
+  const sources=presetSources();
   const presets = (['normal', 'feedback'] as const).map(role => {
-    const node = presetNode(role);
+    const node = sources.get(role);
     if (!node) fail('button-presets', `Не найден ${role === 'normal' ? 'обычный' : 'активный'} образец. В разделе «Оформление кнопок» откройте «Выбрать образцы и фон вручную» и назначьте нужный образец.`);
     const surface = node.type === 'RECTANGLE' ? node : background(node);
     if (!hasFill(surface)) fail('button-presets', `${node.name}: у эталона должна быть заливка.`, node);

@@ -9,7 +9,7 @@ import { artworkText, isButtonContainer, usesButtonArtwork, validateArtwork } fr
 import { popupAppearance,TRANSPARENT } from './popup-appearance.ts';
 
 export interface ArtworkRender {omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}
-export interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode; artwork?:ArtworkRender }[]; signature: string }
+export interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode; artwork?:ArtworkRender }[]; signature: string; signatureMembers?: readonly SceneNode[] }
 type MetadataReader = (node: SceneNode|PageNode) => Metadata | null;
 type VisibilityReader = (node: SceneNode) => boolean;
 function meta(node: SceneNode, kind: string | undefined, read: MetadataReader): Metadata {
@@ -106,19 +106,23 @@ function commonButtonCaption(button:SceneNode) {
   }
   return common&&bounds?{copy:common,rect:bounds,labels}:undefined;
 }
-function snapshot(node: SceneNode|PageNode): unknown {
+function snapshot(node: SceneNode|PageNode, members?: readonly SceneNode[]): unknown {
   // Detect edits across async PNG exports; no package may silently combine two design revisions.
   const props: Record<string,unknown>={ parentId:node.parent?.id, metadata:node.getPluginData(DATA_KEY),registry:node.getPluginData('exui-id-registry'),kit:node.getPluginData(KIT_KEY),kitPopupGroup:node.getPluginData(KIT_POPUP_GROUP_KEY),buttonBackground:node.getPluginData('exui-button-background'),generatedState:node.getPluginData('exui-generated-state') };
   for(const field of ['id','type','name','visible','opacity','clipsContent','relativeTransform','absoluteTransform','absoluteBoundingBox','width','height','fills','strokes','strokeWeight','strokeTopWeight','strokeRightWeight','strokeBottomWeight','strokeLeftWeight','strokeAlign','strokeCap','strokeJoin','dashPattern','variableWidthStrokeProperties','complexStrokeProperties','effects','cornerRadius','topLeftRadius','topRightRadius','bottomRightRadius','bottomLeftRadius','cornerSmoothing','blendMode','isMask','reactions','characters','fontName','fontSize','fontWeight','lineHeight','letterSpacing','textCase','textDecoration','textAlignHorizontal','textAlignVertical','vectorPaths','vectorNetwork','arcData','pointCount','innerRadius'])
     if(field in node) props[field]=(node as unknown as Record<string,unknown>)[field];
   if(node.type==='TEXT'&&[node.fontName,node.fontSize,node.fills,node.textCase,node.textDecoration,node.letterSpacing,node.lineHeight].includes(figma.mixed))
     props.textSegments=node.getStyledTextSegments(['fontName','fontSize','fills','textCase','textDecoration','letterSpacing','lineHeight']);
-  if('children' in node) props.children=node.children.map(snapshot);
+  if('children' in node) props.children=(members??node.children).map(child=>snapshot(child));
   return props;
 }
-export function designSignature(root: SceneNode|PageNode): string { return JSON.stringify(snapshot(root)); }
+export function scopedDesignSignature(root: SceneNode|PageNode, members?: readonly SceneNode[]): string { return JSON.stringify(snapshot(root,members)); }
+export function designSignature(root: SceneNode|PageNode): string { return scopedDesignSignature(root); }
 export function capture(root: SceneNode|PageNode, read: MetadataReader = readMetadata,options:ProjectOptions={},visible:VisibilityReader=node=>node.visible): Capture {
-  if(read(root)?.kind==='project')return captureProject(root,read,(node,metadata,inProject)=>captureSingle(node,metadata,inProject,visible),designSignature,options);
+  if(read(root)?.kind==='project'){
+    const members=options.members?[...options.members]:undefined;
+    return {...captureProject(root,read,(node,metadata,inProject)=>captureSingle(node,metadata,inProject,visible),node=>scopedDesignSignature(node,members),options),...(members?{signatureMembers:members}:{})};
+  }
   if(root.type==='PAGE')fail('screen-unprepared','Распознайте выбранные фреймы или экраны текущей страницы.');
   return captureSingle(root,read,false,visible);
 }
@@ -174,7 +178,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
   for(const node of root.children) {
     try {
     const m=meta(node,undefined,read),strokeLine=m.kind==='line'&&isStrokeLine(node)?readStrokeLine(node):null;
-    if(!strokeLine)plain(node,false,m.kind==='shape'||m.kind==='line',false,{rasterTransform:m.kind==='button',ignoreCornerRadius:m.kind==='popup-ref',ignoreOpacity:m.kind==='popup-ref',ignoreStrokes:m.kind==='popup-ref'});
+    if(!strokeLine)plain(node,false,m.kind==='shape'||m.kind==='line',false,{rasterTransform:m.kind==='button',ignoreCornerRadius:m.kind==='popup-ref',ignoreOpacity:m.kind==='popup-ref'||m.kind==='line',ignoreStrokes:m.kind==='popup-ref'});
     if(!ELEMENT_KINDS.includes(m.kind)) fail('kind',`${node.name}: неизвестный тип элемента экрана.`);
     const objectId=integer(m.objectId,1,1000000,node.name+'.objectId');
     if(ids.has(objectId)) fail('duplicate-id',`${node.name}: objectId ${objectId} уже используется.`); ids.add(objectId);
@@ -299,7 +303,7 @@ export async function exportFrame(root:SceneNode|PageNode, progress:(message:str
 // Reuse the post-commit capture during a command; never cache it across edits.
 export async function exportCaptured(root:SceneNode|PageNode,captured:Capture,progress:(message:string)=>void=()=>{}):Promise<Bundle> {
   const unchanged=()=>{
-    if(root.removed||designSignature(root)!==captured.signature)fail('design-changed','Дизайн изменился во время экспорта. Повторите экспорт после завершения правок.');
+    if(root.removed||captured.signatureMembers?.some(n=>n.removed)||scopedDesignSignature(root,captured.signatureMembers)!==captured.signature)fail('design-changed','Дизайн изменился во время экспорта. Повторите экспорт после завершения правок.');
   };
   unchanged();
   const byPath=new Map<string,Uint8Array>();let imageBytes=0;

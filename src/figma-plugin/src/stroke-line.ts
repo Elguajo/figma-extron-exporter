@@ -1,5 +1,6 @@
 import { fail } from './model.ts';
 import { plain } from './read-node.ts';
+import { paintColor } from './paint-color.ts';
 
 export function isStrokeLine(node:SceneNode):node is VectorNode|LineNode {
   return node.type==='VECTOR'||node.type==='LINE';
@@ -8,7 +9,7 @@ export function isStrokeLine(node:SceneNode):node is VectorNode|LineNode {
 // PBLine currently represents an axis-aligned, constant-width segment with flat caps.
 // Read the path rather than its zero-height/zero-width geometric bounding box.
 export function readStrokeLine(node:VectorNode|LineNode) {
-  plain(node,false,true,true);
+  plain(node,false,true,true,{ignoreOpacity:true});
   if(node.strokeAlign!=='CENTER')fail('line-appearance',`${node.name}: положение обводки должно быть Center.`);
   if(node.dashPattern.length)fail('line-appearance',`${node.name}: нужна сплошная обводка без пунктира.`);
   // UNIFORM is Figma's explicit constant-width profile, not a variable stroke.
@@ -17,8 +18,8 @@ export function readStrokeLine(node:VectorNode|LineNode) {
   if(node.complexStrokeProperties&&node.complexStrokeProperties.type!=='BASIC')
     fail('line-appearance',`${node.name}: кисти и динамические обводки не поддержаны. Выберите обычную обводку.`);
   const strokes=node.strokes.filter(p=>p.visible!==false);
-  if(strokes.length!==1||strokes[0].type!=='SOLID'||(strokes[0].opacity??1)!==1)
-    fail('line-appearance',`${node.name}: нужен один непрозрачный SOLID Stroke.`);
+  if(strokes.length!==1||strokes[0].type!=='SOLID')
+    fail('line-appearance',`${node.name}: нужен один SOLID Stroke.`);
   if(!Array.isArray(node.fills)||node.fills.some(p=>p.visible!==false))
     fail('line-appearance',`${node.name}: уберите Fill; цвет линии задаётся через Stroke.`);
   const strokeWeight=node.strokeWeight;
@@ -58,6 +59,5 @@ export function readStrokeLine(node:VectorNode|LineNode) {
   // source Stroke and path untouched; PBLine thickness must match its rect.
   const bounds=horizontal?[Math.min(a.x,b.x),(a.y+b.y)/2-strokeWeight/2,length,strokeWeight]:
     [(a.x+b.x)/2-strokeWeight/2,Math.min(a.y,b.y),strokeWeight,length];
-  const {r,g,b:blue}=(strokes[0] as SolidPaint).color;
-  return {rect:bounds.map(Math.round),fillColor:'#'+[r,g,blue].map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('').toUpperCase(),native:{thickness}};
+  return {rect:bounds.map(Math.round),fillColor:paintColor(strokes[0] as SolidPaint,node.name,node.opacity),native:{thickness}};
 }

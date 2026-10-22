@@ -1,13 +1,13 @@
 import { fail,key,metadataSchema,readMetadata,type Metadata,type Profile,type LinkTarget as Target,type AuthoringLinks } from './model.ts';
 export type { AuthoringLinks } from './model.ts';
-import { recognize } from './recognize.ts';
+import { recognize,type RecognitionPlan } from './recognize.ts';
 import { byName,type ProjectNode,type ProjectOptions } from './project.ts';
 import { draft,saveDraft } from './popup-binding.ts';
 import { hasTransform } from './read-node.ts';
 
 export interface LinkContext {root:ProjectNode;options:ProjectOptions;profile:Profile}
-function snapshot(ctx:LinkContext) {
-  const plan=recognize(ctx.root,ctx.profile,ctx.options),nodes=new Map<string,SceneNode>();
+function snapshot(ctx:LinkContext,prepared?:RecognitionPlan) {
+  const plan=prepared??recognize(ctx.root,ctx.profile,ctx.options),nodes=new Map<string,SceneNode>();
   function visit(n:SceneNode|PageNode){if(n.type!=='PAGE')nodes.set(n.id,n);if('children' in n)for(const c of n===ctx.root?(ctx.options.members??n.children):n.children)visit(c);}
   visit(ctx.root);
   const proposed=new Map(plan.writes.map(w=>[w.node.id,w.metadata]));
@@ -23,8 +23,8 @@ function popupTargets(s:ReturnType<typeof snapshot>,ref:SceneNode) {
     m.kind==='popup-group'&&node.type==='FRAME'&&node.children.length>0&&node.children.every(c=>s.read(c)?.kind==='popup'&&valid(c))
   ).map(({node})=>({node,...target(node)})));
 }
-export function authoringLinks(ctx:LinkContext,selection:readonly SceneNode[]):AuthoringLinks {
-  const s=snapshot(ctx),pages=s.items.filter(i=>i.m.kind==='page'&&(!i.m.profile||i.m.profile===ctx.profile)),chosen=selection.length===1?selection[0]:undefined;
+export function authoringLinks(ctx:LinkContext,selection:readonly SceneNode[],prepared?:RecognitionPlan):AuthoringLinks {
+  const s=snapshot(ctx,prepared),pages=s.items.filter(i=>i.m.kind==='page'&&(!i.m.profile||i.m.profile===ctx.profile)),chosen=selection.length===1?selection[0]:undefined;
   const first=(ctx.options.members??ctx.root.children).find(n=>s.read(n)?.kind==='page')??pages[0]?.node;
   const start=pages.find(i=>i.m.shownBy==='start')??pages.find(i=>i.node===first&&!i.m.shownBy);
   const result:AuthoringLinks={pages:byName(pages.map(i=>target(i.node))),startId:start?.node.id,groups:[]};

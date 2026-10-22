@@ -30,7 +30,7 @@ export function nativeElement(node:SceneNode,m:Metadata,e:Element):boolean {
   }
   if(m.kind==='shape'||m.kind==='line') {
     if(!['FRAME','RECTANGLE','ELLIPSE','INSTANCE'].includes(node.type))fail('node-type',`${node.name}: нужен Frame, Rectangle, Ellipse или примитив кита.`);
-    empty(node);plain(node,false,true);e.fillColor=color(node);
+    empty(node);plain(node,false,true,false,{ignoreOpacity:m.kind==='line'});e.fillColor=color(node,m.kind==='line');
     const thickness=m.kind==='line'?Math.min(e.rect[2],e.rect[3]):'strokeWeight' in node?node.strokeWeight:0;
     if(m.kind==='line'){
       if(radius(node)!==0||'strokes' in node&&node.strokes.some(s=>s.visible!==false)||node.type==='ELLIPSE')fail('appearance',`${node.name}: линия требует прямоугольник без скругления и обводки.`);

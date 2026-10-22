@@ -5,7 +5,37 @@ import { strokeLineFixture } from './stroke-line-fixture.ts';
 import { capture,designSignature,exportFrame } from '../src/export.ts';
 import { applyRecognition,recognize } from '../src/recognize.ts';
 import { DATA_KEY,readMetadata } from '../src/model.ts';
-import { solid } from './expanded-fixture.ts';
+import { frame,solid } from './expanded-fixture.ts';
+
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)
+for(const [paintOpacity,layerOpacity,alpha] of [[.1,1,'1A'],[1,.1,'1A'],[.1,.5,'0D'],[.5,.5,'40'],[0,1,'00'],[1,0,'00'],[1,1,'']] as const)
+test(`Line opacity ${paintOpacity} × ${layerOpacity} / ${profile}: native ARGB, no PNG, stable source and IDs`,async()=>{
+  fakeFigma();const root=await strokeLineFixture(profile);
+  frame(root,'line_Rectangle',20,260,100,2,'#D2AE6D');
+  for(const node of root.children as (VectorNode|LineNode|FrameNode)[]) {
+    if(node.type==='FRAME')node.fills=[{...solid('#D2AE6D'),opacity:paintOpacity}];
+    else node.strokes=[{...solid('#D2AE6D'),opacity:paintOpacity}];
+    node.opacity=layerOpacity;
+  }
+  const before=designSignature(root),plan=recognize(root,profile);assert.deepEqual(plan.errors,[]);assert.equal(designSignature(root),before);applyRecognition(plan);
+  const source=designSignature(root),metadata=root.children.map(n=>n.getPluginData(DATA_KEY));
+  const bundle=await exportFrame(root);
+  assert.equal(bundle.screen.elements.length,5);assert.equal(bundle.resources.length,0);
+  for(const e of bundle.screen.elements){assert.equal(e.kind,'line');assert.equal(e.controlId,null);assert.equal(e.fillColor,'#'+alpha+'D2AE6D');}
+  assert.equal(designSignature(root),source);applyRecognition(recognize(root,profile));
+  assert.deepEqual(root.children.map(n=>n.getPluginData(DATA_KEY)),metadata);
+});
+
+for(const property of ['opacity','paintOpacity','red'] as const)
+for(const value of [-.1,1.1,NaN,Infinity])
+test(`Line refuses invalid ${property} ${value}`,async()=>{
+  fakeFigma();const root=await strokeLineFixture(),node=root.children[0] as any;
+  if(property==='opacity')node.opacity=value;
+  else if(property==='paintOpacity')node.strokes[0].opacity=value;
+  else node.strokes[0].color.r=value;
+  const plan=recognize(root,'tlp-pro-1025m');assert.ok(plan.errors.some(e=>/некорректный цвет/.test(e)),plan.errors.join('\n'));
+  assert.throws(()=>applyRecognition(plan));
+});
 
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)
 for(const width of [null,{widthProfile:'UNIFORM'}] as const)
@@ -94,7 +124,6 @@ for(const [name,edit,error] of [
   ['arrow',(n:any)=>n.strokeCap='ARROW_LINES',/окончания/],
   ['vertex round cap',(n:any)=>n.vectorNetwork.vertices[0].strokeCap='ROUND',/окончания/],
   ['vertex corner radius',(n:any)=>n.vectorNetwork.vertices[0].cornerRadius=3,/скруглений/],
-  ['transparent stroke',(n:any)=>n.strokes[0].opacity=0.5,/непрозрачный/],
   ['multiple strokes',(n:any)=>n.strokes.push(solid('#FFFFFF')),/один/],
   ['missing stroke',(n:any)=>n.strokes=[],/Stroke/],
   ['gradient',(n:any)=>n.strokes[0].type='GRADIENT_LINEAR',/SOLID/],
@@ -127,11 +156,13 @@ for(const [name,edit,error] of [
   assert.ok(plan.errors.some(e=>error.test(e)),plan.errors.join('\n'));assert.throws(()=>applyRecognition(plan));assert.equal(designSignature(root),before);
 });
 
-for(const field of ['strokeWeight','strokeCap','strokeAlign','dashPattern','vectorNetwork','complexStrokeProperties','variableWidthStrokeProperties'] as const)
+for(const field of ['opacity','strokes','strokeWeight','strokeCap','strokeAlign','dashPattern','vectorNetwork','complexStrokeProperties','variableWidthStrokeProperties'] as const)
 test(`Editing ${field} invalidates a pending recognition plan`,async()=>{
   fakeFigma();const root=await strokeLineFixture(),plan=recognize(root,'tlp-pro-1025m'),node=root.children[0] as any;
   assert.deepEqual(plan.errors,[]);
-  if(field==='strokeWeight')node.strokeWeight=1.5;
+  if(field==='opacity')node.opacity=.5;
+  else if(field==='strokes')node.strokes[0].opacity=.5;
+  else if(field==='strokeWeight')node.strokeWeight=1.5;
   else if(field==='vectorNetwork')node.vectorNetwork.vertices[1].x=90;
   else node[field]=field==='dashPattern'?[3,2]:field.endsWith('Properties')?{type:'BRUSH'}:'changed';
   assert.throws(()=>applyRecognition(plan),(e:any)=>e.code==='design-changed');

@@ -66,6 +66,7 @@ try{
  await page.goto(`http://127.0.0.1:${address.port}/`);const frame=page.frameLocator('iframe');
  await frame.getByRole('button',{name:'Скачать .exui',exact:true}).waitFor();
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isDisabled(),true);
+ assert.equal(await frame.locator('#buttonStates').evaluate(el=>(el as HTMLDetailsElement).open),false);
  assert.equal(await frame.locator('#demo').count(),0);
  // Popup prefixes and saved assignments disable screen-only actions before a click.
  await frame.locator('#editor > summary').click();
@@ -101,6 +102,7 @@ try{
  await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выбрано popup: 2',popupBinding:{popupIds:['hall','terrace'],names:['popup_HallSources','popup_TerraceSources'],targets:[]}}));
  assert.equal(await frame.getByRole('button',{name:'Связать с местом popup',exact:true}).isDisabled(),true);
  await frame.getByText('Места popup не найдены.',{exact:false}).waitFor();
+ await frame.locator('#buttonStates > summary').click();
  await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выберите экраны на холсте'}));
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
  await frame.getByText('Стили найдены. Теперь выберите Frame экрана, popup_ или popupgroup_ в Figma.',{exact:true}).waitFor();

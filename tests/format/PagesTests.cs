@@ -76,6 +76,18 @@ static class PagesTests
                     using var package = ExuiPackage.Load(Zip(work, files));
                     Check(package.Plan.Popups.Single(p => p.Key == "popup.volume").Elements.First(e => e.Kind == "button").States![0].Fill == color);
                 });
+            foreach (string color in new[] { "#1AD2AE6D", "#0DD2AE6D", "#00000000", "#D2AE6D" })
+                test($"exui/5: native line preserves color {color}", () =>
+                {
+                    var files = Files();
+                    Edit(files, "screen.json", n => Page(n, "page.home")["elements"]!.AsArray().Add(JsonNode.Parse("""
+                        {"key":"line.alpha","objectId":999998,"controlId":null,"name":"Divider",
+                         "kind":"line","rect":[0,20,100,2],"fillColor":"#D2AE6D","native":{"thickness":2}}
+                        """)!));
+                    Edit(files, "screen.json", n => Element(Page(n, "page.home"), "line.alpha")["fillColor"] = color);
+                    using var package = ExuiPackage.Load(Zip(work, files));
+                    Check(package.Plan.Pages.SelectMany(p => p.Elements).Single(e => e.Key == "line.alpha").FillColor == color);
+                });
             foreach (string color in new[] { "#0000000", "#000000000", "#GG000000", "#00000000\n" })
                 test($"exui/5: invalid alpha color {System.Text.Json.JsonSerializer.Serialize(color)} is refused", () =>
                 {

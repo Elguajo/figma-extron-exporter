@@ -16,6 +16,7 @@ import { twoScreens } from './page-project-fixture.ts';
 import { strokeLineFixture } from './stroke-line-fixture.ts';
 import { recognize,applyRecognition } from '../src/recognize.ts';
 import { designSignature } from '../src/export.ts';
+import { frame as lineRectangle,solid } from './expanded-fixture.ts';
 
 const [archive, kit, output] = process.argv.slice(2);
 assert.ok(archive && kit && output, 'Usage: node test/archive-smoke.ts <plugin.zip> <unpacked-kit> <new-output-dir>');
@@ -37,7 +38,7 @@ function cli(args: string[]) {
   return JSON.parse(result.stdout);
 }
 const evidence: unknown[] = [];
-const scenarios=['blank-caption','expanded','on-off','feedback','dotted-name','many-assets','section','selected-frames','pen-lines','fractional-lines','automatic-fresh','automatic-copy','automatic-merge'] as const;
+const scenarios=['blank-caption','expanded','on-off','feedback','dotted-name','many-assets','section','selected-frames','pen-lines','fractional-lines','alpha-lines','automatic-fresh','automatic-copy','automatic-merge'] as const;
 const selectedScenarios=process.argv[5]==='all'?scenarios:process.argv[5]?scenarios.filter(s=>s===process.argv[5]):scenarios.slice(0,4);
 assert.ok(selectedScenarios.length,'Unknown archive smoke scenario');
 for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
@@ -45,7 +46,17 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     const fixture = scenario==='many-assets'?kitFixture():fakeFigma();
     const batch=scenario==='selected-frames'?twoScreens(profile):undefined;
     const automatic=scenario.startsWith('automatic-');
-    const frame = batch?figma.currentPage:scenario==='pen-lines'||scenario==='fractional-lines'?await strokeLineFixture(profile):scenario==='section'?sectionFixture(profile):scenario==='many-assets'?await manyAssetsFixture(profile):scenario === 'expanded'||scenario==='automatic-fresh' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'||scenario==='dotted-name'||automatic?await namedFixture(profile,scenario==='on-off'||scenario==='dotted-name'):await graphicFixture(profile);
+    const frame = batch?figma.currentPage:scenario==='pen-lines'||scenario==='fractional-lines'||scenario==='alpha-lines'?await strokeLineFixture(profile):scenario==='section'?sectionFixture(profile):scenario==='many-assets'?await manyAssetsFixture(profile):scenario === 'expanded'||scenario==='automatic-fresh' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'||scenario==='dotted-name'||automatic?await namedFixture(profile,scenario==='on-off'||scenario==='dotted-name'):await graphicFixture(profile);
+    if(scenario==='alpha-lines'){
+      for(const node of frame.children as (VectorNode|LineNode)[])node.strokes=[solid('#D2AE6D')];
+      const divider=frame.children[0] as VectorNode;divider.x=0;divider.y=frame.height-84;
+      divider.strokes=[{...solid('#D2AE6D'),opacity:.1}];
+      await divider.setVectorNetworkAsync({vertices:[{x:0,y:0},{x:frame.width,y:0}],segments:[{start:0,end:1}],regions:[]});
+      const vertical=frame.children[1] as VectorNode;vertical.strokes=[{...solid('#D2AE6D'),opacity:.5}];vertical.opacity=.5;
+      frame.children[2].opacity=0;frame.children[3].opacity=.1;
+      const rectangle=lineRectangle(frame as FrameNode,'line_Rectangle',20,260,100,2,'#D2AE6D');
+      rectangle.fills=[{...solid('#D2AE6D'),opacity:.1}];rectangle.opacity=.5;
+    }
     if(scenario==='fractional-lines'){
       const horizontal=frame.children[0] as VectorNode;horizontal.x=20.21;horizontal.y=40.7;horizontal.strokeWeight=1.4;
       await horizontal.setVectorNetworkAsync({vertices:[{x:0,y:0},{x:100.49,y:0}],segments:[{start:0,end:1}],regions:[]});
@@ -107,12 +118,20 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
       assert.equal(map.status,0,map.stderr);assert.ok(map.stdout.includes('screen_Settings'));
     }
     const gdl = path.join(out, `${scenario}-${profile}.gdl`);
-    const generation = cli(['convert-package', input, gdl, '--registry', path.join(installed, 'samples/donors.json')]);
+    const generation = cli(['convert-package', input, gdl, '--registry', process.env.EXUI_DONOR_REGISTRY??path.join(installed, 'samples/donors.json')]);
     const report = JSON.parse(await readFile(gdl + '.report.json', 'utf8'));
     assert.ok(report.Generation.Checks.every((c: { Passed: boolean }) => c.Passed));
     if(batch&&'pages' in bundle.screen){
       const model=cli(['list-controls',gdl]).model,start=bundle.screen.pages.find(p=>p.shownBy==='start')!;
       assert.deepEqual(model.Pages.map((p:any)=>p.Name),Array.from(bundle.screen.pages,p=>p.name));assert.equal(model.DefaultPage,start.objectId);
+    }
+    if(scenario==='alpha-lines'){
+      const controls=cli(['list-controls',gdl]).model.Pages[0].Controls;
+      assert.equal(validation.resources,0);assert.equal(bundle.resources.length,0);
+      assert.deepEqual(controls.map((c:any)=>[c.Type,c.Native.Fill]),[
+        ['PBLine',0x1AD2AE6D],['PBLine',0x40D2AE6D],['PBLine',0x00D2AE6D],['PBLine',0x1AD2AE6D],['PBLine',0x0DD2AE6D],
+      ]);
+      assert.deepEqual([controls[0].Left,controls[0].Top,controls[0].Width,controls[0].Height],[0,frame.height-85,frame.width,2]);
     }
     if(scenario==='pen-lines'){
       const controls=cli(['list-controls',gdl]).model.Pages[0].Controls;
@@ -156,7 +175,7 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
       assert.ok(button.States.length > 0 && button.States.every((s: any) => s.Text === ''));
       assert.ok(controls.find((c: any) => c.Comments === 'exui-key=home.volumevalue').Text.length > 0);
     }
-    evidence.push({ version, profile, scenario, validation, generation, boundary: 'Archived main bundle + fake Figma API/PNG + packageExui from source; packaged native CLI. Archived UI download tested separately in Chromium; Desktop/device not exercised.' });
+    evidence.push({ version, profile, scenario, validation, generation, boundary: 'Archived main bundle + fake Figma API/PNG + packageExui from source; packaged native CLI. Browser UI, Desktop and device not exercised by this script.' });
     console.log(`PASS archive ${version}: ${scenario} / ${profile} → ${generation.checks}`);
   }
 }

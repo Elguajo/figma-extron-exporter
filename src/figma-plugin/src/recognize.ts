@@ -1,6 +1,6 @@
 import { DATA_KEY,PROFILES,ROLE_ID,ELEMENT_KINDS,CONTROL_KINDS,metadataSchema,isControlKind,isElementKind,stateRole,fail,integer,key,readMetadata,text,type ButtonMode,type Kind,type MetadataInput, type Metadata,type Profile,type Role } from './model.ts';
 import type { ProjectNode,ProjectOptions } from './project.ts';
-import { capture,designSignature,type Capture } from './export.ts';
+import { capture,scopedDesignSignature,type Capture } from './export.ts';
 import { isControlFrame,isKitNode,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 import { isStrokeLine } from './stroke-line.ts';
 import { containerSuffix,freeKey,repairAssignments } from './assignment-repair.ts';
@@ -39,7 +39,7 @@ function slug(value:string,name:string):string {
   return key(value.toLowerCase(),'Имя слоя');
 }
 export function namedRole(name:string):Role|null {return stateRole(name.replace(/^(st|state)_/i,''));}
-function signature(root:ProjectNode):string {return designSignature(root)+'\n'+root.getPluginData(REGISTRY_KEY);}
+function signature(root:ProjectNode,options:ProjectOptions):string {return scopedDesignSignature(root,options.members)+'\n'+root.getPluginData(REGISTRY_KEY);}
 
 export function recognize(root:SceneNode|PageNode,profile:Profile,options:ProjectOptions={},edits:ReadonlyMap<string,MetadataInput>=new Map()):RecognitionPlan {
   if(root.type!=='FRAME'&&root.type!=='SECTION'&&root.type!=='PAGE')fail('selection','Выберите секцию проекта или внешний Frame экрана / project_Name.');
@@ -61,7 +61,7 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
   const keyChanges=syncKeys(root,options.members??('children' in root?root.children:[]),isProject,repaired,name=>namedControl(name)?.suffix??null);
   const existingFor=(node:SceneNode|PageNode)=>repaired.get(node.id)??null;
   existingRoot=existingFor(root);
-  const plan:RecognitionPlan={root,options,profile,signature:signature(root),registry:'',writes:[],visibility:[],rows:[],keys:keyChanges.map(c=>({name:c.node.name,from:c.from,to:c.to})),errors:[],issues:[],warnings:[]},proposed=new Map<string,Metadata>();
+  const plan:RecognitionPlan={root,options,profile,signature:signature(root,options),registry:'',writes:[],visibility:[],rows:[],keys:keyChanges.map(c=>({name:c.node.name,from:c.from,to:c.to})),errors:[],issues:[],warnings:[]},proposed=new Map<string,Metadata>();
   if(keyChanges.length)plan.warnings.push(`Ключи обновлены по именам слоёв: ${keyChanges.slice(0,3).map(c=>`${c.from} → ${c.to}`).join(', ')}${keyChanges.length>3?` и ещё ${keyChanges.length-3}`:''}. ID не изменены.`);
   let problemNode:SceneNode|PageNode=root;
   function report(error:unknown){const nodeId=(error as {nodeId?:string})?.nodeId;const node=nodes.find(n=>n.id===nodeId)??problemNode;plan.errors.push(error instanceof Error?error.message:String(error));plan.issues.push(recognitionIssue(node,root,error));}
@@ -159,7 +159,7 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
 
 export function applyRecognition(plan:RecognitionPlan):Capture {
   if(plan.errors.length)fail('recognition','Сначала исправьте ошибки распознавания.');
-  if(plan.root.removed||signature(plan.root)!==plan.signature)fail('design-changed','Макет изменился после распознавания. Нажмите «Распознать по именам» ещё раз.');
+  if(plan.root.removed||plan.options.members?.some(n=>n.removed)||signature(plan.root,plan.options)!==plan.signature)fail('design-changed','Макет изменился после распознавания. Нажмите «Распознать по именам» ещё раз.');
   const originals=plan.writes.map(({node})=>({node,raw:node.getPluginData(DATA_KEY)})),oldRegistry=plan.root.getPluginData(REGISTRY_KEY);
   const previewOriginals:{node:SceneNode;visible:boolean}[]=[];
   try{

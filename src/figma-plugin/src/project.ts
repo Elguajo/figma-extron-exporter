@@ -48,6 +48,7 @@ export function captureProject(root:SceneNode|PageNode,read:(n:SceneNode|PageNod
   if(options.members?.some(n=>n.removed))fail('project-scope','Один из выбранных экранов удалён. Выделите экраны заново.');
   const pm=read(root);if(!pm||pm.kind!=='project')fail('kind','Нужно назначение проекта.');if(!pm.profile||!(pm.profile in PROFILES))fail('profile','Выберите профиль проекта.');
   const profile=pm.profile,canvas=PROFILES[profile];
+  const referenceNodes=new Map<string,SceneNode>();
   const screen:ProjectScreen={schema:'exui-screen/5',project:{name:text(pm.projectName,'Имя проекта')},pages:[],popups:[],groups:[],assets:[]};
   const members=projectMembers(root,read,options),images:Capture['images']=[],assets=new Map<string,Asset>(),keys=new Set<string>(),names=new Set<string>(['offline page']),containerIds=new Set<number>(),controlIds=new Set<number>(),groupIds=new Set<number>();
   const reservedNames=new Set(members.containers.map(n=>n.name.toLowerCase()));
@@ -69,7 +70,7 @@ export function captureProject(root:SceneNode|PageNode,read:(n:SceneNode|PageNod
     addKey(page.key);if(containerIds.has(page.objectId))fail('duplicate-id','Страницы и popup должны иметь разные ID.');containerIds.add(page.objectId);
     if(names.has(page.name.toLowerCase())){const base=page.name;let index=2;do{page.name=base.slice(0,245)+` (${index++})`;}while(names.has(page.name.toLowerCase())||reservedNames.has(page.name.toLowerCase()));}names.add(page.name.toLowerCase());
     const c:Container={...page,shownBy:m.shownBy??(m.kind==='page'&&node===firstPage?'start':'program'),elements:captured.screen.elements};
-    for(const e of c.elements){addKey(e.key);if(e.controlId!==null){if(controlIds.has(e.controlId))fail('duplicate-id',`ID управления ${e.controlId} повторяется в проекте.`);controlIds.add(e.controlId);}}
+    for(const e of c.elements){addKey(e.key);if(e.kind==='popup-ref'){const source=node.children.find(n=>read(n)?.key===e.key);if(source)referenceNodes.set(e.key,source);}if(e.controlId!==null){if(controlIds.has(e.controlId))fail('duplicate-id',`ID управления ${e.controlId} повторяется в проекте.`);controlIds.add(e.controlId);}}
     if(m.kind==='popup'){if(c.shownBy==='start')fail('popup','Popup не может быть стартовой страницей.');c.modal=m.modal??false;if(!c.modal)c.size=rect(node,node).slice(2);if(group)c.group=key(group,'Группа popup');screen.popups.push(c);}else screen.pages.push(c);
     for(const asset of captured.screen.assets){const previous=assets.get(asset.key);if(previous&&JSON.stringify(previous)!==JSON.stringify(asset))fail('image-conflict','Несовместимые объявления PNG.');if(!previous){addKey(asset.key);assets.set(asset.key,asset);}}
     images.push(...captured.images);
@@ -82,7 +83,13 @@ export function captureProject(root:SceneNode|PageNode,read:(n:SceneNode|PageNod
   const all=[...screen.pages,...screen.popups],refs=screen.pages.flatMap(p=>p.elements.filter(e=>e.kind==='popup-ref'));
   for(const group of screen.groups){const popups=screen.popups.filter(p=>p.group===group.key);if(!popups.length||new Set(popups.map(p=>JSON.stringify(p.size))).size!==1)fail('popup-group','Участники группы popup должны иметь одинаковый размер.');}
   for(const p of screen.popups){if(p.group&&!screen.groups.some(g=>g.key===p.group))fail('popup-group',`Неизвестная группа ${p.group}.`);if(!p.modal&&!refs.some(r=>r.popup===p.key||!!p.group&&r.group===p.group))fail('popup-ref',`${p.name}: нужен popupref на странице.`);}
-  for(const ref of refs){const targets=ref.popup?screen.popups.filter(p=>p.key===ref.popup):screen.popups.filter(p=>p.group===ref.group);if(!targets.length||targets.some(p=>p.modal||!!ref.popup&&!!p.group||p.size?.[0]!==ref.rect[2]||p.size?.[1]!==ref.rect[3]))fail('popup-ref',`${ref.name}: цель должна быть обычным popup/группой того же размера.`);}
+  for(const ref of refs){
+    const source=referenceNodes.get(ref.key),targets=ref.popup?screen.popups.filter(p=>p.key===ref.popup):screen.popups.filter(p=>p.group===ref.group);
+    if(!targets.length)fail('popup-ref',`${ref.name}: цель ${ref.popup??ref.group??'(без связи)'} не найдена в составе экспорта. Включите связанный popup или группу в проект либо сохраните связь заново.`,source);
+    if(targets.some(p=>p.modal||!!ref.popup&&!!p.group))fail('popup-ref',`${ref.name}: выберите обычный popup вне группы либо всю группу popup. Модальный popup не подходит.`,source);
+    const mismatch=targets.find(p=>p.size?.[0]!==ref.rect[2]||p.size?.[1]!==ref.rect[3]);
+    if(mismatch)fail('popup-ref',`${ref.name}: размер места ${ref.rect[2]}×${ref.rect[3]}, а ${mismatch.name} — ${mismatch.size?.join('×')}. Размеры должны совпадать.`,source);
+  }
   for(const c of all){for(const e of c.elements){if(e.navigate&&(!all.some(t=>t.key===e.navigate)||e.navigate===c.key))fail('navigation',`${e.name}: неизвестная или собственная цель перехода.`);}if(c.shownBy==='navigation'&&!all.some(p=>p.elements.some(e=>e.navigate===c.key)))fail('navigation',`${c.name}: нужна кнопка, ведущая к контейнеру.`);}
   const paths=[...assets.values()].map(a=>a.file),resourceNames=[...assets.values()].map(a=>a.resourceName.toLowerCase());if(new Set(paths).size!==paths.length||new Set(resourceNames).size!==resourceNames.length)fail('image-conflict','Разные PNG имеют одинаковый путь или resourceName.');
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));

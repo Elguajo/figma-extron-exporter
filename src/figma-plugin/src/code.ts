@@ -83,6 +83,7 @@ function publish(keepRecognition=false):void {
   try{if(n&&isButtonContainer(n)&&['button','level'].includes(metadata?.kind??''))states=n.children.map(c=>readMetadata(c)).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}catch(e){warning=warning||(e as Error).message;}
   let scope:{id:string;name:string;kind:string;profile?:Profile}|undefined;
   let targets:{id:string;key:string;name:string;kind:string}[]=[],scopeHint='';
+  let preparedLinks:{context:LinkContext;plan:RecognitionPlan}|undefined;
   let canRecognize=false;
   let canPrepare=false,kind:Metadata['kind']|undefined;
   try{if(n)kind=selectionKind(n);canPrepare=scopeContext.canPrepare;}catch{ /* Invalid saved assignments remain available for manual repair. */ }
@@ -101,6 +102,7 @@ function publish(keepRecognition=false):void {
         // A navigation error can prevent the very assignments needed to repair
         // it. Offer the draft keys without writing anything on selection.
         const plan=recognize(root,resolved.profile,options);
+        preparedLinks={context:resolved,plan};
         const proposed=new Map(plan.writes.map(w=>[w.node.id,w.metadata]));
         const read=(node:SceneNode|PageNode)=>proposed.get(node.id)??readMetadata(node);
         if(n)metadata=read(n);
@@ -119,7 +121,7 @@ function publish(keepRecognition=false):void {
   }catch(e){warning=warning||(e as Error).message;}
   const buttonStylePreviews=presetPreviews();
   const buttonPresets={normal:buttonStylePreviews.normal.name,feedback:buttonStylePreviews.feedback.name};
-  let links:AuthoringLinks|undefined;try{links=authoringLinks(linksContext(),selection);}catch{ /* Incomplete layouts retain manual assignment fields. */ }
+  let links:AuthoringLinks|undefined;try{links=preparedLinks?authoringLinks(preparedLinks.context,selection,preparedLinks.plan):authoringLinks(linksContext(),selection);}catch{ /* Incomplete layouts retain manual assignment fields. */ }
   try{scopeContext.persist(scope?.profile??scopeContext.profile);}catch{warning=warning||'Не удалось сохранить настройки текущей страницы. Назначения слоёв остаются в файле Figma.';}
   figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,links,popupBinding:popupBindingInfo(scope?.profile??scopeContext.profile),buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
 }

@@ -1,0 +1,52 @@
+// Execute the packaged plugin at the Figma API fixture boundary, not in Desktop.
+import assert from 'node:assert/strict';
+import { readFile,writeFile,mkdir } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { runInNewContext } from 'node:vm';
+import path from 'node:path';
+import { unzipSync,strFromU8 } from 'fflate';
+import { fakeFigma } from './fake-figma.ts';
+import { frame,label } from './expanded-fixture.ts';
+import { packageExui } from '../src/package.ts';
+import { readMetadata,type Bundle } from '../src/model.ts';
+import { designSignature } from '../src/export.ts';
+
+const [archive,output,cliRoot]=process.argv.slice(2);
+assert.ok(archive&&output&&cliRoot,'Usage: node test/popup-export-scope-integration.ts <plugin.zip> <new-output-dir> <cli-root>');
+const files=unzipSync(new Uint8Array(await readFile(archive))),manifest=JSON.parse(strFromU8(files['manifest.json'])),version=JSON.parse(strFromU8(files['version.json']));
+assert.equal(manifest.id,'figma-extron-exporter-local-dev');
+assert.equal(version.version,'0.6.8');assert.equal(version.compatibleCliVersion,'0.6.4');
+const source=strFromU8(files[manifest.main]),ui=strFromU8(files[manifest.ui]);
+assert.ok(ui.includes('· 0.6.8'));
+await mkdir(output,{recursive:true});
+const evidence=[];
+for(const mode of ['selected-frames','page']){
+  const f=fakeFigma(),screens=['StartPage','MainDashboard','AudioControl'].map((name,i)=>{const n=frame(null,'screen_'+name,i*1400,0,1280,800);label(n,'txt_Title',name,10,10,400,30);return n;});
+  const ref=frame(screens[2],'popupref_AudioControls',323,103,940,670,''),group=frame(null,'popupgroup_AudioControls',4300,0,1998,750,'');
+  const popups=['HallSources','TerraceSources'].map((name,i)=>{const n=frame(group,'popup_'+name,39+i*980,40,940,670);label(n,'txt_Title',name,10,10,400,30);return n;});
+  const scratch=frame(null,'popupgroup_Unfinished',7000,0,100,100,''),scratchBefore=designSignature(scratch),bounds=[ref,...popups].map(n=>n.absoluteBoundingBox);
+  const start=()=>{let embedded='';f.api.showUI=(html?:string)=>{embedded=html??'';};runInNewContext(source,{figma:f.api,Uint8Array,console});assert.equal(embedded,ui);return f.api.ui.onmessage as (m:unknown)=>Promise<void>;};
+  let send=start();f.page.selection=[group] as never;
+  await send({type:'bind-popups',profile:'tlp-pro-1025m',referenceId:ref.id,popupIds:popups.map(p=>p.id)});
+  assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);
+  const connection=readMetadata(ref)!.group;
+  f.page.selection=screens as never;f.emit('selectionchange');
+  await send({type:'check',scopeMode:mode,profile:'tlp-pro-1025m'});
+  assert.deepEqual(f.messages.filter(m=>m.type==='recognition').flatMap(m=>(m as any).errors),[]);
+  send=start();await send({type:'export',scopeMode:mode,profile:'tlp-pro-1025m'});
+  assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);
+  const bundle=f.messages.filter(m=>m.type==='bundle').at(-1)!.bundle as Bundle;
+  assert.ok('pages' in bundle.screen);const screen=bundle.screen;
+  assert.equal(screen.pages.length,3);assert.equal(screen.groups.length,1);assert.equal(screen.popups.length,2);
+  assert.ok(screen.popups.every(p=>JSON.stringify(p.size)==='[940,670]'));
+  assert.equal(readMetadata(ref)!.group,connection);assert.deepEqual([ref,...popups].map(n=>n.absoluteBoundingBox),bounds);assert.equal(designSignature(scratch),scratchBefore);
+  const input=path.resolve(output,mode+'.exui');await writeFile(input,packageExui(bundle),{flag:'wx'});
+  const validation=spawnSync(process.env.DOTNET_EXE??'dotnet',[path.resolve(cliRoot,'cli/Extron.Cli.dll'),'validate-package',input],{encoding:'utf8',timeout:30000});
+  assert.equal(validation.status,0,validation.stderr||validation.stdout);assert.equal(JSON.parse(validation.stdout).contract,'exui/5');
+  const before=designSignature(f.page as never);await send({type:'export',scopeMode:mode,profile:'tlp-pro-1025m'});
+  assert.equal(designSignature(f.page as never),before);assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);
+  assert.deepEqual(packageExui(f.messages.filter(m=>m.type==='bundle').at(-1)!.bundle as Bundle),packageExui(bundle));
+  evidence.push({mode,pages:3,groups:1,popups:2,popupSize:[940,670],cliValidation:'exui/5',repeatedExportStable:true});
+}
+await writeFile(path.resolve(output,'result.json'),JSON.stringify({plugin:version.version,evidence,boundary:'Figma API fixture; not Desktop'},null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({plugin:version.version,evidence},null,2));
