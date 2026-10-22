@@ -84,6 +84,7 @@ function targets(root: ProjectNode, options: ProjectOptions): Target[] {
       for (const role of ['normal', 'feedback', 'pressed'] as const) if (states.filter(n => roleOf(n) === role).length > 1)
         fail('button-prepare', `${node.name}: повтор роли ${role}.`, node);
       const missing: PresetRole[] = states.length ? (['normal', 'feedback'] as const).filter(role => !states.some(s => roleOf(s) === role)) : ['normal', 'feedback'];
+      if(mode==='on-off'&&states.length===1&&roleOf(states[0])==='pressed')missing.splice(0,missing.length,'normal');
       // Preserve an authored Normal/Pressed pair and custom legacy states.
       if (states.length >= 2) missing.length = 0;
       if (missing.length && node.type==='INSTANCE') fail('button-prepare', `${node.name}: добавляйте состояния в исходный компонент; подготовленные экземпляры пропускаются.`, node);
@@ -154,7 +155,7 @@ export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, 
         const clone = source.clone();undo.push(() => {if (!clone.removed) clone.remove();});
         t.node.appendChild(clone);clone.relativeTransform = source.relativeTransform;
         clearAssignments(clone);clone.setPluginData('exui-generated-state', '1');
-        clone.name = role === 'normal' ? (t.mode === 'on-off' ? 'Off' : 'Normal') : (t.mode === 'on-off' ? 'On' : 'Active');
+        clone.name = role === 'normal' ? (t.mode === 'on-off' && roleOf(source)!=='pressed' ? 'Off' : 'Normal') : (t.mode === 'on-off' ? 'On' : 'Active');
         clone.visible = false;paint(background(clone), role);count++;
       }
     }

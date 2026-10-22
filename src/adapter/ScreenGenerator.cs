@@ -68,6 +68,7 @@ public static class ScreenGenerator
             popups = plan.Popups,
             groups = plan.Groups,
             images = plan.Images,
+            fonts = EmbeddedFonts.For(plan),
             expectedProfile = new { platformType = e.Profile.PlatformType, partNumber = e.Profile.PartNumber, width = e.Profile.Width, height = e.Profile.Height },
             donorElements = new
             {

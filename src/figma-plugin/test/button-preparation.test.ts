@@ -14,6 +14,23 @@ import { DATA_KEY, readMetadata } from '../src/model.ts';
 import { kitFixture } from './kit-fixture.ts';
 import { createKit } from '../src/kit.ts';
 
+for(const fractional of ['icon-detail','caption'] as const)test(`Fractional ${fractional} inside raster artwork is preserved during preparation, recognition and export`,async()=>{
+  const f=authorButtons(),button=f.buttons[0];
+  const target=descendants(button).find(n=>fractional==='caption'?n.type==='TEXT':n.name==='Vector')!;
+  target.x=5.14;target.y=7.25;target.resize(14.86,11.04);
+  const geometry=[target.x,target.y,target.width,target.height];
+  prepareButtons(f.root);
+  const plan=recognize(f.root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const before=designSignature(f.root),bundle=await exportFrame(f.root);
+  assert.equal(bundle.resources.length,4);assert.equal(designSignature(f.root),before);
+  assert.ok([target.x,target.y,target.width,target.height].every((v,i)=>Math.abs(v-geometry[i])<1e-9));
+});
+
+test('Fractional outer button geometry still fails rather than being silently rounded',()=>{
+  const f=authorButtons();prepareButtons(f.root);f.buttons[0].x+=.25;
+  const plan=recognize(f.root,'tlp-pro-1025m');assert.ok(plan.issues.some(i=>i.nodeId===f.buttons[0].id&&i.message.includes('целыми пикселями')));
+});
+
 for (const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const) test(`${profile}: Group design → two states per prefix → export; repeated preparation and styling preserve IDs`, async () => {
   const f = authorButtons(profile), before = f.buttons.map(b => [b.id,b.type,b.x,b.y,b.width,b.height]);
   const originalChildren = f.buttons.map(b => b.children.map(n => n.id));
@@ -56,6 +73,34 @@ test('Outer Frame with its own fill becomes transparent; its paint moves inside,
   const state=outer.children[0] as GroupNode;
   assert.deepEqual(state.children.filter(n=>n.name!=='Background').map(n=>[n.id,n.absoluteBoundingBox]),positions);
   assert.deepEqual(state.children.map(n=>n.name),['Background','Voice','txt_title.place']);
+});
+
+test('A transparent outer Frame does not compete with its Background rectangle during preparation or export',()=>{
+  const f=authorButtons(),group=f.buttons[0],outer=figma.createFrame();outer.name=group.name;outer.resize(group.width,group.height);outer.fills=[];
+  f.root.insertChild(0,outer);outer.x=group.x;outer.y=group.y;
+  for(const child of [...group.children])outer.appendChild(child);group.remove();
+  const bg=outer.children[0];assert.equal(background(outer).id,bg.id);
+  assert.equal(prepareButtons(f.root).states,4);const plan=recognize(f.root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);assert.equal(capture(f.root).screen.elements.length,2);
+});
+
+test('Authored Frame states accept grouped icon artwork without requiring a generated-state marker',async()=>{
+  const f=authorButtons();prepareButtons(f.root);
+  for(const button of f.buttons)for(const group of [...button.children] as GroupNode[]){
+    const state=figma.createFrame();state.name=group.name;state.resize(group.width,group.height);state.fills=background(group).fills;state.strokes=[];state.cornerRadius=0;state.visible=group.visible;
+    button.insertChild(button.children.indexOf(group),state);state.x=0;state.y=0;
+    for(const child of [...group.children])if(child.name!=='Rectangle 11')state.appendChild(child);
+    group.remove();
+  }
+  const plan=recognize(f.root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const before=designSignature(f.root),bundle=await exportFrame(f.root);assert.equal(bundle.resources.length,4);assert.equal(designSignature(f.root),before);
+});
+
+test('One authored Pressed on an ordinary button gains only Normal and exports as a two-state momentary button',()=>{
+  const f=authorButtons();prepareButtons(f.root);const button=f.buttons[0];button.children[0].remove();button.children[0].name='Pressed';button.children[0].visible=true;
+  const pressed=button.children[0],before=designSignature(pressed);
+  assert.equal(prepareButtons(f.root).states,1);assert.deepEqual(button.children.map(n=>n.name),['Pressed','Normal']);assert.equal(designSignature(pressed),before);
+  const plan=recognize(f.root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const result=capture(f.root).screen.elements[0];assert.equal(result.press,'Pressed');assert.deepEqual(result.states!.map(s=>[s.name,s.stateId]),[['Normal',0],['Pressed',1]]);
 });
 
 test('Existing single On creates only Off; source visibility/style and metadata remain untouched; manual Pressed survives', () => {
@@ -145,7 +190,7 @@ test('Built plugin commands: remember presets → create groups → check → pr
   assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);assert.equal(readMetadata(f.buttons[0])?.buttonMode,'on-off');
   const identity=f.buttons[0].getPluginData(DATA_KEY);f.page.selection=[f.buttons[0] as never];f.emit('selectionchange');
   assert.equal((f.messages.filter(m=>m.type==='selection').at(-1)?.states as any[]).length,2);await send({type:'preview',stateId:1});assert.deepEqual(f.buttons[0].children.map(n=>n.visible),[false,true]);
-  vm.runInNewContext(source,{figma:f.api,Uint8Array,console});f.active.fills=[paint('#00FF00')];f.page.selection=[f.root as never];
+  vm.runInNewContext(source,{figma:f.api,Uint8Array,console});f.active.fills=[paint('#00FF00')];f.page.selection=[background(f.buttons[0].children[0]) as never];
   await (f.api.ui.onmessage as (m:unknown)=>Promise<void>)({type:'button-update-styles'});
   assert.equal(JSON.stringify(background(f.buttons[0].children[1]).fills),JSON.stringify(f.active.fills));assert.equal(f.buttons[0].getPluginData(DATA_KEY),identity);
   assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);

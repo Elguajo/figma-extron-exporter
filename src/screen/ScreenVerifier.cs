@@ -18,6 +18,7 @@ public static class ScreenVerifier
     public static readonly IReadOnlyDictionary<string, int> LevelDisplay = new Dictionary<string, int> { ["Gauge"] = 0, ["Slider"] = 1 };
     public static readonly IReadOnlyDictionary<string, int> LevelOrientation = new Dictionary<string, int>
     { ["LeftToRight"] = 0, ["RightToLeft"] = 1, ["BottomToTop"] = 2, ["TopToBottom"] = 3 };
+    public static readonly IReadOnlyDictionary<string,int> TextAlignment=new Dictionary<string,int>{["BottomCenter"]=0,["BottomLeft"]=1,["BottomRight"]=2,["MiddleCenter"]=3,["MiddleLeft"]=4,["MiddleRight"]=5,["TopCenter"]=6,["TopLeft"]=7,["TopRight"]=8};
 
     private static readonly Dictionary<string, string> Types = new() { ["button"] = "PBButton", ["label"] = "PBLabel", ["level"] = "PBLevel", ["popup-ref"] = "PBPopupPageReference", ["graphic"] = "PBImage", ["value"] = "PBLabel", ["slider"] = "PBSlider", ["shape"] = "PBShape", ["line"] = "PBLine", ["datetime"] = "PBDateTime" };
 
@@ -123,6 +124,10 @@ public static class ScreenVerifier
         Check("resource.references", referenced.All(n => names.Contains(n!)), "every state image names an existing image resource");
         if (!afterGuiBuild)
             Check("resource.donor-kept", donor.Resources.All(d => model.Resources.Any(r => r.Type == d.Type && r.Name == d.Name)), "donor resources retained");
+        if(plan.Containers.SelectMany(c=>c.Elements).Any(e=>e.Font?.Resource==NativeFonts.InterResource)){
+            var fonts=model.Resources.Where(r=>r.Type=="PBFontResource"&&r.Name==NativeFonts.InterResource).ToArray();
+            Check("font.inter.embedded",fonts.Length==1&&fonts[0].Font?.Sha256==NativeFonts.InterSha256,"exact pinned Inter collection embedded once");
+        }
         return checks;
 
         void CheckElement(PlanElement e, ContainerModel page, string at)
@@ -137,6 +142,11 @@ public static class ScreenVerifier
             Check($"{at}.key", c.Comments == "exui-key=" + e.Key, c.Comments ?? "null");
             Check($"{at}.name", c.Name == e.Name, c.Name);
             Check($"{at}.rect", c.Left == e.Rect[0] && c.Top == e.Rect[1] && c.Width == e.Rect[2] && c.Height == e.Rect[3], $"{c.Left},{c.Top},{c.Width},{c.Height}");
+            if(e.Font!=null){
+                var actualFonts=e.States!=null?c.States.Select(s=>s.Font):[c.Font];
+                Check($"{at}.font",actualFonts.All(f=>f!=null&&(e.Font.Family==null||f.Family==e.Font.Family)&&(!e.Font.Size.HasValue||Math.Abs(f.Size-e.Font.Size.Value)<.0001)&&(!e.Font.Bold.HasValue||f.Bold==e.Font.Bold)&&f.Italic==e.Font.Italic&&(e.Font.Resource==null||f.Resource==e.Font.Resource)),"native font family, point size, styles and resource reference");
+                Check($"{at}.editable-text",!c.FlattenText,"text remains editable; FlattenText=false");
+            }
             switch (e.Kind)
             {
                 case "slider":
@@ -157,6 +167,7 @@ public static class ScreenVerifier
                     break;
                 case "datetime":
                     Check($"{at}.pattern", c.Native?.Pattern == e.Native!.Pattern && c.TextColor == Argb(e.TextColor!), c.Native?.Pattern ?? "none");
+                    Check($"{at}.alignment",c.TextAlignment==TextAlignment[e.TextAlign],e.TextAlign);
                     break;
                 case "graphic":
                     Check($"{at}.image", c.Graphic?.Image == e.Image && names.Contains(e.Image!), c.Graphic?.Image ?? "none");
@@ -167,7 +178,7 @@ public static class ScreenVerifier
                     Check($"{at}.dynamic", c.Native?.DynamicText == true && c.ControlId > 0, "dynamic label with an addressable ID");
                     goto case "label";
                 case "label":
-                    Check($"{at}.text", c.Text == e.Text && c.TextAlignment == 4, $"{c.Text ?? "null"}; alignment {c.TextAlignment} (expected MiddleLeft=4)");
+                    Check($"{at}.text", c.Text == e.Text && c.TextAlignment == TextAlignment[e.TextAlign], $"{c.Text ?? "null"}; alignment {c.TextAlignment} (expected {e.TextAlign})");
                     if (e.TextColor != null) Check($"{at}.text-color", c.TextColor == Argb(e.TextColor), Hex(c.TextColor));
                     break;
                 case "level":

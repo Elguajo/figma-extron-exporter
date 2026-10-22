@@ -44,6 +44,9 @@ Copy-Item -LiteralPath (Join-Path $repo 'verification/results/2026-10-21-home-la
 foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md')) {
     Copy-Item -LiteralPath (Join-Path $repo "docs/$file") -Destination (Join-Path $stage 'docs')
 }
+Copy-Item -LiteralPath (Join-Path $plugin 'NATIVE_TEXT.md') -Destination (Join-Path $stage 'docs/native-text.md')
+$contractPath = Join-Path $stage 'docs/exui-v5.md'
+[IO.File]::WriteAllText($contractPath, [IO.File]::ReadAllText($contractPath).Replace('../src/figma-plugin/NATIVE_TEXT.md', 'native-text.md'), [Text.UTF8Encoding]::new($false))
 # Preserve dependency license texts from the exact restored NuGet package.
 $packageFolders = (Get-Content -Raw -LiteralPath (Join-Path $repo 'src/extron/obj/project.assets.json') | ConvertFrom-Json).packageFolders.PSObject.Properties.Name
 $nrbfPackage = $packageFolders | ForEach-Object { Join-Path $_ 'system.formats.nrbf/10.0.11' } | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1

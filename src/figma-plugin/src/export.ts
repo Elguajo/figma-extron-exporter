@@ -1,13 +1,13 @@
 import { DATA_KEY, PROFILES, ROLE_ID, ELEMENT_KINDS, CONTROL_KINDS, fail, integer, key, readMetadata, text, validateButtonStates, type Asset, type Bundle, type Element, type Font, type Metadata, type Profile, type Role, type Screen, type SingleScreen, type State } from './model.ts';
-import { color, exportPng, plain, readText, rect } from './read-node.ts';
+import { color, exportPng, plain, readText, rect, textAlignment } from './read-node.ts';
 import { nativeElement,range } from './extended.ts';
 import { captureProject,type ProjectOptions } from './project.ts';
 import { controlText,isControlFrame,KIT_KEY,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
-import { nodeError } from './model.ts';
+import { ExportError, nodeError } from './model.ts';
 import { artworkText, isButtonContainer, usesButtonArtwork, validateArtwork } from './button-artwork.ts';
 
-export interface ArtworkRender {omitTextId?:string;width:number;height:number}
+export interface ArtworkRender {omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}
 export interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode; artwork?:ArtworkRender }[]; signature: string }
 type MetadataReader = (node: SceneNode|PageNode) => Metadata | null;
 function meta(node: SceneNode, kind: string | undefined, read: MetadataReader): Metadata {
@@ -18,11 +18,62 @@ function meta(node: SceneNode, kind: string | undefined, read: MetadataReader): 
 function frame(node: SceneNode): asserts node is FrameNode|InstanceNode {
   if (!isControlFrame(node)) fail('node-type', `${node.name}: нужен подготовленный Frame или экземпляр компонента Extron Kit.`);
 }
+function graphicBounds(node:SceneNode,parent:SceneNode):{rect:number[];artwork?:ArtworkRender} {
+  const a=node.absoluteBoundingBox,b=parent.absoluteBoundingBox;
+  if(!a||!b)fail('geometry',`${node.name}: нет геометрии.`,node);
+  const values=[a.x-b.x,a.y-b.y,a.width,a.height];
+  if(values.some(v=>!Number.isFinite(v))||a.width<=0||a.height<=0)fail('geometry',`${node.name}: нужна конечная геометрия положительного размера.`,node);
+  if(values.every(v=>Math.abs(v-Math.round(v))<=.001))return {rect:values.map(Math.round)};
+  const [x,y,w,h]=values,left=Math.floor(x),top=Math.floor(y),width=Math.ceil(x+w)-left,height=Math.ceil(y+h)-top;
+  return {rect:[left,top,width,height],artwork:{width,height,offsetX:x-left,offsetY:y-top}};
+}
+function nativeStaticText(node:SceneNode):(ReturnType<typeof readText>&{textAlign?:Element['textAlign']})|undefined {
+  const copy=controlText(node);if(!copy)fail('node-type',`${node.name}: label должен быть Text или текстовым компонентом кита.`);
+  // Invalid content is still an error. Only native appearance limitations can
+  // fall back to a static snapshot; dynamic Value / DateTime never call this.
+  let appearance:ReturnType<typeof readText>;
+  try {appearance=readText(copy);}catch(error){if(error instanceof ExportError&&['font','color'].includes(error.code))return;throw error;}
+  let alignment:Element['textAlign'];try{alignment=textAlignment(copy);}catch(error){if(error instanceof ExportError&&error.code==='alignment')return;throw error;}
+  if(copy!==node){
+    try {if(JSON.stringify(rect(copy,node))!==JSON.stringify([0,0,node.width,node.height]))return;}
+    catch(error){if(error instanceof ExportError&&error.code==='geometry')return;throw error;}
+  }
+  return {...appearance,...(alignment!=='middle-left'?{textAlign:alignment}:{})};
+}
+function commonButtonCaption(button:SceneNode) {
+  if(!isButtonContainer(button)||button.children.length<2)return;
+  const labels=new Map<string,string>();let common:ReturnType<typeof nativeStaticText>,bounds:number[]|undefined,signature:string|undefined;
+  for(const state of button.children){
+    if(!isButtonContainer(state))return;
+    const directLabels=state.children.filter((n):n is TextNode=>n.type==='TEXT');
+    const label=directLabels[0];if(directLabels.length!==1||!label.visible||state.children.some(n=>'isMask'in n&&n.isMask))return;
+    const textBox=label.absoluteBoundingBox;if(!textBox)return;
+    // An icon higher in the stack is safe when its painted bounds do not
+    // intersect the caption. Preserve overlapping/masked compositions in PNG.
+    for(const above of state.children.slice(state.children.indexOf(label)+1)){
+      if(!above.visible)continue;
+      const box=('absoluteRenderBounds'in above?above.absoluteRenderBounds:null)??above.absoluteBoundingBox;
+      if(!box||box.x<textBox.x+textBox.width&&box.x+box.width>textBox.x&&box.y<textBox.y+textBox.height&&box.y+box.height>textBox.y)return;
+    }
+    try {
+      const copy=nativeStaticText(label);if(!copy||copy.font.family==='Arial')return;
+      const r=rect(label,state);
+      if(r[0]<0||r[1]<0||r[2]<1||r[3]<1||r[0]+r[2]>button.width||r[1]+r[3]>button.height)return;
+      // Full-area captions belong to the native Button itself.
+      if(JSON.stringify(r)===JSON.stringify([0,0,button.width,button.height])&&label.textAlignHorizontal==='CENTER'&&['CENTER','BOTTOM'].includes(label.textAlignVertical))return;
+      const next=JSON.stringify([copy,r]);if(signature&&signature!==next)return;
+      signature=next;common=copy;bounds=r;labels.set(state.id,label.id);
+    }catch(error){if(error instanceof ExportError)return;throw error;}
+  }
+  return common&&bounds?{copy:common,rect:bounds,labels}:undefined;
+}
 function snapshot(node: SceneNode|PageNode): unknown {
   // Detect edits across async PNG exports; no package may silently combine two design revisions.
   const props: Record<string,unknown>={ parentId:node.parent?.id, metadata:node.getPluginData(DATA_KEY),registry:node.getPluginData('exui-id-registry'),kit:node.getPluginData(KIT_KEY),kitPopupGroup:node.getPluginData(KIT_POPUP_GROUP_KEY),buttonBackground:node.getPluginData('exui-button-background'),generatedState:node.getPluginData('exui-generated-state') };
   for(const field of ['id','type','name','visible','opacity','clipsContent','relativeTransform','absoluteTransform','absoluteBoundingBox','width','height','fills','strokes','strokeWeight','strokeTopWeight','strokeRightWeight','strokeBottomWeight','strokeLeftWeight','strokeAlign','strokeCap','strokeJoin','dashPattern','variableWidthStrokeProperties','complexStrokeProperties','effects','cornerRadius','topLeftRadius','topRightRadius','bottomRightRadius','bottomLeftRadius','cornerSmoothing','blendMode','isMask','reactions','characters','fontName','fontSize','fontWeight','lineHeight','letterSpacing','textCase','textDecoration','textAlignHorizontal','textAlignVertical','vectorPaths','vectorNetwork','arcData','pointCount','innerRadius'])
     if(field in node) props[field]=(node as unknown as Record<string,unknown>)[field];
+  if(node.type==='TEXT'&&[node.fontName,node.fontSize,node.fills,node.textCase,node.textDecoration,node.letterSpacing,node.lineHeight].includes(figma.mixed))
+    props.textSegments=node.getStyledTextSegments(['fontName','fontSize','fills','textCase','textDecoration','letterSpacing','lineHeight']);
   if('children' in node) props.children=node.children.map(snapshot);
   return props;
 }
@@ -36,8 +87,11 @@ export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,in
   try{return captureSingleContent(root,read,inProject);}catch(error){nodeError(error,root);}
 }
 function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boolean):Capture&{screen:SingleScreen} {
-  frame(root); plain(root);
+  frame(root);
   const pm=meta(root,undefined,read);if(pm.kind!=='page'&&!(inProject&&pm.kind==='popup'))fail('kind',`${root.name}: нужен экран или popup проекта.`);
+  // Screen corners are canvas presentation in Figma. Native Extron pages
+  // always use the full rectangular canvas; preserve the source Frame.
+  plain(root,false,false,false,{ignoreCornerRadius:pm.kind==='page'});
   if(!pm.profile || !(pm.profile in PROFILES)) fail('profile','Выберите один из двух профилей панели.');
   const profile=pm.profile, canvas=PROFILES[profile];
   if(!inProject&&pm.shownBy&&pm.shownBy!=='start')fail('page','Для способа показа navigation/program нужна общая секция проекта или Frame project_Name.');
@@ -59,6 +113,15 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
   };
   const screen: SingleScreen={schema:'exui-screen/5',project:{name:text(pm.projectName,'Имя проекта')},page:{key:addKey(pm.key,root.name),objectId:integer(pm.objectId,1,65534,'ID страницы'),name:text(root.name,'Имя страницы'),background:color(root)},assets:[],elements:[]};
   if(root.children.length<1 || root.children.length>64) fail('elements','На странице должно быть 1..64 элемента.');
+  // Derived caption IDs must remain independent of layer order and avoid the
+  // full authored ID range, including explicitly assigned IDs near 1,000,000.
+  const sourceIds=new Set(root.children.map(node=>{try{return read(node)?.objectId;}catch(error){nodeError(error,node);}}).filter((id):id is number=>typeof id==='number'&&Number.isInteger(id)&&id>=1&&id<=1000000));
+  const captionIds=new Map<number,number>(),reservedCaptionIds=new Set(sourceIds);
+  for(const sourceId of [...sourceIds].sort((a,b)=>a-b)){
+    let candidate=1000001-sourceId;
+    while(reservedCaptionIds.has(candidate))candidate=candidate===1?1000000:candidate-1;
+    reservedCaptionIds.add(candidate);captionIds.set(sourceId,candidate);
+  }
   for(const node of root.children) {
     try {
     const m=meta(node,undefined,read),strokeLine=m.kind==='line'&&isStrokeLine(node)?readStrokeLine(node):null;
@@ -70,9 +133,11 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
     const controlId=passive?null:integer(m.controlId,1,65535,node.name+'.controlId');
     if(passive && m.controlId!==null) fail('id',`${node.name}: у ${m.kind} controlId должен быть null.`);
     if(controlId!==null) {if(controls.has(controlId)) fail('duplicate-id',`${node.name}: controlId ${controlId} уже используется.`);controls.add(controlId);}
-    const bounds=strokeLine?.rect??rect(node,root), [x,y,w,h]=bounds;
+    const graphic=m.kind==='graphic'||m.kind==='label'?graphicBounds(node,root):undefined;
+    const bounds=strokeLine?.rect??graphic?.rect??rect(node,root), [x,y,w,h]=bounds;
     if(x<0||y<0||w<1||h<1||x+w>root.width||y+h>root.height) fail('bounds',`${node.name}: элемент выходит за холст.`);
     const e: Element={key:addKey(m.key,node.name),kind:m.kind as Element['kind'],objectId,controlId,name:text(node.name,'Имя элемента'),rect:bounds};
+    let caption:Element|undefined;
     if(m.navigate){if(!inProject)fail('navigation','Для переходов нужна секция проекта или Frame project_Name.');if(m.kind!=='button')fail('navigation','Переход допустим только у кнопки.');e.navigate=key(m.navigate,'Цель перехода');}
     if(m.behavior){if(passive)fail('behavior','Поведение требует управляющего ID.');if(Object.keys(m.behavior).some(k=>!['selectionGroup','enabled','visible'].includes(k))||['enabled','visible'].some(k=>k in m.behavior!&&typeof m.behavior![k as 'enabled'|'visible']!=='boolean'))fail('behavior','Неизвестные или некорректные поля поведения.');if(m.behavior.selectionGroup){if(m.kind!=='button')fail('behavior','Группа выбора применяется к кнопкам.');key(m.behavior.selectionGroup,'Группа выбора');}e.behavior=m.behavior;}
     if(strokeLine) {
@@ -85,12 +150,15 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       if(!!m.popup===!!m.group)fail('popup-ref','Укажите одну цель: popup или группу popup.');
       if(m.popup)e.popup=key(m.popup,'Цель popup');if(m.group)e.group=key(m.group,'Группа popup');
     }else if(m.kind==='graphic') {
-      frame(node);e.image=addImage(node,m,key('image.'+e.key,'Ключ изображения'));
+      frame(node);e.image=addImage(node,m,key('image.'+e.key,'Ключ изображения'),graphic?.artwork);
     }else if(m.kind==='label') {
-      const copy=controlText(node);if(!copy) fail('node-type',`${node.name}: label должен быть Text или текстовым компонентом кита.`);
-      if(copy.textAlignHorizontal!=='LEFT'||copy.textAlignVertical!=='CENTER') fail('alignment',`${node.name}: для текущего профиля Label используйте LEFT / CENTER.`);
-      if(copy!==node&&JSON.stringify(rect(copy,node))!==JSON.stringify([0,0,w,h]))fail('alignment',`${node.name}: Content должен занимать весь текстовый контейнер.`);
-      Object.assign(e,readText(copy));
+      const copy=nativeStaticText(node);
+      if(copy&&!graphic?.artwork)Object.assign(e,copy);
+      else {
+        e.kind='graphic';
+        const file=`text-${screen.page.objectId}-${objectId}.png`;
+        e.image=addImage(node,{file:'assets/'+file,resourceName:'exui-'+file},`text-artwork.${screen.page.objectId}.${objectId}`,graphic?.artwork??{width:w,height:h});
+      }
     } else if(m.kind==='level'&&m.display!=='multistate') {
       frame(node);if(node.children.length) fail('appearance',`${node.name}: Level preview должен быть пустым Frame с цветом fill.`);
       Object.assign(e,{display:m.display??'slider',...range(m,node),fillColor:color(node)});
@@ -100,14 +168,19 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       if(node.children.length<2||node.children.length>8) fail('states',`${node.name}: нужны 2..8 состояний, начиная с Normal.`);
       if(node.children.filter(n=>n.visible).length!==1) fail('states',`${node.name}: для предпросмотра должно быть видно ровно одно состояние.`);
       const states: State[]=[];let commonFont:Font|undefined;
+      const shared=m.kind==='button'?commonButtonCaption(node):undefined;
+      if(shared){
+        const captionId=captionIds.get(objectId)!;ids.add(captionId);
+        caption={key:addKey(`button-caption.${screen.page.objectId}.${objectId}`,node.name),kind:'label',objectId:captionId,controlId:null,name:text(node.name.slice(0,248)+' caption','Имя подписи'),rect:[x+shared.rect[0],y+shared.rect[1],shared.rect[2],shared.rect[3]],...shared.copy};
+      }
       for(const stateNode of node.children) {
         try {
-        if(m.kind==='button'&&isButtonContainer(stateNode)&&usesButtonArtwork(stateNode)) {
+        if(m.kind==='button'&&isButtonContainer(stateNode)&&(shared||usesButtonArtwork(stateNode))) {
           validateArtwork(stateNode,node);
           const sm=meta(stateNode,'state',read);integer(sm.stateId,0,7,'ID состояния');
           if(!sm.role||!(sm.role in ROLE_ID))fail('states',`${stateNode.name}: нужны роли состояний.`);
-          const copy=artworkText(stateNode);
-          if(copy.omitTextId){
+          const copy=shared?{font:{family:'Arial' as const,size:12,bold:false},text:'',textColor:'#FFFFFF',bottom:false,omitTextId:shared.labels.get(stateNode.id)}:artworkText(stateNode);
+          if(copy.omitTextId&&!shared){
             if(commonFont&&JSON.stringify(commonFont)!==JSON.stringify(copy.font))fail('font',`${node.name}: шрифт должен совпадать во всех состояниях.`);
             commonFont=copy.font;
           }
@@ -159,9 +232,11 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       if(m.kind==='level'){if(pressed)fail('states','Multistate Level не имеет Pressed.');Object.assign(e,{display:'multistate',...range(m,node),fillColor:states[0].fill});}
     }
     screen.elements.push(e);
+    if(caption)screen.elements.push(caption);
     }catch(error){nodeError(error,node);}
   }
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
+  if(screen.elements.length>64)fail('elements','С учётом отдельных редактируемых подписей на странице допустимо до 64 элементов.');
   return {profile,screen,images,signature:designSignature(root)};
 }
 
@@ -182,7 +257,8 @@ export async function exportCaptured(root:SceneNode|PageNode,captured:Capture,pr
     if(bytes.length>4*1024*1024) fail('image-size',`${asset.key}: PNG больше 4 MiB.`);
     if(bytes.length<33) fail('image-size',`${asset.key}: PNG повреждён.`);
     const size=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
-    if(size.getUint32(16)!==Math.round(node.width)||size.getUint32(20)!==Math.round(node.height)) fail('image-size',`${asset.key}: PNG ${size.getUint32(16)}×${size.getUint32(20)}, ожидался Native размер Frame ${Math.round(node.width)}×${Math.round(node.height)}.`);
+    const width=artwork?.width??Math.round(node.width),height=artwork?.height??Math.round(node.height);
+    if(size.getUint32(16)!==width||size.getUint32(20)!==height) fail('image-size',`${asset.key}: PNG ${size.getUint32(16)}×${size.getUint32(20)}, ожидался размер ${width}×${height}.`);
     const previous=byPath.get(asset.file);
     if(previous&&(previous.length!==bytes.length||previous.some((v,i)=>v!==bytes[i]))) fail('image-conflict',`${asset.key}: один ключ использован для разных изображений.`);
     if(!previous){imageBytes+=bytes.length;if(imageBytes>16*1024*1024)fail('package-size','Изображения превышают 16 MiB. Уменьшите PNG перед повторным экспортом.');}

@@ -35,7 +35,7 @@ public sealed record GroupSpec(string? Key, int? GroupId, string? Name);
 
 public sealed record AssetSpec(string? Key, string? File, string? ResourceName);
 
-public sealed record FontSpec(string? Family, double? Size, bool? Bold);
+public sealed record FontSpec(string? Family, double? Size, bool? Bold, string? Style = null);
 
 /// <summary>
 /// ObjectId: editor object ID (PBControlBase.idField), unique within the page.
@@ -47,7 +47,7 @@ public sealed record ElementSpec(
     IReadOnlyList<StateSpec>? States, string? Press,
     string? Display, string? Orientation, int? Min, int? Max, string? FillColor,
     string? Navigate = null, string? Popup = null, string? Group = null, string? Image = null,
-    NativeStyle? Native = null, BehaviorSpec? Behavior = null);
+    NativeStyle? Native = null, BehaviorSpec? Behavior = null, string? TextAlign = null);
 
 public sealed record NativeStyle(string? TrackColor = null, int? TrackWidth = null, string? ThumbColor = null,
     int? ThumbWidth = null, int? ThumbHeight = null, string? ThumbType = null, int? Radius = null,
@@ -80,7 +80,7 @@ public sealed record PlanContainer(string Key, int ObjectId, string Name, string
 /// <summary>ReferenceCount: popup-ref elements bound to the group (written to PBControlGroup.referenceCountField).</summary>
 public sealed record PlanGroup(string Key, int GroupId, string Name, int ReferenceCount);
 public sealed record PlanImage(string Key, string ResourceName, string File, int Width, int Height, string Sha256);
-public sealed record PlanFont(string? Family, double? Size, bool? Bold);
+public sealed record PlanFont(string? Family, double? Size, bool? Bold, bool Italic = false, string? Resource = null);
 public sealed record PlanState(string Name, string Role, string Text, string Fill, string TextColor, string? Image, string ImageAlign, string TextAlign);
 public sealed record PlanElement(
     string Kind, string Key, ulong ObjectId, int ControlId, string Name, int[] Rect,
@@ -88,7 +88,7 @@ public sealed record PlanElement(
     IReadOnlyList<PlanState>? States = null, int? PressState = null,
     string? Display = null, string? Orientation = null, int? Min = null, int? Max = null, string? FillColor = null,
     string? Navigate = null, string? Popup = null, string? Group = null, string? Image = null,
-    NativeStyle? Native = null, BehaviorSpec? Behavior = null);
+    NativeStyle? Native = null, BehaviorSpec? Behavior = null, string TextAlign = "MiddleLeft");
 
 public static class ScreenSpecReader
 {
@@ -345,7 +345,10 @@ public static class ScreenSpecReader
             CheckText(e.Name, $"{where}.name", required: true, Error);
             if (e.Rect is not { Length: 4 } r || r[2] < 1 || r[3] < 1 || r[0] < 0 || r[1] < 0 || (long)r[0] + r[2] > width || (long)r[1] + r[3] > height)
                 Error($"{where}.rect: [left, top, width, height] must lie inside the {width}x{height} canvas (Build moves outside controls to 0,0).");
-            var font = e.Font == null ? null : new PlanFont(e.Font.Family, e.Font.Size, e.Font.Bold);
+            PlanFont? font = null;
+            if(e.Font != null){try{font=NativeFonts.Resolve(e.Font);}catch(ArgumentException ex){Error($"{where}.font: {ex.Message}");}}
+            string alignment="MiddleLeft";
+            if(e.TextAlign != null && (e.Kind is not ("label" or "value" or "datetime") || !Alignments.TryGetValue(e.TextAlign,out alignment!)))Error($"{where}.textAlign: supported only for label, value and datetime; use top/middle/bottom-left/center/right.");
             if (e.Font is { Size: { } size } && size is < 4 or > 200) Error($"{where}.font.size: 4..200.");
             if (e.Kind != "button" && e.Navigate != null) Error($"{where}.navigate: only a button can lead to a page or popup.");
             if (e.Kind != "popup-ref" && (e.Popup != null || e.Group != null)) Error($"{where}: popup and group apply to popup-ref only.");
@@ -355,7 +358,7 @@ public static class ScreenSpecReader
                 if (e.ControlId == null) Error($"{where}.behavior: requires an addressable control.");
                 if (e.Behavior.SelectionGroup != null && (e.Kind != "button" || !KeyPattern.IsMatch(e.Behavior.SelectionGroup))) Error($"{where}.behavior.selectionGroup: lowercase group key on buttons only.");
             }
-            var basis = new PlanElement(e.Kind ?? "", e.Key ?? "", (ulong)(e.ObjectId ?? 0), e.ControlId ?? 0, e.Name ?? "", e.Rect ?? [], Font: font, Native: e.Native, Behavior: e.Behavior);
+            var basis = new PlanElement(e.Kind ?? "", e.Key ?? "", (ulong)(e.ObjectId ?? 0), e.ControlId ?? 0, e.Name ?? "", e.Rect ?? [], Font: font, Native: e.Native, Behavior: e.Behavior, TextAlign: alignment);
             if (e.Kind is "slider" or "shape" or "line" or "datetime")
             {
                 elements.Add(Extended(e, basis, where, Error));

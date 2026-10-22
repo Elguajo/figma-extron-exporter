@@ -1,5 +1,5 @@
 import { fail,integer,text,type Element,type Metadata,type Orientation } from './model.ts';
-import { color,plain,rect,readText } from './read-node.ts';
+import { color,plain,rect,readText,textAlignment } from './read-node.ts';
 import { controlText,isControlFrame } from './kit-contract.ts';
 
 const orientations:Orientation[]=['left-to-right','right-to-left','bottom-to-top','top-to-bottom'];
@@ -17,9 +17,9 @@ function empty(node:SceneNode) {if('children' in node&&node.children.length)fail
 export function nativeElement(node:SceneNode,m:Metadata,e:Element):boolean {
   if(m.kind==='value'||m.kind==='datetime') {
     const copy=controlText(node);if(!copy)fail('node-type',`${node.name}: нужен Text или текстовый компонент кита.`);
-    if(copy.textAlignHorizontal!=='LEFT'||copy.textAlignVertical!=='CENTER')fail('alignment',`${node.name}: используйте LEFT / CENTER.`);
     if(copy!==node&&JSON.stringify(rect(copy,node))!==JSON.stringify([0,0,node.width,node.height]))fail('alignment',`${node.name}: Content должен занимать весь текстовый контейнер.`);
     Object.assign(e,readText(copy));
+    const alignment=textAlignment(copy);if(alignment!=='middle-left')e.textAlign=alignment;
     if(m.kind==='datetime') {e.native={pattern:text(m.pattern??copy.characters,'Формат даты/времени')};delete e.text;}
     return true;
   }

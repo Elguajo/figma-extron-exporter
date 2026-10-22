@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><RootNamespace>ExtronExporter.Adapter</RootNamespace></PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="fonts/Inter/Inter.ttc" LogicalName="fonts/Inter.ttc" />
+    <None Include="fonts/Inter/LICENSE.txt" Link="licenses/Inter-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="../extron/Extron.Format.csproj" />
     <ProjectReference Include="../screen/Extron.Screen.csproj" />
   </ItemGroup>

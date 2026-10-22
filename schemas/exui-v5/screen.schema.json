@@ -33,7 +33,11 @@
       ],
       "properties": {
         "family": {
-          "const": "Arial"
+          "enum": [
+            "Arial",
+            "Inter",
+            "Inter Display"
+          ]
         },
         "size": {
           "type": "number",
@@ -42,6 +46,28 @@
         },
         "bold": {
           "type": "boolean"
+        },
+        "style": {
+          "enum": [
+            "Thin",
+            "Extra Light",
+            "Light",
+            "Regular",
+            "Medium",
+            "Semi Bold",
+            "Bold",
+            "Extra Bold",
+            "Black",
+            "Thin Italic",
+            "Extra Light Italic",
+            "Light Italic",
+            "Italic",
+            "Medium Italic",
+            "Semi Bold Italic",
+            "Bold Italic",
+            "Extra Bold Italic",
+            "Black Italic"
+          ]
         }
       }
     },
@@ -214,6 +240,19 @@
         },
         "font": {
           "$ref": "#/$defs/font"
+        },
+        "textAlign": {
+          "enum": [
+            "top-left",
+            "top-center",
+            "top-right",
+            "middle-left",
+            "middle-center",
+            "middle-right",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+          ]
         }
       }
     },
@@ -654,6 +693,19 @@
         },
         "behavior": {
           "$ref": "#/$defs/behavior"
+        },
+        "textAlign": {
+          "enum": [
+            "top-left",
+            "top-center",
+            "top-right",
+            "middle-left",
+            "middle-center",
+            "middle-right",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+          ]
         }
       }
     },
@@ -975,6 +1027,19 @@
         },
         "font": {
           "$ref": "#/$defs/font"
+        },
+        "textAlign": {
+          "enum": [
+            "top-left",
+            "top-center",
+            "top-right",
+            "middle-left",
+            "middle-center",
+            "middle-right",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+          ]
         }
       }
     },

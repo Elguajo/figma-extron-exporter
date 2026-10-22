@@ -1,4 +1,5 @@
 using System.Formats.Nrbf;
+using System.Security.Cryptography;
 
 namespace ExtronExporter.Format;
 
@@ -26,7 +27,8 @@ public sealed record ProjectModel(
         var resources = Nrbf.List(Nrbf.Class(Nrbf.Class(root, "resourceSetField"), "resourcesField"))
             .Select(r => new ResourceModel(Nrbf.ShortName(r), Nrbf.String(r, "nameField") ?? "",
                 Nrbf.Has(r, "widthField") ? Nrbf.Int(r, "widthField") : null, Nrbf.Has(r, "heightField") ? Nrbf.Int(r, "heightField") : null,
-                Nrbf.ShortName(r) == "PBBorderResource" && Nrbf.Class(r, "dataField") is { } bi && new[]{"typeField","cornerRadiusField","thicknessField","styleField"}.All(n=>Nrbf.Has(bi,n)) ? new BorderModel(Nrbf.EnumValue(bi,"typeField"),Nrbf.Int(bi,"cornerRadiusField"),Nrbf.Int(bi,"thicknessField"),Nrbf.EnumValue(bi,"styleField")) : null))
+                Nrbf.ShortName(r) == "PBBorderResource" && Nrbf.Class(r, "dataField") is { } bi && new[]{"typeField","cornerRadiusField","thicknessField","styleField"}.All(n=>Nrbf.Has(bi,n)) ? new BorderModel(Nrbf.EnumValue(bi,"typeField"),Nrbf.Int(bi,"cornerRadiusField"),Nrbf.Int(bi,"thicknessField"),Nrbf.EnumValue(bi,"styleField")) : null,
+                Nrbf.ShortName(r)=="PBFontResource" ? ReadFontResource(r) : null))
             .ToArray();
         return new(root.TypeName.FullName, Nrbf.String(root, "nameField") ?? "", Nrbf.String(root, "applicationBuildVersionInfoField") ?? "",
             root.GetRawValue("checksum") as ulong?, (ushort)(Nrbf.Primitive(root, "defaultPageField") ?? 0),
@@ -54,7 +56,7 @@ public sealed record ProjectModel(
     {
         var states = Nrbf.States(c).Select(s => new StateModel(Nrbf.String(s, "nameField") ?? "", Nrbf.ULong(s, "idField"),
             Nrbf.Int(s, "indexField"), Nrbf.String(s, "textField"), Nrbf.ImageName(s, "buttonImageField"),
-            Nrbf.Color(s, "borderFillColorField"), Nrbf.Color(s, "textColorField"), Nrbf.ImageId(s))).ToArray();
+            Nrbf.Color(s, "borderFillColorField"), Nrbf.Color(s, "textColorField"), Nrbf.ImageId(s), ReadFont(s), Nrbf.EnumValue(s,"textAlignmentField"))).ToArray();
         LevelModel? level = Nrbf.ShortName(c) == "PBLevel"
             ? new(Nrbf.EnumValue(c, "displayTypeField"), Nrbf.EnumValue(c, "orientationField"),
                 (uint)(Nrbf.Primitive(c, "minValueField") ?? 0u), (uint)(Nrbf.Primitive(c, "maxValueField") ?? 0u), Nrbf.Color(c, "gaugeFillColorField"))
@@ -72,7 +74,19 @@ public sealed record ProjectModel(
                 Nrbf.ShortName(c)=="PBSlider" ? new SliderModel(Nrbf.EnumValue(c,"orientationField"),(uint)Nrbf.Primitive(c,"minValueField")!, (uint)Nrbf.Primitive(c,"maxValueField")!,Nrbf.Color(c,"sliderFillColorField"),Nrbf.Color(c,"sliderThumbColorField"),Nrbf.EnumValue(c,"sliderThumbTypeField"),Nrbf.Int(c,"sliderThumbWidth"),Nrbf.Int(c,"sliderThumbHeight"),Nrbf.Int(c,"sliderTrackWidth"),Nrbf.ImageName(c,"sliderThumbImageField"),(double)Nrbf.Primitive(c,"<SliderThumbRectFactor>k__BackingField")!) : null,
                 Nrbf.ShortName(c)=="PBLine" ? new LineModel(Nrbf.Int(c,"thicknessField"),Nrbf.EnumValue(c,"startPointField"),Nrbf.EnumValue(c,"endPointField"),Nrbf.EnumValue(c,"startCapField"),Nrbf.EnumValue(c,"endCapField")) : null,
                 Nrbf.ShortName(c)=="PBDateTime" ? Nrbf.String(c,"patternField") : null),
-            Nrbf.EnumValue(c,"textAlignmentField"));
+            Nrbf.EnumValue(c,"textAlignmentField"),ReadFont(c),Nrbf.Has(c,"flattenTextField")&&(bool)(Nrbf.Primitive(c,"flattenTextField")??false));
+    }
+
+    private static FontModel? ReadFont(ClassRecord node)
+    {
+        if(!Nrbf.Has(node,"fontField")||Nrbf.Class(node,"fontField") is not {} f)return null;
+        var style=Nrbf.Class(f,"styleField")!;
+        return new(Nrbf.String(f,"nameField")!,Convert.ToDouble(Nrbf.Primitive(f,"pointSizeField")),(bool)Nrbf.Primitive(style,"boldField")!,(bool)Nrbf.Primitive(style,"italicField")!,Nrbf.ImageName(f,"fontResourceReferenceField"));
+    }
+    private static FontResourceModel ReadFontResource(ClassRecord resource)
+    {
+        byte[] bytes=resource.GetArrayRecord(resource.MemberNames.Single(n=>n=="dataField"||n.EndsWith("+dataField",StringComparison.Ordinal))) is SZArrayRecord<byte> a?a.GetArray():[];
+        return new(Nrbf.String(resource,"filenameField"),bytes.Length,Convert.ToHexString(SHA256.HashData(bytes)));
     }
 }
 
@@ -103,7 +117,7 @@ public sealed record GroupModel(string Name, ushort Id, int ReferenceCount, int 
 
 public sealed record ControlModel(string Type, ulong ObjectId, ushort ControlId, string Name, string? Comments,
     int Left, int Top, int Width, int Height, string? Text, uint? TextColor, IReadOnlyList<StateModel> States,
-    LevelModel? Level, int? PressFeedbackState, int? TlpImageId, PopupBinding? PopupBinding = null, GraphicModel? Graphic = null, NativeControlModel? Native = null, int? TextAlignment = null);
+    LevelModel? Level, int? PressFeedbackState, int? TlpImageId, PopupBinding? PopupBinding = null, GraphicModel? Graphic = null, NativeControlModel? Native = null, int? TextAlignment = null,FontModel? Font=null,bool FlattenText=false);
 
 public sealed record NativeControlModel(int ObjectType,bool DynamicText, string? BorderName, uint? Fill, uint? Stroke, SliderModel? Slider, LineModel? Line, string? Pattern);
 public sealed record SliderModel(int Orientation,uint Min,uint Max,uint? Fill,uint? Thumb,int ThumbType,int ThumbWidth,int ThumbHeight,int TrackWidth,string? ThumbImage,double ThumbAspectRatio);
@@ -112,11 +126,13 @@ public sealed record BorderModel(int Shape,int Radius,int Thickness,int Style);
 
 public sealed record GraphicModel(string? Image, int Layout, int Alignment, uint? Background, uint? Border, int Shape);
 
-public sealed record StateModel(string Name, ulong Id, int Index, string? Text, string? Image, uint? Fill, uint? TextColor, int? TlpImageId);
+public sealed record StateModel(string Name, ulong Id, int Index, string? Text, string? Image, uint? Fill, uint? TextColor, int? TlpImageId,FontModel? Font=null,int? TextAlignment=null);
+public sealed record FontModel(string Family,double Size,bool Bold,bool Italic,string? Resource);
+public sealed record FontResourceModel(string? Filename,int Bytes,string Sha256);
 
 public sealed record LevelModel(int DisplayType, int Orientation, uint Min, uint Max, uint? Fill);
 
-public sealed record ResourceModel(string Type, string Name, int? Width, int? Height, BorderModel? Border = null);
+public sealed record ResourceModel(string Type, string Name, int? Width, int? Height, BorderModel? Border = null, FontResourceModel? Font=null);
 
 /// <summary>Member access tolerant of BinaryFormatter's "BaseClass+field" naming for inherited fields.</summary>
 internal static class Nrbf

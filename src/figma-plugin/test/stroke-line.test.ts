@@ -8,6 +8,20 @@ import { DATA_KEY,readMetadata } from '../src/model.ts';
 import { solid } from './expanded-fixture.ts';
 
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)
+for(const width of [null,{widthProfile:'UNIFORM'}] as const)
+test(`Center stroke 2 / ${width?.widthProfile??'null'} / ${profile}: Vector and Line retain constant-width native output`,async()=>{
+  fakeFigma();const root=await strokeLineFixture(profile);
+  const divider=root.children[0] as VectorNode;divider.x=0;divider.y=87;divider.strokes=[solid('#343538')];
+  await divider.setVectorNetworkAsync({vertices:[{x:0,y:0},{x:root.width,y:0}],segments:[{start:0,end:1}],regions:[]});
+  for(const node of root.children as (VectorNode|LineNode)[])node.variableWidthStrokeProperties=width;
+  const before=designSignature(root),plan=recognize(root,profile);assert.deepEqual(plan.errors,[]);assert.equal(designSignature(root),before);applyRecognition(plan);
+  const source=designSignature(root),bundle=await exportFrame(root);
+  assert.deepEqual(bundle.screen.elements[0].rect,[0,86,root.width,2]);assert.deepEqual(bundle.screen.elements[0].native,{thickness:2});
+  assert.deepEqual(bundle.screen.elements[3].rect,[20,218,100,4]);assert.deepEqual(bundle.screen.elements[3].native,{thickness:4});
+  assert.equal(bundle.screen.elements[0].fillColor,'#343538');assert.equal(bundle.resources.length,0);assert.equal(designSignature(root),source);
+});
+
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)
 test(`Pen and Line Tool ${profile}: native segments, Stroke color/width, no PNG and stable IDs`,async()=>{
   fakeFigma();const root=await strokeLineFixture(profile),before=designSignature(root),plan=recognize(root,profile);
   assert.deepEqual(plan.errors,[]);assert.equal(designSignature(root),before);applyRecognition(plan);
@@ -49,9 +63,16 @@ for(const [name,edit,error] of [
   ['missing stroke',(n:any)=>n.strokes=[],/Stroke/],
   ['gradient',(n:any)=>n.strokes[0].type='GRADIENT_LINEAR',/SOLID/],
   ['fill',(n:any)=>n.fills=[solid('#FFFFFF')],/Fill/],
-  ['inside stroke',(n:any)=>n.strokeAlign='INSIDE',/CENTER/],
+  ['inside stroke',(n:any)=>n.strokeAlign='INSIDE',/Center/],
   ['brush',(n:any)=>n.complexStrokeProperties={type:'BRUSH'},/кисти/],
   ['variable width',(n:any)=>n.variableWidthStrokeProperties={widthProfile:'test'},/толщины/],
+  ['wedge width',(n:any)=>n.variableWidthStrokeProperties={widthProfile:'WEDGE'},/толщины/],
+  ['taper width',(n:any)=>n.variableWidthStrokeProperties={widthProfile:'TAPER'},/толщины/],
+  ['quarter taper width',(n:any)=>n.variableWidthStrokeProperties={widthProfile:'QUARTER_TAPER'},/толщины/],
+  ['eye width',(n:any)=>n.variableWidthStrokeProperties={widthProfile:'EYE'},/толщины/],
+  ['mirrored taper width',(n:any)=>n.variableWidthStrokeProperties={widthProfile:'MIRRORED_TAPER'},/толщины/],
+  ['custom width',(n:any)=>n.variableWidthStrokeProperties={widthProfile:'CUSTOM',variableWidthPoints:[{position:0,width:.5},{position:1,width:1}]},/толщины/],
+  ['dynamic stroke',(n:any)=>n.complexStrokeProperties={type:'DYNAMIC',frequency:1,wiggle:1,smoothen:0},/кисти/],
   ['zero length',(n:any)=>n.vectorNetwork.vertices[1].x=0,/ненулевой/],
   ['thicker than length',(n:any)=>n.strokeWeight=101,/больше/],
   ['square bounds lose direction',(n:any)=>n.strokeWeight=100,/больше/],

@@ -9,9 +9,13 @@ export function isStrokeLine(node:SceneNode):node is VectorNode|LineNode {
 // Read the path rather than its zero-height/zero-width geometric bounding box.
 export function readStrokeLine(node:VectorNode|LineNode) {
   plain(node,false,true,true);
-  if(node.strokeAlign!=='CENTER'||node.dashPattern.length||
-      node.variableWidthStrokeProperties||node.complexStrokeProperties&&node.complexStrokeProperties.type!=='BASIC')
-    fail('line-appearance',`${node.name}: нужна сплошная обводка CENTER постоянной толщины, без кисти и пунктира.`);
+  if(node.strokeAlign!=='CENTER')fail('line-appearance',`${node.name}: положение обводки должно быть Center.`);
+  if(node.dashPattern.length)fail('line-appearance',`${node.name}: нужна сплошная обводка без пунктира.`);
+  // UNIFORM is Figma's explicit constant-width profile, not a variable stroke.
+  const width=node.variableWidthStrokeProperties;
+  if(width&&width.widthProfile!=='UNIFORM')fail('line-appearance',`${node.name}: профиль переменной толщины ${width.widthProfile} не поддержан. Выберите Uniform.`);
+  if(node.complexStrokeProperties&&node.complexStrokeProperties.type!=='BASIC')
+    fail('line-appearance',`${node.name}: кисти и динамические обводки не поддержаны. Выберите обычную обводку.`);
   const strokes=node.strokes.filter(p=>p.visible!==false);
   if(strokes.length!==1||strokes[0].type!=='SOLID'||(strokes[0].opacity??1)!==1)
     fail('line-appearance',`${node.name}: нужен один непрозрачный SOLID Stroke.`);

@@ -84,6 +84,22 @@ static class PackageTests
         string work = Directory.CreateTempSubdirectory("exui-tests-").FullName;
         try
         {
+            test("Native Inter: static weights, italics and label alignment survive package normalization",()=>{
+                foreach(var style in new[]{"Regular","Medium","Semi Bold","Bold","Italic","Extra Bold Italic"}){
+                    var files=Files();
+                    Edit(files,"screen.json",n=>{var e=n["elements"]![1]!;e["font"]!["family"]="Inter";e["font"]!["style"]=style;e["font"]!["bold"]=style=="Bold";e["textAlign"]="bottom-right";});
+                    using var package=ExuiPackage.Load(Zip(work,files));var label=package.Plan.Elements[1];
+                    Check(label.Font!.Resource==NativeFonts.InterResource&&label.TextAlign=="BottomRight");
+                    Check(label.Font.Italic==style.EndsWith("Italic",StringComparison.Ordinal));
+                    Check(label.Font.Family==("Inter"+(style=="Medium"?" Medium":style=="Semi Bold"?" SemiBold":style=="Extra Bold Italic"?" ExtraBold":"")));
+                }
+            });
+            test("Native Inter refuses inconsistent styles and Arial cannot masquerade as an Inter weight",()=>{
+                foreach(var family in new[]{"Inter","Arial"}){
+                    var files=Files();Edit(files,"screen.json",n=>{var font=n["elements"]![1]!["font"]!;font["family"]=family;font["style"]="Bold";font["bold"]=false;});
+                    Reject("spec",()=>ExuiPackage.Load(Zip(work,files)));
+                }
+            });
             foreach (string profile in new[] { "1025m", "300m" })
                 test($"Package {profile}: lowers to the exact experimental plan; resources cleaned up", () =>
                 {

@@ -183,7 +183,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
     }else if(message.type==='button-background') {
       const marked=markBackground(selected());publish();figma.ui.postMessage({type:'success',message:marked?'Слой отмечен как фон. Выберите экран и повторите создание состояний.':'Отметка фона снята.'});
     }else if(message.type==='button-create-states'||message.type==='button-update-styles') {
-      const resolved=scopeContext.resolve(true);
+      const resolved=scopeContext.resolve();
       const result=prepareButtons(resolved.root,resolved.options,message.type==='button-update-styles',message.corners===true);
       publish();figma.ui.postMessage({type:'success',message:message.type==='button-update-styles'?`Оформление обновлено: ${result.buttons} кнопок. Pressed и другие состояния сохранены.`:`Подготовлено кнопок: ${result.buttons}; создано состояний: ${result.states}; уже готовы: ${result.skipped}. Теперь нажмите «Проверить макет».`});
     }else if(message.type==='kit') {

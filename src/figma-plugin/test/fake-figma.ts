@@ -12,6 +12,8 @@ export function fakeFigma() {
     vectorNetwork:VectorNetwork={vertices:[],segments:[]};
     fills:unknown[]=[];clipsContent=true;layoutMode='NONE';characters='';fontName={family:'Arial',style:'Regular'};fontSize=16;textAlignHorizontal='LEFT';textAlignVertical='TOP';textDecoration='NONE';textCase='ORIGINAL';letterSpacing={unit:'PIXELS',value:0};
     data=new Map<string,string>();
+    textSegments:unknown[]|undefined;
+    getStyledTextSegments(fields:string[]){return this.textSegments??[{characters:this.characters,start:0,end:this.characters.length,...Object.fromEntries(fields.map(field=>[field,(this as any)[field]]))}];}
     constructor(type:string){this.type=type;}
     get relativeTransform(){return [[1,0,this.x],[0,1,this.y]];}
     set relativeTransform(value:number[][]){this.x=value[0][2];this.y=value[1][2];}
@@ -25,7 +27,7 @@ export function fakeFigma() {
     setPluginData(k:string,v:string){this.data.set(k,v);}
     remove(){for(const c of [...this.children])c.remove();if(this.parent)this.parent.children.splice(this.parent.children.indexOf(this),1);this.removed=true;}
     clone():FakeNode {
-      const copyTree=(source:FakeNode):FakeNode=>{const copy=new FakeNode(source.type);for(const [key,value]of Object.entries(source))if(!['id','parent','children','removed'].includes(key)&&typeof value!=='function')(copy as any)[key]=structuredClone(value);for(const child of source.children)copy.appendChild(copyTree(child));return copy;};
+      const copyTree=(source:FakeNode):FakeNode=>{const copy=new FakeNode(source.type);for(const [key,value]of Object.entries(source))if(!['id','parent','children','removed'].includes(key)&&typeof value!=='function')(copy as any)[key]=value===api.mixed?value:structuredClone(value);for(const child of source.children)copy.appendChild(copyTree(child));return copy;};
       const copy=copyTree(this);this.parent?.appendChild(copy);return copy;
     }
     async exportAsync(settings?:unknown){const rendered=await renderHook(this,settings);if(rendered instanceof Uint8Array)return rendered;const fill=this.fills[0] as {imageHash?:string};if(!fill?.imageHash)throw new Error('Fixture exports only image fills');return new Uint8Array(images.get(fill.imageHash)!);}

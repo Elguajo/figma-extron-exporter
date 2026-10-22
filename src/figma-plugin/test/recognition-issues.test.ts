@@ -29,11 +29,11 @@ test('Repeated Normal names identify the actual state and parent button; Vector 
 });
 
 test('Late validation reports the exact button, state or Text despite duplicate layer names',async()=>{
-  for(const defect of ['font','state-size','button-fill','label-alignment','icon-alignment','icon-geometry'] as const){
+  for(const defect of ['invalid-text','state-size','button-fill','label-alignment','icon-alignment','icon-geometry'] as const){
     fakeFigma();const root=await namedFixture(),button=root.children[defect.startsWith('icon-')?0:3] as FrameNode,state=button.children[0] as FrameNode,label=state.children.find(n=>n.type==='TEXT') as TextNode;
     const icon=state.children.find(n=>n.type!=='TEXT')!;
-    const target=defect.startsWith('icon-')?icon:defect==='font'||defect==='label-alignment'?label:defect==='state-size'?state:button;
-    if(defect==='font')label.fontName={family:'Other',style:'Regular'};
+    const target=defect.startsWith('icon-')?icon:defect==='invalid-text'||defect==='label-alignment'?label:defect==='state-size'?state:button;
+    if(defect==='invalid-text')label.characters='\uD800';
     if(defect==='state-size')state.resize(state.width-1,state.height);
     if(defect==='button-fill')button.fills=[{type:'SOLID',color:{r:1,g:0,b:0}}];
     if(defect==='label-alignment')label.textAlignHorizontal='LEFT';

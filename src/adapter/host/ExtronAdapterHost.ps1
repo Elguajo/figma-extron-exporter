@@ -201,6 +201,25 @@ function Set-Color($Project, $Target, [string]$Field, [string]$Hex) {
     Set-F $Target $Field $c
 }
 
+function Add-EmbeddedFonts($Project, $Fonts) {
+    foreach($font in @($Fonts)) {
+        $resources=Get-Resources $Project
+        if(@(Items $resources | Where-Object { (Get-F $_ 'nameField') -eq $font.resourceName }).Count){Fail 'font-conflict' 'Bundled font resource name already exists in the donor.'}
+        $donor=@(Items $resources | Where-Object { $_.GetType().Name -eq 'PBFontResource' })[0]
+        $data=[Convert]::FromBase64String($font.data)
+        $hash=[BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($data)).Replace('-','')
+        if($font.resourceName -ne 'Inter Regular Bold Italic' -or $hash -ne 'EA4E3D9970B9B6B566110A1B0E13635FE235280B83DD2443DCB3FACA1E2456EF' -or $hash -ne $font.sha256){Fail 'font-hash' 'Only the pinned bundled Inter collection can be embedded.'}
+        $r=Copy-Graph $donor
+        $families=New-Object 'System.Collections.Generic.List[string]'
+        foreach($name in 'Inter','Inter Black','Inter Display','Inter Display Black','Inter Display ExtraBold','Inter Display ExtraLight','Inter Display Light','Inter Display Medium','Inter Display SemiBold','Inter Display Thin','Inter ExtraBold','Inter ExtraLight','Inter Light','Inter Medium','Inter SemiBold','Inter Thin'){$families.Add($name)}
+        $styles=New-Object 'System.Collections.Generic.List[string]';foreach($name in $families){$styles.Add('Regular Bold Italic')}
+        Set-F $r 'nameField' $font.resourceName;Set-F $r 'dataField' $data;Set-F $r 'filenameField' 'Inter.ttc';Set-F $r 'embeddedFileNameField' $null
+        Set-F $r 'familyNameField' $families;Set-F $r 'styleNameField' $styles;Set-F $r 'windowsFamilyNameField' 'Inter';Set-F $r 'windowsStyleNameField' 'Regular'
+        Set-F $r 'sizeField' $data.Length;Set-F $r 'indexField' $resources.Count;Set-F $r 'mIsDefault' $false
+        $resources.Add($r)
+    }
+}
+
 function Set-Font($Project, $Target, $Font) {
     if ($null -eq $Font) { return }
     $existing = Get-F $Target 'fontField'
@@ -208,7 +227,7 @@ function Set-Font($Project, $Target, $Font) {
     $f = Copy-Graph $existing
     if ($Font.family) {
         $resources = @(Items (Get-Resources $Project) | Where-Object { $_.GetType().Name -eq 'PBFontResource' })
-        $match = @($resources | Where-Object { ((Get-F $_ 'nameField') -replace '(\s+(Regular|Bold|Italic))+$', '') -ieq $Font.family })
+        $match = @($resources | Where-Object { if($Font.resource){(Get-F $_ 'nameField') -ceq $Font.resource}else{((Get-F $_ 'nameField') -replace '(\s+(Regular|Bold|Italic))+$', '') -ieq $Font.family} })
         if ($match.Count -lt 1) {
             $have = ($resources | ForEach-Object { Get-F $_ 'nameField' }) -join ', '
             Fail 'resource-missing' "Font family '$($Font.family)' has no PBFontResource in the donor (has: $have)."
@@ -224,6 +243,7 @@ function Set-Font($Project, $Target, $Font) {
     if ($null -ne $Font.bold) {
         $style = Copy-Graph (Get-F $f 'styleField')
         Set-F $style 'boldField' ([bool]$Font.bold)
+        Set-F $style 'italicField' ([bool]$Font.italic)
         Set-F $f 'styleField' $style
     }
     Set-F $Target 'fontField' $f
@@ -507,14 +527,14 @@ function New-PlanControl($Project, $Donors, $El, $ImageRef) {
         'datetime' {
             Set-F $c 'textField' $null
             Set-F $c 'patternField' $El.native.pattern
-            Set-F $c 'textAlignmentField' 'MiddleLeft'
+            Set-F $c 'textAlignmentField' $El.textAlign
             Set-Color $Project $c 'textColorField' $El.textColor
             Set-Font $Project $c $El.font
         }
         'value' {
             Set-F $c 'textField' $El.text
             Set-F $c 'dynamicTextField' $true
-            Set-F $c 'textAlignmentField' 'MiddleLeft'
+            Set-F $c 'textAlignmentField' $El.textAlign
             Set-Color $Project $c 'textColorField' $El.textColor
             Set-Font $Project $c $El.font
         }
@@ -536,7 +556,7 @@ function New-PlanControl($Project, $Donors, $El, $ImageRef) {
         }
         'label' {
             Set-F $c 'textField' $El.text
-            Set-F $c 'textAlignmentField' 'MiddleLeft'
+            Set-F $c 'textAlignmentField' $El.textAlign
             Set-Color $Project $c 'textColorField' $El.textColor
             Set-Font $Project $c $El.font
         }
@@ -615,6 +635,7 @@ function Invoke-Generate($Project, $Op) {
     }
 
     foreach ($im in @($Op.images)) { Add-ImageResource $Project $im }
+    Add-EmbeddedFonts $Project $Op.fonts
     $imageRef = Find-ImageReference $Project
     $projectId = [string](Get-F $Project 'idField')
     $NONE = [uint64]::MaxValue

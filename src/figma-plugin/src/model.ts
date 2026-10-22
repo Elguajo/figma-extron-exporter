@@ -43,7 +43,8 @@ export type Metadata = MetadataInput & {
 export type Orientation='left-to-right'|'right-to-left'|'bottom-to-top'|'top-to-bottom';
 export interface Behavior {selectionGroup?:string; enabled?:boolean; visible?:boolean}
 export interface NativeStyle {trackColor?:string;trackWidth?:number;thumbColor?:string;thumbWidth?:number;thumbHeight?:number;thumbType?:'ellipse'|'rectangle'|'none';radius?:number;shape?:'rectangle'|'ellipse';strokeColor?:string;thickness?:number;pattern?:string}
-export interface Font { family: 'Arial'; size: number; bold: boolean }
+export interface Font { family: 'Arial'|'Inter'|'Inter Display'; size: number; bold: boolean; style?:string }
+export type TextAlignment = `${'top'|'middle'|'bottom'}-${'left'|'center'|'right'}`;
 export interface State {
   stateId: number; name: string; role: Role; text: string; fill: string; textColor: string;
   image?: string; imageAlign?: 'top-center' | 'middle-center'; textAlign?: 'bottom-center' | 'middle-center';
@@ -54,6 +55,7 @@ export interface Element {
   display?: 'slider'|'gauge'|'volume-led'|'multistate'; orientation?: Orientation; min?: number; max?: number; fillColor?: string;
   image?: string;
   native?:NativeStyle; navigate?:string;popup?:string;group?:string;behavior?:Behavior;
+  textAlign?:TextAlignment;
 }
 export interface Asset { key: string; file: string; resourceName: string }
 export interface SingleScreen {

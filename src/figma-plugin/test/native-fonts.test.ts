@@ -1,0 +1,69 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {authorButtons,paint} from './button-preparation-fixture.ts';
+import {prepareButtons} from '../src/button-preparation.ts';
+import {recognize,applyRecognition} from '../src/recognize.ts';
+import {capture,exportFrame,designSignature} from '../src/export.ts';
+import {font} from '../src/read-node.ts';
+import {readMetadata} from '../src/model.ts';
+
+const weights=['Thin','Extra Light','Light','Regular','Medium','Semi Bold','Bold','Extra Bold','Black'];
+for(const family of ['Inter','Inter Display'])test(`${family}: all 18 static styles remain native including Medium and SemiBold aliases`,()=>{
+  const f=authorButtons(),label=figma.createText();label.fontName={family,style:'Regular'};
+  for(const style of weights.concat(weights.map(w=>w==='Regular'?'Italic':w+' Italic'))){
+    label.fontName={family,style};assert.equal(font(label).family,family);assert.equal(font(label).style,style);assert.equal(font(label).bold,style==='Bold'||style==='Bold Italic');
+  }
+  label.fontName={family,style:'SemiBold'};assert.equal(font(label).style,'Semi Bold');
+  label.fontName={family,style:'Book'};assert.throws(()=>font(label),(e:any)=>e.code==='font');
+});
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)test(`${profile}: Inter labels, Value and DateTime preserve all native alignments and assignments`,async()=>{
+  const f=authorButtons(profile);prepareButtons(f.root);
+  const label=figma.createText();f.root.appendChild(label);label.name='txt_title.source.type';label.characters='MAIN PANEL';label.resize(150,24);label.x=10;label.y=220;label.fontName={family:'Inter',style:'Regular'};label.fills=[paint('#FFFFFF')];
+  for(const h of ['LEFT','CENTER','RIGHT'] as const)for(const v of ['TOP','CENTER','BOTTOM'] as const){
+    label.textAlignHorizontal=h;label.textAlignVertical=v;
+    const plan=recognize(f.root,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+    const before=designSignature(f.root),id=readMetadata(label)!,result=(await exportFrame(f.root)).screen.elements.find(e=>e.key===id.key)!;
+    assert.equal(result.kind,'label');assert.equal(result.text,'MAIN PANEL');assert.equal(result.font!.family,'Inter');assert.equal(result.textAlign??'middle-left',`${v==='CENTER'?'middle':v.toLowerCase()}-${h.toLowerCase()}`);assert.equal(designSignature(f.root),before);
+  }
+  for(const kind of ['value','datetime'] as const){
+    const node=figma.createText();f.root.appendChild(node);node.name=kind+'_Live';node.characters=kind==='value'?'42%':'HH:mm';node.resize(140,24);node.x=10;node.y=260;node.fontName={family:'Inter',style:'Semi Bold'};node.fills=[paint('#FFFFFF')];node.textAlignHorizontal='RIGHT';node.textAlignVertical='BOTTOM';
+    const p=recognize(f.root,profile);assert.deepEqual(p.errors,[]);applyRecognition(p);
+    const e=capture(f.root).screen.elements.find(e=>e.key===readMetadata(node)!.key)!;assert.equal(e.kind,kind);assert.equal(e.font!.style,'Semi Bold');assert.equal(e.textAlign,'bottom-right');
+  }
+});
+test('Matching arbitrary-position Inter button captions become one editable native overlay; differing states retain their artwork',async()=>{
+  const f=authorButtons();prepareButtons(f.root);
+  const button=f.buttons[0];
+  for(const state of button.children)for(const n of state.children)if(n.type==='TEXT')n.fontName={family:'Inter',style:'Medium'};
+  applyRecognition(recognize(f.root,'tlp-pro-1025m'));
+  const before=designSignature(f.root),bundle=await exportFrame(f.root),native=bundle.screen.elements.find(e=>e.key.startsWith('button-caption.'))!;
+  assert.equal(native.kind,'label');assert.equal(native.text,'Audio');assert.equal(native.font!.style,'Medium');assert.deepEqual(native.rect,[20,60,100,24]);
+  assert.ok(bundle.screen.elements[0].states!.every(s=>s.text===''));assert.equal(designSignature(f.root),before);
+  button.children[1].children.find(n=>n.type==='TEXT')!.characters='Different';
+  assert.ok(!capture(f.root).screen.elements.some(e=>e.key.startsWith('button-caption.')));
+});
+test('Figma variable-font reads with standard named axes stay native; custom axis values never silently change',()=>{
+  authorButtons();const label=figma.createText();
+  for(const [style,wght] of [['Regular',400],['Medium',500],['Bold',700]] as const){label.fontName={family:'Inter',style,variationSettings:{wght,opsz:14}};assert.equal(font(label).style,style);}
+  label.fontName={family:'Inter Display',style:'Regular',variationSettings:{wght:400,opsz:32}};assert.equal(font(label).family,'Inter Display');
+  for(const variationSettings of [{wght:550,opsz:14},{wght:400,opsz:24},{wght:400,slnt:-5},{wght:400,wdth:100}]){label.fontName={family:'Inter',style:'Regular',variationSettings};assert.throws(()=>font(label),(e:any)=>e.code==='font');}
+});
+test('Derived caption IDs handle both ends of the authored range and survive layer reordering',()=>{
+  const f=authorButtons();prepareButtons(f.root);applyRecognition(recognize(f.root,'tlp-pro-1025m'));
+  for(const [i,button] of f.buttons.entries()){
+    const metadata=readMetadata(button)!;button.setPluginData('exui',JSON.stringify({...metadata,objectId:i?1:1000000}));
+    for(const state of button.children)state.children.find(n=>n.type==='TEXT')!.fontName={family:'Inter',style:'Regular'};
+  }
+  const ids=()=>capture(f.root).screen.elements.map(e=>[e.key,e.objectId]).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));
+  const before=ids();assert.equal(new Set(before.map(e=>e[1])).size,4);
+  f.root.insertChild(0,f.buttons[1]);assert.deepEqual(ids(),before);
+});
+test('A non-overlapping icon above an Inter caption does not flatten it; overlap and masks preserve the composition in PNG',()=>{
+  const f=authorButtons();prepareButtons(f.root);const button=f.buttons[0];
+  for(const state of button.children){state.children.find(n=>n.type==='TEXT')!.fontName={family:'Inter',style:'Regular'};state.appendChild(state.children.find(n=>n.type==='GROUP')!);}
+  applyRecognition(recognize(f.root,'tlp-pro-1025m'));
+  const hasCaption=()=>capture(f.root).screen.elements.some(e=>e.key.startsWith('button-caption.'));
+  assert.ok(hasCaption());
+  const state=button.children[0],icon=state.children[state.children.length-1];icon.y=50;assert.equal(hasCaption(),false);
+  icon.y=10;icon.isMask=true;assert.equal(hasCaption(),false);
+});
