@@ -1,6 +1,8 @@
 export type Role = 'normal' | 'feedback' | 'pressed';
 export interface RecognitionIssue {nodeId:string;nodeName:string;nodeType:string;path:string;message:string;fix:string}
 export type ButtonMode = 'on-off' | 'feedback';
+export interface PresetPreview { name: string; ready: boolean; hint: string; fill?: string; stroke?: string; radius?: number }
+export interface ButtonPreparationSummary { total: number; create: number; update: number; issue?: string; updateIssue?: string }
 export type ElementKind = 'popup-ref' | 'button' | 'label' | 'value' | 'level' | 'slider' | 'shape' | 'line' | 'datetime' | 'graphic';
 export type ControlKind = 'button' | 'value' | 'level' | 'slider';
 export type PassiveKind = Exclude<ElementKind, ControlKind>;
@@ -123,5 +125,5 @@ export function validateButtonStates(mode:ButtonMode|undefined,states:Pick<State
   const pair=states.length===2&&count('normal')===1&&(count('feedback')===1||count('pressed')===1);
   const feedback=count('normal')===1&&count('feedback')===1&&((states.length===2&&count('pressed')===0)||(states.length===3&&count('pressed')===1));
   if(!named||!(mode==='on-off'?pair:feedback))
-    fail('button-states',`${where}: ${mode==='on-off'?'button_/btn_ требует ровно 2 состояния: Off / On, Passive / Active или Normal / Pressed.':'feedbackbutton_/fbtn_ требует Normal / Active (или Passive / Active, Off / On); Pressed необязателен.'} Состояния не добавляются и не удаляются автоматически.`);
+    fail('button-states',`${where}: ${mode==='on-off'?'button_/btn_ требует ровно 2 состояния: Off / On для включения или выбора; Normal / Pressed для нажатия и удержания. Passive / Active и другие поддержанные синонимы также допустимы.':'feedbackbutton_/fbtn_ требует Normal / Active / Pressed для выбора с отдельным видом нажатия. Normal / Active без Pressed и синонимы Passive / Active, Off / On также допустимы.'} Состояния не добавляются и не удаляются автоматически.`);
 }

@@ -1,4 +1,4 @@
-import { fail, readMetadata, stateRole, type ButtonMode } from './model.ts';
+import { fail, readMetadata, stateRole, type ButtonMode, type PresetPreview, type ButtonPreparationSummary } from './model.ts';
 import { BACKGROUND_KEY, background, descendants, hasFill, isButtonContainer, type ButtonContainer } from './button-artwork.ts';
 import { plain, rect } from './read-node.ts';
 import type { ProjectNode, ProjectOptions } from './project.ts';
@@ -40,6 +40,30 @@ function presetNode(role: PresetRole): SceneNode | undefined {
 }
 export function presetSummary(): {normal: string; feedback: string} {
   return { normal: presetNode('normal')?.name ?? 'Не выбран', feedback: presetNode('feedback')?.name ?? 'Не выбран' };
+}
+export function presetPreviews(): Record<PresetRole, PresetPreview> {
+  function preview(role: PresetRole): PresetPreview {
+    try {
+      const node = presetNode(role);
+      if (!node) {
+        const saved = savedPresets()[role];
+        const matches = pageNodes().filter(n => /^(Button Styles|button_styles)$/i.test(n.parent?.name ?? '') && stateRole(n.name) === role);
+        return {name:'Не выбран',ready:false,hint:saved?'Образец удалён. Выберите новый в дополнительных настройках.':matches.length>1?'Найдено несколько образцов. Выберите нужный в дополнительных настройках.':'Добавьте образец в Button Styles или выберите его вручную.'};
+      }
+      const surface = node.type === 'RECTANGLE' ? node : background(node);
+      if (!hasFill(surface)) fail('button-presets', `${node.name}: у образца должна быть заливка.`);
+      const color = (paints: readonly Paint[] | PluginAPI['mixed']): string | undefined => {
+        if (!Array.isArray(paints)) return;
+        const visible = paints.filter(p => p.visible !== false);
+        if (visible.length !== 1 || visible[0].type !== 'SOLID') return;
+        const p = visible[0] as SolidPaint, c = p.color;
+        return `rgba(${[c.r,c.g,c.b].map(v=>Math.round(v*255)).join(',')},${p.opacity??1})`;
+      };
+      const fill = color(surface.fills);
+      return {name:node.name,ready:true,hint:fill?'':'Сложная заливка · вид сохранится в Figma',fill,stroke:color(surface.strokes),radius:typeof surface.cornerRadius==='number'?surface.cornerRadius:undefined};
+    } catch (error) { return {name:'Проверьте образец',ready:false,hint:(error as Error).message}; }
+  }
+  return {normal:preview('normal'),feedback:preview('feedback')};
 }
 export function rememberPreset(node: SceneNode, role: PresetRole): void {
   if (role !== 'normal' && role !== 'feedback') fail('button-presets', 'Выберите обычный или активный эталон.');
@@ -101,12 +125,22 @@ function targets(root: ProjectNode, options: ProjectOptions): Target[] {
   if (!result.length) fail('button-prepare', 'В выбранном макете нет button_ / btn_ / feedbackbutton_ / fbtn_.');
   return result;
 }
-export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, update = false, corners = false): {buttons: number; states: number; skipped: number} {
-  const all = targets(root, options), pending = all.filter(t => update ? t.states.some(s => ['normal', 'feedback'].includes(roleOf(s) ?? '')) : t.missing.length);
+export function buttonPreparationSummary(root: ProjectNode, options: ProjectOptions = {}): ButtonPreparationSummary {
+  try {
+    const all = targets(root, options);
+    let updateIssue:string|undefined;
+    try { for (const t of all) for (const s of t.states) if (['normal','feedback'].includes(roleOf(s)??'')) background(s); }
+    catch(error) { updateIssue=(error as Error).message; }
+    return {total:all.length,create:all.filter(t=>t.missing.length).length,update:all.filter(t=>!t.missing.length&&t.states.some(s=>['normal','feedback'].includes(roleOf(s)??''))).length,...(updateIssue?{updateIssue}:{})};
+  } catch (error) { return {total:0,create:0,update:0,issue:(error as Error).message}; }
+}
+// The combined action shares validation and rollback across both kinds of work.
+export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, update: boolean | 'apply' | 'apply-new' = false, corners = false): {buttons: number; states: number; skipped: number} {
+  const all = targets(root, options), pending = all.filter(t => update && update!=='apply-new' ? (update==='apply'&&t.missing.length)||t.states.some(s => ['normal', 'feedback'].includes(roleOf(s) ?? '')) : t.missing.length);
   if (!pending.length) return {buttons: 0, states: 0, skipped: all.length};
   const presets = (['normal', 'feedback'] as const).map(role => {
     const node = presetNode(role);
-    if (!node) fail('button-presets', `Не найден ${role === 'normal' ? 'обычный' : 'активный'} эталон. Выберите образец и запомните его в разделе «Состояния кнопок».`);
+    if (!node) fail('button-presets', `Не найден ${role === 'normal' ? 'обычный' : 'активный'} образец. В разделе «Оформление кнопок» откройте «Выбрать образцы и фон вручную» и назначьте нужный образец.`);
     const surface = node.type === 'RECTANGLE' ? node : background(node);
     if (!hasFill(surface)) fail('button-presets', `${node.name}: у эталона должна быть заливка.`, node);
     return styleOf(surface, corners);
@@ -127,8 +161,8 @@ export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, 
     for (const t of pending) {
       if (update) {
         for (const state of t.states) { const role = roleOf(state); if (role === 'normal' || role === 'feedback') paint(background(state), role); }
-        continue;
       }
+      if (update===true || !t.missing.length) continue;
       let source = t.states[0];
       if(source) {
         const existingSource=source, marker=source.getPluginData('exui-generated-state');

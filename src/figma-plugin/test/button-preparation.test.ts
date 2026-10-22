@@ -7,7 +7,7 @@ import { fakeFigma } from './fake-figma.ts';
 import { authorButtons, paint } from './button-preparation-fixture.ts';
 import { png } from './kit-fixture.ts';
 import { background, descendants } from '../src/button-artwork.ts';
-import { markBackground, prepareButtons, presetSummary, rememberPreset } from '../src/button-preparation.ts';
+import { buttonPreparationSummary, markBackground, prepareButtons, presetPreviews, presetSummary, rememberPreset } from '../src/button-preparation.ts';
 import { capture, designSignature, exportFrame } from '../src/export.ts';
 import { applyRecognition, recognize } from '../src/recognize.ts';
 import { DATA_KEY, readMetadata } from '../src/model.ts';
@@ -194,4 +194,97 @@ test('Built plugin commands: remember presets → create groups → check → pr
   await (f.api.ui.onmessage as (m:unknown)=>Promise<void>)({type:'button-update-styles'});
   assert.equal(JSON.stringify(background(f.buttons[0].children[1]).fills),JSON.stringify(f.active.fills));assert.equal(f.buttons[0].getPluginData(DATA_KEY),identity);
   assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);
+});
+
+test('One apply prepares fresh buttons and updates ready ones, preserving artwork, IDs, visibility and manual Pressed', () => {
+  const f=authorButtons();prepareButtons(f.root);applyRecognition(recognize(f.root,'tlp-pro-1025m'));
+  const ready=f.buttons[1],pressed=ready.children[1].clone();ready.appendChild(pressed);pressed.name='Pressed';pressed.visible=false;
+  for(const n of descendants(pressed))n.setPluginData(DATA_KEY,'');
+  const pressedBefore=designSignature(pressed),identities=f.buttons.flatMap(b=>[b,...b.children]).map(n=>[n,n.getPluginData(DATA_KEY)] as const);
+  const originalArt=f.buttons.flatMap(b=>descendants(b).filter(n=>n.type==='TEXT'||n.name==='Voice').map(n=>[n,designSignature(n)] as const));
+  const bg=f.api.createRectangle();bg.resize(120,80);bg.fills=[paint('#111111')];
+  const raw=f.api.group([bg],f.root);raw.name='button_New';raw.x=150;raw.y=10;
+  f.active.fills=[paint('#FF7700')];f.normal.fills=[paint('#151515')];
+  assert.deepEqual(buttonPreparationSummary(f.root),{total:3,create:1,update:2});
+  assert.deepEqual(prepareButtons(f.root,{},'apply',true),{buttons:3,states:2,skipped:0});
+  for(const b of [f.buttons[0],ready,raw]) {
+    assert.deepEqual(background(b.children[0]).fills,f.normal.fills);assert.deepEqual(background(b.children[1]).fills,f.active.fills);
+    assert.deepEqual(b.children.slice(0,2).map(s=>s.visible),[true,false]);
+  }
+  for(const [n,identity] of identities)assert.equal(n.getPluginData(DATA_KEY),identity);
+  for(const [n,signature] of originalArt)assert.equal(designSignature(n),signature);
+  assert.equal(designSignature(pressed),pressedBefore);
+  const repeated=designSignature(f.root);prepareButtons(f.root,{},'apply',true);assert.equal(designSignature(f.root),repeated);
+  assert.deepEqual(buttonPreparationSummary(f.root),{total:3,create:0,update:3});
+  const plan=recognize(f.root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  assert.deepEqual(capture(f.root).screen.elements.map(e=>e.states?.length),[2,3,2]);
+});
+
+test('Combined apply restores ready styles if a fresh button fails during grouping', () => {
+  const f=authorButtons();prepareButtons(f.root,{members:[f.buttons[0]]});
+  f.normal.fills=[paint('#990000')];f.active.fills=[paint('#009900')];
+  const before=designSignature(f.root),pageLayers=f.page.children.map(n=>n.id);
+  f.api.group=()=>{throw new Error('fixture grouping failure');};
+  assert.throws(()=>prepareButtons(f.root,{},'apply'),/fixture grouping failure/);
+  assert.equal(designSignature(f.root),before);assert.deepEqual(f.page.children.map(n=>n.id),pageLayers);
+});
+
+test('Combined apply restores existing styles and original fresh artwork after a later clone fails', () => {
+  const f=authorButtons();prepareButtons(f.root,{members:[f.buttons[0]]});f.normal.fills=[paint('#990000')];
+  const before=designSignature(f.root),pageLayers=f.page.children.map(n=>n.id),clone=f.FakeNode.prototype.clone;
+  f.FakeNode.prototype.clone=function(){if(this.name==='Normal')throw new Error('fixture clone failure');return clone.call(this);};
+  assert.throws(()=>prepareButtons(f.root,{},'apply'),/fixture clone failure/);
+  assert.equal(designSignature(f.root),before);assert.deepEqual(f.page.children.map(n=>n.id),pageLayers);
+});
+
+test('Combined apply updates the source of a single state and preserves momentary Pressed', () => {
+  const f=authorButtons();prepareButtons(f.root);
+  const single=f.buttons[1];single.children[0].remove();const active=single.children[0];active.visible=true;
+  const momentary=f.buttons[0];momentary.children[0].name='Normal';momentary.children[1].name='Pressed';const pressed=momentary.children[1],before=designSignature(pressed);
+  f.active.fills=[paint('#FF7700')];f.normal.fills=[paint('#111111')];
+  prepareButtons(f.root,{},'apply');assert.deepEqual(background(active).fills,f.active.fills);assert.equal(active.visible,true);
+  assert.deepEqual(single.children.map(s=>s.name),['Active','Normal']);assert.deepEqual(background(single.children[1]).fills,f.normal.fills);
+  assert.equal(designSignature(pressed),before);assert.deepEqual(momentary.children.map(s=>s.name),['Normal','Pressed']);
+});
+
+test('Combined apply validates existing backgrounds before changing a fresh button', () => {
+  const f=authorButtons();prepareButtons(f.root,{members:[f.buttons[1]]});
+  const s=f.buttons[1].children[0] as GroupNode;s.appendChild(background(s).clone());
+  const before=designSignature(f.root);assert.ok(buttonPreparationSummary(f.root).updateIssue?.includes('несколько'));
+  assert.throws(()=>prepareButtons(f.root,{},'apply'),/несколько/);assert.equal(designSignature(f.root),before);
+});
+
+test('Skipping ready buttons applies styles only to fresh buttons and does not validate or change ready backgrounds', () => {
+  const f=authorButtons();prepareButtons(f.root,{members:[f.buttons[0]]});
+  const state=f.buttons[0].children[0] as GroupNode;state.appendChild(background(state).clone());
+  const before=designSignature(f.buttons[0]);f.normal.fills=[paint('#111111')];f.active.fills=[paint('#FF7700')];
+  assert.deepEqual(prepareButtons(f.root,{},'apply-new'),{buttons:1,states:2,skipped:1});
+  assert.equal(designSignature(f.buttons[0]),before);
+  assert.deepEqual(background(f.buttons[1].children[0]).fills,f.normal.fills);assert.deepEqual(background(f.buttons[1].children[1]).fills,f.active.fills);
+});
+
+test('Preset previews report actual color, ambiguous samples and a deleted explicit source without changing the page', () => {
+  const f=authorButtons(),before=designSignature(f.root);
+  assert.deepEqual(presetPreviews().feedback,{name:'Active',ready:true,hint:'',fill:'rgba(0,119,170,1)',stroke:'rgba(0,187,255,1)',radius:8});
+  assert.equal(designSignature(f.root),before);
+  const duplicate=f.normal.clone();duplicate.name='Off';assert.equal(presetPreviews().normal.ready,false);assert.match(presetPreviews().normal.hint,/несколько/);
+  rememberPreset(f.normal,'normal');assert.equal(presetPreviews().normal.ready,true);f.normal.remove();assert.equal(presetPreviews().normal.ready,false);assert.match(presetPreviews().normal.hint,/удалён/);
+});
+
+test('Built combined command publishes selection guidance, counts and a scoped success for the next export step', async () => {
+  const source=buildSync({entryPoints:[fileURLToPath(new URL('../src/code.ts',import.meta.url))],bundle:true,write:false,target:'es2017',define:{__html__:'"test"',__ICONS__:'{}'}}).outputFiles[0].text;
+  const f=authorButtons();vm.runInNewContext(source,{figma:f.api,Uint8Array,console});const send=f.api.ui.onmessage as (m:unknown)=>Promise<void>;
+  f.page.selection=[f.styles as never];await send({type:'ready'});
+  const sample=f.messages.filter(m=>m.type==='selection').at(-1)!;assert.equal(sample.scope,undefined);assert.equal((sample.buttonStylePreviews as any).normal.ready,true);
+  f.page.selection=[f.root as never];await send({type:'ready'});
+  assert.deepEqual(JSON.parse(JSON.stringify(f.messages.filter(m=>m.type==='selection').at(-1)!.buttonWorkflow)),{total:2,create:2,update:0});
+  await send({type:'button-apply-styles',corners:true});
+  assert.ok(f.messages.some(m=>m.type==='success'&&m.operation==='button-apply-styles'));
+  assert.deepEqual(JSON.parse(JSON.stringify(f.messages.filter(m=>m.type==='selection').at(-1)!.buttonWorkflow)),{total:2,create:0,update:2});
+  const before=designSignature(f.root);await send({type:'button-apply-styles'});
+  assert.equal(f.messages.filter(m=>m.type==='error').at(-1)?.code,'button-existing');assert.equal(designSignature(f.root),before);
+  f.messages.splice(0);await send({type:'button-apply-styles',existing:'skip'});assert.equal(designSignature(f.root),before);
+  f.active.fills=[paint('#FF7700')];await send({type:'button-apply-styles',existing:'update'});
+  assert.equal(JSON.stringify(background(f.buttons[0].children[1]).fills),JSON.stringify(f.active.fills));
+  await send({type:'check'});assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);
 });

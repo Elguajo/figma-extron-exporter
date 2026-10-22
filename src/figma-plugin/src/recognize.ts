@@ -58,7 +58,7 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
     plan.rows.push({id:node.id,name:node.name,kind:metadata.kind,...(metadata.buttonMode?{buttonMode:metadata.buttonMode}:{}),key:metadata.key,objectId:metadata.objectId,controlId:metadata.controlId,isNew:!original||original.ownerNodeId!==node.id});return metadata;
   }
   function states(button:ButtonContainer,control:Metadata){
-    if(button.children.length<2||button.children.length>8)fail('states',`${button.name}: нужны 2..8 состояний. Для готового дизайна нажмите «Создать состояния по эталонам».`);
+    if(button.children.length<2||button.children.length>8)fail('states',`${button.name}: нужны 2..8 состояний. Для готового дизайна нажмите «Применить оформление» в разделе «Оформление кнопок».`);
     const custom=control.display==='multistate'||button.children.some(s=>!namedRole(s.name)),used=new Set(button.children.map(s=>existingFor(s)?.stateId).filter((id):id is number=>id!==undefined));
     for(const state of button.children){
       problemNode=state;

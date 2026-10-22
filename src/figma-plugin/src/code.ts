@@ -9,7 +9,8 @@ import { ExportScope, selected, pageOf, type ScopeMode } from './scope.ts';
 import { requireNodeForKind } from './assignment-rules.ts';
 import { containerSuffix,freeKey } from './assignment-repair.ts';
 import { isButtonContainer } from './button-artwork.ts';
-import { markBackground, prepareButtons, presetSummary, rememberPreset } from './button-preparation.ts';
+import { buttonPreparationSummary, markBackground, prepareButtons, presetPreviews, rememberPreset } from './button-preparation.ts';
+import type { ButtonPreparationSummary } from './model.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
@@ -66,11 +67,13 @@ function publish(keepRecognition=false):void {
   let scope:{id:string;name:string;kind:string;profile?:Profile}|undefined;
   let targets:{key:string;name:string;kind:string}[]=[],scopeHint='';
   let canRecognize=false;
+  let buttonWorkflow:ButtonPreparationSummary|undefined;
   try{canRecognize=scopeContext.canRecognize;}catch{ /* Metadata errors are shown above. */ }
   try {
     const resolved=scopeContext.resolve();
     const {root,options}=resolved,rm=stored(root);
     canRecognize=resolved.canRecognize;scopeHint=resolved.hint;scope=resolved.scope;
+    buttonWorkflow=buttonPreparationSummary(root,options);
     if(rm){
       if(rm.kind==='project'){
         let container:BaseNode|null=n??null;
@@ -79,8 +82,9 @@ function publish(keepRecognition=false):void {
       }
     }
   }catch(e){if(scopeContext.mode!=='selection'){canRecognize=false;scopeHint=(e as Error).message;}}
-  let buttonPresets;try{buttonPresets=presetSummary();}catch{/* Commands report damaged presets without blocking unrelated export. */}
-  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,warning,states,scope,targets,buttonPresets,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
+  const buttonStylePreviews=presetPreviews();
+  const buttonPresets={normal:buttonStylePreviews.normal.name,feedback:buttonStylePreviews.feedback.name};
+  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,warning,states,scope,targets,buttonPresets,buttonStylePreviews,buttonWorkflow,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
 }
 function apply(data:Record<string,unknown>):void {
   const node=selected(),kind=data.kind as Metadata['kind'];
@@ -113,7 +117,7 @@ function apply(data:Record<string,unknown>):void {
       if(previous?.kind!=='button'||previous.buttonMode)fail('button-mode','Прежние правила доступны только для уже сохранённой кнопки без нового типа.');
     }else{
       const mode=data.buttonMode??'on-off';
-      if(mode!=='on-off'&&mode!=='feedback')fail('button-mode','Выберите обычную кнопку с двумя состояниями либо кнопку с обратной связью и необязательным Pressed.');
+      if(mode!=='on-off'&&mode!=='feedback')fail('button-mode','Выберите 2 состояния (Off / On или Normal / Pressed) либо выбор с видом нажатия (Normal / Active / Pressed; Pressed необязателен для совместимости).');
       value.buttonMode=mode;
     }
   }
@@ -147,7 +151,7 @@ function apply(data:Record<string,unknown>):void {
 }
 figma.on('selectionchange',()=>{if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){publish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;publish();});
 figma.on('currentpagechange',()=>{recognition=undefined;diagnosticSelectionId=undefined;scopeContext.reset();publish();});
-figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean})=>{
+figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;existing?:'skip'|'update'})=>{
   if(message.type==='ready'){publish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
@@ -182,10 +186,11 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       publish();figma.ui.postMessage({type:'success',message:'Эталон запомнен на текущей странице. Теперь выберите экран и создайте состояния.'});
     }else if(message.type==='button-background') {
       const marked=markBackground(selected());publish();figma.ui.postMessage({type:'success',message:marked?'Слой отмечен как фон. Выберите экран и повторите создание состояний.':'Отметка фона снята.'});
-    }else if(message.type==='button-create-states'||message.type==='button-update-styles') {
+    }else if(message.type==='button-apply-styles'||message.type==='button-create-states'||message.type==='button-update-styles') {
       const resolved=scopeContext.resolve();
-      const result=prepareButtons(resolved.root,resolved.options,message.type==='button-update-styles',message.corners===true);
-      publish();figma.ui.postMessage({type:'success',message:message.type==='button-update-styles'?`Оформление обновлено: ${result.buttons} кнопок. Pressed и другие состояния сохранены.`:`Подготовлено кнопок: ${result.buttons}; создано состояний: ${result.states}; уже готовы: ${result.skipped}. Теперь нажмите «Проверить макет».`});
+      if(message.type==='button-apply-styles'&&buttonPreparationSummary(resolved.root,resolved.options).update>0&&!['skip','update'].includes(message.existing??''))fail('button-existing','Выберите, пропустить готовые кнопки или применить к ним новый стиль.');
+      const result=prepareButtons(resolved.root,resolved.options,message.type==='button-apply-styles'?(message.existing==='update'?'apply':'apply-new'):message.type==='button-update-styles',message.corners===true);
+      publish();figma.ui.postMessage({type:'success',operation:message.type,message:message.type==='button-apply-styles'?`Оформление применено. Кнопок: ${result.buttons}; новых состояний: ${result.states}; пропущено готовых: ${result.skipped}. Далее проверьте макет и скачайте .exui.`:message.type==='button-update-styles'?`Оформление обновлено: ${result.buttons} кнопок. Pressed и другие состояния сохранены.`:`Подготовлено кнопок: ${result.buttons}; создано состояний: ${result.states}; уже готовы: ${result.skipped}. Теперь нажмите «Проверить макет».`});
     }else if(message.type==='kit') {
       const result=await createKit(message.profile!);
       publish();figma.ui.postMessage({type:'success',message:`Extron Kit создан: ${result.components.length} компонентов и шаблоны проекта. Выбран пример экрана. Изменяйте оформление в слотах Artwork, затем распознайте экран и сохраните назначения.`});
@@ -213,6 +218,6 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       figma.ui.postMessage({type:'bundle',bundle,assignmentSummary});
     }else fail('message','Неизвестная команда.');
     }
-  }catch(e){figma.ui.postMessage({type:'error',message:e instanceof Error?e.message:String(e),code:(e as {code?:string}).code??'plugin'});}
+  }catch(e){figma.ui.postMessage({type:'error',operation:message.type,message:e instanceof Error?e.message:String(e),code:(e as {code?:string}).code??'plugin'});}
   finally {busy=false;figma.ui.postMessage({type:'idle'});}
 };
