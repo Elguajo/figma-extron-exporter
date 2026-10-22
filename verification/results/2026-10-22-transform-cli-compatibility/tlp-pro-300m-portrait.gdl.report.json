@@ -1,0 +1,496 @@
+{
+  "PackageSha256": "F16C21FCCC9D9690237565E68C853276997D9102E28FF1EC9FD68963091AF518",
+  "Contract": "exui/5",
+  "Profile": "tlp-pro-300m-portrait",
+  "Generation": {
+    "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-22-transform-cli-compatibility\\tlp-pro-300m-portrait.gdl",
+    "OutputSha256": "4AB8EFF063B51A729F5424578205C5DF0BBCEAB7D38BAA11FAEE9404014F32CC",
+    "OutputBytes": 1557899,
+    "DonorId": "tlp-pro-300m-portrait",
+    "DonorSha256": "10D9BAA98CA65BEBBDE0DF6F5ACA970CF2FBBBEA0003E5350A2FCA498B59D636",
+    "Panel": "TLP Pro 300M",
+    "SpecSha256": "373006BAF192A19AEA0DEF557CA5D7411513A94DD5B12969D28B366C98ECDDB4",
+    "Checks": [
+      {
+        "Id": "profile.platform-class",
+        "Passed": true,
+        "Detail": "PBTLP300MPlatform (expected PBTLP300MPlatform)"
+      },
+      {
+        "Id": "profile.platform-type",
+        "Passed": true,
+        "Detail": "PlatformProTypeEnum value 44 (expected 44 = TLP300M)"
+      },
+      {
+        "Id": "profile.part-number",
+        "Passed": true,
+        "Detail": "60-1667-02 (expected 60-1667-02)"
+      },
+      {
+        "Id": "profile.screen",
+        "Passed": true,
+        "Detail": "screen 320x480, platform 320x480 (expected 320x480)"
+      },
+      {
+        "Id": "profile.app-version",
+        "Passed": true,
+        "Detail": "1.28.0.7"
+      },
+      {
+        "Id": "profile.checksum",
+        "Passed": true,
+        "Detail": "checksum 0"
+      },
+      {
+        "Id": "project.name",
+        "Passed": true,
+        "Detail": "screen_Home"
+      },
+      {
+        "Id": "page.count",
+        "Passed": true,
+        "Detail": "1 page(s), expected 1"
+      },
+      {
+        "Id": "page.default",
+        "Passed": true,
+        "Detail": "defaultPage 100"
+      },
+      {
+        "Id": "page.order",
+        "Passed": true,
+        "Detail": "pages in plan order"
+      },
+      {
+        "Id": "popup.set",
+        "Passed": true,
+        "Detail": "65535:Offline Page"
+      },
+      {
+        "Id": "popup.offline",
+        "Passed": true,
+        "Detail": "Offline Page 320x480, 2 control(s)"
+      },
+      {
+        "Id": "page.page.home.ids",
+        "Passed": true,
+        "Detail": "id 100, userId 100"
+      },
+      {
+        "Id": "page.page.home.name",
+        "Passed": true,
+        "Detail": "screen_Home"
+      },
+      {
+        "Id": "page.page.home.key",
+        "Passed": true,
+        "Detail": "exui-key=page.home"
+      },
+      {
+        "Id": "page.page.home.size",
+        "Passed": true,
+        "Detail": "320x480"
+      },
+      {
+        "Id": "page.page.home.background",
+        "Passed": true,
+        "Detail": "#FF101112"
+      },
+      {
+        "Id": "page.page.home.controls",
+        "Passed": true,
+        "Detail": "5 control(s), expected 5"
+      },
+      {
+        "Id": "page.page.home.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "element.home.audiocontrol.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.home.audiocontrol.control-id",
+        "Passed": true,
+        "Detail": "userId 8101 (expected 8101)"
+      },
+      {
+        "Id": "element.home.audiocontrol.key",
+        "Passed": true,
+        "Detail": "exui-key=home.audiocontrol"
+      },
+      {
+        "Id": "element.home.audiocontrol.name",
+        "Passed": true,
+        "Detail": "button_AudioControl"
+      },
+      {
+        "Id": "element.home.audiocontrol.rect",
+        "Passed": true,
+        "Detail": "10,10,120,80"
+      },
+      {
+        "Id": "element.home.audiocontrol.font",
+        "Passed": true,
+        "Detail": "native font family, point size, styles and resource reference"
+      },
+      {
+        "Id": "element.home.audiocontrol.editable-text",
+        "Passed": true,
+        "Detail": "text remains editable; FlattenText=false"
+      },
+      {
+        "Id": "element.home.audiocontrol.state-count",
+        "Passed": true,
+        "Detail": "2 state(s)"
+      },
+      {
+        "Id": "element.home.audiocontrol.state0",
+        "Passed": true,
+        "Detail": "Off: text '', fill #FF101112, text #FFFFFFFF, image exui-button-8101-0.png, id 0/0"
+      },
+      {
+        "Id": "element.home.audiocontrol.state1",
+        "Passed": true,
+        "Detail": "On: text '', fill #FF101112, text #FFFFFFFF, image exui-button-8101-1.png, id 1/1"
+      },
+      {
+        "Id": "element.home.audiocontrol.press-feedback",
+        "Passed": true,
+        "Detail": "press state -1"
+      },
+      {
+        "Id": "element.home.audiocontrol.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.home.power.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.home.power.control-id",
+        "Passed": true,
+        "Detail": "userId 8102 (expected 8102)"
+      },
+      {
+        "Id": "element.home.power.key",
+        "Passed": true,
+        "Detail": "exui-key=home.power"
+      },
+      {
+        "Id": "element.home.power.name",
+        "Passed": true,
+        "Detail": "feedbackbutton_Power"
+      },
+      {
+        "Id": "element.home.power.rect",
+        "Passed": true,
+        "Detail": "10,110,120,80"
+      },
+      {
+        "Id": "element.home.power.font",
+        "Passed": true,
+        "Detail": "native font family, point size, styles and resource reference"
+      },
+      {
+        "Id": "element.home.power.editable-text",
+        "Passed": true,
+        "Detail": "text remains editable; FlattenText=false"
+      },
+      {
+        "Id": "element.home.power.state-count",
+        "Passed": true,
+        "Detail": "2 state(s)"
+      },
+      {
+        "Id": "element.home.power.state0",
+        "Passed": true,
+        "Detail": "Normal: text '', fill #FF101112, text #FFFFFFFF, image exui-button-8102-0.png, id 0/0"
+      },
+      {
+        "Id": "element.home.power.state1",
+        "Passed": true,
+        "Detail": "Active: text '', fill #FF101112, text #FFFFFFFF, image exui-button-8102-1.png, id 1/1"
+      },
+      {
+        "Id": "element.home.power.press-feedback",
+        "Passed": true,
+        "Detail": "press state -1"
+      },
+      {
+        "Id": "element.home.power.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "element.home.component.type",
+        "Passed": true,
+        "Detail": "PBDateTime"
+      },
+      {
+        "Id": "element.home.component.native-object-type",
+        "Passed": true,
+        "Detail": "native ObjectTypeEnum agrees with the serialized class"
+      },
+      {
+        "Id": "element.home.component.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.home.component.key",
+        "Passed": true,
+        "Detail": "exui-key=home.component"
+      },
+      {
+        "Id": "element.home.component.name",
+        "Passed": true,
+        "Detail": "datetime_Component"
+      },
+      {
+        "Id": "element.home.component.rect",
+        "Passed": true,
+        "Detail": "10,230,180,24"
+      },
+      {
+        "Id": "element.home.component.font",
+        "Passed": true,
+        "Detail": "native font family, point size, styles and resource reference"
+      },
+      {
+        "Id": "element.home.component.editable-text",
+        "Passed": true,
+        "Detail": "text remains editable; FlattenText=false"
+      },
+      {
+        "Id": "element.home.component.pattern",
+        "Passed": true,
+        "Detail": "HH:mm"
+      },
+      {
+        "Id": "element.home.component.alignment",
+        "Passed": true,
+        "Detail": "MiddleLeft"
+      },
+      {
+        "Id": "element.home.component-2.type",
+        "Passed": true,
+        "Detail": "PBLabel"
+      },
+      {
+        "Id": "element.home.component-2.native-object-type",
+        "Passed": true,
+        "Detail": "native ObjectTypeEnum agrees with the serialized class"
+      },
+      {
+        "Id": "element.home.component-2.control-id",
+        "Passed": true,
+        "Detail": "userId 8103 (expected 8103)"
+      },
+      {
+        "Id": "element.home.component-2.key",
+        "Passed": true,
+        "Detail": "exui-key=home.component-2"
+      },
+      {
+        "Id": "element.home.component-2.name",
+        "Passed": true,
+        "Detail": "value_Component"
+      },
+      {
+        "Id": "element.home.component-2.rect",
+        "Passed": true,
+        "Detail": "10,265,180,24"
+      },
+      {
+        "Id": "element.home.component-2.font",
+        "Passed": true,
+        "Detail": "native font family, point size, styles and resource reference"
+      },
+      {
+        "Id": "element.home.component-2.editable-text",
+        "Passed": true,
+        "Detail": "text remains editable; FlattenText=false"
+      },
+      {
+        "Id": "element.home.component-2.dynamic",
+        "Passed": true,
+        "Detail": "dynamic label with an addressable ID"
+      },
+      {
+        "Id": "element.home.component-2.text",
+        "Passed": true,
+        "Detail": "42%; alignment 4 (expected MiddleLeft)"
+      },
+      {
+        "Id": "element.home.component-2.text-color",
+        "Passed": true,
+        "Detail": "#FFFFFFFF"
+      },
+      {
+        "Id": "element.home.component-3.type",
+        "Passed": true,
+        "Detail": "PBLabel"
+      },
+      {
+        "Id": "element.home.component-3.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.home.component-3.key",
+        "Passed": true,
+        "Detail": "exui-key=home.component-3"
+      },
+      {
+        "Id": "element.home.component-3.name",
+        "Passed": true,
+        "Detail": "text_Component"
+      },
+      {
+        "Id": "element.home.component-3.rect",
+        "Passed": true,
+        "Detail": "10,300,180,24"
+      },
+      {
+        "Id": "element.home.component-3.font",
+        "Passed": true,
+        "Detail": "native font family, point size, styles and resource reference"
+      },
+      {
+        "Id": "element.home.component-3.editable-text",
+        "Passed": true,
+        "Detail": "text remains editable; FlattenText=false"
+      },
+      {
+        "Id": "element.home.component-3.text",
+        "Passed": true,
+        "Detail": "Native component; alignment 4 (expected MiddleLeft)"
+      },
+      {
+        "Id": "element.home.component-3.text-color",
+        "Passed": true,
+        "Detail": "#FFFFFFFF"
+      },
+      {
+        "Id": "groups.registry",
+        "Passed": true,
+        "Detail": ""
+      },
+      {
+        "Id": "groups.reference-count",
+        "Passed": true,
+        "Detail": "referenceCountField as written"
+      },
+      {
+        "Id": "resource.button-artwork.8101.state0",
+        "Passed": true,
+        "Detail": "exui-button-8101-0.png: 1 found, 120x80"
+      },
+      {
+        "Id": "resource.button-artwork.8101.state1",
+        "Passed": true,
+        "Detail": "exui-button-8101-1.png: 1 found, 120x80"
+      },
+      {
+        "Id": "resource.button-artwork.8102.state0",
+        "Passed": true,
+        "Detail": "exui-button-8102-0.png: 1 found, 120x80"
+      },
+      {
+        "Id": "resource.button-artwork.8102.state1",
+        "Passed": true,
+        "Detail": "exui-button-8102-1.png: 1 found, 120x80"
+      },
+      {
+        "Id": "resource.references",
+        "Passed": true,
+        "Detail": "every state image names an existing image resource"
+      },
+      {
+        "Id": "resource.donor-kept",
+        "Passed": true,
+        "Detail": "donor resources retained"
+      },
+      {
+        "Id": "bounds.screen_Home",
+        "Passed": true,
+        "Detail": "5 control(s) inside 320x480"
+      },
+      {
+        "Id": "bounds.Offline Page",
+        "Passed": true,
+        "Detail": "2 control(s) inside 320x480"
+      },
+      {
+        "Id": "container.payload-roundtrip",
+        "Passed": true,
+        "Detail": "packed payload decodes back unchanged"
+      },
+      {
+        "Id": "donor.unchanged",
+        "Passed": true,
+        "Detail": "10D9BAA98CA65BEBBDE0DF6F5ACA970CF2FBBBEA0003E5350A2FCA498B59D636"
+      }
+    ],
+    "AdapterResult": {
+      "ok": true,
+      "code": "ok",
+      "message": "written",
+      "warnings": [],
+      "extron": {
+        "installDir": "C:\\Program Files (x86)\\Extron\\GUI Designer",
+        "guiDesignerVersion": "1.28.0.7",
+        "assemblies": 40
+      },
+      "profile": {
+        "platformClass": "PBTLP300MPlatform",
+        "platformType": "TLP300M",
+        "platformTypeValue": 44,
+        "partNumber": "60-1667-02",
+        "width": 320,
+        "height": 480
+      },
+      "containers": [
+        {
+          "type": "PBPage",
+          "objectId": "100",
+          "name": "screen_Home",
+          "controls": 5
+        },
+        {
+          "type": "PBPopupPage",
+          "objectId": "65535",
+          "name": "Offline Page",
+          "controls": 2
+        }
+      ],
+      "groups": [],
+      "enumValues": {
+        "platformType": 44,
+        "levelDisplay": {
+          "Gauge": 0,
+          "Slider": 1,
+          "MultistateLevel": 2,
+          "None": 3,
+          "VolumeLED": 4
+        },
+        "levelOrientation": {
+          "LeftToRight": 0,
+          "RightToLeft": 1,
+          "BottomToTop": 2,
+          "TopToBottom": 3
+        }
+      },
+      "outputBytes": 2398537
+    },
+    "HostOutput": "The system cannot find the file specified. (Exception from HRESULT: 0x80070002)",
+    "GuiDesignerVerified": false
+  },
+  "GuiDesignerVerified": false,
+  "HardwareVerified": false
+}

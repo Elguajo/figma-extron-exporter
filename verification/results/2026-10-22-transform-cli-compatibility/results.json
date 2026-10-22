@@ -1,0 +1,74 @@
+{
+  "plugin": "0.5.3",
+  "cli": "0.5.2",
+  "results": [
+    {
+      "profile": "tlp-pro-1025m",
+      "validation": {
+        "contract": "exui/5",
+        "Sha256": "DB763812BE7B21CA7AAE7B00FC50EAF077748CF7876043AA9E4E72DCEF5BA332",
+        "Profile": {
+          "Id": "tlp-pro-1025m",
+          "Panel": "TLP Pro 1025M",
+          "Width": 1280,
+          "Height": 800
+        },
+        "pages": 1,
+        "popups": 0,
+        "groups": 0,
+        "elements": 5,
+        "resources": 4,
+        "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+      },
+      "generation": {
+        "Contract": "exui/5",
+        "Profile": "tlp-pro-1025m",
+        "PackageSha256": "DB763812BE7B21CA7AAE7B00FC50EAF077748CF7876043AA9E4E72DCEF5BA332",
+        "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-22-transform-cli-compatibility\\tlp-pro-1025m.gdl",
+        "OutputSha256": "1AA4A635F1742E97AAAF59CC2B0439FA73ED3FB583C41DB8037E86EB3DEA0A32",
+        "checks": "85/85 passed",
+        "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-22-transform-cli-compatibility\\tlp-pro-1025m.gdl.report.json",
+        "GuiDesignerVerified": false,
+        "HardwareVerified": false,
+        "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+      },
+      "checks": 85,
+      "sourceUnchanged": true,
+      "figmaBoundary": "mock geometry and PNG pixels; real released plugin and CLI"
+    },
+    {
+      "profile": "tlp-pro-300m-portrait",
+      "validation": {
+        "contract": "exui/5",
+        "Sha256": "F16C21FCCC9D9690237565E68C853276997D9102E28FF1EC9FD68963091AF518",
+        "Profile": {
+          "Id": "tlp-pro-300m-portrait",
+          "Panel": "TLP Pro 300M",
+          "Width": 320,
+          "Height": 480
+        },
+        "pages": 1,
+        "popups": 0,
+        "groups": 0,
+        "elements": 5,
+        "resources": 4,
+        "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+      },
+      "generation": {
+        "Contract": "exui/5",
+        "Profile": "tlp-pro-300m-portrait",
+        "PackageSha256": "F16C21FCCC9D9690237565E68C853276997D9102E28FF1EC9FD68963091AF518",
+        "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-22-transform-cli-compatibility\\tlp-pro-300m-portrait.gdl",
+        "OutputSha256": "4AB8EFF063B51A729F5424578205C5DF0BBCEAB7D38BAA11FAEE9404014F32CC",
+        "checks": "85/85 passed",
+        "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-22-transform-cli-compatibility\\tlp-pro-300m-portrait.gdl.report.json",
+        "GuiDesignerVerified": false,
+        "HardwareVerified": false,
+        "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+      },
+      "checks": 85,
+      "sourceUnchanged": true,
+      "figmaBoundary": "mock geometry and PNG pixels; real released plugin and CLI"
+    }
+  ]
+}
