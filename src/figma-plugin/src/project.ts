@@ -18,7 +18,7 @@ export function pageScreens(page:PageNode,profile:Profile):FrameNode[] {
   visit(page.children);return screens;
 }
 
-// GDL page order follows the frame names, numbers compared by value, so
+// After the start page, GDL page order follows frame names, numbers compared by value, so
 // screen_02-Audio comes before screen_10-Video regardless of selection order.
 export function compareNames(a:string,b:string):number {
   const pa=a.toLowerCase().match(/\d+|\D+/g)??[],pb=b.toLowerCase().match(/\d+|\D+/g)??[];
@@ -76,6 +76,8 @@ export function captureProject(root:SceneNode|PageNode,read:(n:SceneNode|PageNod
   }
   if(screen.pages.length<1||screen.pages.length>16||screen.popups.length>32||screen.groups.length>16)fail('project-size','Проект: 1..16 страниц, до 32 popup и 16 групп.');
   if(screen.pages.filter(p=>p.shownBy==='start').length!==1)fail('start-page','Нужна ровно одна стартовая страница.');
+  // GUI Designer must list the start page first; keep natural name order for the rest.
+  screen.pages=[...screen.pages.filter(p=>p.shownBy==='start'),...screen.pages.filter(p=>p.shownBy!=='start')];
   if([...screen.pages,...screen.popups].reduce((n,c)=>n+c.elements.length,0)>256)fail('project-size','До 256 элементов во всём проекте.');
   const all=[...screen.pages,...screen.popups],refs=screen.pages.flatMap(p=>p.elements.filter(e=>e.kind==='popup-ref'));
   for(const group of screen.groups){const popups=screen.popups.filter(p=>p.group===group.key);if(!popups.length||new Set(popups.map(p=>JSON.stringify(p.size))).size!==1)fail('popup-group','Участники группы popup должны иметь одинаковый размер.');}

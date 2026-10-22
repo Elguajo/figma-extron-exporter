@@ -311,7 +311,9 @@ public static class ScreenSpecReader
         }
         foreach (var unused in images.Keys.Except(ctx.Used)) Error($"assets: \"{unused}\" is not used by any state.");
         if (errors.Count > 0) throw new ScreenSpecException(errors);
-        return new(projectName, startPage, pages, popups, groups,
+        // Older packages may list the start page last. Keep all other pages in authored order.
+        var orderedPages = pages.Where(p => p.Key == startPage).Concat(pages.Where(p => p.Key != startPage)).ToArray();
+        return new(projectName, startPage, orderedPages, popups, groups,
             images.Values.Where(i => ctx.Used.Contains(i.Key)).OrderBy(i => i.Key, StringComparer.Ordinal).ToArray());
     }
 

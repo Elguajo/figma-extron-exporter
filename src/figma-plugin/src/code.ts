@@ -5,7 +5,7 @@ import { recognize, applyRecognition, type RecognitionPlan } from './recognize.t
 import { createKit } from './kit.ts';
 import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
 import { projectMembers, type ProjectNode,type ProjectOptions } from './project.ts';
-import { ExportScope, selected, pageOf, type ScopeMode } from './scope.ts';
+import { ExportScope, selected, pageOf, selectionKind, type ScopeMode } from './scope.ts';
 import { requireNodeForKind } from './assignment-rules.ts';
 import { containerSuffix,freeKey } from './assignment-repair.ts';
 import { isButtonContainer } from './button-artwork.ts';
@@ -16,6 +16,7 @@ import { MANUAL_KEY } from './key-sync.ts';
 import { requireLatinName } from './latin-name.ts';
 import { controlText,formatVariant } from './kit-contract.ts';
 import { MANUAL_PATTERN,hasManualPattern,patternProblem,resolvePattern } from './datetime-format.ts';
+import { bindPopups,popupBindingInfo,savePopupPlace,saveContainerSettings } from './popup-binding.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
@@ -34,6 +35,8 @@ const stored=(node:BaseNode)=>readMetadata(node,{allowCopied:true});
 function prepare(profile:Profile|undefined):void {
   const node=selected();
   if(node.type!=='FRAME')fail('node-type','Для подготовки выберите внешний Frame экрана.');
+  const kind=selectionKind(node);
+  if(kind&&kind!=='page')fail('placement','Подготовка экрана недоступна для этого назначения. Выберите внешний Frame экрана.');
   if(!profile||!Object.prototype.hasOwnProperty.call(PROFILES,profile))fail('profile','Выберите профиль панели.');
   const canvas=PROFILES[profile];
   if(node.width!==canvas.width||node.height!==canvas.height)fail('profile',`Выбранный профиль требует Frame ${canvas.width}×${canvas.height}; сейчас ${node.width}×${node.height}. Выберите подходящий профиль или измените размер макета самостоятельно.`);
@@ -74,13 +77,19 @@ function publish(keepRecognition=false):void {
   let scope:{id:string;name:string;kind:string;profile?:Profile}|undefined;
   let targets:{key:string;name:string;kind:string}[]=[],scopeHint='';
   let canRecognize=false;
+  let canPrepare=false,kind:Metadata['kind']|undefined;
+  try{if(n)kind=selectionKind(n);canPrepare=scopeContext.canPrepare;}catch{ /* Invalid saved assignments remain available for manual repair. */ }
   let buttonWorkflow:ButtonPreparationSummary|undefined;
+  let buttonScope:ReturnType<ExportScope['resolveButtons']>['scope']|undefined;
+  try {
+    const resolved=scopeContext.resolveButtons();
+    buttonScope=resolved.scope;buttonWorkflow=buttonPreparationSummary(resolved.root,resolved.options);
+  }catch{ /* Export guidance and manual assignments remain available. */ }
   try{canRecognize=scopeContext.canRecognize;}catch{ /* Metadata errors are shown above. */ }
   try {
     const resolved=scopeContext.resolve();
     const {root,options}=resolved,rm=stored(root);
     canRecognize=resolved.canRecognize;scopeHint=resolved.hint;scope=resolved.scope;
-    buttonWorkflow=buttonPreparationSummary(root,options);
     if(rm?.kind==='project'||resolved.scope.kind==='project'){
         // A navigation error can prevent the very assignments needed to repair
         // it. Offer the draft keys without writing anything on selection.
@@ -103,11 +112,14 @@ function publish(keepRecognition=false):void {
   }catch(e){warning=warning||(e as Error).message;}
   const buttonStylePreviews=presetPreviews();
   const buttonPresets={normal:buttonStylePreviews.normal.name,feedback:buttonStylePreviews.feedback.name};
-  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,warning,states,scope,targets,buttonPresets,buttonStylePreviews,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
+  try{scopeContext.persist(scope?.profile??scopeContext.profile);}catch{warning=warning||'Не удалось сохранить настройки текущей страницы. Назначения слоёв остаются в файле Figma.';}
+  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,popupBinding:popupBindingInfo(scope?.profile??scopeContext.profile),buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
 }
 function apply(input:Record<string,unknown>):void {
   const node=selected(),kind=input.kind as Metadata['kind'];
   if(!['project','page','popup','popup-group','state','image',...ELEMENT_KINDS].includes(kind))fail('kind','Выберите назначение.');
+  if(kind==='popup-ref'){savePopupPlace(node,input,scopeContext.profile);return;}
+  if(['page','popup','popup-group'].includes(kind)&&(!stored(node)||stored(node)?.kind===kind)){saveContainerSettings(node,input,scopeContext.profile);return;}
   // A key typed in the form stays fixed; an emptied field returns it to the
   // automatic key, which the next check derives from the layer name.
   const previous=stored(node),automatic=kind!=='state'&&input.key===''&&!!previous?.key;
@@ -203,7 +215,7 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
 }
 figma.on('selectionchange',()=>{if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){publish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;publish();});
 figma.on('currentpagechange',()=>{recognition=undefined;diagnosticSelectionId=undefined;scopeContext.reset();publish();});
-figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;existing?:'skip'|'update'})=>{
+figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;existing?:'skip'|'update';referenceId?:string;popupIds?:string[]})=>{
   if(message.type==='ready'){publish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
@@ -211,6 +223,12 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
     if(message.scopeMode){if(!['selection','selected-frames','page'].includes(message.scopeMode))fail('scope','Выберите область экспорта.');scopeContext.mode=message.scopeMode;}
     if(message.profile&&Object.prototype.hasOwnProperty.call(PROFILES,message.profile))scopeContext.profile=message.profile;
     if(message.type==='context'){recognition=undefined;publish();return;}
+    if(message.type==='bind-popups'){
+      if(typeof message.referenceId!=='string'||!Array.isArray(message.popupIds)||message.popupIds.some(id=>typeof id!=='string'))fail('popup-binding','Выберите место popup и фреймы для связывания.');
+      const result=bindPopups(message.referenceId,message.popupIds,scopeContext.profile);
+      scopeContext.useProject(result.root,result.options);recognition=undefined;publish();
+      figma.ui.postMessage({type:'success',message:'Popup связаны с выбранным местом. Группа и ключи подготовлены автоматически. Теперь можно проверить проект.'});return;
+    }
     if(message.type==='select-issue') {
       const plan=recognition;
       if(!plan||plan.root.removed||!plan.issues.some(i=>i.nodeId===message.nodeId))fail('recognition','Отчёт устарел. Повторите распознавание.');
@@ -239,7 +257,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
     }else if(message.type==='button-background') {
       const marked=markBackground(selected());publish();figma.ui.postMessage({type:'success',message:marked?'Слой отмечен как фон. Выберите экран и повторите создание состояний.':'Отметка фона снята.'});
     }else if(message.type==='button-apply-styles'||message.type==='button-create-states'||message.type==='button-update-styles') {
-      const resolved=scopeContext.resolve();
+      const resolved=scopeContext.resolveButtons();
       if(message.type==='button-apply-styles'&&buttonPreparationSummary(resolved.root,resolved.options).update>0&&!['skip','update'].includes(message.existing??''))fail('button-existing','Выберите, пропустить готовые кнопки или применить к ним новый стиль.');
       const result=prepareButtons(resolved.root,resolved.options,message.type==='button-apply-styles'?(message.existing==='update'?'apply':'apply-new'):message.type==='button-update-styles',message.corners===true);
       publish();figma.ui.postMessage({type:'success',operation:message.type,message:message.type==='button-apply-styles'?`Оформление применено. Кнопок: ${result.buttons}; новых состояний: ${result.states}; пропущено готовых: ${result.skipped}. Далее проверьте макет и скачайте .exui.`:message.type==='button-update-styles'?`Оформление обновлено: ${result.buttons} кнопок. Pressed и другие состояния сохранены.`:`Подготовлено кнопок: ${result.buttons}; создано состояний: ${result.states}; уже готовы: ${result.skipped}. Теперь нажмите «Проверить макет».`});
@@ -252,7 +270,10 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       publish();figma.ui.postMessage({type:'success',message:'Демо создано. Можно редактировать и экспортировать выбранный экран.'});
     }else if(message.type==='prepare') {
       prepare(message.profile);publish();figma.ui.postMessage({type:'success',message:'Назначение «Экран» сохранено. Далее нажмите «Распознать по именам» либо назначьте элементы вручную, затем нажмите «Проверить экран». Слои макета не изменены.'});
-    }else if(message.type==='apply') {apply(message.data??{});publish();figma.ui.postMessage({type:'success',message:'Назначение сохранено в Figma-узле.'});}
+    }else if(message.type==='apply') {
+      if(message.nodeId&&selected().id!==message.nodeId)fail('selection','Выделение изменилось. Выберите слой и сохраните назначение ещё раз.');
+      apply(message.data??{});publish();figma.ui.postMessage({type:'success',message:message.data?.kind==='popup-ref'&&!message.data.popup&&!message.data.group?'Место popup сохранено. Выделите popup-фреймы вместе, выберите это место в блоке «Размещение popup» и свяжите их.':'Назначение сохранено в Figma-узле.'});
+    }
     else if(message.type==='preview') {
       const node=selected();if(!isButtonContainer(node)||!['button','level'].includes(readMetadata(node)?.kind??''))fail('selection','Выберите Group, Frame или экземпляр кнопки кита.');
       const role=message.role;if(message.stateId===undefined&&(!role||!Object.prototype.hasOwnProperty.call(ROLE_ID,role)))fail('states','Выберите состояние.');

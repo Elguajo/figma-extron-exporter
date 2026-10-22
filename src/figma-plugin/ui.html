@@ -8,7 +8,7 @@
 .button-workflow>summary>span{display:flex;align-items:center;gap:8px}.button-context{padding-top:12px}.button-context p+p{margin-top:4px}.button-styles{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-top:12px}.button-style{min-width:0;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface)}.button-style strong{display:block;font-size:11px}.button-swatch{height:42px;margin:8px 0;border:1px solid var(--border);border-radius:6px;background:var(--bg)}.button-style small{overflow-wrap:anywhere;margin-top:4px}.button-style [data-ready=false]{border-style:dashed}.button-plan{margin-top:12px;color:var(--muted);font-size:11px}.button-check{display:flex;gap:8px;align-items:center}.button-check input{width:16px;min-height:16px;margin:0;flex:none}.button-result{margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);overflow-wrap:anywhere}.button-result[data-kind=error]{border-color:var(--danger)}.button-result p{font-size:11px}.button-advanced{margin-top:12px;border-top:1px solid var(--border)}.button-advanced>summary{padding:10px 0;font-size:11px}.button-advanced[open]>summary{border-bottom:0}.button-advanced small:first-child{margin-top:0}#patternPreview{overflow-wrap:anywhere}#patternPreview[data-kind=error]{color:var(--danger)}
 #buttonExistingChoice{min-width:0;margin:12px 0 0;padding:8px 10px;border:1px solid var(--border);border-radius:6px}#buttonExistingChoice legend{padding:0 4px;font-size:11px;font-weight:600}.button-choice{display:flex;align-items:center;gap:8px;min-height:36px;font-size:11px;cursor:pointer}.button-choice input{width:16px;min-height:16px;margin:0;flex:none}
 </style></head><body>
-<header class="app-header"><div class="app-mark" aria-hidden="true">EX</div><div><h1>Figma → Extron Exporter <span class="version">· 0.6.2</span></h1><p class="sub">Экран или проект → пакет .exui</p></div></header>
+<header class="app-header"><div class="app-mark" aria-hidden="true">EX</div><div><h1>Figma → Extron Exporter <span class="version">· 0.6.4</span></h1><p class="sub">Экран или проект → пакет .exui</p></div></header>
 <main aria-label="Подготовка макета">
 <section class="card" aria-labelledby="selectionTitle">
 <div class="section-head"><h2 id="selectionTitle"><span class="step" aria-hidden="true">1</span>Макет и панель</h2><span id="selectionType" class="badge">Нет выбора</span></div>
@@ -18,7 +18,7 @@
 <label class="stack">Профиль панели<select id="profile"><option value="tlp-pro-1025m">TLP Pro 1025M · 1280×800</option><option value="tlp-pro-300m-portrait">TLP Pro 300M · 320×480</option></select></label>
 </section>
 <details id="buttonStates" class="card button-workflow" open><summary><span><span class="step" aria-hidden="true">2</span>Оформление кнопок</span></summary><div class="disclosure-body">
-<div class="button-context" role="status" aria-live="polite" aria-atomic="true"><p id="buttonScope" class="selected">Выберите экран с кнопками</p><p id="buttonScopeHint" class="sub">Выделите Frame экрана на холсте или в списке слоёв Figma.</p></div>
+<div class="button-context" role="status" aria-live="polite" aria-atomic="true"><p id="buttonScope" class="selected">Выберите экран или popup с кнопками</p><p id="buttonScopeHint" class="sub">Выделите Frame экрана, popup_ или popupgroup_ на холсте или в списке слоёв Figma.</p></div>
 <div class="button-styles" aria-label="Образцы оформления">
 <div class="button-style"><strong>Обычный</strong><div id="normalButtonSwatch" class="button-swatch" aria-hidden="true"></div><small id="normalButtonName">Не выбран</small><small id="normalButtonHint"></small></div>
 <div class="button-style"><strong>Активный</strong><div id="activeButtonSwatch" class="button-swatch" aria-hidden="true"></div><small id="activeButtonName">Не выбран</small><small id="activeButtonHint"></small></div>
@@ -47,8 +47,16 @@
 <section id="recognitionProblems" class="recognition-problems" aria-labelledby="recognitionErrorTitle" hidden><h3 id="recognitionErrorTitle" tabindex="-1"></h3><p>Покажите слой на холсте и исправьте его в Figma. Затем повторите распознавание всего макета.</p><ol id="recognitionIssues" class="recognition-issues"></ol><button id="retryRecognition" class="secondary">Повторить распознавание</button></section>
 <details id="recognitionAssignments" class="recognition-assignments" open><summary id="recognitionAssignmentsTitle">Распознанные назначения</summary><p id="recognitionSummary"></p><ul id="recognitionRows" class="recognition-list" aria-label="Результат распознавания" tabindex="0"></ul><ul id="recognitionNotes"></ul></details><button id="applyRecognition" class="action" disabled>Сохранить распознанные назначения</button></div>
 </section>
+<section id="popupBinding" class="card" aria-labelledby="popupBindingTitle" hidden>
+<h2 id="popupBindingTitle">Размещение popup</h2>
+<p id="popupBindingNames" class="sub" style="margin-top:8px;overflow-wrap:anywhere"></p>
+<label class="stack">Место popup<select id="popupPlace" aria-describedby="popupBindingHelp"></select></label>
+<small id="popupBindingHelp">Выберите место по имени. Существующая группа используется повторно; для отдельных popup группа создаётся автоматически. Размеры Frame должны совпадать.</small>
+<button id="bindPopups" class="action" type="button">Связать с местом popup</button>
+</section>
 <details id="editor" class="card"><summary>Назначение выбранного элемента</summary><div class="disclosure-body">
 <p class="sub">Для экспорта заполнять эту форму не нужно. Ключи и свободные ID назначаются автоматически, диапазон по умолчанию — 0–100. Здесь можно задать особые свойства.</p>
+<small>«Сохранить назначение» записывает тип и свойства в файл Figma. При повторном выборе слоя и после перезапуска плагина они восстановятся. Профиль панели и состав проекта запоминаются отдельно на текущей странице Figma.</small>
 <button id="prepare" class="secondary action" hidden>Подготовить выбранный экран</button>
 <small id="preparationHelp" hidden>Ручная подготовка Frame без распознавания дочерних элементов.</small>
 <form id="mapping">
@@ -68,6 +76,7 @@
 <label class="stack" data-for="popup">Модальный popup<select id="modal"><option value="false">Нет</option><option value="true">Да</option></select></label>
 <label class="stack" data-for="popup-ref">Ключ popup<input id="popup" placeholder="popup.sources"></label>
 <label class="stack" data-for="popup-ref">Или ключ группы popup<input id="group" placeholder="group.zones"></label>
+<small data-for="popup-ref">Можно сохранить место без ключей и ID — они подготовятся автоматически. Затем выделите popup-фреймы вместе, выберите это место в блоке «Размещение popup» и нажмите «Связать с местом popup». До связывания экспорт проекта недоступен.</small>
 <div data-for="popup popup-ref" style="margin-top:12px">
 <label class="button-check"><input id="exportBackground" type="checkbox" aria-describedby="popupAppearanceHelp">Экспортировать фон Frame</label>
 <label class="button-check"><input id="exportStroke" type="checkbox" aria-describedby="popupAppearanceHelp">Экспортировать обводку Frame</label>

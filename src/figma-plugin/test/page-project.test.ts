@@ -78,11 +78,23 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
   await p.send({type:'apply',scopeMode:'selected-frames',profile,data:{...readMetadata(audio),shownBy:'navigation'}});
   await p.send({type:'check',scopeMode:'selected-frames',profile});await p.send({type:'export',scopeMode:'selected-frames',profile});
   assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;
-  // Pages are ordered by name; the first selected page remains the start page.
-  const [audioPage,mainPage]=bundle.screen.pages;assert.deepEqual([audioPage.name,mainPage.name],['screen_AudioControl','screen_Main']);
+  // The first selected page remains the start page and leads the exported list.
+  const [mainPage,audioPage]=bundle.screen.pages;assert.deepEqual([mainPage.name,audioPage.name],['screen_Main','screen_AudioControl']);
   assert.equal(bundle.screen.pages.length,2);assert.equal(mainPage.shownBy,'start');assert.equal(bundle.screen.project.name,'fixture');
   assert.equal(mainPage.elements.find((e:any)=>e.kind==='button').navigate,'page.audiocontrol');assert.equal(designSignature(scratch),untouched);
   assert.equal(audioPage.shownBy,'navigation');
+  // The programmer adds a welcome page after the first export and changes the start choice in the form.
+  const beforeIds=[main,audio].map(n=>readMetadata(n)!.objectId);audio.name='screen_StartPage';
+  p.page.selection=[main as never];p.emit('selectionchange');
+  await p.send({type:'apply',scopeMode:'selected-frames',profile,data:{...readMetadata(main),shownBy:'program'}});
+  p.page.selection=[audio as never];p.emit('selectionchange');
+  await p.send({type:'apply',scopeMode:'selected-frames',profile,data:{...readMetadata(audio),shownBy:'start'}});
+  await p.send({type:'export',scopeMode:'selected-frames',profile});
+  assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);
+  const changed=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle.screen;
+  assert.deepEqual(Array.from(changed.pages,(c:any)=>[c.name,c.shownBy]),[['screen_StartPage','start'],['screen_Main','program']]);
+  assert.deepEqual([main,audio].map(n=>readMetadata(n)!.objectId),beforeIds);
+  assert.equal(changed.pages[1].elements.find((e:any)=>e.kind==='button').navigate,changed.pages[0].key);
  });
 }
 

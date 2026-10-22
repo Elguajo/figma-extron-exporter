@@ -1,7 +1,7 @@
 """Build the three-page Russian prefix cheat sheet with practical usage examples.
 
 Run with Python + ReportLab. Optional first argument: output PDF.
-Reviewed against PREFIXES.md, BUTTON_STATES.md, NATIVE_TEXT.md, recognize.ts.
+Reviewed against PREFIXES.md, BUTTON_STATES.md, NATIVE_TEXT.md, AUTHORING_STANDARD.md, recognize.ts.
 """
 from pathlib import Path
 import html
@@ -16,7 +16,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, 
 
 ROOT = Path(__file__).resolve().parents[1]
 TARGET = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'output/pdf/figma-extron-prefix-cheatsheet.pdf'
-VERSION, DATE = '0.5.2', '22.10.2026'
+VERSION, CLI_VERSION, DATE = '0.6.2', '0.6.1', '22.10.2026'
 PAGE_W, PAGE_H = landscape(A4)
 MARGIN = 32
 WIDTH = PAGE_W - 2 * MARGIN
@@ -75,7 +75,7 @@ CONTROLS = [
 GRAPHICS = [
     ('Статичный текст', '`txt_` / `text_`', '`text_Title`: Text Arial Regular/Bold, Inter / Inter Display; Label или PNG.'),
     ('Обновляемый текст', '`val_` / `value_`', '`value_VolumeValue`: Text с начальным «42%»; собственный controlId, обновляет программа.'),
-    ('Дата / время', '`dt_` / `datetime_`', '`datetime_Clock` из Extron Kit (свойство **Format**) или Text-пример **September 28, 12:00 AM**; также Text с форматом **HH:mm**.'),
+    ('Дата / время', '`dt_` / `datetime_`', '`datetime_Clock`: компонент из Extron Kit, формат - свойство **Format** (28 форматов GUI Designer). Или Text-пример **September 28, 12:00 AM**, или Text с форматом `HH:mm`. Свой формат: Text-слой `Pattern: dddd, d MMMM`.'),
     ('Логотип', '`logo_`', '`logo_Company`: Frame с графикой; PNG / PBImage, без controlId и нажатий.'),
     ('Картинка', '`img_` / `image_`', '`image_Photo`: Frame с графикой; статичный PNG / PBImage.'),
     ('Иконка состояния', '`Icon`, `ico_` / `icon_`', '`icon_Music`: Frame внутри состояния; часть его PNG, а не отдельная кнопка.'),
@@ -122,7 +122,7 @@ def chrome(canvas, doc):
     canvas.drawString(MARGIN, PAGE_H - 59, 'Figma > Extron / Prefix Cheat Sheet')
     canvas.setFont('Guide', 8.4)
     canvas.setFillColor(MUTED)
-    canvas.drawRightString(PAGE_W - MARGIN, PAGE_H - 36, f'Плагин + CLI {VERSION}  |  EXUI/5')
+    canvas.drawRightString(PAGE_W - MARGIN, PAGE_H - 36, f'Плагин {VERSION} + CLI {CLI_VERSION}  |  EXUI/5')
     canvas.drawRightString(PAGE_W - MARGIN, PAGE_H - 49, DATE)
     canvas.setStrokeColor(LINE)
     canvas.line(MARGIN, 30, PAGE_W - MARGIN, 30)
@@ -148,6 +148,7 @@ story.append(p('01 / Структура проекта', 'section'))
 story.append(prefix_table(STRUCTURE))
 story.append(Spacer(1, 7))
 story.append(p('Элементы размещайте непосредственно в Frame экрана / popup. Несколько экранов можно выделить вместе и экспортировать одним проектом; project_ или секция для этого не обязательны.', 'note'))
+story.append(p('Фон и обводка самих Frame popup / modalpopup / popupref по умолчанию не переносятся (прозрачные); радиусы и Opacity Frame игнорируются. Красные рамки-ориентиры можно оставить. Нужен фон или обводка - флажки «Экспортировать фон / обводку Frame» в форме.', 'note'))
 story.append(p('02 / Подготовка и экспорт', 'section'))
 cards = [
     '**Button Styles / подготовка**\n'
@@ -156,7 +157,8 @@ cards = [
     '3. `button_` > Off / On; `feedbackbutton_` > Normal / Active. **Pressed добавьте вручную**; Normal / Pressed подготовьте вручную.\n'
     'Переносятся заливка и обводка фона; скругление - по настройке. Иконки, подписи, Pressed и ID сохраняются.',
     '**Имена / экспорт**\n'
-    'После префикса: латинская буква, затем латиница, цифры, точки и дефисы между непустыми частями. Без пробелов и второго `_`. Пример: `button_side.hall`.\n'
+    'После префикса: латинская буква, затем латиница, цифры, точки и дефисы между непустыми частями. Без пробелов и второго `_`. Пример: `button_side.hall`. **Русские буквы в именах слоёв - ошибка**; видимый текст может быть русским.\n'
+    'Ключи следуют именам слоёв, ID не меняются. Страницы идут по именам: `screen_01-Main`, `screen_02-Audio`.\n'
     'Экран > профиль панели > «Проверить макет» > «Скачать .exui». Ключи и ID назначаются автоматически.\n'
     'Нативные координаты и размеры округляются: 218.21 > 218, 218.7 > 219. Исходный макет не меняется.\n'
     '**AV-команды, feedback и переходы выполняет программа Extron.**\n'

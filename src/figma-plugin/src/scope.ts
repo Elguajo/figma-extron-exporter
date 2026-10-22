@@ -1,7 +1,8 @@
-import { PROFILES, fail, readMetadata, type Profile } from './model.ts';
+import { PROFILES, fail, readMetadata, type Profile, type Metadata } from './model.ts';
 import { byName, pageScreens, type ProjectNode, type ProjectOptions } from './project.ts';
 
 export type ScopeMode = 'selection' | 'selected-frames' | 'page';
+export const PAGE_SETTINGS_KEY='exui-page-settings';
 export interface ScopeContext {
   root: ProjectNode;
   options: ProjectOptions;
@@ -11,6 +12,11 @@ export interface ScopeContext {
   hint: string;
 }
 const stored = (node: BaseNode) => readMetadata(node, { allowCopied: true });
+// Popup prefixes already identify the container before assignments are saved.
+// A saved assignment takes precedence, just as it does during recognition.
+export function selectionKind(node:BaseNode):Metadata['kind']|undefined {
+  return stored(node)?.kind ?? (/^(pop|popup|mdl|modalpopup)_/i.test(node.name)?'popup':/^(pgrp|popupgroup)_/i.test(node.name)?'popup-group':/^(pr|popupref)_/i.test(node.name)?'popup-ref':undefined);
+}
 export function selected(): SceneNode {
   const selection = figma.currentPage.selection;
   if (selection.length !== 1) fail('selection', 'Выберите одну секцию, Frame экрана или его элемент.');
@@ -29,7 +35,7 @@ function screenOf(node:SceneNode):ProjectNode {
     if(metadata?.kind==='page'&&current.type==='FRAME')found=current;
     if(!metadata&&current.type==='SECTION')return current;
     if(!metadata&&current.type==='FRAME'&&(/^(prj|project)_/i.test(current.name)))return current;
-    if(!metadata&&current.type==='FRAME'&&!/^(button|btn|feedbackbutton|fbtn|slider|sld)_/i.test(current.name)){const candidate=current;if(Object.values(PROFILES).some(p=>candidate.width===p.width&&candidate.height===p.height))found=candidate;}
+    if(!selectionKind(current)&&current.type==='FRAME'&&!/^(button|btn|feedbackbutton|fbtn|slider|sld)_/i.test(current.name)){const candidate=current;if(Object.values(PROFILES).some(p=>candidate.width===p.width&&candidate.height===p.height))found=candidate;}
     current=current.parent;
   }
   if(found)return found;
@@ -40,6 +46,29 @@ export class ExportScope {
   mode: ScopeMode = 'selection';
   profile: Profile = 'tlp-pro-1025m';
   private selectedProject: { page: PageNode; nodes: readonly FrameNode[] } | undefined;
+  constructor(){this.restore();}
+  private restore():void {
+    this.mode='selection';this.profile='tlp-pro-1025m';this.selectedProject=undefined;
+    try {
+      const page=figma.currentPage,raw=page.getPluginData(PAGE_SETTINGS_KEY);if(!raw)return;
+      const saved=JSON.parse(raw);
+      if(saved?.schema!=='exui-page-settings/1'||saved.pageId!==page.id||!Object.prototype.hasOwnProperty.call(PROFILES,saved.profile)||!['selection','selected-frames','page'].includes(saved.mode)||!Array.isArray(saved.members)||saved.members.some((id:unknown)=>typeof id!=='string'))return;
+      this.profile=saved.profile;this.mode=saved.mode;
+      const children=new Map<string,FrameNode>(),wanted=new Set<string>(saved.members);
+      function visit(node:SceneNode){if(node.type==='FRAME'&&wanted.has(node.id))children.set(node.id,node);if('children' in node)for(const child of node.children)visit(child);}
+      for(const child of page.children)visit(child);
+      const nodes=Array.from(new Set<string>(saved.members)).map(id=>children.get(id)).filter((n):n is FrameNode=>!!n);
+      if(nodes.length)this.selectedProject={page,nodes};
+      else if(this.mode==='selected-frames')this.mode='selection';
+    }catch{ /* Corrupt UI preferences must not erase layer assignments or block export. */ }
+  }
+  persist(profile:Profile=this.profile):void {
+    const page=figma.currentPage;
+    const members=this.selectedProject?.page.id===page.id?this.selectedProject.nodes.filter(n=>!n.removed&&pageOf(n)?.id===page.id).map(n=>n.id):[];
+    const value=JSON.stringify({schema:'exui-page-settings/1',pageId:page.id,mode:this.mode,profile,members});
+    if(page.getPluginData(PAGE_SETTINGS_KEY)!==value)page.setPluginData(PAGE_SETTINGS_KEY,value);
+    this.profile=profile;
+  }
   private rememberFrames():void {
     const selection=figma.currentPage.selection;
     // Selecting a page to edit its properties must retain the rest of the project.
@@ -56,7 +85,14 @@ export class ExportScope {
     if(nodes.some(n=>n.removed||pageOf(n)?.id!==root.id))fail('selection','Выбранные экраны удалены или перемещены. Выделите их заново.');
     return {root,options:{members:nodes,projectName:figma.root.name}};
   }
-  reset(): void { this.selectedProject = undefined; }
+  reset(): void { this.restore(); }
+  useProject(root:ProjectNode,options:ProjectOptions):void {
+    if(root.type==='PAGE'){
+      const nodes=options.members??[];
+      if(nodes.some(n=>n.type!=='FRAME'))fail('selection','В проекте ожидаются Frame экранов и popup.');
+      this.selectedProject={page:root,nodes:nodes as readonly FrameNode[]};this.mode='selected-frames';
+    }else this.mode='selection';
+  }
   refreshSelection(): void {
     const selection = figma.currentPage.selection;
     if (this.mode === 'selection' && selection.length > 1 && selection.every(n => n.type === 'FRAME')) this.mode = 'selected-frames';
@@ -64,10 +100,32 @@ export class ExportScope {
   }
   get canRecognize(): boolean {
     const node = figma.currentPage.selection.length === 1 ? figma.currentPage.selection[0] : undefined;
-    const metadata = node ? stored(node) : null;
-    return this.mode !== 'selection' || !!node && ['FRAME', 'SECTION'].includes(node.type) && (!metadata || ['page', 'project'].includes(metadata.kind));
+    const kind = node ? selectionKind(node) : undefined;
+    return this.mode !== 'selection' || !!node && ['FRAME', 'SECTION'].includes(node.type) && (!kind || ['page', 'project'].includes(kind));
+  }
+  get canPrepare(): boolean {
+    const node = figma.currentPage.selection.length === 1 ? figma.currentPage.selection[0] : undefined;
+    return !!node && node.type==='FRAME' && !selectionKind(node);
+  }
+  resolveButtons(): Pick<ScopeContext, 'root' | 'options' | 'scope'> {
+    // Styling needs only the selected container, even before it belongs to a
+    // valid export project. Keep batch export modes and their members intact.
+    if (this.mode === 'selection') {
+      let node: BaseNode | null = selected();
+      while (node && node.type !== 'PAGE') {
+        const metadata = stored(node);
+        const kind = selectionKind(node);
+        if (node.type === 'FRAME' && (kind === 'popup' || kind === 'popup-group')) {
+          return {root:node,options:{},scope:{id:node.id,name:node.name,kind,profile:metadata?.profile??this.profile}};
+        }
+        if (kind === 'page' || kind === 'project' || node.type === 'SECTION') break;
+        node = node.parent;
+      }
+    }
+    return this.resolve();
   }
   resolve(forRecognition = false): ScopeContext {
+    if(forRecognition&&!this.canRecognize)fail('selection','Для распознавания выберите секцию проекта или внешний Frame экрана. Popup, группы и места popup распознаются в составе проекта.');
     if (this.mode === 'selected-frames') this.rememberFrames();
     const resolved: {root: SceneNode | PageNode; options: ProjectOptions} = this.mode === 'selection'
       ? { root: forRecognition ? selected() : screenOf(selected()), options: {} }

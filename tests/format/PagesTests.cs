@@ -87,6 +87,29 @@ static class PagesTests
                     Check(p.Plan.Popups.Where(x => x.Group == "group.sources").Select(x => x.Key).SequenceEqual(new[] { "popup.sources-1", "popup.sources-2" }));
                     Check(p.Plan.Containers.SelectMany(c => c.Elements).Where(e => e.Kind == "button").All(e => e.PressState == 2));
                 });
+            test("exui/5: a start page in the middle leads while other pages keep their package order", () =>
+            {
+                var f = Files();
+                Edit(f, "screen.json", n =>
+                {
+                    var pages = n["pages"]!.AsArray();
+                    JsonNode Extra(int id)
+                    {
+                        var extra = pages[0]!.DeepClone();
+                        extra["key"] = $"page.extra{id}"; extra["objectId"] = id; extra["name"] = $"Extra {id}";
+                        extra["shownBy"] = "program";
+                        var title = extra["elements"]![0]!.DeepClone(); title["key"] = $"extra{id}.title";
+                        extra["elements"] = new JsonArray(title);
+                        return extra;
+                    }
+                    var before = Extra(102); var after = Extra(103);
+                    var home = pages[0]!.DeepClone(); pages.RemoveAt(0);
+                    pages.Add(before); pages.Add(home); pages.Add(after);
+                });
+                using var p = ExuiPackage.Load(Zip(work, f));
+                Check(p.Plan.Pages.Select(x => x.Key).SequenceEqual(new[] { "page.home", "page.sources", "page.extra102", "page.extra103" }));
+                Check(p.Plan.Page.ObjectId == 100);
+            });
             test("exui/5: both panels carry the same keys and IDs", () =>
             {
                 using var a = ExuiPackage.Load(Zip(work, Files("1025m")));
@@ -119,7 +142,8 @@ static class PagesTests
                 using var changed = ExuiPackage.Load(Zip(work, f));
                 Check(Ids(changed.Plan).OrderBy(x => x.Key).SequenceEqual(Ids(original.Plan).OrderBy(x => x.Key)));
                 Check(changed.Plan.Containers.OrderBy(c => c.Key).Select(c => (c.Key, c.ObjectId)).SequenceEqual(original.Plan.Containers.OrderBy(c => c.Key).Select(c => (c.Key, c.ObjectId))));
-                Check(changed.Plan.Pages[0].Key == "page.sources", "order really changed");
+                Check(changed.Plan.Pages[0].Key == "page.home", "start page leads even when the package lists it last");
+                Check(changed.Plan.Popups[0].Key == original.Plan.Popups[^1].Key, "popup order still follows the package");
             });
             test("exui/5: ID map lists every control ID and says navigation is not stored in GDL", () =>
             {
@@ -236,7 +260,7 @@ static class PagesTests
                     IEnumerable<(string?, ulong, ulong, ushort, string)> Map(ProjectModel m) => m.Pages.Concat(m.Popups)
                         .SelectMany(p => p.Controls.Select(c => (p.Comments, p.ObjectId, c.ObjectId, c.ControlId, c.Type))).OrderBy(x => x.Item2).ThenBy(x => x.Item3);
                     Check(Map(model).SequenceEqual(Map(after)));
-                    Check(after.Pages[0].ObjectId == 101, "page order follows the package");
+                    Check(after.Pages[0].ObjectId == 100 && after.DefaultPage == 100, "start page leads and remains the default");
                 });
             test("exui/5: a donor without popup sources is refused with donor-element; nothing written", () =>
             {

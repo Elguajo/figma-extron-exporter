@@ -7,19 +7,22 @@ let packing=false,operationBusy=false,selectedId:string|null=null,downloadUrl:st
 let recognitionToken:number|undefined;
 let legacyButton=false,loadedKey='',loadedPattern='';
 let designPattern:{pattern?:string;preview?:string;source?:string;error?:string}|undefined;
-let canRecognize=false,hasScope=false;
+let canRecognize=false,canPrepare=false,hasScope=false;
+let bindingPopupIds:string[]=[],canBindPopups=false;
 let buttonCanApply=false,buttonResultReady=false;
 let buttonSummary:ButtonPreparationSummary|undefined,buttonStylesReady=false,buttonScopeReady=false,buttonScopeKey='';
 const send=(type:string,extra:Record<string,unknown>={})=>{if(!['recognize','apply-recognition','select-issue'].includes(type))clearRecognition();setBusy(true);if(type==='export'){const bar=$('bar');bar.hidden=false;bar.dataset.complete='false';bar.removeAttribute('aria-valuenow');bar.setAttribute('aria-valuetext','Подготовка экспорта');}parent.postMessage({pluginMessage:{type,scopeMode:input('scopeMode').value,profile:input('profile').value,...extra}},'*');};
 function status(message:string,kind='progress') { $('status').textContent=message;$('status').dataset.kind=kind;$('status').setAttribute('role',kind==='error'?'alert':'status');if(kind==='error')$('bar').hidden=true; }
 function setBusy(busy:boolean) {
   operationBusy=busy;
-  document.querySelectorAll<HTMLButtonElement>('button').forEach(b=>b.disabled=busy||(!selectedId&&!['kit','recognize','check','export','retryRecognition','applyButtonStyles','buttonExport'].includes(b.id)&&!b.dataset.issueNode)||(b.id==='recognize'&&!canRecognize)||(['check','export','buttonExport'].includes(b.id)&&!hasScope)||(b.id==='applyButtonStyles'&&!buttonCanApply)||(b.id==='buttonExport'&&!buttonResultReady)||(b.id==='preview'&&!$<HTMLSelectElement>('previewRole').options.length));
+  document.querySelectorAll<HTMLButtonElement>('button').forEach(b=>b.disabled=busy||(!selectedId&&!['kit','recognize','check','export','retryRecognition','applyButtonStyles','buttonExport'].includes(b.id)&&!b.dataset.issueNode)||(b.id==='recognize'&&!canRecognize)||(b.id==='prepare'&&!canPrepare)||(['check','export','buttonExport'].includes(b.id)&&!hasScope)||(b.id==='applyButtonStyles'&&!buttonCanApply)||(b.id==='buttonExport'&&!buttonResultReady)||(b.id==='preview'&&!$<HTMLSelectElement>('previewRole').options.length));
   document.querySelectorAll<HTMLInputElement|HTMLSelectElement>('#mapping input,#mapping select,#profile,#scopeMode,#previewRole').forEach(e=>e.disabled=busy||(!selectedId&&!['profile','scopeMode'].includes(e.id)));
   $<HTMLButtonElement>('applyRecognition').disabled=busy||recognitionToken===undefined;
   $('mapping').setAttribute('aria-busy',String(busy));
   input('buttonCorners').disabled=busy;
   document.querySelectorAll<HTMLInputElement>('#buttonExistingChoice input').forEach(e=>e.disabled=busy);
+  $<HTMLButtonElement>('bindPopups').disabled=busy||!canBindPopups;
+  $<HTMLSelectElement>('popupPlace').disabled=busy||!canBindPopups;
   $('buttonStates').setAttribute('aria-busy',String(busy));
 }
 function clearButtonResult() { buttonResultReady=false;$('buttonResult').hidden=true;$('buttonExport').hidden=true;$('applyButtonStyles').classList.remove('secondary'); }
@@ -32,17 +35,18 @@ function buttonResult(message:string,kind:'success'|'error'|'progress') {
 function buttonPlan() {
   const summary=buttonSummary,existing=input('updateExistingButtons').checked?'update':input('skipExistingButtons').checked?'skip':undefined;
   const needsChoice=!!summary&&summary.update>0;
-  $('buttonPlan').textContent=!buttonScopeReady?'Сначала выберите экран.':summary?.issue?'Исправьте указанную причину и выберите экран повторно.':!buttonStylesReady?'Сначала задайте обычный и активный образцы.':needsChoice&&!existing?'Выберите, пропустить готовые кнопки или обновить их оформление.':existing==='update'&&summary?.updateIssue?summary.updateIssue:summary?existing==='update'?`Подготовить кнопок: ${summary.create} · обновить оформление: ${summary.update}.`:`Подготовить кнопок: ${summary.create} · пропустить готовых: ${summary.update}.`:'';
+  $('buttonPlan').textContent=!buttonScopeReady?'Сначала выберите экран или popup.':summary?.issue?'Исправьте указанную причину и выберите макет повторно.':!buttonStylesReady?'Сначала задайте обычный и активный образцы.':needsChoice&&!existing?'Выберите, пропустить готовые кнопки или обновить их оформление.':existing==='update'&&summary?.updateIssue?summary.updateIssue:summary?existing==='update'?`Подготовить кнопок: ${summary.create} · обновить оформление: ${summary.update}.`:`Подготовить кнопок: ${summary.create} · пропустить готовых: ${summary.update}.`:'';
   buttonCanApply=buttonScopeReady&&buttonStylesReady&&!!summary&&!summary.issue&&(!needsChoice||!!existing)&&!(existing==='update'&&!!summary.updateIssue)&&(summary.create>0||(existing==='update'&&summary.update>0));
   if(buttonScopeReady&&buttonStylesReady&&summary&&!summary.issue&&existing==='skip'&&!summary.create)$('buttonPlan').textContent='Все кнопки уже готовы. Можно перейти к проверке и скачиванию. Для изменения оформления выберите применение нового стиля.';
 }
-function buttonWorkflow(msg:{scope?:{id?:string;name:string;kind:string;profile?:string};scopeMode?:string;scopeHint?:string;name?:string;buttonWorkflow?:ButtonPreparationSummary;buttonStylePreviews?:{normal:PresetPreview;feedback:PresetPreview}}) {
+function buttonWorkflow(msg:{scope?:{id?:string;name:string;kind:string;profile?:string};buttonScope?:{id?:string;name:string;kind:string;profile?:string};scopeMode?:string;scopeHint?:string;name?:string;buttonWorkflow?:ButtonPreparationSummary;buttonStylePreviews?:{normal:PresetPreview;feedback:PresetPreview}}) {
   clearButtonResult();
   const previews=msg.buttonStylePreviews, summary=msg.buttonWorkflow;
   const ready=!!previews?.normal.ready&&!!previews?.feedback.ready;
-  const scopeKey=JSON.stringify([msg.scope?.id,msg.scope?.name,msg.scope?.profile,msg.scopeMode,msg.scopeHint]);
+  const scope=msg.buttonScope??msg.scope;
+  const scopeKey=JSON.stringify([scope?.id,scope?.name,scope?.profile,msg.scopeMode,msg.scopeHint]);
   if(scopeKey!==buttonScopeKey){input('skipExistingButtons').checked=false;input('updateExistingButtons').checked=false;buttonScopeKey=scopeKey;}
-  buttonSummary=summary;buttonStylesReady=ready;buttonScopeReady=!!msg.scope;
+  buttonSummary=summary;buttonStylesReady=ready;buttonScopeReady=!!scope;
   for(const [role,prefix] of [['normal','normal'],['feedback','active']] as const) {
     const p=previews?.[role],swatch=$(prefix+'ButtonSwatch');
     swatch.style.backgroundColor=p?.fill??'';swatch.style.borderColor=p?.stroke??'';swatch.style.borderRadius=p?.radius!==undefined?`${Math.min(20,p.radius)}px`:'';
@@ -51,9 +55,10 @@ function buttonWorkflow(msg:{scope?:{id?:string;name:string;kind:string;profile?
     $(prefix+'ButtonHint').textContent=p?.hint??'';
   }
   $('buttonStyleHelp').hidden=ready;
-  $('buttonScope').textContent=msg.scope?`${msg.scope.kind==='project'?'Проект':'Экран'}: ${msg.scope.name}`:'Выберите экран с кнопками';
-  $('buttonScopeHint').textContent=!msg.scope?(ready?'Стили найдены. Теперь выберите Frame экрана с кнопками в Figma.':'Выделите Frame экрана на холсте или в списке слоёв Figma.'):summary?.issue??(summary?`Найдено кнопок: ${summary.total}.`:'Проверяю кнопки выбранного макета.');
-  $('buttonExistingChoice').hidden=!msg.scope||!summary||!!summary.issue||summary.update===0;
+  const label=scope?.kind==='project'?'Проект':scope?.kind==='popup-group'?'Группа popup':scope?.kind==='popup'?'Popup':'Экран';
+  $('buttonScope').textContent=scope?`${label}: ${scope.name}`:'Выберите экран или popup с кнопками';
+  $('buttonScopeHint').textContent=!scope?(ready?'Стили найдены. Теперь выберите Frame экрана, popup_ или popupgroup_ в Figma.':'Выделите Frame экрана, popup_ или popupgroup_ на холсте или в списке слоёв Figma.'):summary?.issue??(summary?`Найдено кнопок: ${summary.total}.`:'Проверяю кнопки выбранного макета.');
+  $('buttonExistingChoice').hidden=!scope||!summary||!!summary.issue||summary.update===0;
   buttonPlan();
 }
 function fields() {
@@ -92,13 +97,14 @@ $('profile').addEventListener('change',()=>{clearRecognition();revokeDownload();
 $('scopeMode').addEventListener('change',()=>{revokeDownload();send('context');});
 $('check').onclick=()=>send('check');$('export').onclick=()=>{revokeDownload();send('export');};
 $('preview').onclick=()=>{const value=input('previewRole').value;send('preview',value.startsWith('id:')?{stateId:Number(value.slice(3))}:{role:value});};
+$('bindPopups').onclick=()=>send('bind-popups',{referenceId:input('popupPlace').value,popupIds:bindingPopupIds});
 $('mapping').onsubmit=event=>{
   event.preventDefault();
   const data:Record<string,string>={};for(const id of ['kind','buttonMode','key','objectId','controlId','projectName','profile','role','stateName','file','resourceName','stateId','shownBy','modal','display','orientation','min','max','pattern','popup','group','navigate','selectionGroup','enabled','visible'])data[id]=input(id).value;
   data.keyEdited=String(data.key!==loadedKey);
   data.patternEdited=String(data.pattern!==loadedPattern);
   for(const id of ['exportBackground','exportStroke'])data[id]=String(input(id).checked);
-  send('apply',{data});
+  send('apply',{data,nodeId:selectedId});
 };
 window.onmessage=async(event:MessageEvent)=>{
   // Figma's bridge guarantees pluginMessage, not a parent Window as source.
@@ -109,18 +115,30 @@ window.onmessage=async(event:MessageEvent)=>{
     if(selectedId!==msg.id)revokeDownload();
     selectedId=msg.id;$('selection').textContent=msg.name;
     const m=(msg.metadata??{}) as Partial<Metadata>;
+    const binding=msg.popupBinding as {popupIds:string[];names:string[];targets:{id:string;name:string}[];referenceId?:string;error?:string}|undefined;
+    $('popupBinding').hidden=!binding;
+    bindingPopupIds=binding?.popupIds??[];canBindPopups=!!bindingPopupIds.length&&!!binding?.targets.length&&!binding.error;
+    const places=$<HTMLSelectElement>('popupPlace'),previousPlace=places.value;places.replaceChildren();
+    for(const target of binding?.targets??[]){const option=document.createElement('option');option.value=target.id;option.textContent=target.name;places.appendChild(option);}
+    if(binding?.referenceId&&binding.targets.some(t=>t.id===binding.referenceId))places.value=binding.referenceId;
+    else if(binding?.targets.some(t=>t.id===previousPlace))places.value=previousPlace;
+    $('popupBindingNames').textContent=binding?.error??binding?.names.join(', ')??'';
+    $('popupBindingHelp').textContent=binding?.error??(binding&&!binding.targets.length?'Места popup не найдены. Сначала создайте пустой popupref_… внутри экрана этого проекта и сохраните его назначение.':'Выберите место по имени. Существующая группа используется повторно; для отдельных popup группа создаётся автоматически. Размеры Frame должны совпадать.');
+    const kind=m.kind??msg.selectionKind;
     for(const id of ['exportBackground','exportStroke'] as const)input(id).checked=m[id]===true;
     if(msg.scopeMode)input('scopeMode').value=msg.scopeMode;
     canRecognize=msg.canRecognize===true;
+    canPrepare=msg.canPrepare===true;
     hasScope=!!msg.scope;
     buttonWorkflow(msg);
     $('selectionType').textContent=input('scopeMode').value!=='selection'?'Проект':selectedId?({SECTION:'Секция',FRAME:'Frame',GROUP:'Группа',INSTANCE:'Компонент',TEXT:'Текст'} as Record<string,string>)[msg.nodeType]??'Элемент':'Нет выбора';
     $('scope').textContent=msg.scopeHint|| (msg.scope?`Экспорт ${msg.scope.kind==='project'?'проекта':'экрана'}: ${msg.scope.name}`:selectedId?'Выберите внешний Frame экрана или секцию проекта.':'Выделите нужные фреймы вместе, чтобы собрать один проект.');
-    $('recognitionHelp').textContent=canRecognize?'При проверке и скачивании ключи и свободные ID назначаются автоматически. Распознавание позволяет заранее посмотреть результат.':selectedId?'Для распознавания выберите секцию проекта или внешний Frame экрана.':'Выберите секцию или экран. Ключи и ID заполнятся при экспорте.';
+    $('recognitionHelp').textContent=canRecognize?'При проверке и скачивании ключи и свободные ID назначаются автоматически. Распознавание позволяет заранее посмотреть результат.':['popup','popup-group','popup-ref'].includes(kind)?'Popup, группы и места popup распознаются в составе проекта. Выберите секцию или внешний Frame проекта.':selectedId?'Для распознавания выберите секцию проекта или внешний Frame экрана.':'Выберите секцию или экран. Ключи и ID заполнятся при экспорте.';
     legacyButton=m.kind==='button'&&!m.buttonMode;
     input('buttonMode').value=m.buttonMode??(legacyButton?'legacy':'on-off');
     $('prepare').hidden=msg.nodeType!=='FRAME'||!!m.kind;
     $('preparationHelp').hidden=msg.nodeType!=='FRAME'||!!m.kind;
+    $('preparationHelp').textContent=canPrepare?'Ручная подготовка Frame без распознавания дочерних элементов.':'Подготовка экрана недоступна: выбранный Frame имеет другое назначение.';
     for(const id of ['key','objectId','controlId','projectName','stateName','file','resourceName','stateId','shownBy','pattern','popup','group'])input(id).value=String(m[id as keyof Metadata]??'');
     loadedKey=input('key').value;
     // Only a typed pattern is shown for editing; the design's one is a placeholder.
@@ -134,8 +152,8 @@ window.onmessage=async(event:MessageEvent)=>{
     navigation.value=m.navigate??'';
     $('navigationHelp').textContent=msg.targets?.length?'Выберите цель из текущего проекта. Переход подключается в программе управления Extron.':'Цели не найдены. В «Что экспортировать» выберите «Экраны текущей страницы — один проект» или выделите нужные экраны вместе. Затем снова выберите кнопку.';
     for(const id of ['selectionGroup','enabled','visible'] as const)input(id).value=String(m.behavior?.[id]??'');
-    input('display').value=m.display??'slider';input('orientation').value=m.orientation??'left-to-right';input('min').value=String(m.min??0);input('max').value=String(m.max??100);input('modal').value=String(m.modal??false);
-    input('kind').value=m.kind??(msg.nodeType==='SECTION'?'project':msg.nodeType==='TEXT'?'label':'page');
+    input('display').value=m.display??'slider';input('orientation').value=m.orientation??'left-to-right';input('min').value=String(m.min??0);input('max').value=String(m.max??100);input('modal').value=String(m.modal??(kind==='popup'&&/^(mdl|modalpopup)_/i.test(msg.name)));
+    input('kind').value=kind??(msg.nodeType==='SECTION'?'project':msg.nodeType==='TEXT'?'label':'page');
     const preview=$<HTMLSelectElement>('previewRole');preview.replaceChildren();
     for(const state of msg.states??[]){const option=document.createElement('option');option.value=state.stateId!==undefined?'id:'+state.stateId:state.role;option.textContent=state.stateId!==undefined?`${state.stateId} · ${state.name} · ${state.role}`:state.name;preview.appendChild(option);}
     if(msg.profile??m.profile??msg.scope?.profile)input('profile').value=msg.profile??m.profile??msg.scope.profile;input('role').value=m.role??'normal';

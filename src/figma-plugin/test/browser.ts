@@ -37,7 +37,7 @@ window.scopeMode='selection';window.useBatch=false;window.batchReady=false;windo
 const send=m=>{const target=document.querySelector('iframe').contentWindow;if(new URLSearchParams(location.search).get('transport')==='bridge'){target.dispatchEvent(new target.MessageEvent('message',{data:{pluginMessage:m}}));window.bridgeMessages++;}else target.postMessage({pluginMessage:m},location.origin);};
 const buttonStylePreviews=${JSON.stringify(buttonPreviews)},buttonMixed=${JSON.stringify(buttonMixed)},buttonReady=${JSON.stringify(buttonReady)};
 window.failButtonApply=false;
-window.selectNode=m=>{if(m.metadata?.profile)profile=m.metadata.profile;window.currentSelection=m;send({type:'selection',scopeMode:window.scopeMode,buttonStylePreviews,buttonWorkflow:buttonMixed,canRecognize:!!m.id&&['FRAME','SECTION'].includes(m.nodeType)&&(!m.metadata?.kind||['page','project'].includes(m.metadata.kind)),...m,scope:m.scope??(m.metadata||m.nodeType==='SECTION'?{id:m.id,name:m.name,kind:m.metadata?.kind==='project'||m.nodeType==='SECTION'?'project':'page',profile}:undefined)});};
+window.selectNode=m=>{if(m.metadata?.profile)profile=m.metadata.profile;window.currentSelection=m;send({type:'selection',scopeMode:window.scopeMode,buttonStylePreviews,buttonWorkflow:buttonMixed,canPrepare:!!m.id&&m.nodeType==='FRAME'&&!m.metadata?.kind,canRecognize:!!m.id&&['FRAME','SECTION'].includes(m.nodeType)&&(!m.metadata?.kind||['page','project'].includes(m.metadata.kind)),...m,scope:m.scope??(m.metadata||m.nodeType==='SECTION'?{id:m.id,name:m.name,kind:m.metadata?.kind==='project'||m.nodeType==='SECTION'?'project':'page',profile}:undefined)});};
 window.sendBatch=()=>window.selectNode({id:null,name:'Выбрано фреймов: 2',scopeMode:window.scopeMode,canRecognize:true,scopeHint:'В проекте: screen_Main, screen_AudioControl',profile,scope:{id:'current-page',name:'Trilliant',kind:'project',profile}});
 window.onmessage=e=>{if(e.source!==document.querySelector('iframe').contentWindow)return;const m=e.data.pluginMessage;if(!m)return;
 if(m.scopeMode)window.scopeMode=m.scopeMode;
@@ -48,6 +48,7 @@ if(m.type.startsWith('button-')){window.lastButtonCommand=m;if(m.type==='button-
 if(m.type==='prepare'){window.lastPreparation=m;profile=m.profile;window.selectNode({id:'custom',name:'Свой экран',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Свой экран',profile}});send({type:'success',message:'Назначение «Экран» сохранено. Далее назначьте элементы.'});}
 if(m.type==='check'&&!window.failRecognition)send({type:'success',message:'Экран проверен: 4 элемента, 2 PNG.'});
 if(m.type==='apply'){window.lastMapping=m.data;send({type:'success',message:'Назначение сохранено в Figma-узле.'});}
+if(m.type==='bind-popups'){window.lastPopupBinding=m;window.selectNode({id:m.referenceId,name:'popupref_AudioControls',nodeType:'FRAME',metadata:{kind:'popup-ref',key:'audio.controls',objectId:7,group:'group.audiocontrols',controlId:null},scope:{id:'project',name:'AV panels',kind:'project',profile}});send({type:'success',message:'Popup связаны с выбранным местом.'});}
 if(m.type==='preview'){window.lastPreview=m;send({type:'success',message:'Состояние показано.'});}
 if(m.type==='select-issue'){window.lastIssueNode=m.nodeId;const issue=issueReport.issues.find(i=>i.nodeId===m.nodeId);window.selectNode({id:issue.nodeId,name:issue.nodeName,nodeType:issue.nodeType,keepRecognition:true,scope:{id:'custom',name:'screen_MainDashboard',kind:'page',profile}});}
 if(m.type==='recognize'||window.failRecognition&&['check','export'].includes(m.type)){if(m.fromReport)window.lastRetry=m;send({type:'recognition',token:7,...(window.failRecognition?issueReport:{rows:[{id:'button',name:'button_Music',kind:'button',key:'home.music',objectId:1,controlId:8101,isNew:true}],errors:[],issues:[]}),warnings:[]});}
@@ -65,8 +66,43 @@ try{
  await frame.getByRole('button',{name:'Скачать .exui',exact:true}).waitFor();
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isDisabled(),true);
  assert.equal(await frame.locator('#demo').count(),0);
+ // Popup prefixes and saved assignments disable screen-only actions before a click.
+ await frame.locator('#editor summary').click();
+ for(const [name,kind] of [['modalpopup_Confirm','popup'],['popupgroup_AudioControls','popup-group'],['popupref_Sources','popup-ref']])for(const assigned of [false,true]){
+  await page.evaluate(({name,kind,assigned})=>(window as any).selectNode({id:'popup-action',name,nodeType:'FRAME',selectionKind:kind,canPrepare:false,canRecognize:false,...(assigned?{metadata:{kind,key:'test.popup',objectId:101}}:{})}),{name,kind,assigned});
+  await frame.locator('#selection').filter({hasText:name}).waitFor();
+  await frame.locator('#prepare').waitFor({state:assigned?'hidden':'visible'});
+  assert.equal(await frame.locator('#recognize').isDisabled(),true);
+  assert.equal(await frame.locator('#prepare').isDisabled(),true);
+  assert.equal(await frame.locator('#prepare').isVisible(),!assigned);
+  assert.equal(await frame.locator('#kind').inputValue(),kind);
+  if(name.startsWith('modalpopup')&&!assigned)assert.equal(await frame.locator('#modal').inputValue(),'true');
+  if(!assigned)for(const id of ['check','export'])assert.equal(await frame.locator('#'+id).isDisabled(),true);
+  if(name.startsWith('popupgroup')&&!assigned){
+   await frame.locator('#prepare').scrollIntoViewIfNeeded();
+   await page.screenshot({path:path.join(out,'popupgroup-disabled-actions.png'),fullPage:true});
+  }
+ }
+ await frame.locator('#editor summary').click();
+ await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выберите экраны на холсте'}));
+ // The binding action is available for multi-selection without an active node.
+ await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выбрано popup: 2',scope:{id:'project',name:'AV panels',kind:'project',profile:'tlp-pro-1025m'},popupBinding:{popupIds:['hall','terrace'],names:['popup_HallSources','popup_TerraceSources'],targets:[{id:'place',name:'screen_AudioControl → popupref_AudioControls'}]}}));
+ await frame.getByRole('button',{name:'Связать с местом popup',exact:true}).waitFor();
+ assert.equal(await frame.getByRole('button',{name:'Связать с местом popup',exact:true}).isEnabled(),true);
+ assert.equal(await frame.locator('#popupPlace option').textContent(),'screen_AudioControl → popupref_AudioControls');
+ for(const width of [420,320]){await page.setViewportSize({width,height:720});assert.equal(await frame.locator('main').evaluate(el=>el.scrollWidth<=el.clientWidth),true);await frame.locator('#popupBinding').screenshot({path:path.join(out,`popup-binding-${width}.png`)});}
+ await page.setViewportSize({width:420,height:720});
+ await frame.locator('#popupPlace').focus();await page.keyboard.press('Tab');
+ assert.equal(await frame.getByRole('button',{name:'Связать с местом popup',exact:true}).evaluate(el=>el===document.activeElement),true);
+ await page.keyboard.press('Enter');await page.waitForFunction(()=>(window as any).lastPopupBinding?.referenceId==='place');
+ assert.deepEqual(await page.evaluate(()=>(window as any).lastPopupBinding.popupIds),['hall','terrace']);
+ await frame.getByRole('status').filter({hasText:'Popup связаны'}).waitFor();
+ await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выбрано popup: 2',popupBinding:{popupIds:['hall','terrace'],names:['popup_HallSources','popup_TerraceSources'],targets:[]}}));
+ assert.equal(await frame.getByRole('button',{name:'Связать с местом popup',exact:true}).isDisabled(),true);
+ await frame.getByText('Места popup не найдены.',{exact:false}).waitFor();
+ await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выберите экраны на холсте'}));
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
- await frame.getByText('Стили найдены. Теперь выберите Frame экрана с кнопками в Figma.',{exact:true}).waitFor();
+ await frame.getByText('Стили найдены. Теперь выберите Frame экрана, popup_ или popupgroup_ в Figma.',{exact:true}).waitFor();
  await frame.getByText('Выбрать образцы и фон вручную',{exact:true}).focus();await page.keyboard.press('Enter');
  assert.equal(await frame.getByRole('button',{name:'Выбранное — обычный эталон',exact:true}).isDisabled(),true);
  await page.evaluate(()=>(window as any).selectNode({id:'preset-normal',name:'Passive',nodeType:'RECTANGLE'}));
@@ -78,8 +114,24 @@ try{
  // Selecting the styles container explains the disabled action directly.
  await page.evaluate(()=>(window as any).selectNode({id:'samples',name:'Button Styles',nodeType:'FRAME'}));
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
- await frame.getByText('Стили найдены. Теперь выберите Frame экрана с кнопками в Figma.',{exact:true}).waitFor();
+ await frame.getByText('Стили найдены. Теперь выберите Frame экрана, popup_ или popupgroup_ в Figma.',{exact:true}).waitFor();
  await frame.locator('#buttonStates').screenshot({path:path.join(out,'button-styles-selected.png')});
+ // Styling a standalone popup group does not require an exportable screen.
+ await page.evaluate(()=>(window as any).selectNode({id:'popupgroup',name:'popupgroup_AudioControls',nodeType:'FRAME',buttonScope:{id:'popupgroup',name:'popupgroup_AudioControls',kind:'popup-group',profile:'tlp-pro-1025m'},buttonWorkflow:{total:2,create:2,update:0}}));
+ await frame.getByText('Группа popup: popupgroup_AudioControls',{exact:true}).waitFor();
+ assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isEnabled(),true);
+ assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isDisabled(),true);
+ await frame.getByRole('button',{name:'Применить оформление',exact:true}).click();
+ await frame.locator('#buttonResultMessage').filter({hasText:'Оформление применено'}).waitFor();
+ await frame.getByLabel('Применить новый стиль и к готовым',{exact:true}).check();
+ // Moving from the group to one popup resets the existing-state decision.
+ await page.evaluate(()=>(window as any).selectNode({id:'popup',name:'popup_TerraceSources',nodeType:'FRAME',buttonScope:{id:'popup',name:'popup_TerraceSources',kind:'popup',profile:'tlp-pro-1025m'},buttonWorkflow:{total:1,create:0,update:1}}));
+ await frame.getByText('Popup: popup_TerraceSources',{exact:true}).waitFor();
+ assert.equal(await frame.getByLabel('Применить новый стиль и к готовым',{exact:true}).isChecked(),false);
+ assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
+ await frame.getByLabel('Применить новый стиль и к готовым',{exact:true}).check();
+ assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isEnabled(),true);
+ await frame.locator('#buttonStates').screenshot({path:path.join(out,'popup-button-styles.png')});
  await page.evaluate(previews=>(window as any).selectNode({id:'missing-sample',name:'screen_Home',nodeType:'FRAME',scope:{id:'missing-sample',name:'screen_Home',kind:'page',profile:'tlp-pro-1025m'},buttonStylePreviews:{...previews,normal:{name:'Не выбран',ready:false,hint:'Найдено несколько образцов. Выберите нужный в дополнительных настройках.'}}}),buttonPreviews);
  await frame.getByText('Найдено несколько образцов. Выберите нужный в дополнительных настройках.',{exact:true}).waitFor();
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
@@ -399,7 +451,7 @@ try{
  const batchPending=page.waitForEvent('download');await frame.getByRole('button',{name:'Скачать .exui',exact:true}).click();
  const batchDownload=await batchPending;await batchDownload.saveAs(path.join(out,'selected-frames.exui'));
  const batchFiles=unzipSync(await readFile(path.join(out,'selected-frames.exui'))),batchScreen=JSON.parse(strFromU8(batchFiles['screen.json']));
- assert.deepEqual(batchScreen.pages.map((p:any)=>p.name),['screen_AudioControl','screen_Main']);
+ assert.deepEqual(batchScreen,(bundles['batch-tlp-pro-1025m'] as any).screen);
  await frame.getByRole('status').filter({hasText:'Пакет готов'}).waitFor();
  await frame.locator('main').evaluate(el=>el.scrollTop=0);await page.screenshot({path:path.join(out,'selected-frames.png')});
  await frame.getByRole('button',{name:'Распознать по именам',exact:true}).click();
