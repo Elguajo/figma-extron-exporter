@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "browser": "156.0.8078.4",
+  "checks": [
+    "empty selection, demo absent, optional library collapsed",
+    "keyboard navigation and expanded prefix table without horizontal overflow",
+    "custom Frame preparation command and metadata display",
+    "recognition preview, keyboard review, apply, error blocking and profile invalidation",
+    "both profile downloads",
+    "Section recognition and multipage ZIP download",
+    "selected-frame project without active node, page mode, scope invalidation and two-screen download",
+    "target names, saved unknown navigation and clearing a transition",
+    "busy profile/action locking and check recovery",
+    "420/320 widths, visible keyboard focus, pinned export controls, light/dark tokens",
+    "ZIP payload",
+    "explicit metadata form including passive graphic",
+    "slider orientation/range and behavior, dynamic label ID, datetime pattern, popup target fields",
+    "render error recovery",
+    "text injection",
+    "null-source bridge selection, idle, check and download"
+  ],
+  "boundary": "actual Chromium UI; Figma parent and null-source bridge messages mocked; dark Figma tokens simulated",
+  "pageErrors": []
+}

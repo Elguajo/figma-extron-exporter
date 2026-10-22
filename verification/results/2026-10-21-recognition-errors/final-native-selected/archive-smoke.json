@@ -1,0 +1,70 @@
+[
+  {
+    "version": "0.3.6",
+    "profile": "tlp-pro-1025m",
+    "scenario": "selected-frames",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "A7ADD5D3F7D8F16D68CA60548E92AB42A7E18DA02050C318B0082CAF834109EE",
+      "Profile": {
+        "Id": "tlp-pro-1025m",
+        "Panel": "TLP Pro 1025M",
+        "Width": 1280,
+        "Height": 800
+      },
+      "pages": 2,
+      "popups": 0,
+      "groups": 0,
+      "elements": 3,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-1025m",
+      "PackageSha256": "A7ADD5D3F7D8F16D68CA60548E92AB42A7E18DA02050C318B0082CAF834109EE",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-21-recognition-errors\\final-native-selected\\selected-frames-tlp-pro-1025m.gdl",
+      "OutputSha256": "0A33B0281AF6E3579AE1701EEC4FA13A3CCDBBC1CA9A99341C5E073641CECF8D",
+      "checks": "59/59 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-21-recognition-errors\\final-native-selected\\selected-frames-tlp-pro-1025m.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Archived main bundle + fake Figma API/PNG + packageExui from source; packaged native CLI. Archived UI download tested separately in Chromium; Desktop/device not exercised."
+  },
+  {
+    "version": "0.3.6",
+    "profile": "tlp-pro-300m-portrait",
+    "scenario": "selected-frames",
+    "validation": {
+      "contract": "exui/5",
+      "Sha256": "1E39FA8BF851A85DCEFFD75D41242300E8ED6FC6AD8749491190CF87589A1332",
+      "Profile": {
+        "Id": "tlp-pro-300m-portrait",
+        "Panel": "TLP Pro 300M",
+        "Width": 320,
+        "Height": 480
+      },
+      "pages": 2,
+      "popups": 0,
+      "groups": 0,
+      "elements": 3,
+      "resources": 0,
+      "validation": "ZIP + schemas + semantic checks; no Extron required; GUI/device unverified"
+    },
+    "generation": {
+      "Contract": "exui/5",
+      "Profile": "tlp-pro-300m-portrait",
+      "PackageSha256": "1E39FA8BF851A85DCEFFD75D41242300E8ED6FC6AD8749491190CF87589A1332",
+      "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-21-recognition-errors\\final-native-selected\\selected-frames-tlp-pro-300m-portrait.gdl",
+      "OutputSha256": "3CB8E73F01080E501F5510BE64FE8D14617FA8EF099BB02B7C941E5238A8F883",
+      "checks": "59/59 passed",
+      "reportFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-21-recognition-errors\\final-native-selected\\selected-frames-tlp-pro-300m-portrait.gdl.report.json",
+      "GuiDesignerVerified": false,
+      "HardwareVerified": false,
+      "next": "Open a copy in GUI Designer; Verify, Save and Build and reopen manually"
+    },
+    "boundary": "Archived main bundle + fake Figma API/PNG + packageExui from source; packaged native CLI. Archived UI download tested separately in Chromium; Desktop/device not exercised."
+  }
+]

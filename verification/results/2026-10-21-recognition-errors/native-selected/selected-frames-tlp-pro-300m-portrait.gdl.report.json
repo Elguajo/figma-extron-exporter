@@ -1,0 +1,372 @@
+{
+  "PackageSha256": "1E39FA8BF851A85DCEFFD75D41242300E8ED6FC6AD8749491190CF87589A1332",
+  "Contract": "exui/5",
+  "Profile": "tlp-pro-300m-portrait",
+  "Generation": {
+    "Output": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\verification\\results\\2026-10-21-recognition-errors\\native-selected\\selected-frames-tlp-pro-300m-portrait.gdl",
+    "OutputSha256": "3CB8E73F01080E501F5510BE64FE8D14617FA8EF099BB02B7C941E5238A8F883",
+    "OutputBytes": 1556900,
+    "DonorId": "tlp-pro-300m-portrait",
+    "DonorSha256": "10D9BAA98CA65BEBBDE0DF6F5ACA970CF2FBBBEA0003E5350A2FCA498B59D636",
+    "Panel": "TLP Pro 300M",
+    "SpecSha256": "B51C0759A7D00C97A2B3BABFF882FE49978AFB941CCA9B4E1186CF70A92B2DD5",
+    "Checks": [
+      {
+        "Id": "profile.platform-class",
+        "Passed": true,
+        "Detail": "PBTLP300MPlatform (expected PBTLP300MPlatform)"
+      },
+      {
+        "Id": "profile.platform-type",
+        "Passed": true,
+        "Detail": "PlatformProTypeEnum value 44 (expected 44 = TLP300M)"
+      },
+      {
+        "Id": "profile.part-number",
+        "Passed": true,
+        "Detail": "60-1667-02 (expected 60-1667-02)"
+      },
+      {
+        "Id": "profile.screen",
+        "Passed": true,
+        "Detail": "screen 320x480, platform 320x480 (expected 320x480)"
+      },
+      {
+        "Id": "profile.app-version",
+        "Passed": true,
+        "Detail": "1.28.0.7"
+      },
+      {
+        "Id": "profile.checksum",
+        "Passed": true,
+        "Detail": "checksum 0"
+      },
+      {
+        "Id": "project.name",
+        "Passed": true,
+        "Detail": "fixture"
+      },
+      {
+        "Id": "page.count",
+        "Passed": true,
+        "Detail": "2 page(s), expected 2"
+      },
+      {
+        "Id": "page.default",
+        "Passed": true,
+        "Detail": "defaultPage 100"
+      },
+      {
+        "Id": "page.order",
+        "Passed": true,
+        "Detail": "pages in plan order"
+      },
+      {
+        "Id": "popup.set",
+        "Passed": true,
+        "Detail": "65535:Offline Page"
+      },
+      {
+        "Id": "popup.offline",
+        "Passed": true,
+        "Detail": "Offline Page 320x480, 2 control(s)"
+      },
+      {
+        "Id": "page.page.main.ids",
+        "Passed": true,
+        "Detail": "id 100, userId 100"
+      },
+      {
+        "Id": "page.page.main.name",
+        "Passed": true,
+        "Detail": "screen_Main"
+      },
+      {
+        "Id": "page.page.main.key",
+        "Passed": true,
+        "Detail": "exui-key=page.main"
+      },
+      {
+        "Id": "page.page.main.size",
+        "Passed": true,
+        "Detail": "320x480"
+      },
+      {
+        "Id": "page.page.main.background",
+        "Passed": true,
+        "Detail": "#FF101010"
+      },
+      {
+        "Id": "page.page.main.controls",
+        "Passed": true,
+        "Detail": "2 control(s), expected 2"
+      },
+      {
+        "Id": "page.page.main.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "element.main.title.type",
+        "Passed": true,
+        "Detail": "PBLabel"
+      },
+      {
+        "Id": "element.main.title.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.main.title.key",
+        "Passed": true,
+        "Detail": "exui-key=main.title"
+      },
+      {
+        "Id": "element.main.title.name",
+        "Passed": true,
+        "Detail": "text_Title"
+      },
+      {
+        "Id": "element.main.title.rect",
+        "Passed": true,
+        "Detail": "12,12,100,30"
+      },
+      {
+        "Id": "element.main.title.text",
+        "Passed": true,
+        "Detail": "Main; alignment 4 (expected MiddleLeft=4)"
+      },
+      {
+        "Id": "element.main.title.text-color",
+        "Passed": true,
+        "Detail": "#FFFFFFFF"
+      },
+      {
+        "Id": "element.main.audiocontrol.type",
+        "Passed": true,
+        "Detail": "PBButton"
+      },
+      {
+        "Id": "element.main.audiocontrol.control-id",
+        "Passed": true,
+        "Detail": "userId 8101 (expected 8101)"
+      },
+      {
+        "Id": "element.main.audiocontrol.key",
+        "Passed": true,
+        "Detail": "exui-key=main.audiocontrol"
+      },
+      {
+        "Id": "element.main.audiocontrol.name",
+        "Passed": true,
+        "Detail": "button_AudioControl"
+      },
+      {
+        "Id": "element.main.audiocontrol.rect",
+        "Passed": true,
+        "Detail": "20,60,90,40"
+      },
+      {
+        "Id": "element.main.audiocontrol.state-count",
+        "Passed": true,
+        "Detail": "2 state(s)"
+      },
+      {
+        "Id": "element.main.audiocontrol.state0",
+        "Passed": true,
+        "Detail": "Normal: text 'Audio', fill #FF303030, text #FFFFFFFF, image none, id 0/0"
+      },
+      {
+        "Id": "element.main.audiocontrol.state1",
+        "Passed": true,
+        "Detail": "Pressed: text 'Audio', fill #FF0077AA, text #FFFFFFFF, image none, id 1/1"
+      },
+      {
+        "Id": "element.main.audiocontrol.press-feedback",
+        "Passed": true,
+        "Detail": "press state 1"
+      },
+      {
+        "Id": "element.main.audiocontrol.states-distinct",
+        "Passed": true,
+        "Detail": "every state has its own look"
+      },
+      {
+        "Id": "page.page.audiocontrol.ids",
+        "Passed": true,
+        "Detail": "id 101, userId 101"
+      },
+      {
+        "Id": "page.page.audiocontrol.name",
+        "Passed": true,
+        "Detail": "screen_AudioControl"
+      },
+      {
+        "Id": "page.page.audiocontrol.key",
+        "Passed": true,
+        "Detail": "exui-key=page.audiocontrol"
+      },
+      {
+        "Id": "page.page.audiocontrol.size",
+        "Passed": true,
+        "Detail": "320x480"
+      },
+      {
+        "Id": "page.page.audiocontrol.background",
+        "Passed": true,
+        "Detail": "#FF101010"
+      },
+      {
+        "Id": "page.page.audiocontrol.controls",
+        "Passed": true,
+        "Detail": "1 control(s), expected 1"
+      },
+      {
+        "Id": "page.page.audiocontrol.object-ids-unique",
+        "Passed": true,
+        "Detail": "idField unique within the page or popup"
+      },
+      {
+        "Id": "element.audiocontrol.title.type",
+        "Passed": true,
+        "Detail": "PBLabel"
+      },
+      {
+        "Id": "element.audiocontrol.title.control-id",
+        "Passed": true,
+        "Detail": "userId 0 (expected 0)"
+      },
+      {
+        "Id": "element.audiocontrol.title.key",
+        "Passed": true,
+        "Detail": "exui-key=audiocontrol.title"
+      },
+      {
+        "Id": "element.audiocontrol.title.name",
+        "Passed": true,
+        "Detail": "text_Title"
+      },
+      {
+        "Id": "element.audiocontrol.title.rect",
+        "Passed": true,
+        "Detail": "12,12,100,30"
+      },
+      {
+        "Id": "element.audiocontrol.title.text",
+        "Passed": true,
+        "Detail": "Audio; alignment 4 (expected MiddleLeft=4)"
+      },
+      {
+        "Id": "element.audiocontrol.title.text-color",
+        "Passed": true,
+        "Detail": "#FFFFFFFF"
+      },
+      {
+        "Id": "groups.registry",
+        "Passed": true,
+        "Detail": ""
+      },
+      {
+        "Id": "groups.reference-count",
+        "Passed": true,
+        "Detail": "referenceCountField as written"
+      },
+      {
+        "Id": "resource.references",
+        "Passed": true,
+        "Detail": "every state image names an existing image resource"
+      },
+      {
+        "Id": "resource.donor-kept",
+        "Passed": true,
+        "Detail": "donor resources retained"
+      },
+      {
+        "Id": "bounds.screen_Main",
+        "Passed": true,
+        "Detail": "2 control(s) inside 320x480"
+      },
+      {
+        "Id": "bounds.screen_AudioControl",
+        "Passed": true,
+        "Detail": "1 control(s) inside 320x480"
+      },
+      {
+        "Id": "bounds.Offline Page",
+        "Passed": true,
+        "Detail": "2 control(s) inside 320x480"
+      },
+      {
+        "Id": "container.payload-roundtrip",
+        "Passed": true,
+        "Detail": "packed payload decodes back unchanged"
+      },
+      {
+        "Id": "donor.unchanged",
+        "Passed": true,
+        "Detail": "10D9BAA98CA65BEBBDE0DF6F5ACA970CF2FBBBEA0003E5350A2FCA498B59D636"
+      }
+    ],
+    "AdapterResult": {
+      "ok": true,
+      "code": "ok",
+      "message": "written",
+      "warnings": [],
+      "extron": {
+        "installDir": "C:\\Program Files (x86)\\Extron\\GUI Designer",
+        "guiDesignerVersion": "1.28.0.7",
+        "assemblies": 40
+      },
+      "profile": {
+        "platformClass": "PBTLP300MPlatform",
+        "platformType": "TLP300M",
+        "platformTypeValue": 44,
+        "partNumber": "60-1667-02",
+        "width": 320,
+        "height": 480
+      },
+      "containers": [
+        {
+          "type": "PBPage",
+          "objectId": "100",
+          "name": "screen_Main",
+          "controls": 2
+        },
+        {
+          "type": "PBPage",
+          "objectId": "101",
+          "name": "screen_AudioControl",
+          "controls": 1
+        },
+        {
+          "type": "PBPopupPage",
+          "objectId": "65535",
+          "name": "Offline Page",
+          "controls": 2
+        }
+      ],
+      "groups": [],
+      "enumValues": {
+        "platformType": 44,
+        "levelDisplay": {
+          "Gauge": 0,
+          "Slider": 1,
+          "MultistateLevel": 2,
+          "None": 3,
+          "VolumeLED": 4
+        },
+        "levelOrientation": {
+          "LeftToRight": 0,
+          "RightToLeft": 1,
+          "BottomToTop": 2,
+          "TopToBottom": 3
+        }
+      },
+      "outputBytes": 2390812
+    },
+    "HostOutput": "The system cannot find the file specified. (Exception from HRESULT: 0x80070002)",
+    "GuiDesignerVerified": false
+  },
+  "GuiDesignerVerified": false,
+  "HardwareVerified": false
+}

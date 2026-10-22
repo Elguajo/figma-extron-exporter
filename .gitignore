@@ -10,3 +10,4 @@ samples/donors/*
 **/node_modules/
 src/figma-plugin/dist/
 releases/figma-plugin/*/unpacked/
+verification/results/**/*.gdl
