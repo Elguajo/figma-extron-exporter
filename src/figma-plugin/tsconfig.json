@@ -17,7 +17,8 @@
     ]
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "test/metadata-types.ts"
   ],
   "exclude": [
     "src/ui.ts",

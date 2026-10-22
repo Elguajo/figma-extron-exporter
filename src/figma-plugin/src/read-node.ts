@@ -1,25 +1,25 @@
 // Adapted from Baolv/figma-export, commit 6312d15, src/lib/traverse.ts and assets.ts.
 // See ../THIRD_PARTY_NOTICES.md. The Extron restrictions and metadata handling are ours.
-import { fail, text, type Font } from './model.ts';
+import { fail, text, nodeError, type Font } from './model.ts';
 
 export function rect(node: SceneNode, parent: SceneNode): number[] {
   const a = node.absoluteBoundingBox, b = parent.absoluteBoundingBox;
-  if (!a || !b) fail('geometry', `${node.name}: нет геометрии.`);
+  if (!a || !b) fail('geometry', `${node.name}: нет геометрии.`,node);
   const values = [a.x-b.x, a.y-b.y, a.width, a.height];
   if (values.some(v => !Number.isFinite(v) || Math.abs(v-Math.round(v)) > 0.001))
-    fail('geometry', `${node.name}: координаты и размеры должны быть целыми пикселями.`);
+    fail('geometry', `${node.name}: координаты и размеры должны быть целыми пикселями.`,node);
   return values.map(Math.round);
 }
-export function plain(node: SceneNode, allowHidden = false, decorated = false): void {
+export function plain(node: SceneNode, allowHidden = false, decorated = false, allowLineTransform = false): void {
   if ((!allowHidden && !node.visible) || ('opacity' in node && node.opacity !== 1) || ('isMask' in node && node.isMask) ||
       ('blendMode' in node && node.blendMode !== 'PASS_THROUGH' && node.blendMode !== 'NORMAL'))
     fail('appearance', `${node.name}: скрытые элементы, opacity, маски и blend modes не поддержаны.`);
   const transforms = [node.relativeTransform,node.absoluteTransform];
-  if (transforms.some(t=>Math.abs(t[0][0]-1)>0.00001 || Math.abs(t[1][1]-1)>0.00001 || Math.abs(t[0][1])>0.00001 || Math.abs(t[1][0])>0.00001))
+  if (!allowLineTransform && transforms.some(t=>Math.abs(t[0][0]-1)>0.00001 || Math.abs(t[1][1]-1)>0.00001 || Math.abs(t[0][1])>0.00001 || Math.abs(t[1][0])>0.00001))
     fail('transform', `${node.name}: поворот, отражение и skew не поддержаны.`);
-  if ('effects' in node && node.effects.some(e => e.visible !== false)) fail('appearance', `${node.name}: эффекты не входят в .exui/1.`);
-  if (!decorated && 'strokes' in node && node.strokes.some(p => p.visible !== false)) fail('appearance', `${node.name}: обводки не входят в .exui/1.`);
-  if (!decorated && 'cornerRadius' in node && node.cornerRadius !== 0) fail('appearance', `${node.name}: скругление не входит в .exui/1.`);
+  if ('effects' in node && node.effects.some(e => e.visible !== false)) fail('appearance', `${node.name}: эффекты не поддержаны для этого нативного элемента.`);
+  if (!decorated && 'strokes' in node && node.strokes.some(p => p.visible !== false)) fail('appearance', `${node.name}: обводки не поддержаны для этого нативного элемента.`);
+  if (!decorated && 'cornerRadius' in node && node.cornerRadius !== 0) fail('appearance', `${node.name}: скругление не поддержано для этого нативного элемента.`);
   if ('reactions' in node && node.reactions.length) fail('interaction', `${node.name}: переходы Figma не экспортируются. Уберите prototype interactions.`);
 }
 export function color(node: SceneNode): string {
@@ -42,18 +42,27 @@ export function font(node: TextNode): Font {
   return { family: 'Arial', size, bold: f.style === 'Bold' };
 }
 export function readText(node: TextNode, allowEmpty = false) {
+  try {
   plain(node);
   return { text: allowEmpty && node.characters === '' ? '' : text(node.characters,node.name), textColor: color(node), font: font(node) };
+  }catch(error){nodeError(error,node);}
 }
-export async function exportPng(node: SceneNode): Promise<Uint8Array> {
-  let temporary:SceneNode|undefined;
+export async function exportPng(node: SceneNode, artwork?:{omitTextId?:string;width:number;height:number}): Promise<Uint8Array> {
+  let temporary:SceneNode|undefined,cloned:SceneNode|undefined;
   try {
     // Export independently of hidden/clipping State ancestors. The original
     // preview, identity and geometry are never toggled or reparented.
-    temporary=node.clone();figma.currentPage.appendChild(temporary);temporary.visible=true;
+    cloned=node.clone();temporary=cloned;figma.currentPage.appendChild(cloned);cloned.visible=true;
+    if(artwork){
+      const wrapper=figma.createFrame();temporary=wrapper;wrapper.fills=[];wrapper.resize(artwork.width,artwork.height);wrapper.clipsContent=true;
+      // A full-size background anchors Group bounds when native text is hidden.
+      function omit(original:SceneNode,copy:SceneNode){if(original.id===artwork!.omitTextId)copy.visible=false;if('children' in original&&'children' in copy)original.children.forEach((child,i)=>omit(child,copy.children[i]));}
+      wrapper.appendChild(cloned);cloned.relativeTransform=[[1,0,0],[0,1,0]];
+      omit(node,cloned);
+    }
     const right=Math.max(0,...figma.currentPage.children.filter(n=>n!==temporary).map(n=>n.x+n.width));
     temporary.x=Math.ceil(right)+128;temporary.y=0;
     return await temporary.exportAsync({ format:'PNG', constraint:{ type:'SCALE', value:1 }, useAbsoluteBounds:true, contentsOnly:true });
   } catch (e) { return fail('image-export', `${node.name}: PNG не экспортирован: ${String(e)}`); }
-  finally {if(temporary&&!temporary.removed)temporary.remove();}
+  finally {if(temporary&&!temporary.removed)temporary.remove();if(cloned&&!cloned.removed)cloned.remove();}
 }

@@ -6,14 +6,13 @@ import { bytesToHex } from '@noble/hashes/utils';
 import { fail, type Bundle } from './model.ts';
 
 export function packageExui(bundle:Bundle):Uint8Array {
-  if(!bundle || !['tlp-pro-1025m','tlp-pro-300m-portrait'].includes(bundle.profile) || !['exui-screen/1','exui-screen/3','exui-screen/4','exui-screen/5'].includes(bundle.screen.schema)) fail('package','Неизвестный профиль или контракт.');
+  if(!bundle || !['tlp-pro-1025m','tlp-pro-300m-portrait'].includes(bundle.profile) || bundle.screen.schema!=='exui-screen/5') fail('package','Неизвестный профиль или контракт.');
   const resources=[...bundle.resources].sort((a,b)=>a.path.localeCompare(b.path,'en'));
-  if(bundle.screen.schema!=='exui-screen/5'&&resources.length>16)fail('package','В прежних форматах допустимо до 16 PNG; для большего числа нужен exui/5 и обновлённый CLI.');
   if(new Set(resources.map(r=>r.path)).size!==resources.length) fail('package','Повтор PNG пути.');
   const declared=new Set(bundle.screen.assets.map(a=>a.file));
   if(declared.size!==resources.length||resources.some(r=>!declared.has(r.path))) fail('package','Ресурсы не совпадают с assets.');
   const files:Zippable={};
-  const manifest={schema:bundle.screen.schema.replace('exui-screen/','exui/'),profile:bundle.profile,screen:'screen.json',resources:resources.map(r=>({path:r.path,sha256:bytesToHex(sha256(r.bytes)).toUpperCase()}))};
+  const manifest={schema:'exui/5',profile:bundle.profile,screen:'screen.json',resources:resources.map(r=>({path:r.path,sha256:bytesToHex(sha256(r.bytes)).toUpperCase()}))};
   const manifestBytes=strToU8(JSON.stringify(manifest,null,2)+'\n'), screenBytes=strToU8(JSON.stringify(bundle.screen,null,2)+'\n');
   if(manifestBytes.length>64*1024||screenBytes.length>256*1024) fail('package-size','Превышен размер JSON.');
   files['manifest.json']=manifestBytes;files['screen.json']=screenBytes;

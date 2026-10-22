@@ -12,16 +12,24 @@ import { packageExui } from '../src/package.ts';
 import type { Bundle } from '../src/model.ts';
 import { kitFixture } from './kit-fixture.ts';
 import { manyAssetsFixture } from './many-assets-fixture.ts';
+import { twoScreens } from './page-project-fixture.ts';
+import { strokeLineFixture } from './stroke-line-fixture.ts';
+import { recognize,applyRecognition } from '../src/recognize.ts';
+import { designSignature } from '../src/export.ts';
 
 const [archive, kit, output] = process.argv.slice(2);
 assert.ok(archive && kit && output, 'Usage: node test/archive-smoke.ts <plugin.zip> <unpacked-kit> <new-output-dir>');
 const files = unzipSync(new Uint8Array(await readFile(archive)));
-const version = JSON.parse(strFromU8(files['version.json'])).version;
+const archiveVersion = JSON.parse(strFromU8(files['version.json']));
+const version = archiveVersion.version;
+assert.deepEqual(archiveVersion.contracts,['exui/5']);
 const manifest = JSON.parse(strFromU8(files['manifest.json']));
 assert.equal(manifest.id, 'figma-extron-exporter-local-dev');
 const ui = strFromU8(files[manifest.ui]);
 assert.ok(ui.includes('Figma → Extron Exporter')&&ui.includes(`· ${version}`));
 const out = path.resolve(output), installed = path.resolve(kit);
+const cliVersion=JSON.parse(await readFile(path.join(installed,'version.json'),'utf8'));
+assert.equal(archiveVersion.compatibleCliVersion,cliVersion.cliVersion??cliVersion.version,'Plugin and CLI must be the current matching pair');
 await mkdir(out, { recursive: true });
 function cli(args: string[]) {
   const result = spawnSync(process.env.DOTNET_EXE ?? 'dotnet', [path.join(installed, 'cli/Extron.Cli.dll'), ...args], { cwd: out, encoding: 'utf8', timeout: 180000 });
@@ -29,13 +37,18 @@ function cli(args: string[]) {
   return JSON.parse(result.stdout);
 }
 const evidence: unknown[] = [];
-const scenarios=['blank-caption','expanded','on-off','feedback','dotted-name','many-assets','section'] as const;
-const selectedScenarios=process.argv[5]?scenarios.filter(s=>s===process.argv[5]):scenarios.slice(0,4);
+const scenarios=['blank-caption','expanded','on-off','feedback','dotted-name','many-assets','section','selected-frames','pen-lines','automatic-fresh','automatic-copy','automatic-merge'] as const;
+const selectedScenarios=process.argv[5]==='all'?scenarios:process.argv[5]?scenarios.filter(s=>s===process.argv[5]):scenarios.slice(0,4);
 assert.ok(selectedScenarios.length,'Unknown archive smoke scenario');
 for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
   for (const scenario of selectedScenarios) {
     const fixture = scenario==='many-assets'?kitFixture():fakeFigma();
-    const frame = scenario==='section'?sectionFixture(profile):scenario==='many-assets'?await manyAssetsFixture(profile):scenario === 'expanded' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'||scenario==='dotted-name'?await namedFixture(profile,scenario!=='feedback'):await graphicFixture(profile);
+    const batch=scenario==='selected-frames'?twoScreens(profile):undefined;
+    const automatic=scenario.startsWith('automatic-');
+    const frame = batch?figma.currentPage:scenario==='pen-lines'?await strokeLineFixture(profile):scenario==='section'?sectionFixture(profile):scenario==='many-assets'?await manyAssetsFixture(profile):scenario === 'expanded'||scenario==='automatic-fresh' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'||scenario==='dotted-name'||automatic?await namedFixture(profile,scenario==='on-off'||scenario==='dotted-name'):await graphicFixture(profile);
+    let automaticMembers:FrameNode[]|undefined,originalControl:SceneNode|undefined,originalSignature='';
+    if(scenario==='automatic-copy'){applyRecognition(recognize(frame,profile));originalControl=frame.children[0];originalSignature=designSignature(originalControl);const copy=originalControl.clone();copy.y=frame.height-copy.height-8;}
+    if(scenario==='automatic-merge'){applyRecognition(recognize(frame,profile));const audio=await namedFixture(profile);applyRecognition(recognize(audio,profile));audio.name='Audio Control';automaticMembers=[frame as FrameNode,audio];}
     if(scenario==='dotted-name'){
       const button=frame.children[0] as FrameNode;button.name='button_side.hall';button.children.forEach((s,i)=>s.name=['Passive','Active'][i]);
     }
@@ -43,31 +56,39 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
       const button = frame.children[0] as FrameNode;
       for (const state of button.children as FrameNode[]) (state.children.find(n => n.type === 'TEXT') as TextNode).characters = '';
     }
-    fixture.page.selection = [frame as any];
+    fixture.page.selection = automaticMembers?automaticMembers as any:batch?[batch.main as any,batch.audio as any]:[frame as any];
     let shownUi = '';
     (fixture.api as any).showUI = (html: string) => { shownUi = html; };
     runInNewContext(strFromU8(files[manifest.main]), { figma: fixture.api, Uint8Array, console }, { filename: `${archive}/${manifest.main}`, timeout: 10000 });
     assert.equal(shownUi, ui, 'Embedded UI must match the archived UI');
     const send = fixture.api.ui.onmessage as (message: unknown) => Promise<void>;
-    await send({ type: 'recognize', profile });
+    if(!automatic){await send({ type: 'recognize', profile,...(batch?{scopeMode:'selected-frames'}:{}) });
     const plan = fixture.messages.find(m => m.type === 'recognition')!;
     assert.ok(plan, JSON.stringify(fixture.messages));
     assert.deepEqual(JSON.parse(JSON.stringify(plan.errors)), []);
-    await send({ type: 'apply-recognition', profile, token: plan.token });
+    await send({ type: 'apply-recognition', profile, token: plan.token });}
+    if(batch){
+      fixture.page.selection=[batch.button as any];fixture.emit('selectionchange');
+      await send({type:'apply',data:{...JSON.parse(batch.button.getPluginData('exui')),navigate:'page.audiocontrol'}});
+      fixture.page.selection=[batch.audio as any];fixture.emit('selectionchange');
+      await send({type:'apply',data:{...JSON.parse(batch.audio.getPluginData('exui')),shownBy:'navigation'}});
+    }
     if(scenario==='section'){
       const home=frame.children[0] as FrameNode,button=home.children.find(n=>n.name==='button_Connection')!,settings=frame.children[1];
       fixture.page.selection=[button as any];await send({type:'apply',data:{...JSON.parse(button.getPluginData('exui')),buttonMode:'legacy',navigate:'page.settings'}});
       fixture.page.selection=[settings as any];await send({type:'apply',data:{...JSON.parse(settings.getPluginData('exui')),shownBy:'navigation'}});
       fixture.page.selection=[button as any];
     }
-    await send({ type: 'check' });
-    await send({ type: 'export' });
+    if(!automatic)await send({ type: 'check' });
+    await send({ type: 'export',profile,...(automaticMembers?{scopeMode:'selected-frames'}:{}) });
     assert.deepEqual(fixture.messages.filter(m => m.type === 'error'), [], JSON.stringify(fixture.messages));
     const bundle = fixture.messages.find(m => m.type === 'bundle')!.bundle as Bundle;
+    if(automatic){if(originalControl)assert.equal(designSignature(originalControl),originalSignature);const before=designSignature(figma.currentPage);await send({type:'export',profile,...(automaticMembers?{scopeMode:'selected-frames'}:{})});assert.equal(designSignature(figma.currentPage),before);assert.deepEqual(packageExui(fixture.messages.filter(m=>m.type==='bundle').at(-1)!.bundle as Bundle),packageExui(bundle));}
     const input = path.join(out, `${scenario}-${profile}.exui`);
     await writeFile(input, packageExui(bundle), { flag: 'wx' });
     const validation = cli(['validate-package', input]);
     assert.equal(validation.contract, 'exui/5');
+    if(batch){assert.ok('pages' in bundle.screen);assert.deepEqual(Array.from(bundle.screen.pages,p=>p.name),['screen_Main','screen_AudioControl']);assert.equal(bundle.screen.pages[0].elements.find(e=>e.kind==='button')!.navigate,'page.audiocontrol');}
     if(scenario==='section'){
       assert.ok('pages' in bundle.screen);assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.popups.length,4);
       const map=spawnSync(process.env.DOTNET_EXE??'dotnet',[path.join(installed,'cli/Extron.Cli.dll'),'id-map',input],{cwd:out,encoding:'utf8',timeout:30000});
@@ -77,6 +98,16 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     const generation = cli(['convert-package', input, gdl, '--registry', path.join(installed, 'samples/donors.json')]);
     const report = JSON.parse(await readFile(gdl + '.report.json', 'utf8'));
     assert.ok(report.Generation.Checks.every((c: { Passed: boolean }) => c.Passed));
+    if(scenario==='pen-lines'){
+      const controls=cli(['list-controls',gdl]).model.Pages[0].Controls;
+      assert.equal(validation.resources,0);assert.equal(bundle.resources.length,0);
+      assert.deepEqual(controls.map((c:any)=>[c.Type,c.Left,c.Top,c.Width,c.Height,c.Native.Line.Thickness,c.Native.Line.Start,c.Native.Line.End,c.Native.Fill]),[
+        ['PBLine',20,39,100,2,2,6,2,0xFF6699CC],
+        ['PBLine',179,40,2,100,2,0,4,0xFF6699CC],
+        ['PBLine',20,180,100,1,1,6,2,0xFF6699CC],
+        ['PBLine',20,218,100,4,4,6,2,0xFFCC9933],
+      ]);
+    }
     if(scenario==='dotted-name'){
       const button=cli(['list-controls',gdl]).model.Pages[0].Controls.find((c:any)=>c.Comments==='exui-key=home.side.hall');
       assert.ok(button);assert.equal(button.Name,'button_side.hall');assert.deepEqual(button.States.map((s:any)=>s.Name),['Passive','Active']);assert.equal(button.PressFeedbackState,-1);

@@ -97,15 +97,16 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)test(`${
   assert.deepEqual([again.key,again.objectId,again.controlId],[first.key,first.objectId,first.controlId]);
 });
 
-test('Dotted layer names reject empty segments and case-only duplicates without writing metadata',async()=>{
+test('Dotted layer names reject empty segments; repeated names get distinct keys',async()=>{
   fakeFigma();const root=await namedFixture('tlp-pro-1025m',true),button=root.children[0] as FrameNode;
   for(const name of ['button_.hall','button_side.','button_side..hall']){
     button.name=name;const before=designSignature(root);
-    assert.throws(()=>recognize(root,'tlp-pro-1025m'),(e:any)=>e.code==='name');assert.equal(designSignature(root),before);
+    const plan=recognize(root,'tlp-pro-1025m');assert.ok(plan.errors.length);assert.throws(()=>applyRecognition(plan));assert.equal(designSignature(root),before);
   }
   button.name='button_side.hall';root.children[3].name='button_SIDE.HALL';
   const before=designSignature(root),plan=recognize(root,'tlp-pro-1025m');
-  assert.ok(plan.errors.some(e=>e.includes('повтор')));assert.throws(()=>applyRecognition(plan));assert.equal(designSignature(root),before);
+  assert.deepEqual(plan.errors,[]);assert.equal(designSignature(root),before);applyRecognition(plan);
+  assert.equal(new Set(root.children.map(n=>JSON.parse(n.getPluginData('exui')).key)).size,root.children.length);
 });
 
 test('Saved type is enforced during export, not only during recognition',async()=>{

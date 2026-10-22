@@ -60,7 +60,7 @@ test('Counters survive deletion and reorder; deleted auto IDs are not reused',as
 });
 
 for(const [name,edit] of [
-  ['duplicate semantic key',(root:any)=>root.children[3].name='button_Music'],
+  ['ordinary type applied to a three-state feedback button',(root:any)=>root.children[3].name='button_Music'],
   ['unknown screen child',(root:any)=>root.children[2].name='Volume'],
   ['missing On',(root:any)=>root.children[0].children[1].name='Other'],
   ['both Off and Normal',(root:any)=>root.children[0].children[1].name='Normal'],
@@ -84,12 +84,12 @@ test('Failed write restores the original metadata and registry',async()=>{
   assert.throws(()=>applyRecognition(plan),/Write failed/);assert.equal(designSignature(root),before);assert.equal(root.getPluginData(REGISTRY_KEY),'');
 });
 
-test('Corrupt registry, exhausted IDs, copied nodes and wrong profiles fail safely',async()=>{
+test('Corrupt registry, exhausted IDs and wrong profiles fail safely; a copied screen receives new assignments',async()=>{
   fakeFigma();const root=await namedFixture();root.setPluginData(REGISTRY_KEY,'{"schema":"future"}');assert.throws(()=>recognize(root,'tlp-pro-1025m'));
   root.setPluginData(REGISTRY_KEY,JSON.stringify({schema:'exui-id-registry/1',ownerNodeId:root.id,nextObjectId:1000001,nextControlId:65536}));
   const exhausted=recognize(root,'tlp-pro-1025m');assert.ok(exhausted.errors.length);assert.throws(()=>applyRecognition(exhausted));
   root.setPluginData(REGISTRY_KEY,'');assert.throws(()=>recognize(root,'tlp-pro-300m-portrait'));
-  applyRecognition(recognize(root,'tlp-pro-1025m'));const copy=root.clone();assert.throws(()=>recognize(copy,'tlp-pro-1025m'),(e:any)=>e.code==='copied-node');
+  applyRecognition(recognize(root,'tlp-pro-1025m'));const before=designSignature(root),copy=root.clone();const plan=recognize(copy,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);assert.equal(designSignature(root),before);assert.equal(JSON.parse(copy.getPluginData(DATA_KEY)).ownerNodeId,copy.id);await exportFrame(copy);
 });
 
 test('Partial restoration failure is reported and keeps IDs reserved',async()=>{
@@ -103,12 +103,12 @@ test('Partial restoration failure is reported and keeps IDs reserved',async()=>{
 
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)test(`Graphics and Normal/Pressed on ${profile}: PNG, passive ID and dense momentary states`,async()=>{
   fakeFigma();const root=await graphicFixture(profile);const plan=recognize(root,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
-  const bundle=await exportFrame(root);assert.equal(bundle.screen.schema,'exui-screen/4');
+  const bundle=await exportFrame(root);assert.equal(bundle.screen.schema,'exui-screen/5');
   const graphic=bundle.screen.elements.find(e=>e.kind==='graphic')!;assert.equal(graphic.controlId,null);assert.ok(graphic.image);
   const momentary=bundle.screen.elements[0];assert.deepEqual(momentary.states!.map(s=>[s.role,s.stateId]),[['normal',0],['pressed',1]]);assert.equal(momentary.press,'Pressed');
   assert.equal(momentary.states![1].fill,'#FFCC00');
   assert.deepEqual((bundle.screen.elements[3].states??[]).map(s=>s.role),['normal','feedback','pressed']);
-  const files=unzipSync(packageExui(bundle));assert.equal(JSON.parse(strFromU8(files['manifest.json'])).schema,'exui/4');
+  const files=unzipSync(packageExui(bundle));assert.equal(JSON.parse(strFromU8(files['manifest.json'])).schema,'exui/5');
   const oldKeys=root.children.map(n=>n.getPluginData(DATA_KEY));root.children[0].name='btn_volumeup';
   const again=recognize(root,profile);assert.deepEqual(again.errors,[]);applyRecognition(again);assert.deepEqual(root.children.map(n=>n.getPluginData(DATA_KEY)),oldKeys);
 });
@@ -118,12 +118,12 @@ test('Logo, img and image are equivalent static graphics; capitalization is igno
   assert.deepEqual(namedControl('text_VolumeValue'),namedControl('TXT_volumevalue'));
 });
 
-test('Case-only duplicate names are rejected even against previously stored CamelCase keys',async()=>{
+test('Case-only duplicate names receive distinct keys while the previous saved key remains intact',async()=>{
   const fake=fakeFigma();const root=await graphicFixture();applyRecognition(recognize(root,'tlp-pro-1025m'));
   // Represents a key written by the previous plugin normalization.
   const first=root.children[0],m=JSON.parse(first.getPluginData(DATA_KEY));m.key='home.volume-up';first.setPluginData(DATA_KEY,JSON.stringify(m));
-  const other=fake.api.createFrame();other.name='btn_volumeup';root.appendChild(other as never);
-  const plan=recognize(root,'tlp-pro-1025m');assert.ok(plan.errors.some(e=>e.includes('повтор имени')));assert.throws(()=>applyRecognition(plan));assert.equal(other.getPluginData(DATA_KEY),'');
+  const other=first.clone();other.setPluginData(DATA_KEY,'');other.name='btn_volumeup';root.appendChild(other as never);
+  const plan=recognize(root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);assert.equal(other.getPluginData(DATA_KEY),'');applyRecognition(plan);assert.equal(JSON.parse(first.getPluginData(DATA_KEY)).key,'home.volume-up');assert.notEqual(JSON.parse(other.getPluginData(DATA_KEY)).key,'home.volume-up');await exportFrame(root);
 });
 
 test('Standalone graphic requires a Frame and cannot acquire a control ID or button states',async()=>{

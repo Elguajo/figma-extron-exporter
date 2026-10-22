@@ -58,7 +58,7 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
 for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait','300m']] as const){
   fakeFigma();const frame=await graphicFixture(profile);const plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
   const bundle=await exportFrame(frame),input=path.join(out,`logo-volume-${suffix}.exui`);await writeFile(input,packageExui(bundle),{flag:'wx'});
-  const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/4');
+  const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/5');
   const row:Record<string,unknown>={profile,input,validation,figmaBoundary:'fake API and PNG rendering; real Figma not exercised'};
   if(registry){
     const output=path.join(out,`logo-volume-${suffix}.gdl`);row.generation=cli(['convert-package',input,output,'--registry',registry]);
@@ -69,7 +69,7 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
     const button=model.Pages[0].Controls.find((c:any)=>c.Comments==='exui-key=home.volumeup');assert.equal(button.PressFeedbackState,1);assert.deepEqual(button.States.map((s:any)=>s.Name),['Normal','Pressed']);assert.equal(button.States[1].Fill,0xFFFFCC00);
     row.nativeLogoAndMomentaryVerified=true;
   }
-  evidence.push(row);console.log(`PASS ${profile}: logo + yellow Normal/Pressed → exui/4 → CLI${registry?' → PBImage + press feedback 1':''}`);
+  evidence.push(row);console.log(`PASS ${profile}: logo + yellow Normal/Pressed → exui/5 → CLI${registry?' → PBImage + press feedback 1':''}`);
 }
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
  for(const [name,fixture] of [['expanded',expandedFixture],['project',projectFixture],['vertical',verticalFixture]] as const){

@@ -1,12 +1,12 @@
 import large from '../../../examples/exui-v1/1025m/screen.json' with { type:'json' };
 import small from '../../../examples/exui-v1/300m/screen.json' with { type:'json' };
-import { DATA_KEY, ROLE_ID, metadataSchema, type Metadata, type Profile, type SingleScreen } from './model.ts';
-export function tag(node:BaseNode, data:Omit<Metadata,'schema'|'ownerNodeId'>):void {
+import { DATA_KEY, integer, isControlKind, metadataSchema, type MetadataInput, type Metadata, type Profile, type SingleScreen } from './model.ts';
+export function tag(node:BaseNode, data:MetadataInput):void {
   node.setPluginData(DATA_KEY,JSON.stringify({...data,schema:metadataSchema(data),ownerNodeId:node.id}));
 }
 function paint(hex:string):SolidPaint {return {type:'SOLID',color:{r:parseInt(hex.slice(1,3),16)/255,g:parseInt(hex.slice(3,5),16)/255,b:parseInt(hex.slice(5,7),16)/255}};}
 export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>,legacy=false):Promise<FrameNode> {
-  const spec=(profile==='tlp-pro-1025m'?large:small) as SingleScreen;
+  const spec=(profile==='tlp-pro-1025m'?large:small) as Omit<SingleScreen,'schema'>;
   const fonts=await figma.listAvailableFontsAsync();
   for(const style of ['Regular','Bold']) {
     if(!fonts.some(f=>f.fontName.family==='Arial'&&f.fontName.style===style)) throw new Error(`В Figma отсутствует Arial ${style}. Установите шрифт и перезапустите приложение.`);
@@ -52,7 +52,8 @@ export async function createDemo(profile:Profile,icons:Record<string,Uint8Array>
         }
       }
       control.name=e.name;control.x=x;control.y=y;
-      tag(control,{kind:e.kind,key:e.key,objectId:e.objectId,controlId:e.controlId,...(!legacy&&e.kind==='button'?{buttonMode:'feedback' as const}:{})});
+      const identity={key:e.key,objectId:e.objectId};
+      tag(control,isControlKind(e.kind)?{kind:e.kind,...identity,controlId:integer(e.controlId,1,65535,'controlId'),...(!legacy&&e.kind==='button'?{buttonMode:'feedback' as const}:{})}:{kind:e.kind,...identity,controlId:null});
     }
     figma.currentPage.selection=[root];figma.viewport.scrollAndZoomIntoView([root]);return root;
   } catch(e) {for(const node of created.reverse())if(!node.removed)node.remove();throw e;}

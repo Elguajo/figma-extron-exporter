@@ -1,10 +1,25 @@
-import { fail,integer,key,text,PROFILES,type Metadata,type Container,type ProjectScreen,type Asset } from './model.ts';
+import { DATA_KEY,fail,integer,key,text,PROFILES,type Metadata,type Container,type ProjectScreen,type Asset,type Profile } from './model.ts';
 import type { Capture } from './export.ts';
-export type ProjectNode = FrameNode | SectionNode;
+export type ProjectNode = FrameNode | SectionNode | PageNode;
+export interface ProjectOptions {members?:readonly SceneNode[];projectName?:string}
 
-export function projectMembers(root:ProjectNode,read:(n:SceneNode)=>Metadata|null):{containers:SceneNode[];groups:SceneNode[]} {
+// Only authored screens of the chosen panel enter the page-wide project.
+// Scratch frames, labels and component libraries remain outside it.
+export function pageScreens(page:PageNode,profile:Profile):FrameNode[] {
+  const size=PROFILES[profile],screens:FrameNode[]=[];
+  function visit(nodes:readonly SceneNode[]){for(const node of nodes){
+    if(node.type==='SECTION'){visit(node.children);continue;}
+    if(node.type!=='FRAME')continue;
+    let kind:string|undefined;try{kind=JSON.parse(node.getPluginData(DATA_KEY)||'null')?.kind;}catch{ /* A named screen is still validated during recognition. */ }
+    if(kind==='project'||/^(prj|project)_/i.test(node.name)){visit(node.children);continue;}
+    if((kind==='page'||/^(scr|screen)_/i.test(node.name)||/^home$/i.test(node.name))&&node.width===size.width&&node.height===size.height)screens.push(node);
+  }}
+  visit(page.children);return screens;
+}
+
+export function projectMembers(root:ProjectNode,read:(n:SceneNode)=>Metadata|null,options:ProjectOptions={}):{containers:SceneNode[];groups:SceneNode[]} {
   const containers:SceneNode[]=[],groups:SceneNode[]=[];
-  for(const child of root.children){
+  for(const child of options.members??root.children){
     if(read(child)?.kind==='popup-group'){
       if(child.type!=='FRAME')fail('node-type','Группа popup должна быть Frame.');groups.push(child);
       for(const popup of child.children){if(read(popup)?.kind!=='popup')fail('placement','В группе popup допустимы только popup.');containers.push(popup);}
@@ -13,18 +28,21 @@ export function projectMembers(root:ProjectNode,read:(n:SceneNode)=>Metadata|nul
   return {containers,groups};
 }
 
-export function captureProject(root:SceneNode,read:(n:SceneNode)=>Metadata|null,single:(n:SceneNode,r:(n:SceneNode)=>Metadata|null,p:boolean)=>Capture,signature:(n:SceneNode)=>string):Capture {
-  if(root.type!=='FRAME'&&root.type!=='SECTION')fail('node-type','Проект должен быть секцией или внешним Frame project_Name.');
-  const pm=read(root)!;if(!pm.profile||!(pm.profile in PROFILES))fail('profile','Выберите профиль проекта.');
+export function captureProject(root:SceneNode|PageNode,read:(n:SceneNode|PageNode)=>Metadata|null,single:(n:SceneNode,r:(n:SceneNode|PageNode)=>Metadata|null,p:boolean)=>Capture,signature:(n:SceneNode|PageNode)=>string,options:ProjectOptions={}):Capture {
+  if(root.type!=='FRAME'&&root.type!=='SECTION'&&root.type!=='PAGE')fail('node-type','Выберите экраны, секцию или Frame проекта.');
+  if(root.type==='PAGE'&&!options.members)fail('project-scope','Для проекта без секции укажите выбранные фреймы или экраны текущей страницы.');
+  if(options.members?.some(n=>n.removed))fail('project-scope','Один из выбранных экранов удалён. Выделите экраны заново.');
+  const pm=read(root);if(!pm||pm.kind!=='project')fail('kind','Нужно назначение проекта.');if(!pm.profile||!(pm.profile in PROFILES))fail('profile','Выберите профиль проекта.');
   const profile=pm.profile,canvas=PROFILES[profile];
   const screen:ProjectScreen={schema:'exui-screen/5',project:{name:text(pm.projectName,'Имя проекта')},pages:[],popups:[],groups:[],assets:[]};
-  const members=projectMembers(root,read),images:Capture['images']=[],assets=new Map<string,Asset>(),keys=new Set<string>(),names=new Set<string>(['offline page']),containerIds=new Set<number>(),controlIds=new Set<number>(),groupIds=new Set<number>();
+  const members=projectMembers(root,read,options),images:Capture['images']=[],assets=new Map<string,Asset>(),keys=new Set<string>(),names=new Set<string>(['offline page']),containerIds=new Set<number>(),controlIds=new Set<number>(),groupIds=new Set<number>();
+  const reservedNames=new Set(members.containers.map(n=>n.name.toLowerCase()));
   const addKey=(v:unknown)=>{const k=key(v,'Ключ проекта');if(keys.has(k))fail('duplicate-key',`Повтор ключа ${k}.`);keys.add(k);return k;};
   const groupNames=new Set<string>();
   for(const node of members.groups){const m=read(node)!;const groupId=integer(m.objectId,1,65535,'ID группы');if(groupIds.has(groupId))fail('duplicate-id','Повтор ID группы.');groupIds.add(groupId);const name=text(node.name,'Имя группы');if(groupNames.has(name.toLowerCase()))fail('duplicate-name','Повтор имени группы popup.');groupNames.add(name.toLowerCase());screen.groups.push({key:addKey(m.key),groupId,name});}
   for(const node of members.containers){
     if(node.type!=='FRAME')fail('node-type',`${node.name}: нужен Frame страницы/popup.`);
-    const m=read(node);if(!m||!['page','popup'].includes(m.kind))fail('placement',`${node.name}: в проекте допустимы экраны, popup и группы popup.`);
+    const m=read(node);if(!m||m.kind!=='page'&&m.kind!=='popup')fail('placement',`${node.name}: в проекте допустимы экраны, popup и группы popup.`);
     if(m.profile&&m.profile!==profile)fail('profile',`${node.name}: сохранённый профиль отличается от профиля проекта.`);
     const parentGroup=node.parent?.type==='FRAME'?read(node.parent):null;
     const group=parentGroup?.kind==='popup-group'?parentGroup.key:m.group;
@@ -33,7 +51,7 @@ export function captureProject(root:SceneNode,read:(n:SceneNode)=>Metadata|null,
     if(!('page' in captured.screen))fail('structure','Вложенный проект не поддержан.');
     const page=captured.screen.page;
     addKey(page.key);if(containerIds.has(page.objectId))fail('duplicate-id','Страницы и popup должны иметь разные ID.');containerIds.add(page.objectId);
-    const normalizedName=page.name.toLowerCase();if(names.has(normalizedName))fail('duplicate-name','Имена страниц и popup должны различаться.');names.add(normalizedName);
+    if(names.has(page.name.toLowerCase())){const base=page.name;let index=2;do{page.name=base.slice(0,245)+` (${index++})`;}while(names.has(page.name.toLowerCase())||reservedNames.has(page.name.toLowerCase()));}names.add(page.name.toLowerCase());
     const c:Container={...page,shownBy:m.shownBy??(m.kind==='page'&&screen.pages.length===0?'start':'program'),elements:captured.screen.elements};
     for(const e of c.elements){addKey(e.key);if(e.controlId!==null){if(controlIds.has(e.controlId))fail('duplicate-id',`ID управления ${e.controlId} повторяется в проекте.`);controlIds.add(e.controlId);}}
     if(m.kind==='popup'){if(c.shownBy==='start')fail('popup','Popup не может быть стартовой страницей.');c.modal=m.modal??false;if(!c.modal)c.size=[node.width,node.height];if(group)c.group=key(group,'Группа popup');screen.popups.push(c);}else screen.pages.push(c);

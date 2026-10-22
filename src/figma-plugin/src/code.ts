@@ -1,28 +1,30 @@
-import { DATA_KEY, PROFILES, ROLE_ID, CONTROL_KINDS, ELEMENT_KINDS, elementCount, fail, integer, key, readMetadata, text, type Metadata, type Profile, type Role } from './model.ts';
-import { capture, exportFrame } from './export.ts';
+import { PROFILES, ROLE_ID, CONTROL_KINDS, ELEMENT_KINDS, isControlKind, elementCount, fail, integer, key, readMetadata, text, type MetadataInput, type Metadata, type Profile, type Role } from './model.ts';
+import { exportCaptured, type Capture } from './export.ts';
 import { createDemo, tag } from './demo.ts';
 import { recognize, applyRecognition, type RecognitionPlan } from './recognize.ts';
 import { createKit } from './kit.ts';
-import { controlText,isControlFrame } from './kit-contract.ts';
-import { projectMembers, type ProjectNode } from './project.ts';
+import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
+import { projectMembers, type ProjectNode,type ProjectOptions } from './project.ts';
+import { ExportScope, selected, pageOf, type ScopeMode } from './scope.ts';
+import { requireNodeForKind } from './assignment-rules.ts';
+import { containerSuffix,freeKey } from './assignment-repair.ts';
+import { isButtonContainer } from './button-artwork.ts';
+import { markBackground, prepareButtons, presetSummary, rememberPreset } from './button-preparation.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
 figma.showUI(__html__,{width:420,height:720,themeColors:true});
+const scopeContext = new ExportScope();
+let recognitionMode:ScopeMode='selection';
 let busy=false;
 let recognition:RecognitionPlan|undefined, recognitionToken=0;
-function selected():SceneNode {const selection=figma.currentPage.selection;if(selection.length!==1)fail('selection','Выберите одну секцию, Frame экрана или его элемент.');return selection[0];}
-function screenOf(node:SceneNode):ProjectNode {
-  let current:BaseNode|null=node,found:FrameNode|undefined;
-  while(current&&current.type!=='PAGE') {
-    const metadata=readMetadata(current);
-    if(metadata?.kind==='project'&&(current.type==='FRAME'||current.type==='SECTION'))return current;
-    if(metadata?.kind==='page'&&current.type==='FRAME')found=current;
-    current=current.parent;
-  }
-  if(found)return found;
-  return fail('screen-unprepared','У выбранного макета ещё нет назначения Extron. Выберите секцию проекта или внешний Frame и профиль, затем нажмите «Распознать по именам» и сохраните назначения. Для ручной подготовки экрана используйте «Подготовить выбранный экран» и «Назначение выбранного элемента».');
+let diagnosticSelectionId:string|undefined;
+function postRecognition(plan:RecognitionPlan):void {
+  recognition=plan;recognitionMode=scopeContext.mode;
+  figma.ui.postMessage({type:'recognition',token:++recognitionToken,rows:plan.rows,errors:plan.errors,issues:plan.issues,warnings:plan.warnings});
 }
+const stored=(node:BaseNode)=>readMetadata(node,{allowCopied:true});
+
 function prepare(profile:Profile|undefined):void {
   const node=selected();
   if(node.type!=='FRAME')fail('node-type','Для подготовки выберите внешний Frame экрана.');
@@ -40,31 +42,71 @@ function prepare(profile:Profile|undefined):void {
     if(readMetadata(parent)?.kind==='page')fail('placement','Выбран элемент внутри подготовленного экрана. Выберите внешний Frame экрана.');
     parent=parent.parent;
   }
-  tag(node,{kind:'page',key:'page.home',objectId:100,profile,projectName:text(node.name,'Имя проекта')});
+  const used=new Set<string>();let nextId=100;
+  function collect(parent:BaseNode&ChildrenMixin){for(const child of parent.children){const m=stored(child);if(m?.key)used.add(m.key);if(m&&['page','popup'].includes(m.kind))nextId=Math.max(nextId,integer(m.objectId,1,65534,'ID контейнера')+1);if('children' in child&&(!m||['project','popup-group'].includes(m.kind)))collect(child);}}
+  collect(figma.currentPage);
+  tag(node,{kind:'page',key:freeKey('page.'+containerSuffix(node.name),used),objectId:integer(nextId,1,65534,'ID контейнера'),profile,projectName:text(node.name,'Имя проекта')});
 }
-function publish():void {
-  try {const n=selected();let metadata:Metadata|null=null;let warning='';try{metadata=readMetadata(n);}catch(e){warning=String((e as Error).message);}
-    let states:{stateId?:number;name?:string;role?:Role}[]=[];
-    try{if(isControlFrame(n)&&['button','level'].includes(metadata?.kind??''))states=n.children.map(c=>readMetadata(c)).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}
-    catch(e){warning=warning||(e instanceof Error?e.message:String(e));}
-    let scope:{id:string;name:string;kind:string;profile?:Profile}|undefined;
-    let targets:{key:string;name:string;kind:string}[]=[];
-    try {
-      const root=screenOf(n),rm=readMetadata(root)!;
-      scope={id:root.id,name:root.name,kind:rm.kind,profile:rm.profile};
+
+function exportRoot():{root:ProjectNode;options:ProjectOptions;captured:Capture;assignmentSummary:string}|null {
+  const resolved=scopeContext.resolve();
+  const profile=resolved.profile;
+  const plan=recognize(resolved.root,profile,resolved.options);
+  if(plan.errors.length){postRecognition(plan);return null;}
+  const captured=applyRecognition(plan);
+  const assignmentSummary=plan.writes.length?`Автоматически сохранено назначений: ${plan.writes.length}.`:'';
+  publish();return {...resolved,captured,assignmentSummary};
+}
+function publish(keepRecognition=false):void {
+  const selection=figma.currentPage.selection,n=selection.length===1?selection[0]:undefined;
+  let warning='',metadata:Metadata|null=null;
+  try{scopeContext.refreshSelection();if(n)metadata=stored(n);}catch(e){warning=(e as Error).message;}
+  let states:{stateId?:number;name?:string;role?:Role}[]=[];
+  try{if(n&&isButtonContainer(n)&&['button','level'].includes(metadata?.kind??''))states=n.children.map(c=>readMetadata(c)).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}catch(e){warning=warning||(e as Error).message;}
+  let scope:{id:string;name:string;kind:string;profile?:Profile}|undefined;
+  let targets:{key:string;name:string;kind:string}[]=[],scopeHint='';
+  let canRecognize=false;
+  try{canRecognize=scopeContext.canRecognize;}catch{ /* Metadata errors are shown above. */ }
+  try {
+    const resolved=scopeContext.resolve();
+    const {root,options}=resolved,rm=stored(root);
+    canRecognize=resolved.canRecognize;scopeHint=resolved.hint;scope=resolved.scope;
+    if(rm){
       if(rm.kind==='project'){
-        let container:BaseNode|null=n;
-        while(container&& !['page','popup'].includes(readMetadata(container)?.kind??''))container=container.parent;
-        targets=projectMembers(root,readMetadata).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:readMetadata(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
+        let container:BaseNode|null=n??null;
+        while(container&&!['page','popup'].includes(readMetadata(container)?.kind??''))container=container.parent;
+        targets=projectMembers(root,readMetadata,options).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:readMetadata(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
       }
-    }catch { /* Unassigned or invalid projects are explained by recognition/check. */ }
-    figma.ui.postMessage({type:'selection',id:n.id,name:n.name,nodeType:n.type,metadata,warning,states,scope,targets});
-  }catch {figma.ui.postMessage({type:'selection',id:null,name:'Выберите секцию проекта или Frame экрана'});}
+    }
+  }catch(e){if(scopeContext.mode!=='selection'){canRecognize=false;scopeHint=(e as Error).message;}}
+  let buttonPresets;try{buttonPresets=presetSummary();}catch{/* Commands report damaged presets without blocking unrelated export. */}
+  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,warning,states,scope,targets,buttonPresets,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
 }
 function apply(data:Record<string,unknown>):void {
   const node=selected(),kind=data.kind as Metadata['kind'];
   if(!['project','page','popup','popup-group','state','image',...ELEMENT_KINDS].includes(kind))fail('kind','Выберите назначение.');
-  const value:Omit<Metadata,'schema'|'ownerNodeId'>={kind};
+  let value:MetadataInput;
+  switch(kind){
+    case 'project': case 'page': case 'popup': {
+      if(!Object.prototype.hasOwnProperty.call(PROFILES,String(data.profile)))fail('profile','Выберите профиль панели.');
+      const common={key:key(data.key,'Ключ'),profile:data.profile as Profile,projectName:text(data.projectName,'Имя проекта')};
+      value=kind==='project'?{kind,...common}:{kind,...common,objectId:integer(Number(data.objectId),1,65534,'objectId')};
+      break;
+    }
+    case 'popup-group':
+      value={kind,key:key(data.key,'Ключ'),objectId:integer(Number(data.objectId),1,65535,'objectId')};break;
+    case 'state': {
+      if(!Object.prototype.hasOwnProperty.call(ROLE_ID,String(data.role)))fail('states','Выберите роль состояния.');
+      const role=data.role as Role;
+      value={kind,role,stateId:data.stateId!==''&&data.stateId!==undefined?integer(Number(data.stateId),0,7,'stateId'):ROLE_ID[role],stateName:text(data.stateName,'Имя состояния')};break;
+    }
+    case 'image':
+      value={kind,key:key(data.key,'Ключ ресурса'),file:String(data.file),resourceName:String(data.resourceName)};break;
+    default: {
+      const identity={key:key(data.key,'Ключ'),objectId:integer(Number(data.objectId),1,1000000,'objectId')};
+      value=isControlKind(kind)?{kind,...identity,controlId:integer(Number(data.controlId),1,65535,'controlId')}:{kind,...identity,controlId:null};
+    }
+  }
   if(kind==='button'){
     if(data.buttonMode==='legacy'){
       const previous=readMetadata(node);
@@ -75,18 +117,9 @@ function apply(data:Record<string,unknown>):void {
       value.buttonMode=mode;
     }
   }
-  if(!['state','image'].includes(kind))value.key=key(data.key,'Ключ');
-  if(!['project','state','image'].includes(kind))value.objectId=integer(Number(data.objectId),1,['page','popup'].includes(kind)?65534:kind==='popup-group'?65535:1000000,'objectId');
-  if(ELEMENT_KINDS.includes(kind))value.controlId=CONTROL_KINDS.includes(kind)?integer(Number(data.controlId),1,65535,'controlId'):null;
-  if(['project','page','popup'].includes(kind)){
-    if(!Object.prototype.hasOwnProperty.call(PROFILES,String(data.profile)))fail('profile','Выберите профиль панели.');
-    value.profile=data.profile as Profile;value.projectName=text(data.projectName,'Имя проекта');
-    if(kind!=='project'&&data.shownBy){if(!['start','navigation','program'].includes(String(data.shownBy)))fail('page','Выберите способ показа.');value.shownBy=data.shownBy as Metadata['shownBy'];}
+  if(kind==='page'||kind==='popup'){
+    if(data.shownBy){if(!['start','navigation','program'].includes(String(data.shownBy)))fail('page','Выберите способ показа.');value.shownBy=data.shownBy as Metadata['shownBy'];}
     if(kind==='popup')value.modal=data.modal==='true';
-  }
-  if(kind==='state'){
-    if(!Object.prototype.hasOwnProperty.call(ROLE_ID,String(data.role)))fail('states','Выберите роль состояния.');
-    value.role=data.role as Role;value.stateId=data.stateId!==''&&data.stateId!==undefined?integer(Number(data.stateId),0,7,'stateId'):ROLE_ID[value.role];value.stateName=text(data.stateName,'Имя состояния');
   }
   if(kind==='image'||kind==='graphic'){
     value.key=key(data.key,'Ключ ресурса');value.file=String(data.file);value.resourceName=String(data.resourceName);
@@ -105,30 +138,55 @@ function apply(data:Record<string,unknown>):void {
     for(const field of ['enabled','visible'] as const)if(data[field]!==''&&data[field]!==undefined){if(!['true','false'].includes(String(data[field])))fail('behavior','Выберите значение поведения.');behavior[field]=data[field]==='true';}
     if(Object.keys(behavior).length)value.behavior=behavior;
   }
-  const textKind=['label','value','datetime'].includes(kind),primitive=['shape','line'].includes(kind),containerKind=['project','page','popup','popup-group','state'].includes(kind);
-  if(kind==='project'?node.type!=='FRAME'&&node.type!=='SECTION':containerKind?node.type!=='FRAME':textKind?!controlText(node):primitive?!['FRAME','RECTANGLE','ELLIPSE'].includes(node.type)&&!isControlFrame(node):kind==='image'?node.type!=='FRAME'&&node.type!=='SLOT':!isControlFrame(node))fail('node-type',kind==='project'?'Для проекта нужна секция или Frame.':containerKind?'Для контейнера или состояния нужен обычный Frame.':textKind?'Для этого назначения нужен Text или текстовый компонент кита.':primitive?'Выберите Frame, Rectangle или Ellipse.':'Выберите Frame или экземпляр компонента кита.');
-  const parentKind=node.parent?readMetadata(node.parent)?.kind:undefined;
+  requireNodeForKind(node,kind);
+  if(kind==='line'&&isStrokeLine(node))readStrokeLine(node);
+  const parentKind=node.parent&&!(kind==='project'&&node.parent.type==='PAGE')?readMetadata(node.parent)?.kind:undefined;
   const allowed=kind==='project'?[undefined]:kind==='page'?[undefined,'project']:kind==='popup'?['project','popup-group']:kind==='popup-group'?['project']:kind==='state'?['button','level']:kind==='image'?['state']:['page','popup'];
   if(!allowed.includes(parentKind))fail('placement',`${node.name}: недопустимый родитель для ${kind}.`);
   tag(node,value);
 }
-figma.on('selectionchange',()=>{recognition=undefined;publish();});
-figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number})=>{
+figma.on('selectionchange',()=>{if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){publish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;publish();});
+figma.on('currentpagechange',()=>{recognition=undefined;diagnosticSelectionId=undefined;scopeContext.reset();publish();});
+figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean})=>{
   if(message.type==='ready'){publish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
   try {
-    if(message.type==='recognize') {
+    if(message.scopeMode){if(!['selection','selected-frames','page'].includes(message.scopeMode))fail('scope','Выберите область экспорта.');scopeContext.mode=message.scopeMode;}
+    if(message.profile&&Object.prototype.hasOwnProperty.call(PROFILES,message.profile))scopeContext.profile=message.profile;
+    if(message.type==='context'){recognition=undefined;publish();return;}
+    if(message.type==='select-issue') {
+      const plan=recognition;
+      if(!plan||plan.root.removed||!plan.issues.some(i=>i.nodeId===message.nodeId))fail('recognition','Отчёт устарел. Повторите распознавание.');
+      let node:SceneNode|undefined;
+      function find(current:SceneNode|PageNode){if(current.removed)return;if(current.id===message.nodeId&&current.type!=='PAGE')node=current;if('children' in current)for(const child of current===plan!.root?(plan!.options.members??current.children):current.children)find(child);}
+      if((plan.root.type==='PAGE'?plan.root.id:pageOf(plan.root)?.id)!==figma.currentPage.id)fail('recognition','Откройте страницу макета и повторите распознавание.');
+      find(plan.root);if(!node)fail('selection','Слой удалён или перемещён. Повторите распознавание.');
+      diagnosticSelectionId=node.id;figma.currentPage.selection=[node];figma.viewport.scrollAndZoomIntoView([node]);publish(true);
+    }else if(message.type==='recognize') {
+      const previous=message.fromReport?recognition:undefined;
       recognition=undefined;
-      const plan=recognize(selected(),message.profile!);recognition=plan;
-      figma.ui.postMessage({type:'recognition',token:++recognitionToken,rows:plan.rows,errors:plan.errors,warnings:plan.warnings});
+      diagnosticSelectionId=previous?diagnosticSelectionId:undefined;
+      if(message.fromReport&&(!previous||previous.root.removed||recognitionMode!==scopeContext.mode||previous.profile!==message.profile||(previous.root.type==='PAGE'?previous.root.id:pageOf(previous.root)?.id)!==figma.currentPage.id))fail('recognition','Отчёт устарел. Выберите макет и распознайте его заново.');
+      const resolved=previous?{root:previous.root,options:previous.options}:scopeContext.resolve(true);
+      if(previous&&resolved.root.type!=='PAGE'){diagnosticSelectionId=resolved.root.id;figma.currentPage.selection=[resolved.root];publish(true);}
+      const plan=recognize(resolved.root,message.profile!,resolved.options);postRecognition(plan);
     }else if(message.type==='apply-recognition') {
       const plan=recognition;recognition=undefined;
-      if(!plan||message.token!==recognitionToken||selected().id!==plan.root.id||message.profile!==plan.profile)fail('recognition','Результат распознавания устарел. Распознайте выбранный экран ещё раз.');
+      if(!plan||message.token!==recognitionToken||(plan.root.type==='PAGE'?figma.currentPage.id!==plan.root.id:selected().id!==plan.root.id)||recognitionMode!==scopeContext.mode||message.profile!==plan.profile)fail('recognition','Результат распознавания устарел. Распознайте выбранный экран ещё раз.');
       applyRecognition(plan);publish();figma.ui.postMessage({type:'success',message:'Назначения сохранены. Существующие ключи и ID сохранены. Можно проверить экран и скачать .exui.'});
     }else {
     recognition=undefined;
-    if(message.type==='kit') {
+    if(message.type==='button-preset-normal'||message.type==='button-preset-active') {
+      rememberPreset(selected(),message.type==='button-preset-normal'?'normal':'feedback');
+      publish();figma.ui.postMessage({type:'success',message:'Эталон запомнен на текущей странице. Теперь выберите экран и создайте состояния.'});
+    }else if(message.type==='button-background') {
+      const marked=markBackground(selected());publish();figma.ui.postMessage({type:'success',message:marked?'Слой отмечен как фон. Выберите экран и повторите создание состояний.':'Отметка фона снята.'});
+    }else if(message.type==='button-create-states'||message.type==='button-update-styles') {
+      const resolved=scopeContext.resolve(true);
+      const result=prepareButtons(resolved.root,resolved.options,message.type==='button-update-styles',message.corners===true);
+      publish();figma.ui.postMessage({type:'success',message:message.type==='button-update-styles'?`Оформление обновлено: ${result.buttons} кнопок. Pressed и другие состояния сохранены.`:`Подготовлено кнопок: ${result.buttons}; создано состояний: ${result.states}; уже готовы: ${result.skipped}. Теперь нажмите «Проверить макет».`});
+    }else if(message.type==='kit') {
       const result=await createKit(message.profile!);
       publish();figma.ui.postMessage({type:'success',message:`Extron Kit создан: ${result.components.length} компонентов и шаблоны проекта. Выбран пример экрана. Изменяйте оформление в слотах Artwork, затем распознайте экран и сохраните назначения.`});
     }else if(message.type==='demo') {
@@ -139,7 +197,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       prepare(message.profile);publish();figma.ui.postMessage({type:'success',message:'Назначение «Экран» сохранено. Далее нажмите «Распознать по именам» либо назначьте элементы вручную, затем нажмите «Проверить экран». Слои макета не изменены.'});
     }else if(message.type==='apply') {apply(message.data??{});publish();figma.ui.postMessage({type:'success',message:'Назначение сохранено в Figma-узле.'});}
     else if(message.type==='preview') {
-      const node=selected();if(!isControlFrame(node)||!['button','level'].includes(readMetadata(node)?.kind??''))fail('selection','Выберите Frame или экземпляр кнопки кита.');
+      const node=selected();if(!isButtonContainer(node)||!['button','level'].includes(readMetadata(node)?.kind??''))fail('selection','Выберите Group, Frame или экземпляр кнопки кита.');
       const role=message.role;if(message.stateId===undefined&&(!role||!Object.prototype.hasOwnProperty.call(ROLE_ID,role)))fail('states','Выберите состояние.');
       if(message.stateId!==undefined)integer(message.stateId,0,7,'ID состояния');
       const children=node.children.map(n=>({node:n,metadata:readMetadata(n)}));
@@ -147,10 +205,12 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       if(children.length<2||children.length>8||children.some(c=>c.metadata?.kind!=='state')||children.filter(c=>matches(c.metadata)).length!==1)fail('states','Выберите одно назначенное состояние; при нескольких feedback используйте его ID.');
       for(const c of children)c.node.visible=matches(c.metadata);
       figma.ui.postMessage({type:'success',message:`Показано состояние ${message.stateId??role}. При экспорте сохраняются все состояния.`});
-    }else if(message.type==='check') {const c=capture(screenOf(selected()));figma.ui.postMessage({type:'success',message:`Макет проверен: ${elementCount(c.screen)} элемента, ${c.screen.assets.length} PNG. Декодирование PNG проверит CLI после экспорта.`});}
+    }else if(message.type==='check') {const resolved=exportRoot();if(!resolved)return;const {captured:c,assignmentSummary}=resolved;figma.ui.postMessage({type:'success',message:`Макет проверен: ${elementCount(c.screen)} элемента, ${c.screen.assets.length} PNG. ${assignmentSummary} Декодирование PNG проверит CLI после экспорта.`});}
     else if(message.type==='export') {
-      const bundle=await exportFrame(screenOf(selected()),message=>figma.ui.postMessage({type:'progress',message}));
-      figma.ui.postMessage({type:'bundle',bundle});
+      const resolved=exportRoot();if(!resolved)return;const {root,captured,assignmentSummary}=resolved;
+      const bundle=await exportCaptured(root,captured,message=>figma.ui.postMessage({type:'progress',message}));
+      if(root.type==='PAGE'&&root.id!==figma.currentPage.id)fail('design-changed','Открытая страница изменилась во время экспорта. Повторите экспорт на нужной странице.');
+      figma.ui.postMessage({type:'bundle',bundle,assignmentSummary});
     }else fail('message','Неизвестная команда.');
     }
   }catch(e){figma.ui.postMessage({type:'error',message:e instanceof Error?e.message:String(e),code:(e as {code?:string}).code??'plugin'});}

@@ -16,10 +16,12 @@ for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait
   test(`Demo ${suffix}: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256`,async()=>{
     const {root}=await fixture(profile);const bundle=await exportFrame(root);
     const expected=JSON.parse(readFileSync(new URL(`../../../examples/exui-v1/${suffix}/screen.json`,import.meta.url),'utf8'));
+    assert.equal(expected.schema,'exui-screen/1');
+    expected.schema='exui-screen/5';
     assert.deepEqual(semantic(bundle.screen),semantic(expected));
     const a=packageExui(bundle),b=packageExui(await exportFrame(root));assert.deepEqual(a,b);
     const files=unzipSync(a);assert.equal(Object.keys(files).length,4);assert.ok(files['manifest.json']&&files['screen.json']);
-    const manifest=JSON.parse(strFromU8(files['manifest.json']));assert.equal(manifest.profile,profile);
+    const manifest=JSON.parse(strFromU8(files['manifest.json']));assert.equal(manifest.profile,profile);assert.equal(manifest.schema,'exui/5');
     for(const resource of manifest.resources)assert.equal(resource.sha256,bytesToHex(sha256(files[resource.path])).toUpperCase());
   });
 test('IDs and explicit state IDs survive layer order, state order, texts and geometry edits',async()=>{

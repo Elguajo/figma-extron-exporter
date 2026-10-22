@@ -16,7 +16,7 @@ for(const project of [false,true])test(`${profile} ${project?'project':'screen'}
   const files=unzipSync(packageExui(bundle)),manifest=JSON.parse(strFromU8(files['manifest.json']));
   assert.equal(manifest.resources.length,expected);assert.equal(Object.keys(files).length,expected+2);
   for(const resource of manifest.resources)assert.ok(files[resource.path]);
-  const legacy=structuredClone(bundle);legacy.screen.schema='exui-screen/4';assert.throws(()=>packageExui(legacy),/16 PNG/);
+  const legacy=structuredClone(bundle);legacy.screen.schema='exui-screen/4';assert.throws(()=>packageExui(legacy),(e:any)=>e.code==='package');
   const duplicate=structuredClone(bundle);duplicate.resources.push(duplicate.resources[0]);assert.throws(()=>packageExui(duplicate),/Повтор/);
   // Size protections apply equally to packages with more than 16 resources.
   const oversized=structuredClone(bundle);oversized.resources[0].bytes=new Uint8Array(4*1024*1024+1);

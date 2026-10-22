@@ -9,8 +9,28 @@ import { namedFixture } from './named-fixture.ts';
 import { createDemo } from '../src/demo.ts';
 import { projectFixture,sectionFixture } from './expanded-fixture.ts';
 import { kitFixture } from './kit-fixture.ts';
+import { strokeLineFixture } from './stroke-line-fixture.ts';
 const source=buildSync({entryPoints:[fileURLToPath(new URL('../src/code.ts',import.meta.url))],bundle:true,write:false,target:'es2017',define:{__html__:'"test"',__ICONS__:JSON.stringify(Object.fromEntries(Object.entries(icons()).map(([k,v])=>[k,[...v]])))}}).outputFiles[0].text;
 function plugin(){const fake=fakeFigma();vm.runInNewContext(source,{figma:fake.api,Uint8Array,console});return{...fake,send:fake.api.ui.onmessage as (message:unknown)=>Promise<void>};}
+
+test('Manual Pen line mapping → check/export from a child; invalid curves do not overwrite metadata',async()=>{
+ const p=plugin(),root=await strokeLineFixture(),line=root.children[0] as VectorNode;
+ p.page.selection=[root as never];await p.send({type:'prepare',profile:'tlp-pro-1025m'});
+ p.page.selection=[line as never];await p.send({type:'apply',data:{kind:'line',key:'home.pen',objectId:'7'}});
+ const metadata=line.getPluginData('exui');assert.equal(JSON.parse(metadata).kind,'line');
+ // The other lines are unmapped, so recognize the complete screen before exporting.
+ p.page.selection=[root as never];await p.send({type:'recognize',profile:'tlp-pro-1025m'});
+ const report=p.messages.filter(m=>m.type==='recognition').at(-1) as any;assert.deepEqual([...report.errors],[]);
+ await p.send({type:'apply-recognition',profile:'tlp-pro-1025m',token:report.token});
+ p.page.selection=[line as never];await p.send({type:'check'});await p.send({type:'export'});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);
+ const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;
+ assert.equal(bundle.screen.elements[0].objectId,7);assert.equal(bundle.resources.length,0);
+ (line.vectorNetwork.segments[0] as any).tangentStart={x:2,y:5};
+ await p.send({type:'apply',data:{kind:'line',key:'home.changed',objectId:'99'}});
+ assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'line-path');
+ assert.equal(line.getPluginData('exui'),metadata);
+});
 
 test('Section project: recognize → map navigation by target list → check/export from a child',async()=>{
  const p=plugin(),root=sectionFixture('tlp-pro-300m-portrait');p.page.selection=[root as never];
@@ -86,7 +106,7 @@ test('Built plugin supports manual static-graphic mapping as a passive Frame on 
   await p.send({type:'apply',data:{kind:'graphic',key:'home.company',objectId:'1',file:'assets/company.png',resourceName:'company.png'}});
   assert.equal(JSON.parse(logo.getPluginData('exui')).controlId,null);
   await p.send({type:'export'});const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;
-  assert.equal(bundle.screen.schema,'exui-screen/4');assert.equal(bundle.screen.elements[0].kind,'graphic');assert.equal(bundle.resources.length,1);
+  assert.equal(bundle.screen.schema,'exui-screen/5');assert.equal(bundle.screen.elements[0].kind,'graphic');assert.equal(bundle.resources.length,1);
 });
 test('Manual form persists the chosen button type and rejects unsupported modes without changing metadata',async()=>{
   const p=plugin();await p.send({type:'demo',profile:'tlp-pro-1025m'});const root=p.page.selection[0],button=root.children[0];p.page.selection=[button];
@@ -95,7 +115,7 @@ test('Manual form persists the chosen button type and rejects unsupported modes 
   const assigned=JSON.parse(button.getPluginData('exui'));assert.equal(assigned.schema,'exui-node/3');assert.equal(assigned.buttonMode,'on-off');
   assert.equal(assigned.objectId,before.objectId);assert.equal(assigned.controlId,before.controlId);
   // An ordinary button requires two states; saving its type never deletes a third.
-  await p.send({type:'export'});assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'button-states');
+  await p.send({type:'export'});const report=p.messages.filter(m=>m.type==='recognition').at(-1) as any;assert.match(report.errors.join('\n'),/ровно 2 состояния/);assert.equal(report.issues[0].nodeId,button.id);
   const raw=button.getPluginData('exui');
   for(const mode of ['auto','legacy']){await p.send({type:'apply',data:{...assigned,buttonMode:mode}});assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'button-mode');assert.equal(button.getPluginData('exui'),raw);}
 });
@@ -137,21 +157,21 @@ test('Built plugin saves explicit metadata, keeps rename-independent IDs and rej
   assert.equal(p.page.selection[0].getPluginData('exui'),'');
 });
 
-test('Own unassigned screen: actionable error → prepare → assign label → editable export',async()=>{
+test('Own unassigned screen: unsupported child is reported → optional prepare → assign label → editable export',async()=>{
   const p=plugin();const root=p.api.createFrame();root.name='Свой экран';root.resize(1280,800);
   root.fills=[{type:'SOLID',color:{r:0,g:0,b:0}}];root.x=300;root.y=200;
   const label=p.api.createText();root.appendChild(label);label.name='Зал';label.characters='Hall';label.resize(120,40);
   label.x=20;label.y=30;label.textAlignVertical='CENTER';label.fills=[{type:'SOLID',color:{r:1,g:1,b:1}}];
   p.page.selection=[root];const before=JSON.stringify({bounds:root.absoluteBoundingBox,fills:root.fills,children:root.children.map(n=>[n.id,n.name,n.x,n.y,n.width,n.height,n.characters])});
   await p.send({type:'export'});
-  assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'screen-unprepared');
-  assert.ok(String(p.messages.filter(m=>m.type==='error').at(-1)?.message).includes('Подготовить выбранный экран'));
+  const report=p.messages.filter(m=>m.type==='recognition').at(-1) as any;
+  assert.ok(report.errors.join('\n').includes('префикс'));assert.equal(report.issues[0].nodeId,label.id);
   assert.equal(p.messages.filter(m=>m.type==='bundle').length,0);
   await p.send({type:'prepare',profile:'tlp-pro-1025m'});
-  assert.deepEqual(JSON.parse(root.getPluginData('exui')),{schema:'exui-node/1',ownerNodeId:root.id,kind:'page',key:'page.home',objectId:100,profile:'tlp-pro-1025m',projectName:'Свой экран'});
+  assert.deepEqual(JSON.parse(root.getPluginData('exui')),{schema:'exui-node/1',ownerNodeId:root.id,kind:'page',key:'page.screen',objectId:100,profile:'tlp-pro-1025m',projectName:'Свой экран'});
   assert.equal(JSON.stringify({bounds:root.absoluteBoundingBox,fills:root.fills,children:root.children.map(n=>[n.id,n.name,n.x,n.y,n.width,n.height,n.characters])}),before);
   assert.equal(label.getPluginData('exui'),'');
-  await p.send({type:'export'});assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'unmapped');
+  await p.send({type:'export'});assert.ok((p.messages.filter(m=>m.type==='recognition').at(-1) as any).issues.some((i:any)=>i.nodeId===label.id));
   p.page.selection=[label];await p.send({type:'apply',data:{kind:'label',key:'hall.title',objectId:'1'}});
   await p.send({type:'export'});
   const result=p.messages.filter(m=>m.type==='bundle').at(-1) as any;
