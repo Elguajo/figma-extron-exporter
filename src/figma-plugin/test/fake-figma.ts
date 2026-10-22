@@ -35,7 +35,7 @@ export function fakeFigma() {
   const page=new FakeNode('PAGE') as FakeNode&{selection:FakeNode[]};page.selection=[];page.name='Page 1';
   const messages:Record<string,unknown>[]=[];
   const create=(type:string)=>{const n=new FakeNode(type);page.appendChild(n);return n;};
-  const api={currentPage:page,mixed:Symbol('mixed'),root:{name:'fixture'},viewport:{scrollAndZoomIntoView(){}},
+  const api={currentPage:page,mixed:Symbol('mixed'),root:{name:'fixture'},viewport:{center:{x:0,y:0},zoom:1,get bounds(){return {x:this.center.x-600/this.zoom,y:this.center.y-400/this.zoom,width:1200/this.zoom,height:800/this.zoom};},scrollAndZoomIntoView(){}},
     listAvailableFontsAsync:async()=>['Regular','Bold'].map(style=>({fontName:{family:'Arial',style}})),loadFontAsync:async()=>{},
     createRectangle:()=>create('RECTANGLE'),createFrame:()=>create('FRAME'),createSection:()=>create('SECTION'),createText:()=>create('TEXT'),createEllipse:()=>create('ELLIPSE'),createVector:()=>create('VECTOR'),createLine:()=>{const n=create('LINE');n.width=100;n.height=0;return n;},createImage:(bytes:Uint8Array)=>{const hash=String(images.size+1);images.set(hash,bytes);return{hash};},
     group:(nodes:FakeNode[],parent:FakeNode,index=parent.children.length)=>{

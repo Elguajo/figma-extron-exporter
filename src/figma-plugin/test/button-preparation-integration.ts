@@ -27,6 +27,11 @@ function cli(args:string[]) {
 const results:unknown[]=[];
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const) {
   const f=authorButtons(profile);
+  // Both rounding directions reach integer control and PNG sizes in real GDL.
+  for(const [i,button] of f.buttons.entries()){
+    const bg=background(button),width=i?120.7:218.21;
+    button.x=10.7;button.resize(width,80.7);bg.resize(width,80.7);
+  }
   f.root.cornerRadius=10; // Presentation-only screen corners do not enter GDL.
   let send:((message:unknown)=>Promise<void>)|undefined;
   if(archive){

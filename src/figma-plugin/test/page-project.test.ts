@@ -14,6 +14,53 @@ import { createDemo } from '../src/demo.ts';
 
 const source=buildSync({entryPoints:[fileURLToPath(new URL('../src/code.ts',import.meta.url))],bundle:true,write:false,target:'es2017',define:{__html__:'"test"',__ICONS__:JSON.stringify(Object.fromEntries(Object.entries(icons()).map(([k,v])=>[k,[...v]])))}}).outputFiles[0].text;
 function plugin(){const fake=fakeFigma();vm.runInNewContext(source,{figma:fake.api,Uint8Array,console});return{...fake,send:fake.api.ui.onmessage as (message:unknown)=>Promise<void>};}
+
+for(const savedTarget of [false,true])test(`Navigation before recognition is saved (target saved: ${savedTarget})`,async()=>{
+ const p=plugin(),{main,audio,button}=twoScreens();
+ if(savedTarget){
+  applyRecognition(recognize(audio,'tlp-pro-1025m'));
+  const m=readMetadata(audio)!;audio.setPluginData(DATA_KEY,JSON.stringify({...m,shownBy:'navigation'}));
+ }
+ const before=designSignature(p.page as never);
+ p.page.selection=[main as never,audio as never];p.emit('selectionchange');
+ p.page.selection=[button as never];p.emit('selectionchange');
+ const selected=p.messages.filter(m=>m.type==='selection').at(-1) as any;
+ assert.ok(selected.targets.some((t:any)=>t.name===audio.name),'unprepared project must offer its target');
+ assert.equal(selected.targets.some((t:any)=>t.name===main.name),false);
+ assert.ok(selected.metadata?.key,'new button must have draft identity in its editor');
+ assert.equal(designSignature(p.page as never),before,'viewing the form must not write assignments');
+ await p.send({type:'apply',scopeMode:'selected-frames',profile:'tlp-pro-1025m',data:{...selected.metadata,navigate:selected.targets[0].key}});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);
+ assert.equal(readMetadata(button)!.navigate,readMetadata(audio)!.key);
+ await p.send({type:'check',scopeMode:'selected-frames',profile:'tlp-pro-1025m'});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);
+ assert.deepEqual([...recognize(p.page as never,'tlp-pro-1025m',{members:[main,audio]}).errors],[]);
+});
+for(const failure of ['invalid-target','invalid-design','write-failure'])test(`New navigation save is atomic on ${failure}`,async()=>{
+ const p=plugin(),{main,audio,button}=twoScreens();
+ p.page.selection=[main as never,audio as never];p.emit('selectionchange');p.page.selection=[button as never];p.emit('selectionchange');
+ const selected=p.messages.filter(m=>m.type==='selection').at(-1) as any;
+ if(failure==='invalid-design')audio.children[0].name='unsupported';
+ if(failure==='write-failure'){
+  const original=audio.setPluginData.bind(audio);let once=true;
+  audio.setPluginData=(key,value)=>{if(once&&value){once=false;throw new Error('write failure');}original(key,value);};
+ }
+ const before=designSignature(p.page as never);
+ await p.send({type:'apply',scopeMode:'selected-frames',profile:'tlp-pro-1025m',data:{...selected.metadata,navigate:failure==='invalid-target'?'page.missing':selected.targets[0].key}});
+ assert.equal(p.messages.filter(m=>m.type==='error').length,1);
+ assert.equal(designSignature(p.page as never),before);
+});
+
+test('Current-page scope offers draft navigation targets after reopening without remembered selection',async()=>{
+ const p=plugin(),{audio,button}=twoScreens();p.page.selection=[button as never];
+ await p.send({type:'context',scopeMode:'page',profile:'tlp-pro-1025m'});
+ const selected=p.messages.filter(m=>m.type==='selection').at(-1) as any;
+ assert.ok(selected.targets.some((t:any)=>t.name===audio.name));
+ await p.send({type:'apply',scopeMode:'page',profile:'tlp-pro-1025m',data:{...selected.metadata,navigate:selected.targets[0].key}});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);
+ assert.equal(readMetadata(button)!.navigate,readMetadata(audio)!.key);
+});
+
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
  test(`Selected frames ${profile}: one project, no wrapper, unrelated frames untouched, navigation survives editing`,async()=>{
   const p=plugin(),{main,audio,button}=twoScreens(profile),scratch=frame(null,'Scratch',0,1200,100,100,'#AABBCC'),untouched=designSignature(scratch);

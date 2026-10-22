@@ -37,10 +37,22 @@ test('Matching arbitrary-position Inter button captions become one editable nati
   for(const state of button.children)for(const n of state.children)if(n.type==='TEXT')n.fontName={family:'Inter',style:'Medium'};
   applyRecognition(recognize(f.root,'tlp-pro-1025m'));
   const before=designSignature(f.root),bundle=await exportFrame(f.root),native=bundle.screen.elements.find(e=>e.key.startsWith('button-caption.'))!;
-  assert.equal(native.kind,'label');assert.equal(native.text,'Audio');assert.equal(native.font!.style,'Medium');assert.deepEqual(native.rect,[20,60,100,24]);
+  assert.equal(native.kind,'label');assert.equal(native.text,'Audio');assert.equal(native.font!.style,'Medium');assert.deepEqual(native.rect,[20,60,110,24]);
   assert.ok(bundle.screen.elements[0].states!.every(s=>s.text===''));assert.equal(designSignature(f.root),before);
   button.children[1].children.find(n=>n.type==='TEXT')!.characters='Different';
   assert.ok(!capture(f.root).screen.elements.some(e=>e.key.startsWith('button-caption.')));
+});
+test('Native Inter captions get GDI room around their alignment anchor without leaving the button',async()=>{
+  const f=authorButtons();prepareButtons(f.root);
+  const button=f.buttons[0];
+  for(const state of button.children)for(const n of state.children)if(n.type==='TEXT'){
+    n.fontName={family:'Inter',style:'Semi Bold'};n.fontSize=21;n.characters='Video\nControl';n.resize(76,46);n.x=22;n.y=30;
+    n.textAlignHorizontal='CENTER';n.textAlignVertical='CENTER';(n as any).textAutoResize='WIDTH_AND_HEIGHT';
+  }
+  applyRecognition(recognize(f.root,'tlp-pro-1025m'));
+  const before=designSignature(f.root),native=(await exportFrame(f.root)).screen.elements.find(e=>e.key.startsWith('button-caption.'))!;
+  // Two GDI lines need 57px; the bottom edge allows only 4 of the 11 extra pixels, mirrored on top.
+  assert.deepEqual(native.rect,[24,36,92,54]);assert.equal(native.textAlign,'middle-center');assert.equal(designSignature(f.root),before);
 });
 test('Figma variable-font reads with standard named axes stay native; custom axis values never silently change',()=>{
   authorButtons();const label=figma.createText();

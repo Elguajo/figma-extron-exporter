@@ -24,6 +24,29 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
  });
 }
 
+test('Fractional native geometry uses the same rounded dimensions for Slider parts, line thickness and dynamic text',async()=>{
+ fakeFigma();const root=expandedFixture(),slider=root.children[0] as FrameNode;
+ slider.resize(260.7,32.21);(slider.children[0] as FrameNode).resize(260.7,16);
+ const line=root.children.find(n=>n.name==='line_Divider') as FrameNode;line.resize(260.7,2.7);
+ const value=root.children.find(n=>n.name==='value_VolumeValue') as TextNode;value.x=20.7;value.resize(100.7,28.21);
+ const plan=recognize(root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+ const before=designSignature(root),screen=(await exportFrame(root)).screen;
+ assert.deepEqual(screen.elements.find(e=>e.kind==='slider')!.rect,[20,20,261,32]);
+ assert.equal(screen.elements.find(e=>e.kind==='line')!.native!.thickness,3);
+ assert.deepEqual(screen.elements.find(e=>e.kind==='value')!.rect,[21,60,101,28]);
+ assert.equal(designSignature(root),before);
+});
+
+test('Fractional popup and its reference share the same integer size',async()=>{
+ fakeFigma();const root=projectFixture(),popup=root.children.find(n=>n.name==='popup_Sources') as FrameNode;
+ popup.resize(80.7,60.21);
+ const home=root.children[0] as FrameNode,ref=home.children.find(n=>n.name==='popupref_Sources') as FrameNode;ref.resize(80.7,60.21);
+ const plan=recognize(root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+ const screen=(await exportFrame(root)).screen;assert.ok('pages' in screen);
+ assert.deepEqual(screen.popups.find(p=>p.name==='popup_Sources')!.size,[81,60]);
+ assert.deepEqual(screen.pages[0].elements.find(e=>e.name==='popupref_Sources')!.rect.slice(2),[81,60]);
+});
+
 for(const [name,edit] of [
  ['missing slider part',(r:any)=>r.children[0].children[1].remove()],
  ['duplicate slider part',(r:any)=>r.children[0].children[1].name='Track'],

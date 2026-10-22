@@ -18,6 +18,15 @@ test('Short and full prefixes, camel case and Off/On aliases identify the same t
   assert.equal(namedRole('Off'),'normal');assert.equal(namedRole('On'),'feedback');assert.equal(namedRole('state_Pressed'),'pressed');
   assert.throws(()=>namedControl('btn_Музыка'));assert.equal(namedControl('Music'),null);
 });
+
+test('Invalid suffixes retain strict naming rules and identify visible or invisible separators',()=>{
+  for(const name of ['line_Devider 4','line_Devider\u00A04','line_Devider\u200B4']){
+    assert.throws(()=>namedControl(name),(e:any)=>e.code==='name'&&e.message.startsWith(name+':')&&/позиции 13/.test(e.message)&&e.message.includes('line_Devider-4'));
+  }
+  for(const name of ['btn_Hall_Music','btn_Hall..Music','btn_4Hall','btn_Музыка'])assert.throws(()=>namedControl(name),(e:any)=>e.code==='name');
+  assert.equal(namedControl('line_Devider-4')?.suffix,'devider-4');
+  assert.equal(namedControl('button_side.hall')?.suffix,'side.hall');
+});
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)for(const two of [false,true])
 test(`Named ${profile}, ${two?2:3} states: dry run → commit → valid package with stable IDs`,async()=>{
   fakeFigma();const root=await namedFixture(profile,two),before=designSignature(root);

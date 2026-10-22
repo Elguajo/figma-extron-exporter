@@ -56,6 +56,18 @@ test('Fractional logo retains its exact source geometry inside a pixel-aligned P
   assert.deepEqual(result.rect,[48,27,205,30]);assert.ok(wrapped);assert.equal(designSignature(root),before);assert.deepEqual(fake.page.children.map(n=>n.id),pageBefore);
   assert.deepEqual([logo.x,logo.y,logo.width,logo.height],[48.42,27.91,204.01,29.09]);
 });
+for(const [width,expected] of [[218.21,218],[218.7,219]])test(`Native button and full-area states round ${width} to ${expected} without changing Figma`,async()=>{
+  const {fake,root}=await fixture(),button=root.children[0] as FrameNode;
+  button.x=24.7;button.y=48.21;button.resize(width,160.7);
+  for(const state of button.children as readonly FrameNode[]){
+    state.resize(width,160.7);
+    const label=state.children.find(n=>n.type==='TEXT')!;label.resize(width,160.7);
+    for(const icon of state.children.filter(n=>n.type!=='TEXT')){icon.x=(expected-icon.width)/2;icon.y=0;}
+  }
+  const before=designSignature(root);fake.setRenderHook(node=>png(Math.round(node.width),Math.round(node.height)));
+  const bundle=await exportFrame(root);assert.deepEqual(bundle.screen.elements[0].rect,[25,48,expected,161]);
+  assert.equal(bundle.screen.elements[0].states!.length,3);assert.equal(designSignature(root),before);
+});
 for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait','300m']])
   test(`Demo ${suffix}: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256`,async()=>{
     const {root}=await fixture(profile);const bundle=await exportFrame(root);
@@ -141,7 +153,9 @@ for(const [name,change,code] of [
   ['duplicate control ID',(r:any)=>edit(r.children[0],{controlId:8103}),'duplicate-id'],
   ['copied node owner',(r:any)=>edit(r.children[0],{ownerNodeId:'previous-owner'}),'copied-node'],
   ['semantic key inferred from text',(r:any)=>edit(r.children[0],{key:undefined}),'key'],
-  ['fractional coordinate',(r:any)=>r.children[0].x+=0.25,'geometry'],
+  ['non-finite coordinate',(r:any)=>r.children[0].x=NaN,'geometry'],
+  ['non-positive size',(r:any)=>r.children[0].width=0,'geometry'],
+  ['size rounded to zero',(r:any)=>r.children[0].width=.2,'bounds'],
   ['inherited rotation',(r:any)=>Object.defineProperty(r,'absoluteTransform',{value:[[0,-1,0],[1,0,0]]}),'transform'],
   ['outside canvas',(r:any)=>r.children[0].x=1270,'bounds'],
   ['wrong panel size',(r:any)=>r.width=320,'profile'],

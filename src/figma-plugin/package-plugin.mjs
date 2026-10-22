@@ -7,6 +7,9 @@ const {version,compatibleCliVersion}=JSON.parse(await readFile(path.join(dir,'pa
 const output=path.resolve(process.argv[2]??path.join(dir,`../../output/figma-plugin/figma-extron-plugin-${version}.zip`));
 const files={};
 for(const name of ['manifest.json','dist/code.js','dist/ui.html','README.md','EXTRON_KIT.md','AUTHORING_STANDARD.md','PREFIXES.md','BUTTON_STATES.md','NATIVE_TEXT.md','THIRD_PARTY_NOTICES.md'])files[name]=new Uint8Array(await readFile(path.join(dir,name)));
+files['docs/figma-extron-prefix-cheatsheet.pdf']=new Uint8Array(await readFile(path.join(dir,'../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf')));
+files['docs/figma-prefix-reference.md']=new Uint8Array(await readFile(path.join(dir,'../../docs/figma-prefix-reference.md')));
+files['PREFIXES.md']=new TextEncoder().encode(new TextDecoder().decode(files['PREFIXES.md']).replace('../../docs/figma-prefix-reference.md','docs/figma-prefix-reference.md').replace('../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf','docs/figma-extron-prefix-cheatsheet.pdf'));
 for(const [name,file] of [['fflate','fflate/LICENSE'],['noble-hashes','@noble/hashes/LICENSE']])files[`licenses/${name}.txt`]=new Uint8Array(await readFile(path.join(dir,'node_modules',file)));
 files['version.json']=new TextEncoder().encode(JSON.stringify({version,...(compatibleCliVersion?{compatibleCliVersion}:{}),contracts:['exui/5'],metadataSchemas:['exui-node/1','exui-node/2','exui-node/3']},null,2)+'\n');
 await mkdir(path.dirname(output),{recursive:true});await writeFile(output,zipSync(files,{level:6,mtime:new Date(2000,0,1)}),{flag:'wx'});

@@ -1,5 +1,5 @@
 import { DATA_KEY, PROFILES, ROLE_ID, ELEMENT_KINDS, CONTROL_KINDS, fail, integer, key, readMetadata, text, validateButtonStates, type Asset, type Bundle, type Element, type Font, type Metadata, type Profile, type Role, type Screen, type SingleScreen, type State } from './model.ts';
-import { color, exportPng, plain, readText, rect, textAlignment } from './read-node.ts';
+import { color, exportPng, hasTransform, plain, readText, rect, textAlignment } from './read-node.ts';
 import { nativeElement,range } from './extended.ts';
 import { captureProject,type ProjectOptions } from './project.ts';
 import { controlText,isControlFrame,KIT_KEY,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
@@ -10,6 +10,7 @@ import { artworkText, isButtonContainer, usesButtonArtwork, validateArtwork } fr
 export interface ArtworkRender {omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}
 export interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode; artwork?:ArtworkRender }[]; signature: string }
 type MetadataReader = (node: SceneNode|PageNode) => Metadata | null;
+type VisibilityReader = (node: SceneNode) => boolean;
 function meta(node: SceneNode, kind: string | undefined, read: MetadataReader): Metadata {
   const m=read(node);
   if (!m || kind && m.kind!==kind) fail('unmapped', `${node.name}: назначьте тип ${kind ?? 'элемента'} в плагине.`);
@@ -28,20 +29,44 @@ function graphicBounds(node:SceneNode,parent:SceneNode):{rect:number[];artwork?:
   return {rect:[left,top,width,height],artwork:{width,height,offsetX:x-left,offsetY:y-top}};
 }
 function nativeStaticText(node:SceneNode):(ReturnType<typeof readText>&{textAlign?:Element['textAlign']})|undefined {
-  const copy=controlText(node);if(!copy)fail('node-type',`${node.name}: label должен быть Text или текстовым компонентом кита.`);
+  const copy=controlText(node);if(!copy)fail('node-type',`${node.name}: label должен быть Text либо Component/Instance с одним Text (или текстовым Frame кита).`);
   // Invalid content is still an error. Only native appearance limitations can
   // fall back to a static snapshot; dynamic Value / DateTime never call this.
   let appearance:ReturnType<typeof readText>;
   try {appearance=readText(copy);}catch(error){if(error instanceof ExportError&&['font','color'].includes(error.code))return;throw error;}
   let alignment:Element['textAlign'];try{alignment=textAlignment(copy);}catch(error){if(error instanceof ExportError&&error.code==='alignment')return;throw error;}
   if(copy!==node){
-    try {if(JSON.stringify(rect(copy,node))!==JSON.stringify([0,0,node.width,node.height]))return;}
+    try {if(JSON.stringify(rect(copy,node))!==JSON.stringify(rect(node,node)))return;}
     catch(error){if(error instanceof ExportError&&error.code==='geometry')return;throw error;}
   }
   return {...appearance,...(alignment!=='middle-left'?{textAlign:alignment}:{})};
 }
+// GUI Designer draws native text through GDI: unkerned hinted advances, its own
+// label insets and a fixed 1.21em Inter line. A box as tight as Figma's clips the
+// last glyphs or line, so grow it around the alignment anchor within `limit`.
+// Arial keeps its verified Figma geometry.
+const GDI_LINE=1.21;
+export function nativeTextRect(label:TextNode,font:Font,align:Element['textAlign'],r:number[],limit:number[]):number[] {
+  if(font.family==='Arial')return r;
+  const px=font.size/0.75,[x,y,w,h]=r,lh=label.lineHeight as LineHeight|undefined;
+  const explicit=label.characters.split(/\r\n|[\n\r]|\p{Zl}|\p{Zp}/u).length;
+  const line=typeof lh!=='object'||lh.unit==='AUTO'?px*GDI_LINE:lh.unit==='PIXELS'?lh.value:px*lh.value/100;
+  // Only an auto-height box reveals the lines Figma wrapped at its fixed width.
+  // Such text keeps nearly the same width, so GDI breaks lines in the same places.
+  const lines=label.textAutoResize==='HEIGHT'&&line>0?Math.max(explicit,Math.round(h/line)):explicit,wrapped=lines>explicit;
+  const width=w+Math.ceil(wrapped?px*.25:Math.max(px*.75,w*.06)),height=Math.max(h,Math.ceil(px*(lines*GDI_LINE+.25)));
+  const [vertical,horizontal]=(align??'middle-left').split('-');
+  const grow=(start:number,size:number,next:number,anchor:'start'|'middle'|'end',min:number,max:number):[number,number]=>{
+    if(anchor==='start')return [start,Math.max(size,Math.min(next,max-start))];
+    if(anchor==='end'){const s=Math.min(start,Math.max(min,start+size-next));return [s,start+size-s];}
+    const half=Math.max(0,Math.min(Math.floor((next-size)/2),start-min,max-start-size));return [start-half,size+2*half];
+  };
+  const [nx,nw]=grow(x,w,width,horizontal==='left'?'start':horizontal==='right'?'end':'middle',limit[0],limit[0]+limit[2]);
+  const [ny,nh]=grow(y,h,height,vertical==='top'?'start':vertical==='bottom'?'end':'middle',limit[1],limit[1]+limit[3]);
+  return [nx,ny,nw,nh];
+}
 function commonButtonCaption(button:SceneNode) {
-  if(!isButtonContainer(button)||button.children.length<2)return;
+  if(!isButtonContainer(button)||button.children.length<2||hasTransform(button)||button.children.some(hasTransform))return;
   const labels=new Map<string,string>();let common:ReturnType<typeof nativeStaticText>,bounds:number[]|undefined,signature:string|undefined;
   for(const state of button.children){
     if(!isButtonContainer(state))return;
@@ -58,11 +83,12 @@ function commonButtonCaption(button:SceneNode) {
     try {
       const copy=nativeStaticText(label);if(!copy||copy.font.family==='Arial')return;
       const r=rect(label,state);
-      if(r[0]<0||r[1]<0||r[2]<1||r[3]<1||r[0]+r[2]>button.width||r[1]+r[3]>button.height)return;
+      const buttonRect=rect(button,button);
+      if(r[0]<0||r[1]<0||r[2]<1||r[3]<1||r[0]+r[2]>buttonRect[2]||r[1]+r[3]>buttonRect[3])return;
       // Full-area captions belong to the native Button itself.
-      if(JSON.stringify(r)===JSON.stringify([0,0,button.width,button.height])&&label.textAlignHorizontal==='CENTER'&&['CENTER','BOTTOM'].includes(label.textAlignVertical))return;
+      if(JSON.stringify(r)===JSON.stringify(buttonRect)&&label.textAlignHorizontal==='CENTER'&&['CENTER','BOTTOM'].includes(label.textAlignVertical))return;
       const next=JSON.stringify([copy,r]);if(signature&&signature!==next)return;
-      signature=next;common=copy;bounds=r;labels.set(state.id,label.id);
+      signature=next;common=copy;bounds=nativeTextRect(label,copy.font,copy.textAlign,r,buttonRect);labels.set(state.id,label.id);
     }catch(error){if(error instanceof ExportError)return;throw error;}
   }
   return common&&bounds?{copy:common,rect:bounds,labels}:undefined;
@@ -78,15 +104,15 @@ function snapshot(node: SceneNode|PageNode): unknown {
   return props;
 }
 export function designSignature(root: SceneNode|PageNode): string { return JSON.stringify(snapshot(root)); }
-export function capture(root: SceneNode|PageNode, read: MetadataReader = readMetadata,options:ProjectOptions={}): Capture {
-  if(read(root)?.kind==='project')return captureProject(root,read,captureSingle,designSignature,options);
+export function capture(root: SceneNode|PageNode, read: MetadataReader = readMetadata,options:ProjectOptions={},visible:VisibilityReader=node=>node.visible): Capture {
+  if(read(root)?.kind==='project')return captureProject(root,read,(node,metadata,inProject)=>captureSingle(node,metadata,inProject,visible),designSignature,options);
   if(root.type==='PAGE')fail('screen-unprepared','Распознайте выбранные фреймы или экраны текущей страницы.');
-  return captureSingle(root,read);
+  return captureSingle(root,read,false,visible);
 }
-export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,inProject=false):Capture&{screen:SingleScreen} {
-  try{return captureSingleContent(root,read,inProject);}catch(error){nodeError(error,root);}
+export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,inProject=false,visible:VisibilityReader=node=>node.visible):Capture&{screen:SingleScreen} {
+  try{return captureSingleContent(root,read,inProject,visible);}catch(error){nodeError(error,root);}
 }
-function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boolean):Capture&{screen:SingleScreen} {
+function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boolean,visible:VisibilityReader):Capture&{screen:SingleScreen} {
   frame(root);
   const pm=meta(root,undefined,read);if(pm.kind!=='page'&&!(inProject&&pm.kind==='popup'))fail('kind',`${root.name}: нужен экран или popup проекта.`);
   // Screen corners are canvas presentation in Figma. Native Extron pages
@@ -125,7 +151,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
   for(const node of root.children) {
     try {
     const m=meta(node,undefined,read),strokeLine=m.kind==='line'&&isStrokeLine(node)?readStrokeLine(node):null;
-    if(!strokeLine)plain(node,false,m.kind==='shape'||m.kind==='line');
+    if(!strokeLine)plain(node,false,m.kind==='shape'||m.kind==='line',false,{rasterTransform:m.kind==='button'});
     if(!ELEMENT_KINDS.includes(m.kind)) fail('kind',`${node.name}: неизвестный тип элемента экрана.`);
     const objectId=integer(m.objectId,1,1000000,node.name+'.objectId');
     if(ids.has(objectId)) fail('duplicate-id',`${node.name}: objectId ${objectId} уже используется.`); ids.add(objectId);
@@ -135,7 +161,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
     if(controlId!==null) {if(controls.has(controlId)) fail('duplicate-id',`${node.name}: controlId ${controlId} уже используется.`);controls.add(controlId);}
     const graphic=m.kind==='graphic'||m.kind==='label'?graphicBounds(node,root):undefined;
     const bounds=strokeLine?.rect??graphic?.rect??rect(node,root), [x,y,w,h]=bounds;
-    if(x<0||y<0||w<1||h<1||x+w>root.width||y+h>root.height) fail('bounds',`${node.name}: элемент выходит за холст.`);
+    if(x<0||y<0||w<1||h<1||x+w>Math.round(root.width)||y+h>Math.round(root.height)) fail('bounds',`${node.name}: элемент выходит за холст.`);
     const e: Element={key:addKey(m.key,node.name),kind:m.kind as Element['kind'],objectId,controlId,name:text(node.name,'Имя элемента'),rect:bounds};
     let caption:Element|undefined;
     if(m.navigate){if(!inProject)fail('navigation','Для переходов нужна секция проекта или Frame project_Name.');if(m.kind!=='button')fail('navigation','Переход допустим только у кнопки.');e.navigate=key(m.navigate,'Цель перехода');}
@@ -153,7 +179,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       frame(node);e.image=addImage(node,m,key('image.'+e.key,'Ключ изображения'),graphic?.artwork);
     }else if(m.kind==='label') {
       const copy=nativeStaticText(node);
-      if(copy&&!graphic?.artwork)Object.assign(e,copy);
+      if(copy&&!graphic?.artwork){Object.assign(e,copy);e.rect=nativeTextRect(controlText(node)!,copy.font,copy.textAlign,bounds,[0,0,Math.round(root.width),Math.round(root.height)]);}
       else {
         e.kind='graphic';
         const file=`text-${screen.page.objectId}-${objectId}.png`;
@@ -166,7 +192,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       if(m.kind==='button'){if(!isButtonContainer(node))fail('node-type',`${node.name}: нужен Frame или Group кнопки.`);}else frame(node);
       if('fills' in node&&(!Array.isArray(node.fills)||node.fills.some(f=>f.visible!==false))) fail('appearance',`${node.name}: фон кнопки задаётся на состояниях; у внешнего Frame fills должны быть пусты.`);
       if(node.children.length<2||node.children.length>8) fail('states',`${node.name}: нужны 2..8 состояний, начиная с Normal.`);
-      if(node.children.filter(n=>n.visible).length!==1) fail('states',`${node.name}: для предпросмотра должно быть видно ровно одно состояние.`);
+      if(node.children.filter(visible).length!==1) fail('states',`${node.name}: для предпросмотра должно быть видно ровно одно состояние.`);
       const states: State[]=[];let commonFont:Font|undefined;
       const shared=m.kind==='button'?commonButtonCaption(node):undefined;
       if(shared){
@@ -211,9 +237,10 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
           const icon=icons[0], im=meta(icon,'image',read);
           if(!icon.visible || ('opacity' in icon && icon.opacity!==1)) fail('image',`${icon.name}: иконка должна быть видимой и непрозрачной.`,icon);
           const [ix,iy,iw,ih]=rect(icon,stateNode);
-          if(iw<1||ih<1||iw>4096||ih>4096||iw>w||ih>h||ix!==(w-iw)/2||![0,(h-ih)/2].includes(iy)) fail('alignment',`${icon.name}: иконка должна быть по центру, сверху или посередине, в Native размере.`,icon);
+          const centeredX=[Math.floor((w-iw)/2),Math.ceil((w-iw)/2)],centeredY=[Math.floor((h-ih)/2),Math.ceil((h-ih)/2)];
+          if(iw<1||ih<1||iw>4096||ih>4096||iw>w||ih>h||!centeredX.includes(ix)||![0,...centeredY].includes(iy)) fail('alignment',`${icon.name}: иконка должна быть по центру, сверху или посередине, в Native размере.`,icon);
           state.imageAlign=iy===0?'top-center':'middle-center';
-          state.image=addImage(icon,im,key(im.key,icon.name));
+          state.image=addImage(icon,im,key(im.key,icon.name),icon.width!==iw||icon.height!==ih?{width:iw,height:ih}:undefined);
         }
         states.push(state);
         }catch(error){nodeError(error,stateNode);}

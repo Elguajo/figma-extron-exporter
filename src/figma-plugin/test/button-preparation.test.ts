@@ -26,9 +26,25 @@ for(const fractional of ['icon-detail','caption'] as const)test(`Fractional ${fr
   assert.ok([target.x,target.y,target.width,target.height].every((v,i)=>Math.abs(v-geometry[i])<1e-9));
 });
 
-test('Fractional outer button geometry still fails rather than being silently rounded',()=>{
-  const f=authorButtons();prepareButtons(f.root);f.buttons[0].x+=.25;
-  const plan=recognize(f.root,'tlp-pro-1025m');assert.ok(plan.issues.some(i=>i.nodeId===f.buttons[0].id&&i.message.includes('целыми пикселями')));
+for(const [width,expected] of [[218.21,218],[218.7,219],[218.5,219]])test(`Fractional Group button ${width} rounds to ${expected} through recognition and PNG export`,async()=>{
+  const f=authorButtons(),button=f.buttons[0],bg=background(button);
+  button.x=10.21;button.y=10.7;button.resize(width,80.7);bg.resize(width,80.7);
+  prepareButtons(f.root);
+  const plan=recognize(f.root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const before=designSignature(f.root),pageBefore=f.page.children.map(n=>n.id);
+  let renders=0;
+  f.setRenderHook(node=>{
+    if(node.children[0]?.parent&&button.children.some(s=>s.name===node.children[0].name)){
+      assert.deepEqual([node.width,node.height],[expected,81]);
+      assert.deepEqual([node.children[0].width,node.children[0].height],[width,80.7]);renders++;
+    }
+    return png(Math.round(node.width),Math.round(node.height));
+  });
+  const bundle=await exportFrame(f.root),result=bundle.screen.elements.find(e=>e.controlId===readMetadata(button)!.controlId)!;
+  assert.deepEqual(result.rect,[10,11,expected,81]);assert.equal(result.states!.length,2);assert.equal(renders,2);
+  assert.equal(designSignature(f.root),before);assert.deepEqual(f.page.children.map(n=>n.id),pageBefore);
+  button.children[1].resize(width-2,80.7);
+  assert.ok(recognize(f.root,'tlp-pro-1025m').issues.some(i=>i.nodeId===button.children[1].id&&i.message.includes('всю кнопку')));
 });
 
 for (const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const) test(`${profile}: Group design → two states per prefix → export; repeated preparation and styling preserve IDs`, async () => {

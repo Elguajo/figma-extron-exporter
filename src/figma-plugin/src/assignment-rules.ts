@@ -29,7 +29,7 @@ export function requireNodeForKind(node: SceneNode, kind: Kind): void {
       break;
     case 'label': case 'value': case 'datetime':
       valid = controlText(node) !== null;
-      expected = 'Text или текстовый компонент кита';
+      expected = 'Text либо Component/Instance с одним Text (или текстовый Frame кита)';
       break;
     case 'shape': case 'line':
       valid = isControlFrame(node) || node.type === 'RECTANGLE' || node.type === 'ELLIPSE' || kind === 'line' && isStrokeLine(node);

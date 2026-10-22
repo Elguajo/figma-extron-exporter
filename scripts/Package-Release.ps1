@@ -10,6 +10,8 @@ $plugin = Join-Path $repo 'src/figma-plugin'
 $pluginPackage = Get-Content -Raw -LiteralPath (Join-Path $plugin 'package.json') | ConvertFrom-Json
 $version = $pluginPackage.version
 $cliVersion = if ($pluginPackage.compatibleCliVersion) { $pluginPackage.compatibleCliVersion } else { $version }
+$sourceCommit = (& git -C $repo rev-parse HEAD)
+$sourceDirty = @(& git -C $repo status --porcelain).Count -gt 0
 if (!$OutputDirectory) { $OutputDirectory = Join-Path $repo "output/releases/$version" }
 $OutputDirectory = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputDirectory)
 $pluginZip = Join-Path $OutputDirectory "figma-extron-plugin-$version.zip"
@@ -45,6 +47,7 @@ foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md')) {
     Copy-Item -LiteralPath (Join-Path $repo "docs/$file") -Destination (Join-Path $stage 'docs')
 }
 Copy-Item -LiteralPath (Join-Path $plugin 'NATIVE_TEXT.md') -Destination (Join-Path $stage 'docs/native-text.md')
+Copy-Item -LiteralPath (Join-Path $repo 'docs/prefix_map/figma-extron-prefix-cheatsheet.pdf') -Destination (Join-Path $stage 'docs/figma-extron-prefix-cheatsheet.pdf')
 $contractPath = Join-Path $stage 'docs/exui-v5.md'
 [IO.File]::WriteAllText($contractPath, [IO.File]::ReadAllText($contractPath).Replace('../src/figma-plugin/NATIVE_TEXT.md', 'native-text.md'), [Text.UTF8Encoding]::new($false))
 # Preserve dependency license texts from the exact restored NuGet package.
@@ -55,7 +58,7 @@ Copy-Item -LiteralPath (Join-Path $nrbfPackage 'THIRD-PARTY-NOTICES.TXT') -Desti
 Copy-Item -LiteralPath (Join-Path $nrbfPackage 'system.formats.nrbf.nuspec') -Destination (Join-Path $stage 'licenses/System.Formats.Nrbf.nuspec')
 Copy-Item -LiteralPath (Join-Path $repo 'scripts/licenses/System.Formats.Nrbf-LICENSE.txt') -Destination (Join-Path $stage 'licenses')
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-@{ version = $cliVersion; compatiblePluginVersion = $version; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = (& git -C $repo rev-parse HEAD); includesLocalSamples = $false } | ConvertTo-Json | Set-Content -Encoding utf8 -LiteralPath (Join-Path $stage 'version.json')
+@{ version = $cliVersion; compatiblePluginVersion = $version; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $false } | ConvertTo-Json | Set-Content -Encoding utf8 -LiteralPath (Join-Path $stage 'version.json')
 [IO.Compression.ZipFile]::CreateFromDirectory($stage, $cliZip)
 
 if ($IncludeLocalSamples) {
@@ -71,7 +74,7 @@ if ($IncludeLocalSamples) {
     New-Item -ItemType Directory -Path (Join-Path $stage 'figma-plugin') | Out-Null
     [IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, (Join-Path $stage 'figma-plugin'))
     Copy-Item -LiteralPath (Join-Path $repo 'output/home-layout-20261020/home-layout-gui.gdl') -Destination (Join-Path $stage 'examples/home-1025m/home-gui-built.gdl')
-    @{ version = $version; cliVersion = $cliVersion; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = (& git -C $repo rev-parse HEAD); includesLocalSamples = $true } | ConvertTo-Json | Set-Content -Encoding utf8 -LiteralPath (Join-Path $stage 'version.json')
+    @{ version = $version; cliVersion = $cliVersion; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $true } | ConvertTo-Json | Set-Content -Encoding utf8 -LiteralPath (Join-Path $stage 'version.json')
     [IO.Compression.ZipFile]::CreateFromDirectory($stage, $localZip)
 }
 Get-FileHash -Algorithm SHA256 -LiteralPath $pluginZip, $cliZip | Format-Table -AutoSize

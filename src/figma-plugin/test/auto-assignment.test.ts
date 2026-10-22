@@ -117,3 +117,34 @@ test('Retry after PNG render failure reuses the automatically saved assignments'
  assert.equal(p.messages.some(m=>m.type==='bundle'),false);assert.ok(readMetadata(root));const before=designSignature(root);p.setRenderHook(()=>{});p.messages.length=0;
  await p.send({type:'export'});latestBundle(p);assert.equal(designSignature(root),before);
 });
+
+for(const command of ['check','export'])test(`${command} automatically hides the extra Passive/Active preview layer and keeps persistent identities`,async()=>{
+ const p=plugin(),root=await namedFixture('tlp-pro-1025m',true),button=root.children[0] as FrameNode;
+ button.name='button_side.hall';button.children.forEach((s,i)=>s.name=['Active','Passive'][i]);
+ p.page.selection=[root as never];await p.send({type:'check'});const identity=button.getPluginData(DATA_KEY);
+ button.children.forEach(s=>s.visible=true);p.messages.length=0;await p.send({type:command});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'||m.type==='recognition'),[]);
+ assert.deepEqual(button.children.map(s=>s.visible),[false,true]);assert.equal(button.getPluginData(DATA_KEY),identity);
+ const result=p.messages.find(m=>m.type===(command==='check'?'success':'bundle'))!;
+ assert.match(String(command==='check'?result.message:result.assignmentSummary),/предпросмотр кнопок: 1/);
+ if(command==='export')assert.deepEqual([...(result.bundle as any).screen.elements[0].states.map((s:any)=>s.name)],['Passive','Active']);
+ const before=designSignature(root);await p.send({type:'export'});latestBundle(p);assert.equal(designSignature(root),before);
+});
+
+test('Selected-frame project repairs previews only in selected screens',async()=>{
+ const p=plugin(),first=await namedFixture('tlp-pro-1025m',true),second=await namedFixture('tlp-pro-1025m',true),outside=await namedFixture('tlp-pro-1025m',true);
+ for(const root of [first,second,outside])(root.children[0] as FrameNode).children.forEach(s=>s.visible=true);
+ const untouched=designSignature(outside);p.page.selection=[first as never,second as never];
+ await p.send({type:'export',scopeMode:'selected-frames',profile:'tlp-pro-1025m'});const bundle=latestBundle(p);
+ assert.equal(bundle.screen.pages.length,2);assert.equal(designSignature(outside),untouched);
+ for(const root of [first,second])assert.equal((root.children[0] as FrameNode).children.filter(s=>s.visible).length,1);
+});
+
+test('Recognition review leaves both states visible until assignments are applied',async()=>{
+ const p=plugin(),root=await namedFixture('tlp-pro-1025m',true),button=root.children[0] as FrameNode;
+ button.children.forEach(s=>s.visible=true);const before=designSignature(root);p.page.selection=[root as never];
+ await p.send({type:'recognize',profile:'tlp-pro-1025m'});const report=p.messages.find(m=>m.type==='recognition')!;
+ assert.deepEqual([...report.errors as string[]],[]);assert.equal(designSignature(root),before);
+ await p.send({type:'apply-recognition',profile:'tlp-pro-1025m',token:report.token});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);assert.equal(button.children.filter(s=>s.visible).length,1);
+});

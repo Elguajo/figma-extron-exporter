@@ -49,6 +49,42 @@ test('Rotated Line Tool and reversed Pen endpoints retain their page coordinates
   assert.deepEqual(screen.elements[3].rect,[238,200,4,100]);assert.deepEqual(screen.elements[0].rect,[20,39,100,2]);
 });
 
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)
+for(const type of ['VECTOR','LINE'] as const)
+test(`Screenshot divider: ${type} rotated -90 degrees, Stroke 1.5 / ${profile}`,async()=>{
+  fakeFigma();const root=await strokeLineFixture(profile);
+  const node=root.children[type==='VECTOR'?0:3] as VectorNode|LineNode;
+  node.name='line_Divider3';node.strokeWeight=1.5;node.strokes=[solid('#343538')];
+  if(node.type==='VECTOR')await node.setVectorNetworkAsync({vertices:[{x:0,y:0},{x:48,y:0}],segments:[{start:0,end:1}],regions:[]});
+  else node.resize(48,0);
+  Object.defineProperty(node,'relativeTransform',{get:()=>[[0,-1,311],[1,0,18]]});
+  const before=designSignature(root),plan=recognize(root,profile);
+  assert.deepEqual(plan.errors,[]);assert.equal(designSignature(root),before);applyRecognition(plan);
+  const source=designSignature(root),metadata=root.children.map(n=>n.getPluginData(DATA_KEY));
+  const bundle=await exportFrame(root),element=bundle.screen.elements[type==='VECTOR'?0:3];
+  assert.deepEqual(element.rect,[310,18,2,48]);assert.deepEqual(element.native,{thickness:2});
+  assert.equal(element.fillColor,'#343538');assert.equal(element.kind,'line');assert.equal(element.controlId,null);
+  assert.equal(bundle.resources.length,0);assert.equal(designSignature(root),source);
+  applyRecognition(recognize(root,profile));assert.deepEqual(root.children.map(n=>n.getPluginData(DATA_KEY)),metadata);
+});
+
+for(const [stroke,x,y,length,expected] of [
+  [1,20,40,100,[20,40,100,1]],
+  [1.4,20.21,40.7,100.49,[20,40,100,1]],
+  [1.5,20.7,40.21,100.5,[21,39,101,2]],
+  [2.7,20.5,40.7,100.7,[21,39,101,3]],
+] as const)
+test(`Pen export rounds painted bounds and Stroke ${stroke} without requiring a pixel grid`,async()=>{
+  fakeFigma();const root=await strokeLineFixture(),node=root.children[0] as VectorNode;
+  node.strokeWeight=stroke;node.x=x;node.y=y;
+  await node.setVectorNetworkAsync({vertices:[{x:0,y:0},{x:length,y:0}],segments:[{start:0,end:1}],regions:[]});
+  const before=designSignature(root),plan=recognize(root,'tlp-pro-1025m');
+  assert.deepEqual(plan.errors,[]);assert.equal(designSignature(root),before);applyRecognition(plan);
+  const bundle=await exportFrame(root);
+  assert.deepEqual(bundle.screen.elements[0].rect,expected);
+  assert.deepEqual(bundle.screen.elements[0].native,{thickness:Math.round(stroke)});
+});
+
 for(const [name,edit,error] of [
   ['curve',(n:any)=>n.vectorNetwork.segments[0].tangentStart={x:10,y:5},/Безье/],
   ['polyline',(n:any)=>{n.vectorNetwork.vertices.push({x:50,y:10});n.vectorNetwork.segments.push({start:1,end:2});},/две точки/],
@@ -76,8 +112,12 @@ for(const [name,edit,error] of [
   ['zero length',(n:any)=>n.vectorNetwork.vertices[1].x=0,/ненулевой/],
   ['thicker than length',(n:any)=>n.strokeWeight=101,/больше/],
   ['square bounds lose direction',(n:any)=>n.strokeWeight=100,/больше/],
-  ['fractional stroke',(n:any)=>n.strokeWeight=1.5,/Толщина/],
-  ['off pixel grid',(n:any)=>n.strokeWeight=1,/0.5 px/],
+  ['zero stroke',(n:any)=>n.strokeWeight=0,/толщина/i],
+  ['nonfinite stroke',(n:any)=>n.strokeWeight=NaN,/толщина/i],
+  ['mixed stroke',(n:any)=>n.strokeWeight=figma.mixed,/толщина/i],
+  ['stroke rounds to zero',(n:any)=>n.strokeWeight=.49,/толщина/i],
+  ['stroke exceeds limit',(n:any)=>n.strokeWeight=1280.5,/толщина/i],
+  ['rounded square loses direction',(n:any)=>{n.strokeWeight=1.5;n.vectorNetwork.vertices[1].x=2.4;},/больше/],
   ['stroke outside page',(n:any)=>n.y=0,/холст/],
   ['effect',(n:any)=>n.effects=[{visible:true}],/эффекты/],
   ['hidden',(n:any)=>n.visible=false,/скрытые/],
@@ -87,11 +127,12 @@ for(const [name,edit,error] of [
   assert.ok(plan.errors.some(e=>error.test(e)),plan.errors.join('\n'));assert.throws(()=>applyRecognition(plan));assert.equal(designSignature(root),before);
 });
 
-for(const field of ['strokeCap','strokeAlign','dashPattern','vectorNetwork','complexStrokeProperties','variableWidthStrokeProperties'] as const)
+for(const field of ['strokeWeight','strokeCap','strokeAlign','dashPattern','vectorNetwork','complexStrokeProperties','variableWidthStrokeProperties'] as const)
 test(`Editing ${field} invalidates a pending recognition plan`,async()=>{
   fakeFigma();const root=await strokeLineFixture(),plan=recognize(root,'tlp-pro-1025m'),node=root.children[0] as any;
   assert.deepEqual(plan.errors,[]);
-  if(field==='vectorNetwork')node.vectorNetwork.vertices[1].x=90;
+  if(field==='strokeWeight')node.strokeWeight=1.5;
+  else if(field==='vectorNetwork')node.vectorNetwork.vertices[1].x=90;
   else node[field]=field==='dashPattern'?[3,2]:field.endsWith('Properties')?{type:'BRUSH'}:'changed';
   assert.throws(()=>applyRecognition(plan),(e:any)=>e.code==='design-changed');
 });

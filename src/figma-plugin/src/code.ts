@@ -11,6 +11,7 @@ import { containerSuffix,freeKey } from './assignment-repair.ts';
 import { isButtonContainer } from './button-artwork.ts';
 import { buttonPreparationSummary, markBackground, prepareButtons, presetPreviews, rememberPreset } from './button-preparation.ts';
 import type { ButtonPreparationSummary } from './model.ts';
+import { focusNode } from './focus-node.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
@@ -55,7 +56,8 @@ function exportRoot():{root:ProjectNode;options:ProjectOptions;captured:Capture;
   const plan=recognize(resolved.root,profile,resolved.options);
   if(plan.errors.length){postRecognition(plan);return null;}
   const captured=applyRecognition(plan);
-  const assignmentSummary=plan.writes.length?`Автоматически сохранено назначений: ${plan.writes.length}.`:'';
+  const previewCount=new Set(plan.visibility.map(change=>change.node.parent!.id)).size;
+  const assignmentSummary=[plan.writes.length?`Автоматически сохранено назначений: ${plan.writes.length}.`:'',previewCount?`Автоматически настроен предпросмотр кнопок: ${previewCount}. Все состояния сохранены.`:''].filter(Boolean).join(' ');
   publish();return {...resolved,captured,assignmentSummary};
 }
 function publish(keepRecognition=false):void {
@@ -74,12 +76,16 @@ function publish(keepRecognition=false):void {
     const {root,options}=resolved,rm=stored(root);
     canRecognize=resolved.canRecognize;scopeHint=resolved.hint;scope=resolved.scope;
     buttonWorkflow=buttonPreparationSummary(root,options);
-    if(rm){
-      if(rm.kind==='project'){
+    if(rm?.kind==='project'||resolved.scope.kind==='project'){
+        // A navigation error can prevent the very assignments needed to repair
+        // it. Offer the draft keys without writing anything on selection.
+        const plan=recognize(root,resolved.profile,options);
+        const proposed=new Map(plan.writes.map(w=>[w.node.id,w.metadata]));
+        const read=(node:SceneNode|PageNode)=>proposed.get(node.id)??readMetadata(node);
+        if(n)metadata=read(n);
         let container:BaseNode|null=n??null;
-        while(container&&!['page','popup'].includes(readMetadata(container)?.kind??''))container=container.parent;
-        targets=projectMembers(root,readMetadata,options).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:readMetadata(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
-      }
+        while(container&&!['page','popup'].includes(read(container as SceneNode|PageNode)?.kind??''))container=container.parent;
+        targets=projectMembers(root,read,options).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:read(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
     }
   }catch(e){if(scopeContext.mode!=='selection'){canRecognize=false;scopeHint=(e as Error).message;}}
   const buttonStylePreviews=presetPreviews();
@@ -143,6 +149,16 @@ function apply(data:Record<string,unknown>):void {
     if(Object.keys(behavior).length)value.behavior=behavior;
   }
   requireNodeForKind(node,kind);
+  if(kind==='button'&&value.navigate){
+    const resolved=scopeContext.resolve();
+    if(resolved.scope.kind!=='project')fail('navigation','Для перехода выберите «Экраны текущей страницы — один проект» или выделите экраны вместе.');
+    if(!stored(node)||!stored(resolved.root)||projectMembers(resolved.root,stored,resolved.options).containers.some(c=>!stored(c))){
+      const plan=recognize(resolved.root,resolved.profile,resolved.options,new Map([[node.id,value]]));
+      if(!plan.rows.some(row=>row.id===node.id))fail('navigation','Кнопка не входит в выбранный проект. Выделите нужные экраны вместе.');
+      if(plan.errors.length)fail('recognition',plan.errors.join('\n'));
+      applyRecognition(plan);return;
+    }
+  }
   if(kind==='line'&&isStrokeLine(node))readStrokeLine(node);
   const parentKind=node.parent&&!(kind==='project'&&node.parent.type==='PAGE')?readMetadata(node.parent)?.kind:undefined;
   const allowed=kind==='project'?[undefined]:kind==='page'?[undefined,'project']:kind==='popup'?['project','popup-group']:kind==='popup-group'?['project']:kind==='state'?['button','level']:kind==='image'?['state']:['page','popup'];
@@ -166,7 +182,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       function find(current:SceneNode|PageNode){if(current.removed)return;if(current.id===message.nodeId&&current.type!=='PAGE')node=current;if('children' in current)for(const child of current===plan!.root?(plan!.options.members??current.children):current.children)find(child);}
       if((plan.root.type==='PAGE'?plan.root.id:pageOf(plan.root)?.id)!==figma.currentPage.id)fail('recognition','Откройте страницу макета и повторите распознавание.');
       find(plan.root);if(!node)fail('selection','Слой удалён или перемещён. Повторите распознавание.');
-      diagnosticSelectionId=node.id;figma.currentPage.selection=[node];figma.viewport.scrollAndZoomIntoView([node]);publish(true);
+      diagnosticSelectionId=node.id;figma.currentPage.selection=[node];focusNode(node);publish(true);
     }else if(message.type==='recognize') {
       const previous=message.fromReport?recognition:undefined;
       recognition=undefined;
@@ -178,7 +194,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
     }else if(message.type==='apply-recognition') {
       const plan=recognition;recognition=undefined;
       if(!plan||message.token!==recognitionToken||(plan.root.type==='PAGE'?figma.currentPage.id!==plan.root.id:selected().id!==plan.root.id)||recognitionMode!==scopeContext.mode||message.profile!==plan.profile)fail('recognition','Результат распознавания устарел. Распознайте выбранный экран ещё раз.');
-      applyRecognition(plan);publish();figma.ui.postMessage({type:'success',message:'Назначения сохранены. Существующие ключи и ID сохранены. Можно проверить экран и скачать .exui.'});
+      applyRecognition(plan);publish();figma.ui.postMessage({type:'success',message:`Назначения сохранены. ${plan.visibility.length?'Лишние состояния скрыты в предпросмотре; все состояния сохраняются в экспорте. ':''}Существующие ключи и ID сохранены. Можно проверить экран и скачать .exui.`});
     }else {
     recognition=undefined;
     if(message.type==='button-preset-normal'||message.type==='button-preset-active') {

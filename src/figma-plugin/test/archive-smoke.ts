@@ -37,7 +37,7 @@ function cli(args: string[]) {
   return JSON.parse(result.stdout);
 }
 const evidence: unknown[] = [];
-const scenarios=['blank-caption','expanded','on-off','feedback','dotted-name','many-assets','section','selected-frames','pen-lines','automatic-fresh','automatic-copy','automatic-merge'] as const;
+const scenarios=['blank-caption','expanded','on-off','feedback','dotted-name','many-assets','section','selected-frames','pen-lines','fractional-lines','automatic-fresh','automatic-copy','automatic-merge'] as const;
 const selectedScenarios=process.argv[5]==='all'?scenarios:process.argv[5]?scenarios.filter(s=>s===process.argv[5]):scenarios.slice(0,4);
 assert.ok(selectedScenarios.length,'Unknown archive smoke scenario');
 for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
@@ -45,7 +45,16 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     const fixture = scenario==='many-assets'?kitFixture():fakeFigma();
     const batch=scenario==='selected-frames'?twoScreens(profile):undefined;
     const automatic=scenario.startsWith('automatic-');
-    const frame = batch?figma.currentPage:scenario==='pen-lines'?await strokeLineFixture(profile):scenario==='section'?sectionFixture(profile):scenario==='many-assets'?await manyAssetsFixture(profile):scenario === 'expanded'||scenario==='automatic-fresh' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'||scenario==='dotted-name'||automatic?await namedFixture(profile,scenario==='on-off'||scenario==='dotted-name'):await graphicFixture(profile);
+    const frame = batch?figma.currentPage:scenario==='pen-lines'||scenario==='fractional-lines'?await strokeLineFixture(profile):scenario==='section'?sectionFixture(profile):scenario==='many-assets'?await manyAssetsFixture(profile):scenario === 'expanded'||scenario==='automatic-fresh' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'||scenario==='dotted-name'||automatic?await namedFixture(profile,scenario==='on-off'||scenario==='dotted-name'):await graphicFixture(profile);
+    if(scenario==='fractional-lines'){
+      const horizontal=frame.children[0] as VectorNode;horizontal.x=20.21;horizontal.y=40.7;horizontal.strokeWeight=1.4;
+      await horizontal.setVectorNetworkAsync({vertices:[{x:0,y:0},{x:100.49,y:0}],segments:[{start:0,end:1}],regions:[]});
+      const vertical=frame.children[1] as VectorNode;vertical.x=180.7;vertical.y=40.21;vertical.strokeWeight=1.5;
+      await vertical.setVectorNetworkAsync({vertices:[{x:0,y:0},{x:0,y:100.5}],segments:[{start:0,end:1}],regions:[]});
+      frame.children[2].y=180;
+      const rotated=frame.children[3] as LineNode;rotated.name='line_Divider3';rotated.resize(48,0);rotated.strokeWeight=1.5;
+      Object.defineProperty(rotated,'relativeTransform',{get:()=>[[0,-1,311],[1,0,18]]});
+    }
     let automaticMembers:FrameNode[]|undefined,originalControl:SceneNode|undefined,originalSignature='';
     if(scenario==='automatic-copy'){applyRecognition(recognize(frame,profile));originalControl=frame.children[0];originalSignature=designSignature(originalControl);const copy=originalControl.clone();copy.y=frame.height-copy.height-8;}
     if(scenario==='automatic-merge'){applyRecognition(recognize(frame,profile));const audio=await namedFixture(profile);applyRecognition(recognize(audio,profile));audio.name='Audio Control';automaticMembers=[frame as FrameNode,audio];}
@@ -79,9 +88,11 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
       fixture.page.selection=[settings as any];await send({type:'apply',data:{...JSON.parse(settings.getPluginData('exui')),shownBy:'navigation'}});
       fixture.page.selection=[button as any];
     }
+    const sourceSignature=scenario==='fractional-lines'?designSignature(frame):undefined;
     if(!automatic)await send({ type: 'check' });
     await send({ type: 'export',profile,...(automaticMembers?{scopeMode:'selected-frames'}:{}) });
     assert.deepEqual(fixture.messages.filter(m => m.type === 'error'), [], JSON.stringify(fixture.messages));
+    if(sourceSignature)assert.equal(designSignature(frame),sourceSignature);
     const bundle = fixture.messages.find(m => m.type === 'bundle')!.bundle as Bundle;
     if(automatic){if(originalControl)assert.equal(designSignature(originalControl),originalSignature);const before=designSignature(figma.currentPage);await send({type:'export',profile,...(automaticMembers?{scopeMode:'selected-frames'}:{})});assert.equal(designSignature(figma.currentPage),before);assert.deepEqual(packageExui(fixture.messages.filter(m=>m.type==='bundle').at(-1)!.bundle as Bundle),packageExui(bundle));}
     const input = path.join(out, `${scenario}-${profile}.exui`);
@@ -106,6 +117,16 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
         ['PBLine',179,40,2,100,2,0,4,0xFF6699CC],
         ['PBLine',20,180,100,1,1,6,2,0xFF6699CC],
         ['PBLine',20,218,100,4,4,6,2,0xFFCC9933],
+      ]);
+    }
+    if(scenario==='fractional-lines'){
+      const controls=cli(['list-controls',gdl]).model.Pages[0].Controls;
+      assert.equal(validation.resources,0);assert.equal(bundle.resources.length,0);
+      assert.deepEqual(controls.map((c:any)=>[c.Type,c.Left,c.Top,c.Width,c.Height,c.Native.Line.Thickness,c.Native.Line.Start,c.Native.Line.End,c.Native.Fill]),[
+        ['PBLine',20,40,100,1,1,6,2,0xFF6699CC],
+        ['PBLine',180,40,2,101,2,0,4,0xFF6699CC],
+        ['PBLine',20,180,100,1,1,6,2,0xFF6699CC],
+        ['PBLine',310,18,2,48,2,0,4,0xFFCC9933],
       ]);
     }
     if(scenario==='dotted-name'){

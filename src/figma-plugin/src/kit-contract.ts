@@ -9,6 +9,6 @@ export function isControlFrame(node:SceneNode):node is FrameNode|InstanceNode {
 }
 export function controlText(node:SceneNode):TextNode|null {
   if(node.type==='TEXT')return node;
-  if(isControlFrame(node)&&(node.type==='INSTANCE'||isKitNode(node))&&node.children.length===1&&node.children[0].type==='TEXT')return node.children[0];
+  if((node.type==='COMPONENT'||isControlFrame(node)&&(node.type==='INSTANCE'||isKitNode(node)))&&node.children.length===1&&node.children[0].type==='TEXT')return node.children[0];
   return null;
 }

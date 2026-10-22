@@ -25,7 +25,7 @@ const ui=await readFile(process.env.EXUI_PLUGIN_UI??path.join(root,'src/figma-pl
 const issueFake=fakeFigma(),issueRoot=await namedFixture();issueRoot.name='screen_MainDashboard';
 const third=issueRoot.children[3].clone();third.name='fbtn_VideoControl';issueRoot.appendChild(third);
 for(const button of [issueRoot.children[0],issueRoot.children[3],third])((button as FrameNode).children[0] as any).type='GROUP';
-for(const name of ['Vector 1','Vector 4','Vector 3','logo_trilliant']){const node=issueFake.api.createVector();node.name=name;issueRoot.appendChild(node as never);}
+for(const name of ['Vector 1','line_Devider 4','Vector 3','logo_trilliant']){const node=issueFake.api.createVector();node.name=name;issueRoot.appendChild(node as never);}
 const issuePlan=recognize(issueRoot,'tlp-pro-1025m');assert.equal(issuePlan.issues.length,7);
 const buttonFixture=authorButtons(),buttonPreviews=presetPreviews();
 prepareButtons(buttonFixture.root,{members:[buttonFixture.buttons[0]]});const buttonMixed=buttonPreparationSummary(buttonFixture.root);
@@ -42,7 +42,7 @@ window.sendBatch=()=>window.selectNode({id:null,name:'Выбрано фрейм�
 window.onmessage=e=>{if(e.source!==document.querySelector('iframe').contentWindow)return;const m=e.data.pluginMessage;if(!m)return;
 if(m.scopeMode)window.scopeMode=m.scopeMode;
 if(m.type==='context'){profile=m.profile;if(window.scopeMode!=='selection')window.sendBatch();else window.selectNode(window.currentSelection?.id?{...window.currentSelection,scopeMode:window.scopeMode}:{id:null,name:'Выберите экраны на холсте'});}
-if(m.type==='ready')window.selectNode({id:null,name:'Выберите секцию проекта или Frame экрана'});if(window.holdCommand)return;
+if(m.type==='ready')window.selectNode({id:null,name:'Выберите секцию проекта или Frame экрана'});if(window.holdCommand){window.heldCommand=m.type;return;}
 if(m.type==='kit'){window.lastKitProfile=m.profile;send({type:'success',message:'Extron Kit создан: 30 компонентов и шаблоны проекта.'});}
 if(m.type.startsWith('button-')){window.lastButtonCommand=m;if(m.type==='button-apply-styles'){if(window.failButtonApply)send({type:'error',operation:m.type,code:'button-background',message:'Несколько фонов. Выберите нужный Rectangle.'});else{const before=window.currentSelection?.buttonWorkflow??buttonMixed;window.selectNode({...window.currentSelection,buttonWorkflow:buttonReady});send({type:'success',operation:m.type,message:'Оформление применено. Кнопок: '+(m.existing==='skip'?before.create:before.total)+'; новых состояний: '+before.create*2+'; пропущено готовых: '+(m.existing==='skip'?before.update:0)+'. Далее проверьте макет и скачайте .exui.'});}}else send({type:'success',message:'Эталон запомнен на текущей странице.'});}
 if(m.type==='prepare'){window.lastPreparation=m;profile=m.profile;window.selectNode({id:'custom',name:'Свой экран',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Свой экран',profile}});send({type:'success',message:'Назначение «Экран» сохранено. Далее назначьте элементы.'});}
@@ -201,6 +201,9 @@ try{
  await frame.getByText('screen_MainDashboard → fbtn_Music → Normal',{exact:true}).waitFor();
  await frame.getByText('screen_MainDashboard → feedbackbutton_Mute → Normal',{exact:true}).waitFor();
  assert.equal(await frame.locator('#recognitionNotes').textContent(),'');
+ const nameIssue=frame.locator('.recognition-issue').filter({has:frame.getByText('line_Devider 4 · VECTOR',{exact:true})});
+ assert.match(await nameIssue.innerText(),/пробел.*позиции 13/);
+ assert.match(await nameIssue.innerText(),/line_Devider-4/);
  assert.equal(await frame.locator('body').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
  await page.screenshot({path:path.join(out,'recognition-errors-light.png'),fullPage:true});
  await frame.getByRole('heading',{name:'Ошибок: 7. Назначения не сохранены'}).focus();await page.keyboard.press('Tab');
@@ -215,6 +218,11 @@ try{
  await frame.getByRole('heading',{name:'Ошибок: 7. Назначения не сохранены'}).evaluate(el=>el.scrollIntoView({block:'start'}));
  assert.equal(await frame.locator('body').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
  await page.screenshot({path:path.join(out,'recognition-errors-dark-narrow.png'),fullPage:true});
+ await nameIssue.getByRole('button',{name:'Показать слой screen_MainDashboard → line_Devider 4',exact:true}).scrollIntoViewIfNeeded();
+ await nameIssue.evaluate(el=>el.scrollIntoView({block:'start'}));
+ assert.equal(await nameIssue.evaluate(el=>el.scrollWidth<=el.clientWidth),true);
+ assert.equal(await frame.locator('body').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
+ await page.screenshot({path:path.join(out,'name-error-dark-narrow.png'),fullPage:true});
  await page.setViewportSize({width:420,height:720});await frame.locator('html').evaluate(el=>el.removeAttribute('style'));
  await page.evaluate(()=>{(window as any).failRecognition=false;});
  await frame.getByRole('button',{name:'Повторить распознавание',exact:true}).click();
@@ -319,6 +327,7 @@ try{
  await page.evaluate(()=>{(window as any).holdCommand=true;});await frame.getByRole('button',{name:'Проверить макет'}).click();
  assert.equal(await frame.getByLabel('Профиль панели').isDisabled(),true);
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isDisabled(),true);
+ await page.waitForFunction(()=>(window as any).heldCommand==='check');
  await page.evaluate(()=>{(window as any).holdCommand=false;document.querySelector('iframe')!.contentWindow!.postMessage({pluginMessage:{type:'error',message:'Проверка прервана. Повторите попытку.'}},location.origin);});
  await frame.getByRole('alert').filter({hasText:'Проверка прервана'}).waitFor();
  assert.equal(await frame.getByLabel('Профиль панели').isEnabled(),true);

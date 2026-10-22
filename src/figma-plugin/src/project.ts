@@ -1,5 +1,6 @@
 import { DATA_KEY,fail,integer,key,text,PROFILES,type Metadata,type Container,type ProjectScreen,type Asset,type Profile } from './model.ts';
 import type { Capture } from './export.ts';
+import { rect } from './read-node.ts';
 export type ProjectNode = FrameNode | SectionNode | PageNode;
 export interface ProjectOptions {members?:readonly SceneNode[];projectName?:string}
 
@@ -54,7 +55,7 @@ export function captureProject(root:SceneNode|PageNode,read:(n:SceneNode|PageNod
     if(names.has(page.name.toLowerCase())){const base=page.name;let index=2;do{page.name=base.slice(0,245)+` (${index++})`;}while(names.has(page.name.toLowerCase())||reservedNames.has(page.name.toLowerCase()));}names.add(page.name.toLowerCase());
     const c:Container={...page,shownBy:m.shownBy??(m.kind==='page'&&screen.pages.length===0?'start':'program'),elements:captured.screen.elements};
     for(const e of c.elements){addKey(e.key);if(e.controlId!==null){if(controlIds.has(e.controlId))fail('duplicate-id',`ID управления ${e.controlId} повторяется в проекте.`);controlIds.add(e.controlId);}}
-    if(m.kind==='popup'){if(c.shownBy==='start')fail('popup','Popup не может быть стартовой страницей.');c.modal=m.modal??false;if(!c.modal)c.size=[node.width,node.height];if(group)c.group=key(group,'Группа popup');screen.popups.push(c);}else screen.pages.push(c);
+    if(m.kind==='popup'){if(c.shownBy==='start')fail('popup','Popup не может быть стартовой страницей.');c.modal=m.modal??false;if(!c.modal)c.size=rect(node,node).slice(2);if(group)c.group=key(group,'Группа popup');screen.popups.push(c);}else screen.pages.push(c);
     for(const asset of captured.screen.assets){const previous=assets.get(asset.key);if(previous&&JSON.stringify(previous)!==JSON.stringify(asset))fail('image-conflict','Несовместимые объявления PNG.');if(!previous){addKey(asset.key);assets.set(asset.key,asset);}}
     images.push(...captured.images);
   }

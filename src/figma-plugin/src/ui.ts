@@ -113,6 +113,7 @@ window.onmessage=async(event:MessageEvent)=>{
     for(const target of msg.targets??[])addTarget(target.key,`${target.name}${target.kind==='popup'?' · Popup':''}`);
     if(m.navigate&&!Array.from(navigation.options).some(o=>o.value===m.navigate))addTarget(m.navigate,`Недоступная цель · ${m.navigate}`);
     navigation.value=m.navigate??'';
+    $('navigationHelp').textContent=msg.targets?.length?'Выберите цель из текущего проекта. Переход подключается в программе управления Extron.':'Цели не найдены. В «Что экспортировать» выберите «Экраны текущей страницы — один проект» или выделите нужные экраны вместе. Затем снова выберите кнопку.';
     for(const id of ['selectionGroup','enabled','visible'] as const)input(id).value=String(m.behavior?.[id]??'');
     input('display').value=m.display??'slider';input('orientation').value=m.orientation??'left-to-right';input('min').value=String(m.min??0);input('max').value=String(m.max??100);input('modal').value=String(m.modal??false);
     input('kind').value=m.kind??(msg.nodeType==='SECTION'?'project':msg.nodeType==='TEXT'?'label':'page');

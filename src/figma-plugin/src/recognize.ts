@@ -12,23 +12,33 @@ import { usesButtonArtwork, validateArtwork, type ButtonContainer } from './butt
 export const REGISTRY_KEY='exui-id-registry';
 interface Registry {schema:'exui-id-registry/1'|'exui-id-registry/2';ownerNodeId:string;nextObjectId:number;nextControlId:number;nextContainerId?:number;nextGroupId?:number}
 export interface RecognitionRow {id:string;name:string;kind:Kind;buttonMode?:ButtonMode;key?:string;objectId?:number;controlId?:number|null;isNew:boolean}
-export interface RecognitionPlan {root:ProjectNode;options:ProjectOptions;profile:Profile;signature:string;registry:string;writes:{node:SceneNode|PageNode;metadata:Metadata}[];rows:RecognitionRow[];errors:string[];issues:RecognitionIssue[];warnings:string[]}
+export interface RecognitionPlan {root:ProjectNode;options:ProjectOptions;profile:Profile;signature:string;registry:string;writes:{node:SceneNode|PageNode;metadata:Metadata}[];visibility:{node:SceneNode;visible:boolean}[];rows:RecognitionRow[];errors:string[];issues:RecognitionIssue[];warnings:string[]}
 const TYPES:Record<string,Kind>={btn:'button',button:'button',lvl:'level',level:'level',txt:'label',text:'label',logo:'graphic',img:'graphic',image:'graphic',val:'value',value:'value',sld:'slider',slider:'slider',shp:'shape',shape:'shape',ln:'line',line:'line',dt:'datetime',datetime:'datetime',pr:'popup-ref',popupref:'popup-ref',gau:'level',gauge:'level',ind:'level',indicator:'level',led:'level',volumeled:'level',mlvl:'level',multilevel:'level'};
 export function namedControl(name:string):{kind:Kind;suffix:string;display?:Metadata['display'];buttonMode?:ButtonMode}|null {
   const match=/^([a-z]+)_(.+)$/i.exec(name);if(!match)return null;
   const prefix=match[1].toLowerCase(),kind=['fbtn','feedbackbutton'].includes(prefix)?'button':TYPES[prefix];if(!kind)return null;
-  const result:{kind:Kind;suffix:string;display?:Metadata['display'];buttonMode?:ButtonMode}={kind,suffix:slug(match[2])};
+  const result:{kind:Kind;suffix:string;display?:Metadata['display'];buttonMode?:ButtonMode}={kind,suffix:slug(match[2],name)};
   if(kind==='button')result.buttonMode=['fbtn','feedbackbutton'].includes(prefix)?'feedback':'on-off';
   if(['gau','gauge','ind','indicator'].includes(prefix))result.display='gauge';
   if(['led','volumeled'].includes(prefix))result.display='volume-led';
   if(['mlvl','multilevel'].includes(prefix))result.display='multistate';
   return result;
 }
-function slug(value:string):string {if(!/^[A-Za-z][A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*$/.test(value))fail('name',`${value}: используйте латинские буквы, цифры, точки и дефисы между частями имени без пробелов, например side.hall или VolumeDown.`);return key(value.toLowerCase(),'Имя слоя');}
+function slug(value:string,name:string):string {
+  const pattern=/^[A-Za-z][A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*$/;
+  if(!pattern.test(value)){
+    const invalid=/[^A-Za-z0-9.-]/u.exec(value),prefix=name.slice(0,name.length-value.length);
+    const candidate=value.replace(/[\s\u200B-\u200D\uFEFF]+/g,'-');
+    const example=prefix+(pattern.test(candidate)?candidate:'Name');
+    const detail=invalid?`${/[\s\u200B-\u200D\uFEFF]/u.test(invalid[0])?'недопустимый пробел или невидимый символ':`недопустимый символ «${invalid[0]}»`} в позиции ${prefix.length+invalid.index+1}. `:'';
+    fail('name',`${name}: ${detail}После префикса используйте латинскую букву, затем латинские буквы, цифры, точки и дефисы между непустыми частями, без пробелов и дополнительных _. Например, ${example}.`);
+  }
+  return key(value.toLowerCase(),'Имя слоя');
+}
 export function namedRole(name:string):Role|null {return stateRole(name.replace(/^(st|state)_/i,''));}
 function signature(root:ProjectNode):string {return designSignature(root)+'\n'+root.getPluginData(REGISTRY_KEY);}
 
-export function recognize(root:SceneNode|PageNode,profile:Profile,options:ProjectOptions={}):RecognitionPlan {
+export function recognize(root:SceneNode|PageNode,profile:Profile,options:ProjectOptions={},edits:ReadonlyMap<string,MetadataInput>=new Map()):RecognitionPlan {
   if(root.type!=='FRAME'&&root.type!=='SECTION'&&root.type!=='PAGE')fail('selection','Выберите секцию проекта или внешний Frame экрана / project_Name.');
   if(!Object.prototype.hasOwnProperty.call(PROFILES,profile))fail('profile','Выберите профиль панели.');
   let parent=root.parent;while(parent&&parent.type!=='PAGE'){if(['page','popup'].includes(readMetadata(parent)?.kind??''))fail('placement','Для распознавания выберите внешний Frame экрана.');parent=parent.parent;}
@@ -46,13 +56,14 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
   const repaired=repairAssignments(nodes,saved,{object:()=>integer(registry.nextObjectId++,1,1000000,'ID объекта'),control:()=>integer(registry.nextControlId++,1,65535,'ID управления'),container:()=>integer(isProject?registry.nextContainerId!++:singleContainerId++,1,65534,'ID контейнера'),group:()=>integer(registry.nextGroupId!++,1,65535,'ID группы')});
   const existingFor=(node:SceneNode|PageNode)=>repaired.get(node.id)??null;
   existingRoot=existingFor(root);
-  const plan:RecognitionPlan={root,options,profile,signature:signature(root),registry:'',writes:[],rows:[],errors:[],issues:[],warnings:[]},proposed=new Map<string,Metadata>();
+  const plan:RecognitionPlan={root,options,profile,signature:signature(root),registry:'',writes:[],visibility:[],rows:[],errors:[],issues:[],warnings:[]},proposed=new Map<string,Metadata>();
   let problemNode:SceneNode|PageNode=root;
   function report(error:unknown){const nodeId=(error as {nodeId?:string})?.nodeId;const node=nodes.find(n=>n.id===nodeId)??problemNode;plan.errors.push(error instanceof Error?error.message:String(error));plan.issues.push(recognitionIssue(node,root,error));}
   const reservedKeys=new Set([...repaired.values()].map(m=>m.key).filter((k):k is string=>!!k));
   const read=(node:SceneNode|PageNode)=>proposed.get(node.id)??existingFor(node);
   function assign(node:SceneNode|PageNode,value:MetadataInput):Metadata {
-    const original=saved.get(node.id),prior=existingFor(node),metadata=node===root&&root.type==='PAGE'&&prior?.kind==='project'?{...prior,profile,projectName:options.projectName??prior.projectName}:prior??{...value,schema:metadataSchema(value),ownerNodeId:node.id};
+    const original=saved.get(node.id),prior=existingFor(node),edit=edits.get(node.id);
+    const metadata=edit?{...edit,schema:metadataSchema(edit),ownerNodeId:node.id}:node===root&&root.type==='PAGE'&&prior?.kind==='project'?{...prior,profile,projectName:options.projectName??prior.projectName}:prior??{...value,schema:metadataSchema(value),ownerNodeId:node.id};
     if(metadata.kind!==value.kind)fail('kind',`${node.name}: сохранённое назначение ${metadata.kind} не соответствует ${value.kind}.`);
     if(!original||JSON.stringify(metadata)!==JSON.stringify(original)){proposed.set(node.id,metadata);plan.writes.push({node,metadata});}else if(!plan.warnings.length)plan.warnings.push('Существующие уникальные ключи, ID и свойства сохраняются. Копии и совпадения получают свободные назначения.');
     plan.rows.push({id:node.id,name:node.name,kind:metadata.kind,...(metadata.buttonMode?{buttonMode:metadata.buttonMode}:{}),key:metadata.key,objectId:metadata.objectId,controlId:metadata.controlId,isNew:!original||original.ownerNodeId!==node.id});return metadata;
@@ -73,6 +84,17 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
       assign(state,{kind:'state',role,stateId,stateName});
       if(artwork)continue;
       for(const icon of state.children.filter(n=>n.type!=='TEXT')){problemNode=icon;const im=existingFor(icon),kitArtwork=isKitNode(icon)&&icon.name==='Artwork / '+state.name;if(!im&&!kitArtwork&&!/^(Icon|(ico|icon)_[A-Za-z][A-Za-z0-9-]*)$/i.test(icon.name))fail('name',`${icon.name}: нужен Icon, ico_Music или icon_Music.`);requireNodeForKind(icon,'image');const file=`control-${control.objectId}-${stateId}.png`;assign(icon,{kind:'image',key:key(`icon.${control.key}.state${stateId}`,'Ключ иконки'),file:'assets/'+file,resourceName:'exui-'+file});}
+    }
+    if(control.kind==='button'){
+      const visible=button.children.filter(state=>state.visible);
+      if(visible.length!==1){
+        const normal=button.children.find(state=>read(state)?.role==='normal');
+        const shown=visible.find(state=>state===normal)??visible[0]??normal;
+        if(shown){
+          for(const node of button.children)if(node.visible!==(node===shown))plan.visibility.push({node,visible:node===shown});
+          plan.warnings.push(`${button.name}: при сохранении для предпросмотра останется только «${shown.name}». Все состояния сохранятся в экспорте.`);
+        }
+      }
     }
   }
   function elements(container:FrameNode,namespace:string){
@@ -121,7 +143,8 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
       if(pathKey!==undefined&&pathKey!==m.key||resourceKey!==undefined&&resourceKey!==m.key){let file:string,name:string;do{const id=integer(registry.nextObjectId++,1,1000000,'ID ресурса');file=`assets/asset-${id}.png`;name=`exui-asset-${id}.png`;}while(reservedPaths.has(file)||reservedResources.has(name));m={...m,file,resourceName:name};proposed.set(node.id,m);const write=plan.writes.find(w=>w.node.id===node.id);if(write)write.metadata=m;else plan.writes.push({node,metadata:m});reservedPaths.add(file);reservedResources.add(name);}
       paths.set(m.file!,m.key!);resources.set(m.resourceName?.toLowerCase()??'',m.key!);
     }
-    problemNode=root;capture(root,read,options);
+    const visibility=new Map(plan.visibility.map(change=>[change.node.id,change.visible]));
+    problemNode=root;capture(root,read,options,node=>visibility.get(node.id)??node.visible);
   }catch(e){report(e);}}
   plan.registry=JSON.stringify(registry);return plan;
 }
@@ -130,6 +153,18 @@ export function applyRecognition(plan:RecognitionPlan):Capture {
   if(plan.errors.length)fail('recognition','Сначала исправьте ошибки распознавания.');
   if(plan.root.removed||signature(plan.root)!==plan.signature)fail('design-changed','Макет изменился после распознавания. Нажмите «Распознать по именам» ещё раз.');
   const originals=plan.writes.map(({node})=>({node,raw:node.getPluginData(DATA_KEY)})),oldRegistry=plan.root.getPluginData(REGISTRY_KEY);
-  try{plan.root.setPluginData(REGISTRY_KEY,plan.registry);for(const {node,metadata} of plan.writes)node.setPluginData(DATA_KEY,JSON.stringify(metadata));return capture(plan.root,readMetadata,plan.options);}
-  catch(e){const errors:string[]=[];for(const {node,raw} of originals){try{node.setPluginData(DATA_KEY,raw);}catch{errors.push(node.name);}}if(!errors.length){try{plan.root.setPluginData(REGISTRY_KEY,oldRegistry);}catch{errors.push(plan.root.name);}}if(errors.length)fail('recognition-rollback',`Не удалось полностью восстановить назначения: ${errors.join(', ')}. Проверьте их вручную и повторите распознавание. Резерв ID сохранён, если запись реестра была выполнена.`);throw e;}
+  const previewOriginals:{node:SceneNode;visible:boolean}[]=[];
+  try{
+    plan.root.setPluginData(REGISTRY_KEY,plan.registry);
+    for(const {node,metadata} of plan.writes)node.setPluginData(DATA_KEY,JSON.stringify(metadata));
+    for(const {node,visible} of plan.visibility){previewOriginals.push({node,visible:node.visible});node.visible=visible;}
+    return capture(plan.root,readMetadata,plan.options);
+  }catch(e){
+    const errors:string[]=[];
+    for(const {node,visible} of previewOriginals.reverse()){try{node.visible=visible;}catch{errors.push(node.name);}}
+    for(const {node,raw} of originals){try{node.setPluginData(DATA_KEY,raw);}catch{errors.push(node.name);}}
+    if(!errors.length){try{plan.root.setPluginData(REGISTRY_KEY,oldRegistry);}catch{errors.push(plan.root.name);}}
+    if(errors.length)fail('recognition-rollback',`Не удалось полностью восстановить назначения и видимость: ${errors.join(', ')}. Проверьте их вручную и повторите распознавание. Резерв ID сохранён, если запись реестра была выполнена.`);
+    throw e;
+  }
 }

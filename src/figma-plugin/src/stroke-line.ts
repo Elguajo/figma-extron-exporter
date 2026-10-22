@@ -1,4 +1,4 @@
-import { fail,integer } from './model.ts';
+import { fail } from './model.ts';
 import { plain } from './read-node.ts';
 
 export function isStrokeLine(node:SceneNode):node is VectorNode|LineNode {
@@ -21,7 +21,10 @@ export function readStrokeLine(node:VectorNode|LineNode) {
     fail('line-appearance',`${node.name}: нужен один непрозрачный SOLID Stroke.`);
   if(!Array.isArray(node.fills)||node.fills.some(p=>p.visible!==false))
     fail('line-appearance',`${node.name}: уберите Fill; цвет линии задаётся через Stroke.`);
-  const thickness=integer(node.strokeWeight,1,1280,'Толщина линии');
+  const strokeWeight=node.strokeWeight;
+  if(typeof strokeWeight!=='number'||!Number.isFinite(strokeWeight)||Math.round(strokeWeight)<1||Math.round(strokeWeight)>1280)
+    fail('line-geometry',`${node.name}: толщина линии (Stroke) после округления должна быть 1..1280 px.`);
+  const thickness=Math.round(strokeWeight);
   let vertices:ReadonlyArray<VectorVertex>=[{x:0,y:0},{x:node.width,y:0}];
   if(node.type==='VECTOR') {
     const network=node.vectorNetwork,segment=network.segments[0];
@@ -49,12 +52,12 @@ export function readStrokeLine(node:VectorNode|LineNode) {
   if(dx>0.001&&dy>0.001)
     fail('line-direction',`${node.name}: сейчас поддержаны горизонтальные и вертикальные линии; диагональ не поддержана.`);
   const horizontal=dy<=0.001,length=horizontal?dx:dy;
-  if(length<=thickness)
-    fail('line-geometry',`${node.name}: длина линии должна быть больше её толщины.`);
-  const bounds=horizontal?[Math.min(a.x,b.x),(a.y+b.y)/2-thickness/2,length,thickness]:
-    [(a.x+b.x)/2-thickness/2,Math.min(a.y,b.y),thickness,length];
-  if(bounds.some(v=>!Number.isFinite(v)||Math.abs(v-Math.round(v))>0.001))
-    fail('line-geometry',`${node.name}: края Stroke и длина должны быть в целых пикселях. Для нечётной толщины сместите ось на 0.5 px.`);
+  if(length<=strokeWeight||Math.round(length)<=thickness)
+    fail('line-geometry',`${node.name}: длина линии должна быть больше её толщины до и после округления.`);
+  // Round the original painted bounds, as for other native controls. Keep the
+  // source Stroke and path untouched; PBLine thickness must match its rect.
+  const bounds=horizontal?[Math.min(a.x,b.x),(a.y+b.y)/2-strokeWeight/2,length,strokeWeight]:
+    [(a.x+b.x)/2-strokeWeight/2,Math.min(a.y,b.y),strokeWeight,length];
   const {r,g,b:blue}=(strokes[0] as SolidPaint).color;
   return {rect:bounds.map(Math.round),fillColor:'#'+[r,g,blue].map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('').toUpperCase(),native:{thickness}};
 }

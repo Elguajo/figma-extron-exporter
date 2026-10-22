@@ -6,16 +6,21 @@ export function rect(node: SceneNode, parent: SceneNode): number[] {
   const a = node.absoluteBoundingBox, b = parent.absoluteBoundingBox;
   if (!a || !b) fail('geometry', `${node.name}: нет геометрии.`,node);
   const values = [a.x-b.x, a.y-b.y, a.width, a.height];
-  if (values.some(v => !Number.isFinite(v) || Math.abs(v-Math.round(v)) > 0.001))
-    fail('geometry', `${node.name}: координаты и размеры должны быть целыми пикселями.`,node);
+  if (values.some(v => !Number.isFinite(v)) || a.width <= 0 || a.height <= 0)
+    fail('geometry', `${node.name}: нужна конечная геометрия положительного размера.`,node);
+  // Extron uses integer pixels. Round export geometry without changing Figma.
   return values.map(Math.round);
 }
-export function plain(node: SceneNode, allowHidden = false, decorated = false, allowLineTransform = false, options: {ignoreCornerRadius?: boolean} = {}): void {
+export function hasTransform(node: SceneNode): boolean {
+  return [node.relativeTransform,node.absoluteTransform].some(t=>Math.abs(t[0][0]-1)>0.00001 || Math.abs(t[1][1]-1)>0.00001 || Math.abs(t[0][1])>0.00001 || Math.abs(t[1][0])>0.00001);
+}
+export function plain(node: SceneNode, allowHidden = false, decorated = false, allowLineTransform = false, options: {ignoreCornerRadius?: boolean; rasterTransform?: boolean} = {}): void {
   if ((!allowHidden && !node.visible) || ('opacity' in node && node.opacity !== 1) || ('isMask' in node && node.isMask) ||
       ('blendMode' in node && node.blendMode !== 'PASS_THROUGH' && node.blendMode !== 'NORMAL'))
     fail('appearance', `${node.name}: скрытые элементы, opacity, маски и blend modes не поддержаны.`);
-  const transforms = [node.relativeTransform,node.absoluteTransform];
-  if (!allowLineTransform && transforms.some(t=>Math.abs(t[0][0]-1)>0.00001 || Math.abs(t[1][1]-1)>0.00001 || Math.abs(t[0][1])>0.00001 || Math.abs(t[1][0])>0.00001))
+  if (options.rasterTransform && [node.relativeTransform,node.absoluteTransform].some(t=>[t[0][0],t[0][1],t[1][0],t[1][1]].some(v=>!Number.isFinite(v)) || Math.abs(t[0][0]*t[1][1]-t[0][1]*t[1][0])<1e-10))
+    fail('transform', `${node.name}: нужна конечная невырожденная трансформация.`,node);
+  if (!allowLineTransform && !options.rasterTransform && hasTransform(node))
     fail('transform', `${node.name}: поворот, отражение и skew не поддержаны.`);
   if ('effects' in node && node.effects.some(e => e.visible !== false)) fail('appearance', `${node.name}: эффекты не поддержаны для этого нативного элемента.`);
   if (!decorated && 'strokes' in node && node.strokes.some(p => p.visible !== false)) fail('appearance', `${node.name}: обводки не поддержаны для этого нативного элемента.`);
@@ -69,12 +74,19 @@ export async function exportPng(node: SceneNode, artwork?:{omitTextId?:string;wi
   try {
     // Export independently of hidden/clipping State ancestors. The original
     // preview, identity and geometry are never toggled or reparented.
+    // Capture before reparenting: inherited rotation/reflection belongs in PNG.
+    const transform=node.absoluteTransform,bounds=node.absoluteBoundingBox;
     cloned=node.clone();temporary=cloned;figma.currentPage.appendChild(cloned);cloned.visible=true;
     if(artwork){
       const wrapper=figma.createFrame();temporary=wrapper;wrapper.fills=[];wrapper.resize(artwork.width,artwork.height);wrapper.clipsContent=true;
       // A full-size background anchors Group bounds when native text is hidden.
       function omit(original:SceneNode,copy:SceneNode){if(original.id===artwork!.omitTextId)copy.visible=false;if('children' in original&&'children' in copy)original.children.forEach((child,i)=>omit(child,copy.children[i]));}
-      wrapper.appendChild(cloned);cloned.relativeTransform=[[1,0,artwork.offsetX??0],[0,1,artwork.offsetY??0]];
+      if(!bounds)fail('geometry',`${node.name}: нет геометрии.`,node);
+      wrapper.appendChild(cloned);
+      cloned.relativeTransform=[
+        [transform[0][0],transform[0][1],transform[0][2]-bounds.x+(artwork.offsetX??0)],
+        [transform[1][0],transform[1][1],transform[1][2]-bounds.y+(artwork.offsetY??0)]
+      ];
       omit(node,cloned);
     }
     const right=Math.max(0,...figma.currentPage.children.filter(n=>n!==temporary).map(n=>n.x+n.width));

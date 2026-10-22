@@ -1,6 +1,6 @@
 import { fail, readMetadata, stateRole, type ButtonMode, type PresetPreview, type ButtonPreparationSummary } from './model.ts';
-import { BACKGROUND_KEY, background, descendants, hasFill, isButtonContainer, type ButtonContainer } from './button-artwork.ts';
-import { plain, rect } from './read-node.ts';
+import { BACKGROUND_KEY, background, descendants, fillsArea, hasFill, isButtonContainer, type ButtonContainer } from './button-artwork.ts';
+import { plain } from './read-node.ts';
 import type { ProjectNode, ProjectOptions } from './project.ts';
 
 const PRESETS_KEY = 'exui-button-style-presets';
@@ -81,7 +81,7 @@ export function markBackground(node: SceneNode): boolean {
     owner = owner.parent;
   }
   if (!owner || owner.type === 'PAGE') fail('button-background', 'Выберите фон внутри кнопки или её состояния.');
-  if (JSON.stringify(rect(node,owner as SceneNode))!==JSON.stringify([0,0,(owner as SceneNode).width,(owner as SceneNode).height]))
+  if (!fillsArea(node,owner as SceneNode))
     fail('button-background', 'Фон должен занимать всю кнопку или состояние.');
   const marked = node.getPluginData(BACKGROUND_KEY) === '1';
   for (const n of descendants(owner as SceneNode)) if (n.getPluginData(BACKGROUND_KEY)) n.setPluginData(BACKGROUND_KEY, '');

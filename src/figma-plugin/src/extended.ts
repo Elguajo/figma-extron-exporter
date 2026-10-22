@@ -16,8 +16,8 @@ function radius(node:SceneNode):number {
 function empty(node:SceneNode) {if('children' in node&&node.children.length)fail('structure',`${node.name}: внутри примитива не должно быть слоёв.`);}
 export function nativeElement(node:SceneNode,m:Metadata,e:Element):boolean {
   if(m.kind==='value'||m.kind==='datetime') {
-    const copy=controlText(node);if(!copy)fail('node-type',`${node.name}: нужен Text или текстовый компонент кита.`);
-    if(copy!==node&&JSON.stringify(rect(copy,node))!==JSON.stringify([0,0,node.width,node.height]))fail('alignment',`${node.name}: Content должен занимать весь текстовый контейнер.`);
+    const copy=controlText(node);if(!copy)fail('node-type',`${node.name}: нужен Text либо Component/Instance с одним Text (или текстовый Frame кита).`);
+    if(copy!==node&&JSON.stringify(rect(copy,node))!==JSON.stringify(rect(node,node)))fail('alignment',`${node.name}: Content должен занимать весь текстовый контейнер.`);
     Object.assign(e,readText(copy));
     const alignment=textAlignment(copy);if(alignment!=='middle-left')e.textAlign=alignment;
     if(m.kind==='datetime') {e.native={pattern:text(m.pattern??copy.characters,'Формат даты/времени')};delete e.text;}
@@ -26,7 +26,7 @@ export function nativeElement(node:SceneNode,m:Metadata,e:Element):boolean {
   if(m.kind==='shape'||m.kind==='line') {
     if(!['FRAME','RECTANGLE','ELLIPSE','INSTANCE'].includes(node.type))fail('node-type',`${node.name}: нужен Frame, Rectangle, Ellipse или примитив кита.`);
     empty(node);plain(node,false,true);e.fillColor=color(node);
-    const thickness=m.kind==='line'?Math.min(node.width,node.height):'strokeWeight' in node?node.strokeWeight:0;
+    const thickness=m.kind==='line'?Math.min(e.rect[2],e.rect[3]):'strokeWeight' in node?node.strokeWeight:0;
     if(m.kind==='line'){
       if(radius(node)!==0||'strokes' in node&&node.strokes.some(s=>s.visible!==false)||node.type==='ELLIPSE')fail('appearance',`${node.name}: линия требует прямоугольник без скругления и обводки.`);
       e.native={thickness:integer(thickness,1,1280,'Толщина линии')};
@@ -52,14 +52,15 @@ export function nativeElement(node:SceneNode,m:Metadata,e:Element):boolean {
   for(const part of [track,fill,thumb]){empty(part);plain(part,false,true);if('strokes' in part&&part.strokes.some(s=>s.visible!==false))fail('slider',`${part.name}: обводки частей Slider не поддержаны.`);color(part);}
   Object.assign(e,range(m,node));
   const vertical=e.orientation==='bottom-to-top'||e.orientation==='top-to-bottom';
-  const tr=rect(track,node),fr=rect(fill,node),th=rect(thumb,node),length=vertical?node.height:node.width;
+  const [,,width,height]=e.rect;
+  const tr=rect(track,node),fr=rect(fill,node),th=rect(thumb,node),length=vertical?height:width;
   const trackWidth=vertical?tr[2]:tr[3];
-  if(vertical?tr[1]!==0||tr[3]!==length||tr[0]!==Math.floor((node.width-trackWidth)/2):tr[0]!==0||tr[2]!==length||tr[1]!==Math.floor((node.height-trackWidth)/2))fail('slider',`${node.name}: Track должен занимать всю длину и быть по центру поперёк Slider.`);
-  if(fr[0]<0||fr[1]<0||fr[2]<1||fr[3]<1||fr[0]+fr[2]>node.width||fr[1]+fr[3]>node.height|| (vertical?fr[0]!==tr[0]||fr[2]!==trackWidth:fr[1]!==tr[1]||fr[3]!==trackWidth))fail('slider',`${node.name}: Fill должен лежать на Track и совпадать с его толщиной.`);
-  if(e.orientation==='left-to-right'&&fr[0]!==0||e.orientation==='right-to-left'&&fr[0]+fr[2]!==node.width||e.orientation==='top-to-bottom'&&fr[1]!==0||e.orientation==='bottom-to-top'&&fr[1]+fr[3]!==node.height)fail('slider','Fill должен начинаться с края, соответствующего направлению Slider.');
-  if(th[0]<0||th[1]<0||th[0]+th[2]>node.width||th[1]+th[3]>node.height)fail('slider',`${node.name}: Thumb выходит за Slider.`);
+  if(vertical?tr[1]!==0||tr[3]!==length||tr[0]!==Math.floor((width-trackWidth)/2):tr[0]!==0||tr[2]!==length||tr[1]!==Math.floor((height-trackWidth)/2))fail('slider',`${node.name}: Track должен занимать всю длину и быть по центру поперёк Slider.`);
+  if(fr[0]<0||fr[1]<0||fr[2]<1||fr[3]<1||fr[0]+fr[2]>width||fr[1]+fr[3]>height|| (vertical?fr[0]!==tr[0]||fr[2]!==trackWidth:fr[1]!==tr[1]||fr[3]!==trackWidth))fail('slider',`${node.name}: Fill должен лежать на Track и совпадать с его толщиной.`);
+  if(e.orientation==='left-to-right'&&fr[0]!==0||e.orientation==='right-to-left'&&fr[0]+fr[2]!==width||e.orientation==='top-to-bottom'&&fr[1]!==0||e.orientation==='bottom-to-top'&&fr[1]+fr[3]!==height)fail('slider','Fill должен начинаться с края, соответствующего направлению Slider.');
+  if(th[0]<0||th[1]<0||th[0]+th[2]>width||th[1]+th[3]>height)fail('slider',`${node.name}: Thumb выходит за Slider.`);
   if(radius(fill)!==radius(track))fail('slider','Fill и Track должны иметь одинаковое скругление.');
-  if(vertical?th[0]!==Math.floor((node.width-th[2])/2):th[1]!==Math.floor((node.height-th[3])/2))fail('slider','Thumb должен быть по центру поперёк Slider.');
+  if(vertical?th[0]!==Math.floor((width-th[2])/2):th[1]!==Math.floor((height-th[3])/2))fail('slider','Thumb должен быть по центру поперёк Slider.');
   const thumbRadius=radius(thumb);const ellipse=thumb.type==='ELLIPSE'||thumb.width===thumb.height&&thumbRadius===Math.floor(Math.min(thumb.width,thumb.height)/2);
   if(!ellipse&&thumbRadius!==0)fail('slider',`${thumb.name}: поддержаны эллипс или прямоугольник без скругления.`);
   e.fillColor=color(fill);e.native={trackColor:color(track),trackWidth,thumbColor:color(thumb),thumbWidth:th[2],thumbHeight:th[3],thumbType:ellipse?'ellipse':'rectangle',radius:radius(track)};
