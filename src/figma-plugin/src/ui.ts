@@ -97,6 +97,7 @@ $('mapping').onsubmit=event=>{
   const data:Record<string,string>={};for(const id of ['kind','buttonMode','key','objectId','controlId','projectName','profile','role','stateName','file','resourceName','stateId','shownBy','modal','display','orientation','min','max','pattern','popup','group','navigate','selectionGroup','enabled','visible'])data[id]=input(id).value;
   data.keyEdited=String(data.key!==loadedKey);
   data.patternEdited=String(data.pattern!==loadedPattern);
+  for(const id of ['exportBackground','exportStroke'])data[id]=String(input(id).checked);
   send('apply',{data});
 };
 window.onmessage=async(event:MessageEvent)=>{
@@ -108,6 +109,7 @@ window.onmessage=async(event:MessageEvent)=>{
     if(selectedId!==msg.id)revokeDownload();
     selectedId=msg.id;$('selection').textContent=msg.name;
     const m=(msg.metadata??{}) as Partial<Metadata>;
+    for(const id of ['exportBackground','exportStroke'] as const)input(id).checked=m[id]===true;
     if(msg.scopeMode)input('scopeMode').value=msg.scopeMode;
     canRecognize=msg.canRecognize===true;
     hasScope=!!msg.scope;

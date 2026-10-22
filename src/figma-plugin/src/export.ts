@@ -6,6 +6,7 @@ import { controlText,isControlFrame,KIT_KEY,KIT_POPUP_GROUP_KEY } from './kit-co
 import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
 import { ExportError, nodeError } from './model.ts';
 import { artworkText, isButtonContainer, usesButtonArtwork, validateArtwork } from './button-artwork.ts';
+import { popupAppearance,TRANSPARENT } from './popup-appearance.ts';
 
 export interface ArtworkRender {omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}
 export interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode; artwork?:ArtworkRender }[]; signature: string }
@@ -117,7 +118,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
   const pm=meta(root,undefined,read);if(pm.kind!=='page'&&!(inProject&&pm.kind==='popup'))fail('kind',`${root.name}: нужен экран или popup проекта.`);
   // Screen corners are canvas presentation in Figma. Native Extron pages
   // always use the full rectangular canvas; preserve the source Frame.
-  plain(root,false,false,false,{ignoreCornerRadius:pm.kind==='page'});
+  plain(root,false,false,false,{ignoreCornerRadius:true,ignoreOpacity:pm.kind==='popup',ignoreStrokes:pm.kind==='popup'});
   if(!pm.profile || !(pm.profile in PROFILES)) fail('profile','Выберите один из двух профилей панели.');
   const profile=pm.profile, canvas=PROFILES[profile];
   if(!inProject&&pm.shownBy&&pm.shownBy!=='start')fail('page','Для способа показа navigation/program нужна общая секция проекта или Frame project_Name.');
@@ -137,7 +138,8 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
     if(!previous){addKey(k,node.name);if(paths.has(asset.file)||resourceNames.has(asset.resourceName.toLowerCase()))fail('image',`${k}: повтор пути или имени ресурса.`);paths.add(asset.file);resourceNames.add(asset.resourceName.toLowerCase());assets.set(k,asset);}
     images.push({asset,node,...(artwork?{artwork}:{})});return k;
   };
-  const screen: SingleScreen={schema:'exui-screen/5',project:{name:text(pm.projectName,'Имя проекта')},page:{key:addKey(pm.key,root.name),objectId:integer(pm.objectId,1,65534,'ID страницы'),name:text(root.name,'Имя страницы'),background:color(root)},assets:[],elements:[]};
+  const appearance=pm.kind==='popup'?popupAppearance(root,pm):undefined;
+  const screen: SingleScreen={schema:'exui-screen/5',project:{name:text(pm.projectName,'Имя проекта')},page:{key:addKey(pm.key,root.name),objectId:integer(pm.objectId,1,65534,'ID страницы'),name:text(root.name,'Имя страницы'),background:appearance?.background??color(root)},assets:[],elements:[]};
   if(root.children.length<1 || root.children.length>64) fail('elements','На странице должно быть 1..64 элемента.');
   // Derived caption IDs must remain independent of layer order and avoid the
   // full authored ID range, including explicitly assigned IDs near 1,000,000.
@@ -148,10 +150,19 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
     while(reservedCaptionIds.has(candidate))candidate=candidate===1?1000000:candidate-1;
     reservedCaptionIds.add(candidate);captionIds.set(sourceId,candidate);
   }
+  function decoration(node:SceneNode,objectId:number,bounds:number[],fillColor:string,stroke?:Element['native']) {
+    if(fillColor===TRANSPARENT&&!stroke)return;
+    let derivedId:number;
+    if(node===root){derivedId=1000000;while(reservedCaptionIds.has(derivedId))derivedId--;reservedCaptionIds.add(derivedId);}
+    else derivedId=captionIds.get(objectId)!;
+    ids.add(derivedId);
+    screen.elements.push({key:addKey(`popup-appearance.${screen.page.objectId}.${objectId}`,node.name),kind:'shape',objectId:derivedId,controlId:null,name:text(node.name.slice(0,245)+' appearance','Имя оформления'),rect:bounds,fillColor,native:stroke??{shape:'rectangle',radius:0,strokeColor:TRANSPARENT,thickness:0}});
+  }
+  if(appearance?.stroke)decoration(root,screen.page.objectId,[0,0,Math.round(root.width),Math.round(root.height)],TRANSPARENT,appearance.stroke);
   for(const node of root.children) {
     try {
     const m=meta(node,undefined,read),strokeLine=m.kind==='line'&&isStrokeLine(node)?readStrokeLine(node):null;
-    if(!strokeLine)plain(node,false,m.kind==='shape'||m.kind==='line',false,{rasterTransform:m.kind==='button'});
+    if(!strokeLine)plain(node,false,m.kind==='shape'||m.kind==='line',false,{rasterTransform:m.kind==='button',ignoreCornerRadius:m.kind==='popup-ref',ignoreOpacity:m.kind==='popup-ref',ignoreStrokes:m.kind==='popup-ref'});
     if(!ELEMENT_KINDS.includes(m.kind)) fail('kind',`${node.name}: неизвестный тип элемента экрана.`);
     const objectId=integer(m.objectId,1,1000000,node.name+'.objectId');
     if(ids.has(objectId)) fail('duplicate-id',`${node.name}: objectId ${objectId} уже используется.`); ids.add(objectId);
@@ -175,6 +186,8 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       if(node.children.length)fail('structure','Popup reference должен быть пустым Frame.');
       if(!!m.popup===!!m.group)fail('popup-ref','Укажите одну цель: popup или группу popup.');
       if(m.popup)e.popup=key(m.popup,'Цель popup');if(m.group)e.group=key(m.group,'Группа popup');
+      const refAppearance=popupAppearance(node,m);
+      decoration(node,objectId,bounds,refAppearance.background,refAppearance.stroke);
     }else if(m.kind==='graphic') {
       frame(node);e.image=addImage(node,m,key('image.'+e.key,'Ключ изображения'),graphic?.artwork);
     }else if(m.kind==='label') {
@@ -263,7 +276,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
     }catch(error){nodeError(error,node);}
   }
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
-  if(screen.elements.length>64)fail('elements','С учётом отдельных редактируемых подписей на странице допустимо до 64 элементов.');
+  if(screen.elements.length>64)fail('elements','С учётом отдельных подписей и оформления popup на странице допустимо до 64 элементов.');
   return {profile,screen,images,signature:designSignature(root)};
 }
 

@@ -174,6 +174,10 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
     value.pattern=pattern;
   }
   if(kind==='popup-ref'){if(!!data.popup===!!data.group)fail('popup-ref','Укажите popup или группу.');if(data.popup)value.popup=key(data.popup,'Ключ popup');if(data.group)value.group=key(data.group,'Ключ группы');}
+  if(kind==='popup'||kind==='popup-ref')for(const field of ['exportBackground','exportStroke'] as const){
+    if(data[field]!==undefined&&!['true','false'].includes(String(data[field])))fail('appearance','Выберите, экспортировать ли оформление popup.');
+    if(data[field]==='true')value[field]=true;
+  }
   if(kind==='button'&&data.navigate)value.navigate=key(data.navigate,'Цель перехода');
   if(CONTROL_KINDS.includes(kind)){
     const behavior:NonNullable<Metadata['behavior']>={};if(data.selectionGroup){if(kind!=='button')fail('behavior','Группа выбора применяется к кнопкам.');behavior.selectionGroup=key(data.selectionGroup,'Группа выбора');}

@@ -29,6 +29,7 @@ interface MetadataFields {
   display?: 'slider'|'gauge'|'volume-led'|'multistate'; orientation?: Orientation; min?:number; max?:number;
   pattern?:string; modal?:boolean; shownBy?:'start'|'program'|'navigation'; popup?:string; group?:string;
   navigate?:string; behavior?:Behavior;
+  exportBackground?:boolean; exportStroke?:boolean;
 }
 export type MetadataInput = MetadataFields & (
   | { kind: 'project'; key: string; profile: Profile; projectName: string }
@@ -113,6 +114,8 @@ export function readMetadata(node: { id: string; name: string; getPluginData(k: 
     fail('metadata', `${node.name}: неизвестная версия или тип данных Extron.`);
   if(data.schema==='exui-node/3'?(data.kind!=='button'||!['on-off','feedback'].includes(data.buttonMode!)):data.buttonMode!==undefined)
     fail('metadata',`${node.name}: повреждён тип кнопки. Используйте плагин 0.2.2 или новее.`);
+  for(const field of ['exportBackground','exportStroke'] as const)if(data[field]!==undefined&&(typeof data[field]!=='boolean'||!['popup','popup-ref'].includes(data.kind)))
+    fail('metadata',`${node.name}: некорректное оформление popup.`);
   if(typeof data.ownerNodeId!=='string'||!data.ownerNodeId)fail('metadata',`${node.name}: повреждён владелец назначения Extron.`);
   if (data.ownerNodeId !== node.id && !options.allowCopied) fail('copied-node', `${node.name}: это копия. Нажмите «Проверить макет» или «Скачать .exui» — собственные ключ и ID будут назначены автоматически.`);
   return data;

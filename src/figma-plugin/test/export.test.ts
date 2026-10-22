@@ -27,14 +27,14 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)test(`Ro
   root.strokes=[solid('#FFFFFF')];assert.throws(()=>capture(root),(e:any)=>e.code==='appearance'&&e.message.includes('обводки'));
 });
 
-test('Project page corners are ignored while native shape radius and popup validation stay intact',()=>{
+test('Project page and popup corners are ignored while native shape radius stays intact',()=>{
   fakeFigma();const project=projectFixture();applyRecognition(recognize(project,'tlp-pro-1025m'));
   const square=capture(project).screen;
   for(const child of project.children)if(readMetadata(child)?.kind==='page')(child as FrameNode).cornerRadius=10;
   const rounded=capture(project).screen;assert.deepEqual(rounded,square);assert.ok('pages' in rounded);
   assert.equal(rounded.pages[0].elements.find(e=>e.kind==='shape')!.native!.radius,10);
   const popup=project.children.find(n=>readMetadata(n)?.kind==='popup') as FrameNode;popup.cornerRadius=10;
-  assert.throws(()=>capture(project),(e:any)=>e.code==='appearance'&&e.nodeId===popup.id&&e.message.includes('скругление'));
+  assert.deepEqual(capture(project).screen,rounded);
 });
 
 test('Fractional logo retains its exact source geometry inside a pixel-aligned PNG viewport',async()=>{

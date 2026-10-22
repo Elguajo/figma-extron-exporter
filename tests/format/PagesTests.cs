@@ -47,6 +47,34 @@ static class PagesTests
         string work = Directory.CreateTempSubdirectory("exui2-tests-").FullName;
         try
         {
+            test("exui/5: transparent popup backgrounds and shape paints preserve alpha", () =>
+            {
+                var files = Files();
+                Edit(files, "screen.json", n =>
+                {
+                    Popup(n, "popup.volume")["background"] = "#00000000";
+                    Page(n, "page.home")["elements"]!.AsArray().Add(JsonNode.Parse("""
+                        {"key":"popup-appearance.100.1","objectId":999999,"controlId":null,"name":"Guide",
+                         "kind":"shape","rect":[0,0,80,60],"fillColor":"#80123456",
+                         "native":{"shape":"rectangle","radius":0,"strokeColor":"#00000000","thickness":0}}
+                        """)!);
+                });
+                using var package = ExuiPackage.Load(Zip(work, files));
+                Check(package.Plan.Popups.Single(p => p.Key == "popup.volume").Background == "#00000000");
+                var shape = package.Plan.Pages.SelectMany(p => p.Elements).Single(e => e.Key == "popup-appearance.100.1");
+                Check(shape.FillColor == "#80123456" && shape.Native!.StrokeColor == "#00000000");
+            });
+            foreach (string color in new[] { "#0000000", "#000000000", "#GG000000", "#00000000\n" })
+                test($"exui/5: invalid alpha color {System.Text.Json.JsonSerializer.Serialize(color)} is refused", () =>
+                {
+                    var files = Files(); Edit(files, "screen.json", n => Popup(n, "popup.volume")["background"] = color);
+                    Reject("package-schema", () => ExuiPackage.Load(Zip(work, files)).Dispose());
+                });
+            test("exui/5: alpha extension does not allow transparent ordinary pages", () =>
+            {
+                var files = Files(); Edit(files, "screen.json", n => Page(n, "page.home")["background"] = "#00000000");
+                Reject("package-schema", () => ExuiPackage.Load(Zip(work, files)).Dispose());
+            });
             foreach (string profile in new[] { "1025m", "300m" })
                 test($"exui/5 {profile}: pages, popups, group and references lower to one plan", () =>
                 {

@@ -14,8 +14,8 @@ export function rect(node: SceneNode, parent: SceneNode): number[] {
 export function hasTransform(node: SceneNode): boolean {
   return [node.relativeTransform,node.absoluteTransform].some(t=>Math.abs(t[0][0]-1)>0.00001 || Math.abs(t[1][1]-1)>0.00001 || Math.abs(t[0][1])>0.00001 || Math.abs(t[1][0])>0.00001);
 }
-export function plain(node: SceneNode, allowHidden = false, decorated = false, allowLineTransform = false, options: {ignoreCornerRadius?: boolean; rasterTransform?: boolean} = {}): void {
-  if ((!allowHidden && !node.visible) || ('opacity' in node && node.opacity !== 1) || ('isMask' in node && node.isMask) ||
+export function plain(node: SceneNode, allowHidden = false, decorated = false, allowLineTransform = false, options: {ignoreCornerRadius?: boolean; ignoreOpacity?:boolean; ignoreStrokes?:boolean; rasterTransform?: boolean} = {}): void {
+  if ((!allowHidden && !node.visible) || (!options.ignoreOpacity && 'opacity' in node && node.opacity !== 1) || ('isMask' in node && node.isMask) ||
       ('blendMode' in node && node.blendMode !== 'PASS_THROUGH' && node.blendMode !== 'NORMAL'))
     fail('appearance', `${node.name}: скрытые элементы, opacity, маски и blend modes не поддержаны.`);
   if (options.rasterTransform && [node.relativeTransform,node.absoluteTransform].some(t=>[t[0][0],t[0][1],t[1][0],t[1][1]].some(v=>!Number.isFinite(v)) || Math.abs(t[0][0]*t[1][1]-t[0][1]*t[1][0])<1e-10))
@@ -23,7 +23,7 @@ export function plain(node: SceneNode, allowHidden = false, decorated = false, a
   if (!allowLineTransform && !options.rasterTransform && hasTransform(node))
     fail('transform', `${node.name}: поворот, отражение и skew не поддержаны.`);
   if ('effects' in node && node.effects.some(e => e.visible !== false)) fail('appearance', `${node.name}: эффекты не поддержаны для этого нативного элемента.`);
-  if (!decorated && 'strokes' in node && node.strokes.some(p => p.visible !== false)) fail('appearance', `${node.name}: обводки не поддержаны для этого нативного элемента.`);
+  if (!decorated && !options.ignoreStrokes && 'strokes' in node && node.strokes.some(p => p.visible !== false)) fail('appearance', `${node.name}: обводки не поддержаны для этого нативного элемента.`);
   if (!decorated && !options.ignoreCornerRadius && 'cornerRadius' in node && node.cornerRadius !== 0) fail('appearance', `${node.name}: скругление не поддержано для этого нативного элемента.`);
   if ('reactions' in node && node.reactions.length) fail('interaction', `${node.name}: переходы Figma не экспортируются. Уберите prototype interactions.`);
 }

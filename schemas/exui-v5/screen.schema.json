@@ -23,6 +23,10 @@
       "type": "string",
       "pattern": "^#[A-Fa-f0-9]{6}(?![\\s\\S])"
     },
+    "alphaColor": {
+      "type": "string",
+      "pattern": "^#(?:[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})(?![\\s\\S])"
+    },
     "font": {
       "type": "object",
       "additionalProperties": false,
@@ -491,7 +495,7 @@
           "$ref": "#/$defs/text"
         },
         "background": {
-          "$ref": "#/$defs/color"
+          "$ref": "#/$defs/alphaColor"
         },
         "modal": {
           "type": "boolean"
@@ -892,7 +896,7 @@
               "maximum": 640
             },
             "strokeColor": {
-              "$ref": "#/$defs/color"
+              "$ref": "#/$defs/alphaColor"
             },
             "thickness": {
               "type": "integer",
@@ -902,7 +906,7 @@
           }
         },
         "fillColor": {
-          "$ref": "#/$defs/color"
+          "$ref": "#/$defs/alphaColor"
         }
       }
     },

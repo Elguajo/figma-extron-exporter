@@ -68,6 +68,11 @@
 <label class="stack" data-for="popup">Модальный popup<select id="modal"><option value="false">Нет</option><option value="true">Да</option></select></label>
 <label class="stack" data-for="popup-ref">Ключ popup<input id="popup" placeholder="popup.sources"></label>
 <label class="stack" data-for="popup-ref">Или ключ группы popup<input id="group" placeholder="group.zones"></label>
+<div data-for="popup popup-ref" style="margin-top:12px">
+<label class="button-check"><input id="exportBackground" type="checkbox" aria-describedby="popupAppearanceHelp">Экспортировать фон Frame</label>
+<label class="button-check"><input id="exportStroke" type="checkbox" aria-describedby="popupAppearanceHelp">Экспортировать обводку Frame</label>
+<small id="popupAppearanceHelp">По умолчанию фон прозрачный, обводка не переносится. Радиусы углов и Opacity самого Frame игнорируются; содержимое popup сохраняет своё оформление. Для экспорта: фон — один SOLID; обводка — один SOLID, Inside, сплошная и одинаковой толщины со всех сторон. После выбора нажмите «Сохранить назначение».</small>
+</div>
 <label class="stack" data-for="level">Режим Level<select id="display"><option value="slider">Простой Slider</option><option value="gauge">Gauge — индикатор</option><option value="volume-led">Volume LED</option><option value="multistate">Multistate Level</option></select></label>
 <label class="stack" data-for="level slider">Направление<select id="orientation"><option value="left-to-right">Слева направо</option><option value="right-to-left">Справа налево</option><option value="bottom-to-top">Снизу вверх</option><option value="top-to-bottom">Сверху вниз</option></select></label>
 <div class="row" data-for="level slider"><label class="stack">Минимум<input id="min" type="number" min="0" step="1" value="0"></label><label class="stack">Максимум<input id="max" type="number" min="1" step="1" value="100"></label></div>
