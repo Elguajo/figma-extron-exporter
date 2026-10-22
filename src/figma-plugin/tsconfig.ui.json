@@ -1,5 +1,5 @@
 {
   "extends":"./tsconfig.json",
   "compilerOptions":{"lib":["ES2020","DOM"],"types":[]},
-  "include":["src/ui.ts","src/package.ts","src/model.ts"],"exclude":[]
+  "include":["src/ui.ts","src/package.ts","src/model.ts","src/datetime-format.ts"],"exclude":[]
 }

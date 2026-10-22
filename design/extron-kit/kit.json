@@ -13,7 +13,7 @@
     { "name": "multilevel_Multilevel", "type": "multilevel", "label": "Ready", "states": ["Normal", "state_Ready", "state_Error"], "section": "Universal" },
     { "name": "text_Label", "type": "text", "label": "Text label", "section": "Universal" },
     { "name": "value_Value", "type": "text", "label": "42%", "section": "Universal" },
-    { "name": "datetime_Clock", "type": "text", "label": "HH:mm", "section": "Universal" },
+    { "name": "datetime_Clock", "type": "datetime", "label": "MMMM d, h:mm tt", "section": "DateTime" },
     { "name": "shape_Shape", "type": "shape", "label": "Shape", "section": "Universal" },
     { "name": "line_Line", "type": "line", "label": "Divider", "section": "Universal" },
     { "name": "image_Image", "type": "graphic", "label": "Image", "section": "Universal" },

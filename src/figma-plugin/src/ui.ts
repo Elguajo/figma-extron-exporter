@@ -1,10 +1,12 @@
 import { packageExui } from './package.ts';
 import { elementCount, type Bundle, type Metadata, type RecognitionIssue, type ButtonPreparationSummary, type PresetPreview } from './model.ts';
+import { DATETIME_FORMATS, formatDateTime, patternProblem } from './datetime-format.ts';
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const input=(id:string)=>$<HTMLInputElement>(id);
 let packing=false,operationBusy=false,selectedId:string|null=null,downloadUrl:string|undefined;
 let recognitionToken:number|undefined;
-let legacyButton=false,loadedKey='';
+let legacyButton=false,loadedKey='',loadedPattern='';
+let designPattern:{pattern?:string;preview?:string;source?:string;error?:string}|undefined;
 let canRecognize=false,hasScope=false;
 let buttonCanApply=false,buttonResultReady=false;
 let buttonSummary:ButtonPreparationSummary|undefined,buttonStylesReady=false,buttonScopeReady=false,buttonScopeKey='';
@@ -62,6 +64,15 @@ function fields() {
   $('statePreview').hidden=kind!=='button'&&!(kind==='level'&&input('display').value==='multistate');
 }
 function revokeDownload() {if(downloadUrl)URL.revokeObjectURL(downloadUrl);downloadUrl=undefined;$('download').hidden=true;}
+const SOURCES:Record<string,string>={manual:'введён вручную',layer:'из имени Text-слоя',variant:'свойство Format компонента',preview:'по тексту-примеру',saved:'сохранён ранее',text:'текст слоя — сам формат'};
+function patternPreview() {
+  const typed=input('pattern').value,out=$('patternPreview');
+  if(typed){const problem=patternProblem(typed);out.textContent=problem?`Ошибка: ${problem}.`:`Пример: ${formatDateTime(typed)}`;out.dataset.kind=problem?'error':'';return;}
+  out.dataset.kind=designPattern?.error?'error':'';
+  out.textContent=!designPattern?'':designPattern.error?`Формат не определён: ${designPattern.error}`:`Из макета: ${designPattern.pattern} → ${designPattern.preview} (${SOURCES[designPattern.source!]??designPattern.source})`;
+}
+for(const format of DATETIME_FORMATS){const option=document.createElement('option');option.value=format.pattern;option.label=`${formatDateTime(format.pattern)} · ${format.group}`;$('patternPresets').appendChild(option);}
+input('pattern').addEventListener('input',patternPreview);
 $('kind').addEventListener('change',fields);
 $('display').addEventListener('change',fields);
 $('kit').onclick=()=>send('kit',{profile:input('profile').value});
@@ -85,6 +96,7 @@ $('mapping').onsubmit=event=>{
   event.preventDefault();
   const data:Record<string,string>={};for(const id of ['kind','buttonMode','key','objectId','controlId','projectName','profile','role','stateName','file','resourceName','stateId','shownBy','modal','display','orientation','min','max','pattern','popup','group','navigate','selectionGroup','enabled','visible'])data[id]=input(id).value;
   data.keyEdited=String(data.key!==loadedKey);
+  data.patternEdited=String(data.pattern!==loadedPattern);
   send('apply',{data});
 };
 window.onmessage=async(event:MessageEvent)=>{
@@ -109,6 +121,9 @@ window.onmessage=async(event:MessageEvent)=>{
     $('preparationHelp').hidden=msg.nodeType!=='FRAME'||!!m.kind;
     for(const id of ['key','objectId','controlId','projectName','stateName','file','resourceName','stateId','shownBy','pattern','popup','group'])input(id).value=String(m[id as keyof Metadata]??'');
     loadedKey=input('key').value;
+    // Only a typed pattern is shown for editing; the design's one is a placeholder.
+    designPattern=msg.datetime;input('pattern').value=msg.datetime?.manual?m.pattern??'':'';loadedPattern=input('pattern').value;
+    input('pattern').placeholder=designPattern?.pattern??'Из макета';patternPreview();
     const navigation=$<HTMLSelectElement>('navigate');navigation.replaceChildren();
     const addTarget=(value:string,label:string)=>{const option=document.createElement('option');option.value=value;option.textContent=label;navigation.appendChild(option);};
     addTarget('','Без перехода');

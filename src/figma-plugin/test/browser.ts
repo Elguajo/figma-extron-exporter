@@ -270,6 +270,18 @@ try{
  assert.equal(await frame.getByLabel('ID управления Extron',{exact:true}).isVisible(),false);
  await frame.getByLabel('Формат даты/времени',{exact:true}).fill('HH:mm');
  await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.pattern==='HH:mm');
+ assert.equal(await page.evaluate(()=>(window as any).lastMapping.patternEdited),'true');
+ assert.equal(await frame.locator('#patternPreview').textContent(),'Пример: 00:00');
+ assert.equal(await frame.locator('#patternPresets option').count(),28);
+ await frame.getByLabel('Формат даты/времени',{exact:true}).fill('Clock');
+ assert.match(await frame.locator('#patternPreview').textContent()??'',/^Ошибка: нет ни одного элемента/);
+ await page.evaluate(()=>(window as any).selectNode({id:'kit-clock',name:'datetime_Clock',nodeType:'INSTANCE',metadata:{kind:'datetime',key:'home.clock',objectId:3,controlId:null},datetime:{pattern:'MMMM d, h:mm tt',preview:'September 28, 12:00 AM',source:'layer',manual:false}}));
+ await frame.locator('#pattern[placeholder="MMMM d, h:mm tt"]').waitFor({state:'attached'});
+ assert.equal(await frame.getByLabel('Формат даты/времени',{exact:true}).inputValue(),'');
+ assert.equal(await frame.locator('#patternPreview').textContent(),'Из макета: MMMM d, h:mm tt → September 28, 12:00 AM (из имени Text-слоя)');
+ await page.screenshot({path:path.join(out,'datetime-pattern.png'),fullPage:true});
+ await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.key==='home.clock');
+ assert.deepEqual(await page.evaluate(()=>[(window as any).lastMapping.pattern,(window as any).lastMapping.patternEdited]),['','false']);
  await frame.getByLabel('Назначение').selectOption('popup-ref');
  await frame.getByLabel('Ключ popup',{exact:true}).fill('popup.sources');
  await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();await page.waitForFunction(()=>(window as any).lastMapping.popup==='popup.sources');
@@ -369,7 +381,7 @@ try{
  const batchPending=page.waitForEvent('download');await frame.getByRole('button',{name:'Скачать .exui',exact:true}).click();
  const batchDownload=await batchPending;await batchDownload.saveAs(path.join(out,'selected-frames.exui'));
  const batchFiles=unzipSync(await readFile(path.join(out,'selected-frames.exui'))),batchScreen=JSON.parse(strFromU8(batchFiles['screen.json']));
- assert.deepEqual(batchScreen.pages.map((p:any)=>p.name),['screen_Main','screen_AudioControl']);
+ assert.deepEqual(batchScreen.pages.map((p:any)=>p.name),['screen_AudioControl','screen_Main']);
  await frame.getByRole('status').filter({hasText:'Пакет готов'}).waitFor();
  await frame.locator('main').evaluate(el=>el.scrollTop=0);await page.screenshot({path:path.join(out,'selected-frames.png')});
  await frame.getByRole('button',{name:'Распознать по именам',exact:true}).click();

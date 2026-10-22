@@ -30,8 +30,13 @@ export function kitFixture(){
     n.addComponentProperty=(name:string,type:string,defaultValue:string)=>{const key=name+'#'+(++propertyId);n.componentPropertyDefinitions[key]={type,defaultValue};return key;};
     n.editComponentProperty=(key:string,options:any)=>{const value={...n.componentPropertyDefinitions[key],...options};delete n.componentPropertyDefinitions[key];const next=options.name?options.name+'#'+(++propertyId):key;n.componentPropertyDefinitions[next]=value;visit(n,c=>{if(c.componentPropertyReferences?.slotContentId===key){c.componentPropertyReferences.slotContentId=next;if(options.name)c.name=options.name;}});return next;};
     n.createSlot=()=>{const slot=new fake.FakeNode('SLOT') as any;n.appendChild(slot);slot.componentPropertyReferences={slotContentId:n.addComponentProperty('Slot','SLOT','')};return slot;};
-    n.createInstance=()=>{const instance=n.clone() as any;instance.type='INSTANCE';instance.setProperties=(props:Record<string,string>)=>visit(instance,c=>{const property=c.componentPropertyReferences?.characters;if(property&&property in props)c.characters=props[property];});return instance;};
+    // Figma names a variant's instance after its component set.
+    n.createInstance=()=>{const instance=n.clone() as any;instance.type='INSTANCE';if(n.parent?.type==='COMPONENT_SET'){instance.name=n.parent.name;instance.componentProperties=Object.fromEntries(String(n.name).split(', ').map((pair:string)=>{const [k,v]=pair.split('=');return [k,{type:'VARIANT',value:v}];}));fake.page.appendChild(instance);}instance.setProperties=(props:Record<string,string>)=>visit(instance,c=>{const property=c.componentPropertyReferences?.characters;if(property&&property in props)c.characters=props[property];});return instance;};
     return n;
+  };
+  api.combineAsVariants=(nodes:any[],parent:any)=>{
+    if(!nodes.length||nodes.some(n=>n.type!=='COMPONENT'))throw new Error('combineAsVariants requires components');
+    const set=new fake.FakeNode('COMPONENT_SET') as any;parent.appendChild(set);for(const n of nodes)set.appendChild(n);return set;
   };
   const originalClone=fake.FakeNode.prototype.clone;
   fake.FakeNode.prototype.clone=function(){const copy=originalClone.call(this);if(copy.type==='SLOT')copy.type='FRAME';return copy;};

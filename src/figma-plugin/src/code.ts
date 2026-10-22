@@ -14,6 +14,8 @@ import type { ButtonPreparationSummary } from './model.ts';
 import { focusNode } from './focus-node.ts';
 import { MANUAL_KEY } from './key-sync.ts';
 import { requireLatinName } from './latin-name.ts';
+import { controlText,formatVariant } from './kit-contract.ts';
+import { MANUAL_PATTERN,hasManualPattern,patternProblem,resolvePattern } from './datetime-format.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
@@ -91,9 +93,17 @@ function publish(keepRecognition=false):void {
         targets=projectMembers(root,read,options).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:read(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
     }
   }catch(e){if(scopeContext.mode!=='selection'){canRecognize=false;scopeHint=(e as Error).message;}}
+  let datetime:{pattern?:string;preview?:string;source?:string;error?:string;manual:boolean}|undefined;
+  try{
+    const copy=n&&controlText(n);
+    if(n&&copy&&(metadata?.kind==='datetime'||!metadata&&/^(dt|datetime)_/i.test(n.name))){
+      const manual=hasManualPattern(n),resolved=resolvePattern({text:copy,wrapped:copy!==n,variant:formatVariant(n),saved:metadata?.pattern,manual});
+      datetime={...resolved,manual};
+    }
+  }catch(e){warning=warning||(e as Error).message;}
   const buttonStylePreviews=presetPreviews();
   const buttonPresets={normal:buttonStylePreviews.normal.name,feedback:buttonStylePreviews.feedback.name};
-  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,warning,states,scope,targets,buttonPresets,buttonStylePreviews,buttonWorkflow,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
+  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,warning,states,scope,targets,buttonPresets,buttonStylePreviews,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
 }
 function apply(input:Record<string,unknown>):void {
   const node=selected(),kind=input.kind as Metadata['kind'];
@@ -103,9 +113,14 @@ function apply(input:Record<string,unknown>):void {
   const previous=stored(node),automatic=kind!=='state'&&input.key===''&&!!previous?.key;
   const data=automatic?{...input,key:previous!.key}:input;
   const manual=kind!=='state'&&!automatic&&input.keyEdited==='true'&&data.key!==previous?.key;
-  const previousFlag=node.getPluginData(MANUAL_KEY);
+  const previousFlag=node.getPluginData(MANUAL_KEY),previousPatternFlag=node.getPluginData(MANUAL_PATTERN);
   if(manual)node.setPluginData(MANUAL_KEY,node.id);else if(automatic)node.setPluginData(MANUAL_KEY,'');
-  try{assignNode(node,kind,data);}catch(e){node.setPluginData(MANUAL_KEY,previousFlag);throw e;}
+  // Same rule for the date/time pattern: typed stays, empty follows the design.
+  if(kind==='datetime'){
+    if(input.patternEdited!=='true')data.pattern=previous?.pattern??'';
+    else node.setPluginData(MANUAL_PATTERN,data.pattern===''?'':node.id);
+  }
+  try{assignNode(node,kind,data);}catch(e){node.setPluginData(MANUAL_KEY,previousFlag);node.setPluginData(MANUAL_PATTERN,previousPatternFlag);throw e;}
 }
 function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unknown>):void {
   let value:MetadataInput;
@@ -153,7 +168,11 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
     if(!['left-to-right','right-to-left','bottom-to-top','top-to-bottom'].includes(String(data.orientation)))fail('orientation','Выберите ориентацию.');
     value.orientation=data.orientation as Metadata['orientation'];value.min=integer(Number(data.min),0,2147483646,'Минимум');value.max=integer(Number(data.max),1,2147483647,'Максимум');if(value.min>=value.max)fail('range','Минимум должен быть меньше максимума.');
   }
-  if(kind==='datetime')value.pattern=text(data.pattern,'Формат даты/времени');
+  if(kind==='datetime'&&data.pattern){
+    const pattern=String(data.pattern),problem=patternProblem(pattern);
+    if(problem)fail('datetime-pattern',`Формат даты/времени «${pattern}»: ${problem}.`);
+    value.pattern=pattern;
+  }
   if(kind==='popup-ref'){if(!!data.popup===!!data.group)fail('popup-ref','Укажите popup или группу.');if(data.popup)value.popup=key(data.popup,'Ключ popup');if(data.group)value.group=key(data.group,'Ключ группы');}
   if(kind==='button'&&data.navigate)value.navigate=key(data.navigate,'Цель перехода');
   if(CONTROL_KINDS.includes(kind)){
@@ -222,7 +241,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       publish();figma.ui.postMessage({type:'success',operation:message.type,message:message.type==='button-apply-styles'?`Оформление применено. Кнопок: ${result.buttons}; новых состояний: ${result.states}; пропущено готовых: ${result.skipped}. Далее проверьте макет и скачайте .exui.`:message.type==='button-update-styles'?`Оформление обновлено: ${result.buttons} кнопок. Pressed и другие состояния сохранены.`:`Подготовлено кнопок: ${result.buttons}; создано состояний: ${result.states}; уже готовы: ${result.skipped}. Теперь нажмите «Проверить макет».`});
     }else if(message.type==='kit') {
       const result=await createKit(message.profile!);
-      publish();figma.ui.postMessage({type:'success',message:`Extron Kit создан: ${result.components.length} компонентов и шаблоны проекта. Выбран пример экрана. Изменяйте оформление в слотах Artwork, затем распознайте экран и сохраните назначения.`});
+      publish();figma.ui.postMessage({type:'success',message:`Extron Kit создан: ${result.components.length-result.dateTime.children.length} компонентов, datetime_Clock с ${result.dateTime.children.length} форматами даты/времени и шаблоны проекта. Выбран пример экрана. Изменяйте оформление в слотах Artwork, затем распознайте экран и сохраните назначения.`});
     }else if(message.type==='demo') {
       if(!message.profile||!Object.prototype.hasOwnProperty.call(PROFILES,message.profile))fail('profile','Выберите профиль.');
       await createDemo(message.profile,Object.fromEntries(Object.entries(__ICONS__).map(([k,v])=>[k,new Uint8Array(v)])));

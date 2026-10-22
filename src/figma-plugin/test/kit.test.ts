@@ -7,6 +7,7 @@ import { DATA_KEY } from '../src/model.ts';
 import { kitFixture } from './kit-fixture.ts';
 import { packageExui } from '../src/package.ts';
 import { unzipSync } from 'fflate';
+import { DATETIME_FORMATS } from '../src/datetime-format.ts';
 
 test('Figma rejects component property bindings inside slot content',()=>{
   const fake=kitFixture(),master=(fake.api as any).createComponent(),slot=master.createSlot(),text=fake.api.createText() as any;
@@ -17,12 +18,13 @@ test('Figma rejects component property bindings inside slot content',()=>{
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)
 test(`Kit ${profile}: components, slots, native controls → recognition → valid package, source masters unchanged`,async()=>{
   const fake=kitFixture(),kit=await createKit(profile);
-  assert.equal(kit.components.length,30);assert.equal(fake.page.selection[0].id,kit.example.id);
+  assert.equal(kit.components.length,29+DATETIME_FORMATS.length);assert.equal(kit.dateTime.type,'COMPONENT_SET');assert.equal(kit.dateTime.name,'datetime_Clock');assert.equal(fake.page.selection[0].id,kit.example.id);
   const master=designSignature(kit.library),before=designSignature(kit.example);
   const plan=recognize(kit.example,profile);assert.deepEqual(plan.errors,[]);assert.equal(designSignature(kit.example),before);applyRecognition(plan);
   const bundle=await exportFrame(kit.example);assert.equal(bundle.screen.schema,'exui-screen/5');assert.equal(designSignature(kit.library),master);
   assert.equal(bundle.screen.elements.find(e=>e.kind==='slider')!.native!.thumbType,'ellipse');
   assert.equal(bundle.screen.elements.find(e=>e.kind==='value')!.text,'42%');
+  assert.deepEqual(bundle.screen.elements.find(e=>e.kind==='datetime')!.native,{pattern:'MMMM d, h:mm tt'});
   assert.equal(bundle.screen.elements.find(e=>e.kind==='label')!.text,profile==='tlp-pro-1025m'?'Hall / AV Control':'Room control');
   for(const button of bundle.screen.elements.filter(e=>e.kind==='button'))assert.ok(button.states!.every(s=>s.text===''&&s.image));
   assert.ok(Object.keys(unzipSync(packageExui(bundle))).length>2);
@@ -71,6 +73,8 @@ test('Every generated control has an exportable contract, including multilevel a
  for(const master of kit.components.filter(n=>n.name!=='popupref_Popup')){
   for(const child of [...kit.example.children])child.remove();
   const instance=master.createInstance();kit.example.appendChild(instance);instance.x=0;instance.y=0;
+  // Variants are 440 px wide; the 300M canvas is 320 px.
+  if(instance.width>320){instance.resize(320,instance.height);for(const child of instance.children)(child as TextNode).resize(320,child.height);}
   const plan=recognize(kit.example,'tlp-pro-300m-portrait');assert.deepEqual(plan.errors,[],master.name);applyRecognition(plan);
   const bundle=await exportFrame(kit.example);assert.ok(packageExui(bundle).length>0,master.name);
   // This loop starts a fresh screen assignment for each independent component.

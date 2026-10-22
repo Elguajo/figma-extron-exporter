@@ -1,6 +1,7 @@
 import catalog from '../../../design/extron-kit/kit.json' with {type:'json'};
 import { PROFILES,fail,type Profile } from './model.ts';
 import { KIT_KEY,KIT_VERSION,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
+import { DATETIME_FORMATS,FORMAT_PROPERTY,formatDateTime } from './datetime-format.ts';
 
 type Parent=FrameNode|ComponentNode|SlotNode;
 type Spec=(typeof catalog.controls)[number];
@@ -50,7 +51,28 @@ function component(spec:Spec,parent:FrameNode):ComponentNode {
   return n;
 }
 
-export interface KitResult {library:FrameNode;components:ComponentNode[];templates:FrameNode[];example:FrameNode}
+// One Text per variant with the GUI Designer preview; the Format property the
+// designer picks names the panel-side pattern.
+const CLOCK={width:440,height:40,cell:96,column:500};
+function dateTimeSet(spec:Spec,library:FrameNode,top:number):{set:ComponentSetNode;variants:ComponentNode[];height:number} {
+  const variants=DATETIME_FORMATS.map(format=>{
+    const n=figma.createComponent();library.appendChild(n);n.name=`${FORMAT_PROPERTY}=${format.name}`;n.fills=[];n.strokes=[];n.clipsContent=true;n.resize(CLOCK.width,CLOCK.height);mark(n);
+    n.description=`Extron DateTime. Pattern: ${format.pattern}. Текст — пример GUI Designer; панель показывает текущее время.`;
+    const copy=label(n,'Content',formatDateTime(format.pattern),CLOCK.width,CLOCK.height,20);stretch(copy);
+    return n;
+  });
+  const set=figma.combineAsVariants(variants,library);set.name=spec.name;mark(set);set.fills=[paint(c.surface)];
+  set.description='Extron DateTime (PBDateTime). Выберите Format в свойствах экземпляра. Свой формат: переименуйте Text-слой в «Pattern: …» или задайте его в плагине.';
+  const rows=Math.ceil(variants.length/3);set.x=40;set.y=top;set.resize(3*CLOCK.column-20,rows*CLOCK.cell);
+  DATETIME_FORMATS.forEach((format,index)=>{
+    const x=(index%3)*CLOCK.column+20,y=Math.floor(index/3)*CLOCK.cell;
+    variants[index].x=x;variants[index].y=y+44;
+    const caption=label(library,'Pattern',`${format.pattern} · ${format.group}${format.guiDesigner?'':' · свой'}`,CLOCK.width,24,14,c.muted);caption.x=40+x;caption.y=top+y+14;
+  });
+  return {set,variants,height:rows*CLOCK.cell};
+}
+
+export interface KitResult {library:FrameNode;components:ComponentNode[];dateTime:ComponentSetNode;templates:FrameNode[];example:FrameNode}
 export async function createKit(profile:Profile):Promise<KitResult> {
   if(!Object.prototype.hasOwnProperty.call(PROFILES,profile))fail('profile','Выберите профиль панели.');
   await figma.loadFontAsync({family:'Arial',style:'Regular'});await figma.loadFontAsync({family:'Arial',style:'Bold'});
@@ -64,7 +86,7 @@ export async function createKit(profile:Profile):Promise<KitResult> {
     let top=230;
     for(const section of ['Universal','Presets']){
       const title=label(library,'Section',section==='Universal'?'01 / Универсальные компоненты':'02 / Готовые назначения',1440,48,28,c.ink,true);title.x=40;title.y=top;top+=72;
-      const specs=catalog.controls.filter(s=>s.section===section);
+      const specs=catalog.controls.filter(s=>s.section===section&&s.type!=='datetime');
       specs.forEach((spec,index)=>{
         const cell=frame(library,'Guide / '+spec.name,480,184,c.surface);cell.x=40+(index%3)*500;cell.y=top+Math.floor(index/3)*208;cell.cornerRadius=10;
         const caption=label(cell,'Service name',spec.name,440,28,16,c.ink,true);caption.x=20;caption.y=16;
@@ -73,6 +95,10 @@ export async function createKit(profile:Profile):Promise<KitResult> {
       });
       top+=Math.ceil(specs.length/3)*208+40;
     }
+    const clockSpec=catalog.controls.find(s=>s.type==='datetime')!;
+    const clockTitle=label(library,'Section','03 / Дата и время · '+clockSpec.name,1440,48,28,c.ink,true);clockTitle.x=40;clockTitle.y=top;top+=56;
+    const clockGuide=label(library,'Guide','Перетащите datetime_Clock на экран и выберите Format в свойствах экземпляра. Текст — пример, как в GUI Designer; панель показывает текущие дату и время. Свой формат: назовите Text-слой «Pattern: dddd, d MMMM» или задайте формат в плагине.',1440,56,16,c.muted);clockGuide.x=40;clockGuide.y=top;top+=72;
+    const clocks=dateTimeSet(clockSpec,library,top);components.push(...clocks.variants);top+=clocks.height+40;
     library.resize(1560,top);
     const size=PROFILES[profile];
     const makeTemplate=(name:string,w:number,h:number,x:number,y:number,fill=c.canvas)=>{const n=frame(undefined,name,w,h,fill);created.push(n);n.x=x;n.y=y;templates.push(n);return n;};
@@ -101,8 +127,14 @@ export async function createKit(profile:Profile):Promise<KitResult> {
       add('logo_Logo',1012,32).name='logo_Company';add('feedbackbutton_Hall',48,164);add('feedbackbutton_Music',304,164);add('feedbackbutton_Mute',560,164);
       add('button_VolumeDown',48,424);add('slider_Volume',304,436);add('button_VolumeUp',652,424);add('value_VolumeValue',304,376);
     }else{add('feedbackbutton_Music',50,112);add('feedbackbutton_Mute',50,200);add('slider_Volume',10,316);add('value_VolumeValue',50,372);}
+    const clock=clocks.variants[0].createInstance();example.appendChild(clock);clock.name=clockSpec.name;
+    if(profile==='tlp-pro-1025m'){clock.x=520;clock.y=36;}
+    else{
+      // Constraints stretch the Text in Figma; set it explicitly for hosts without layout.
+      clock.resize(256,32);const copy=clock.children[0] as TextNode;copy.resize(256,32);clock.x=32;clock.y=68;
+    }
     // No Extron IDs on masters: each placed instance receives its own IDs on recognition.
     figma.currentPage.selection=[example];figma.viewport.scrollAndZoomIntoView([example]);
-    return{library,components,templates,example};
+    return{library,components,dateTime:clocks.set,templates,example};
   }catch(error){for(const node of created.reverse())if(!node.removed)node.remove();figma.currentPage.selection=previousSelection.filter(n=>!n.removed);throw error;}
 }

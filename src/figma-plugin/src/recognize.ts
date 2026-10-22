@@ -1,7 +1,7 @@
 import { DATA_KEY,PROFILES,ROLE_ID,ELEMENT_KINDS,CONTROL_KINDS,metadataSchema,isControlKind,isElementKind,stateRole,fail,integer,key,readMetadata,text,type ButtonMode,type Kind,type MetadataInput, type Metadata,type Profile,type Role } from './model.ts';
 import type { ProjectNode,ProjectOptions } from './project.ts';
 import { capture,designSignature,type Capture } from './export.ts';
-import { controlText,isControlFrame,isKitNode,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
+import { isControlFrame,isKitNode,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 import { isStrokeLine } from './stroke-line.ts';
 import { containerSuffix,freeKey,repairAssignments } from './assignment-repair.ts';
 import { requireNodeForKind } from './assignment-rules.ts';
@@ -118,7 +118,7 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
         const identity={key:freeKey(namespace+'.'+named!.suffix,reservedKeys),objectId:integer(registry.nextObjectId++,1,1000000,'ID объекта')};
         value=isControlKind(kind)?{...identity,kind,controlId:integer(registry.nextControlId++,1,65535,'ID управления')}:{...identity,kind,controlId:null};
       }
-      if(!existing){if(kind==='graphic'){value.file=`assets/graphic-${value.objectId}.png`;value.resourceName=`exui-graphic-${value.objectId}.png`;}if(named?.buttonMode)value.buttonMode=named.buttonMode;if(named?.display)value.display=named.display;if(kind==='datetime')value.pattern=controlText(node)!.characters;if(kind==='popup-ref'){const group=node.getPluginData(KIT_POPUP_GROUP_KEY);if(group)value.group=key(group,'Группа popup');else value.popup='popup.'+named!.suffix;}}
+      if(!existing){if(kind==='graphic'){value.file=`assets/graphic-${value.objectId}.png`;value.resourceName=`exui-graphic-${value.objectId}.png`;}if(named?.buttonMode)value.buttonMode=named.buttonMode;if(named?.display)value.display=named.display;if(kind==='popup-ref'){const group=node.getPluginData(KIT_POPUP_GROUP_KEY);if(group)value.group=key(group,'Группа popup');else value.popup='popup.'+named!.suffix;}}
       const control=assign(node,value);if(kind==='button'||control.display==='multistate')states(node as ButtonContainer,control);
     }catch(e){report(e);}}
   }

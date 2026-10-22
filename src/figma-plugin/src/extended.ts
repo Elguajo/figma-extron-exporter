@@ -1,6 +1,7 @@
-import { fail,integer,text,type Element,type Metadata,type Orientation } from './model.ts';
+import { fail,integer,type Element,type Metadata,type Orientation } from './model.ts';
 import { color,plain,rect,readText,textAlignment } from './read-node.ts';
-import { controlText,isControlFrame } from './kit-contract.ts';
+import { controlText,formatVariant,isControlFrame } from './kit-contract.ts';
+import { hasManualPattern,resolvePattern } from './datetime-format.ts';
 
 const orientations:Orientation[]=['left-to-right','right-to-left','bottom-to-top','top-to-bottom'];
 export function range(m:Metadata,node:SceneNode) {
@@ -20,7 +21,11 @@ export function nativeElement(node:SceneNode,m:Metadata,e:Element):boolean {
     if(copy!==node&&JSON.stringify(rect(copy,node))!==JSON.stringify(rect(node,node)))fail('alignment',`${node.name}: Content должен занимать весь текстовый контейнер.`);
     Object.assign(e,readText(copy));
     const alignment=textAlignment(copy);if(alignment!=='middle-left')e.textAlign=alignment;
-    if(m.kind==='datetime') {e.native={pattern:text(m.pattern??copy.characters,'Формат даты/времени')};delete e.text;}
+    if(m.kind==='datetime') {
+      const resolved=resolvePattern({text:copy,wrapped:copy!==node,variant:formatVariant(node),saved:m.pattern,manual:hasManualPattern(node)});
+      if('error' in resolved)fail('datetime-pattern',`${node.name}: ${resolved.error}`);
+      e.native={pattern:resolved.pattern};delete e.text;
+    }
     return true;
   }
   if(m.kind==='shape'||m.kind==='line') {
