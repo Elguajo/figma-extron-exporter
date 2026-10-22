@@ -4,9 +4,11 @@
 
 ## Прозрачные popup и оформление ссылок (CLI 0.6.1)
 
-`popups[].background`, `shape.fillColor` и `shape.native.strokeColor` принимают `#RRGGBB` или `#AARRGGBB`. `#00000000` — полностью прозрачный фон. Остальные цвета, включая фон обычной страницы, сохраняют прежний формат `#RRGGBB`. Старый CLI 0.6.0 такие альфа-цвета отклоняет; используйте CLI 0.6.1+. Прежние EXUI/5 принимаются без миграции.
+`popups[].background`, `shape.fillColor`, `shape.native.strokeColor` и `states[].fill` принимают `#RRGGBB` или `#AARRGGBB`. `#00000000` — полностью прозрачный фон. Остальные цвета, включая фон обычной страницы, сохраняют прежний формат `#RRGGBB`. Старый CLI 0.6.0 такие альфа-цвета отклоняет; используйте CLI 0.6.1+ (для `states[].fill` — текущую сборку CLI). Прежние EXUI/5 принимаются без миграции.
 
 Плагин 0.6.2 по умолчанию игнорирует фон и обводку Frame popup/popupref; радиусы и общую Opacity игнорирует всегда. В metadata Figma используются optional boolean `exportBackground`/`exportStroke` (отсутствие или false — не переносить), только для popup и popup-ref. Идентичность и версия metadata сохраняются. При явном экспорте фона popup writer использует нативный фон; оформление popupref и обводка popup понижаются до обычной пассивной прямоугольной `shape` перед ссылкой/содержимым. Её ключ — `popup-appearance.<containerId>.<objectId>`, ID детерминированно выделяется вне authored/derived ID; controlId=null, radius=0. Дополнительные фигуры учитываются в действующих пределах элементов. Пакет не содержит новых типов или исполняемой логики.
+
+CLI очищает у созданных контейнеров внутреннюю заливку и обводку донора (`borderFillColorField`, `borderColorField`, `borderField`) и сбрасывает `transparencyField` в 0. GUI Designer рисует внутреннюю заливку поверх `backgroundFillColorField` даже без ресурса обводки; поэтому одного прозрачного фона недостаточно. Независимый verifier проверяет оба слоя. Offline popup донора не изменяется.
 
 ## Нативный Inter и выравнивание (0.5.0)
 

@@ -64,6 +64,18 @@ static class PagesTests
                 var shape = package.Plan.Pages.SelectMany(p => p.Elements).Single(e => e.Key == "popup-appearance.100.1");
                 Check(shape.FillColor == "#80123456" && shape.Native!.StrokeColor == "#00000000");
             });
+            foreach (string color in new[] { "#00000000", "#80123456", "#123456" })
+                test($"exui/5: button state fill preserves color {color}", () =>
+                {
+                    var files = Files();
+                    Edit(files, "screen.json", n =>
+                    {
+                        var button = Popup(n, "popup.volume")["elements"]!.AsArray().First(e => (string?)e!["kind"] == "button")!;
+                        button["states"]![0]!["fill"] = color;
+                    });
+                    using var package = ExuiPackage.Load(Zip(work, files));
+                    Check(package.Plan.Popups.Single(p => p.Key == "popup.volume").Elements.First(e => e.Kind == "button").States![0].Fill == color);
+                });
             foreach (string color in new[] { "#0000000", "#000000000", "#GG000000", "#00000000\n" })
                 test($"exui/5: invalid alpha color {System.Text.Json.JsonSerializer.Serialize(color)} is refused", () =>
                 {
@@ -232,13 +244,25 @@ static class PagesTests
             foreach (string profile in new[] { "1025m", "300m" })
                 test($"exui/5 generate {profile}: all bindings verified independently, deterministic, IDs stable", () =>
                 {
-                    string package = Zip(work, Files(profile)), output = Path.Combine(work, profile + ".gdl");
+                    var files = Files(profile);
+                    Edit(files, "screen.json", n => Popup(n, "popup.volume")["background"] = "#00000000");
+                    string package = Zip(work, files), output = Path.Combine(work, profile + ".gdl");
                     var a = PackageGenerator.Generate(registry, package, output, adapter);
                     var b = PackageGenerator.Generate(registry, package, Path.Combine(work, profile + "-repeat.gdl"), adapter);
                     Check(a.Contract == "exui/5" && a.Generation.Checks.All(c => c.Passed) && a.Generation.Checks.Count > 200);
                     Check(a.Generation.OutputSha256 == b.Generation.OutputSha256, "same input, same bytes");
                     var model = ProjectModel.Read(ExtronContainer.ReadFile(output).Payload);
                     Check(model.Pages.Count == 2 && model.Popups.Count == 5 && model.Groups!.Count == 1 && model.DefaultPage == 100);
+                    var volume = model.Popups.Single(p => p.Comments == "exui-key=popup.volume");
+                    Check(volume.Background == 0 && volume.Appearance?.BorderFill == 0, "transparent popup must not inherit the donor border fill");
+                    using (var loaded = ExuiPackage.Load(package))
+                    {
+                        var donor = registry.LoadDonor(loaded.Profile.Id);
+                        var broken = model with { Popups = model.Popups.Select(p => p == volume
+                            ? p with { Appearance = p.Appearance! with { BorderFill = 0xFFBABDCE } } : p).ToArray() };
+                        Check(ScreenVerifier.Verify(loaded.Plan, broken, donor.Model, donor.Entry.Profile)
+                            .Any(c => c.Id == "popup.popup.volume.no-donor-appearance" && !c.Passed), "verifier must catch an opaque donor fill despite transparent background");
+                    }
                     // Reordered package: every container and control keeps key, objectId and controlId.
                     var f = Files(profile);
                     Edit(f, "screen.json", n =>

@@ -80,6 +80,9 @@ public static class ScreenVerifier
             Check($"{at}.key", m.Comments == "exui-key=" + container.Key, m.Comments ?? "null");
             Check($"{at}.size", m.Width == container.Width && m.Height == container.Height, $"{m.Width}x{m.Height}");
             if (container.Background != null) Check($"{at}.background", m.Background == Argb(container.Background), Hex(m.Background));
+            Check($"{at}.no-donor-appearance", m.Appearance is { BorderFill: 0, BorderColor: 0, Transparency: 0 } appearance
+                && string.IsNullOrEmpty(appearance.BorderName) && string.IsNullOrEmpty(appearance.BackgroundImage),
+                $"border fill {Hex(m.Appearance?.BorderFill)}, border {m.Appearance?.BorderName ?? "null"}; no inherited border, image or transparency");
             var authored = m.Controls.Where(c => !BuildOwned(c)).ToArray();
             Check($"{at}.controls", authored.Length == container.Elements.Count, $"{authored.Length} control(s), expected {container.Elements.Count}" +
                 (authored.Length != m.Controls.Count ? $"; {m.Controls.Count - authored.Length} modal reference(s) added by Build" : ""));

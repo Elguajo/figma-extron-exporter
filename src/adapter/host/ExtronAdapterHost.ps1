@@ -450,6 +450,13 @@ function New-Container($Project, $Donor, $Spec, [int]$Width, [int]$Height) {
     Set-F $c '<TLPImageID>k__BackingField' -1
     Set-F $c 'backgroundImageField' $null
     Set-Color $Project $c 'backgroundFillColorField' $Spec.background
+    # Popup rendering paints the border interior after its background, even
+    # when the border resource is empty. Do not inherit the donor's opaque fill.
+    Set-Color $Project $c 'borderFillColorField' '#00000000'
+    Set-Color $Project $c 'borderColorField' '#00000000'
+    $border = Copy-Graph (Get-F $c 'borderField')
+    if ($border) { Set-F $border 'resourceNameField' ''; Set-F $c 'borderField' $border }
+    Set-F $c 'transparencyField' ([single]0)
     (Get-F $c 'controlsField').Clear()
     return , $c
 }

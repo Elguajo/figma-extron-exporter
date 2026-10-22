@@ -44,7 +44,10 @@ public sealed record ProjectModel(
         Nrbf.List(list).Select(p => new ContainerModel(Nrbf.ShortName(p), Nrbf.ULong(p, "idField"), Nrbf.ControlId(p),
             Nrbf.String(p, "nameField") ?? "", Nrbf.String(p, "commentsField"), Nrbf.Int(p, "widthField"), Nrbf.Int(p, "heightField"),
             Nrbf.Color(p, "backgroundFillColorField"),
-            Nrbf.List(Nrbf.Class(p, "controlsField")).Select(ReadControl).ToArray(), ReadPopup(p))).ToArray();
+            Nrbf.List(Nrbf.Class(p, "controlsField")).Select(ReadControl).ToArray(), ReadPopup(p),
+            new ContainerAppearance(Nrbf.Color(p, "borderFillColorField"), Nrbf.Color(p, "borderColorField"),
+                Nrbf.ImageName(p, "borderField"), Nrbf.ImageName(p, "backgroundImageField"),
+                Convert.ToSingle(Nrbf.Primitive(p, "transparencyField") ?? 0f)))).ToArray();
 
     private static PopupInfo? ReadPopup(ClassRecord p) => Nrbf.ShortName(p) != "PBPopupPage" ? null : new(
         (bool)Nrbf.Primitive(p, "modalField")!, Convert.ToUInt16(Nrbf.Primitive(p, "groupIDField")), Nrbf.String(p, "groupNameField"),
@@ -101,7 +104,9 @@ public sealed record PlatformProfile(string PlatformClass, int PlatformTypeValue
     int ScreenWidth, int ScreenHeight, int PlatformWidth, int PlatformHeight);
 
 public sealed record ContainerModel(string Type, ulong ObjectId, ushort ControlId, string Name, string? Comments,
-    int Width, int Height, uint? Background, IReadOnlyList<ControlModel> Controls, PopupInfo? Popup = null);
+    int Width, int Height, uint? Background, IReadOnlyList<ControlModel> Controls, PopupInfo? Popup = null, ContainerAppearance? Appearance = null);
+
+public sealed record ContainerAppearance(uint? BorderFill, uint? BorderColor, string? BorderName, string? BackgroundImage, float Transparency);
 
 /// <summary>Popup page specifics. References are the back-pointers to the controls that place the popup.</summary>
 public sealed record PopupInfo(bool Modal, ushort GroupId, string? GroupName, bool HasReferences, IReadOnlyList<ObjectReference> References);

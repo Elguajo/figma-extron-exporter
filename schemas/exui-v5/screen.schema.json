@@ -107,7 +107,7 @@
           "maxLength": 256
         },
         "fill": {
-          "$ref": "#/$defs/color"
+          "$ref": "#/$defs/alphaColor"
         },
         "textColor": {
           "$ref": "#/$defs/color"
