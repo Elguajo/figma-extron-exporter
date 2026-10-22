@@ -5,6 +5,8 @@ param(
     [switch] $IncludeLocalSamples
 )
 $ErrorActionPreference = 'Stop'
+# Windows PowerShell 5.1 adds a BOM for -Encoding utf8; Node's JSON.parse rejects it.
+function Write-Utf8NoBom { param([string] $Path) process { [IO.File]::WriteAllText($Path, $_, [Text.UTF8Encoding]::new($false)) } }
 $repo = Split-Path $PSScriptRoot -Parent
 $plugin = Join-Path $repo 'src/figma-plugin'
 $pluginPackage = Get-Content -Raw -LiteralPath (Join-Path $plugin 'package.json') | ConvertFrom-Json
@@ -37,7 +39,7 @@ foreach ($dir in @('samples/donors', 'samples/original', 'examples/home-1025m', 
 }
 Copy-Item -LiteralPath (Join-Path $repo 'scripts/ExtronExporter.ps1') -Destination $stage
 $cliReadme = Get-Content -Raw -LiteralPath (Join-Path $repo "releases/cli/$cliVersion/README.md")
-$cliReadme.Replace("figma-extron-complete-$cliVersion-local.zip", "figma-extron-complete-$version-local.zip").Replace("CLI для плагина $cliVersion", "CLI для плагина $version").Replace("Комплект для плагина $cliVersion", "Комплект для плагина $version").Replace("заголовок плагина должен показывать **$cliVersion**", "заголовок плагина должен показывать **$version**") | Set-Content -Encoding utf8 -LiteralPath (Join-Path $stage 'README.md')
+$cliReadme.Replace("figma-extron-complete-$cliVersion-local.zip", "figma-extron-complete-$version-local.zip").Replace("CLI для плагина $cliVersion", "CLI для плагина $version").Replace("Комплект для плагина $cliVersion", "Комплект для плагина $version").Replace("заголовок плагина должен показывать **$cliVersion**", "заголовок плагина должен показывать **$version**") | Write-Utf8NoBom (Join-Path $stage 'README.md')
 foreach ($file in @('donors.json', 'manifest.json')) {
     Copy-Item -LiteralPath (Join-Path $repo "samples/$file") -Destination (Join-Path $stage 'samples')
 }
@@ -58,7 +60,7 @@ Copy-Item -LiteralPath (Join-Path $nrbfPackage 'THIRD-PARTY-NOTICES.TXT') -Desti
 Copy-Item -LiteralPath (Join-Path $nrbfPackage 'system.formats.nrbf.nuspec') -Destination (Join-Path $stage 'licenses/System.Formats.Nrbf.nuspec')
 Copy-Item -LiteralPath (Join-Path $repo 'scripts/licenses/System.Formats.Nrbf-LICENSE.txt') -Destination (Join-Path $stage 'licenses')
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-@{ version = $cliVersion; compatiblePluginVersion = $version; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $false } | ConvertTo-Json | Set-Content -Encoding utf8 -LiteralPath (Join-Path $stage 'version.json')
+@{ version = $cliVersion; compatiblePluginVersion = $version; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $false } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
 [IO.Compression.ZipFile]::CreateFromDirectory($stage, $cliZip)
 
 if ($IncludeLocalSamples) {
@@ -74,7 +76,7 @@ if ($IncludeLocalSamples) {
     New-Item -ItemType Directory -Path (Join-Path $stage 'figma-plugin') | Out-Null
     [IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, (Join-Path $stage 'figma-plugin'))
     Copy-Item -LiteralPath (Join-Path $repo 'output/home-layout-20261020/home-layout-gui.gdl') -Destination (Join-Path $stage 'examples/home-1025m/home-gui-built.gdl')
-    @{ version = $version; cliVersion = $cliVersion; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $true } | ConvertTo-Json | Set-Content -Encoding utf8 -LiteralPath (Join-Path $stage 'version.json')
+    @{ version = $version; cliVersion = $cliVersion; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $true } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
     [IO.Compression.ZipFile]::CreateFromDirectory($stage, $localZip)
 }
 Get-FileHash -Algorithm SHA256 -LiteralPath $pluginZip, $cliZip | Format-Table -AutoSize
