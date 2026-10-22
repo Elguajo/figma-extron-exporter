@@ -75,7 +75,7 @@ CONTROLS = [
 GRAPHICS = [
     ('Статичный текст', '`txt_` / `text_`', '`text_Title`: Text Arial Regular/Bold, Inter / Inter Display; Label или PNG.'),
     ('Обновляемый текст', '`val_` / `value_`', '`value_VolumeValue`: Text с начальным «42%»; собственный controlId, обновляет программа.'),
-    ('Дата / время', '`dt_` / `datetime_`', '`datetime_Clock`: Text с форматом **HH:mm** или **dd.MM.yyyy HH:mm**.'),
+    ('Дата / время', '`dt_` / `datetime_`', '`datetime_Clock` из Extron Kit (свойство **Format**) или Text-пример **September 28, 12:00 AM**; также Text с форматом **HH:mm**.'),
     ('Логотип', '`logo_`', '`logo_Company`: Frame с графикой; PNG / PBImage, без controlId и нажатий.'),
     ('Картинка', '`img_` / `image_`', '`image_Photo`: Frame с графикой; статичный PNG / PBImage.'),
     ('Иконка состояния', '`Icon`, `ico_` / `icon_`', '`icon_Music`: Frame внутри состояния; часть его PNG, а не отдельная кнопка.'),
