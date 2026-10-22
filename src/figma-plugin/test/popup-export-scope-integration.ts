@@ -15,7 +15,7 @@ const [archive,output,cliRoot]=process.argv.slice(2);
 assert.ok(archive&&output&&cliRoot,'Usage: node test/popup-export-scope-integration.ts <plugin.zip> <new-output-dir> <cli-root>');
 const files=unzipSync(new Uint8Array(await readFile(archive))),manifest=JSON.parse(strFromU8(files['manifest.json'])),version=JSON.parse(strFromU8(files['version.json']));
 assert.equal(manifest.id,'figma-extron-exporter-local-dev');
-assert.equal(version.version,'0.6.8');assert.equal(version.compatibleCliVersion,'0.6.4');
+assert.equal(version.version,'0.6.8');assert.equal(version.compatibleCliVersion,'0.6.5');
 const source=strFromU8(files[manifest.main]),ui=strFromU8(files[manifest.ui]);
 assert.ok(ui.includes('· 0.6.8'));
 await mkdir(output,{recursive:true});

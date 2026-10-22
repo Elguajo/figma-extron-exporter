@@ -1,7 +1,7 @@
 {
   "name": "figma-extron-exporter-plugin",
   "version": "0.6.8",
-  "compatibleCliVersion": "0.6.4",
+  "compatibleCliVersion": "0.6.5",
   "private": true,
   "type": "module",
   "engines": {
