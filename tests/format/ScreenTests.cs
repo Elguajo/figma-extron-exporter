@@ -240,7 +240,7 @@ static class ScreenTests
         test("Spec: button state roles keep press feedback apart from program feedback", () =>
         {
             var a = Spec("1025m"); Element(a, "source.music")["press"] = "On"; SpecError("not the pressed state", () => Plan(a));
-            var b = Spec("1025m"); Element(b, "source.music")["states"]![1]!["role"] = "pressed"; SpecError("exactly one \"pressed\"", () => Plan(b));
+            var b = Spec("1025m"); Element(b, "source.music")["states"]![1]!["role"] = "pressed"; SpecError("at most one pressed", () => Plan(b));
             var c = Spec("1025m"); Element(c, "source.music")["states"]![1]!["role"] = "normal"; SpecError("only state 0", () => Plan(c));
             var d = Spec("1025m"); var st = Element(d, "volume.mute")["states"]!.AsArray(); st[1]!["fill"] = (string)st[0]!["fill"]!;
             SpecError("look identical", () => Plan(d));
@@ -250,7 +250,7 @@ static class ScreenTests
         test("Spec: kind-specific properties and unknown kinds rejected", () =>
         {
             var a = Spec("1025m"); Element(a, "volume.caption")["press"] = "Off"; SpecError("do not apply to label", () => Plan(a));
-            var b = Spec("1025m"); Element(b, "volume.level")["kind"] = "slider"; SpecError("is not supported", () => Plan(b));
+            var b = Spec("1025m"); Element(b, "volume.level")["kind"] = "unsupported"; SpecError("is not supported", () => Plan(b));
             var c = Spec("1025m"); Element(c, "volume.level")["min"] = 100; SpecError("min < max", () => Plan(c));
             var d = Spec("1025m"); Element(d, "volume.level")["display"] = "knob"; SpecError("slider or gauge", () => Plan(d));
         });

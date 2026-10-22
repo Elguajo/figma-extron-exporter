@@ -11,8 +11,7 @@ static class PackageTests
     static void Check(bool ok, string why = "Assertion failed") { if (!ok) throw new Exception(why); }
     static string Example(string p) => Path.Combine(ScreenTests.Root, "examples", "exui-v1", p);
     static string RealHome => Path.Combine(ScreenTests.Root, "verification", "results", "2026-10-20-full-home-1025m", "actual-home-1025m.exui");
-    static Dictionary<string, byte[]> Files(string p = "1025m") => Directory.GetFiles(Example(p), "*", SearchOption.AllDirectories)
-        .ToDictionary(f => Path.GetRelativePath(Example(p), f).Replace('\\', '/'), File.ReadAllBytes);
+    static Dictionary<string, byte[]> Files(string p = "1025m") => CurrentPackageFixture.Read(Example(p));
     static void Edit(Dictionary<string, byte[]> files, string name, Action<JsonNode> edit)
     {
         var node = JsonNode.Parse(files[name])!; edit(node); files[name] = Encoding.UTF8.GetBytes(node.ToJsonString());
@@ -106,7 +105,7 @@ static class PackageTests
                 ("missing project", "package-schema", f => Edit(f,"screen.json", n => n.AsObject().Remove("project"))),
                 ("null element", "package-schema", f => Edit(f,"screen.json", n => n["elements"]![0]=null)),
                 ("unknown property", "package-schema", f => Edit(f,"screen.json", n => n["visible"]=false)),
-                ("unsupported gauge", "package-schema", f => Edit(f,"screen.json", n => n["elements"]![2]!["display"]="gauge")),
+                ("unsupported display", "package-schema", f => Edit(f,"screen.json", n => n["elements"]![2]!["display"]="knob")),
                 ("unsupported font", "package-schema", f => Edit(f,"screen.json", n => n["elements"]![1]!["font"]!["family"]="Other")),
                 ("integer type", "package-schema", f => Edit(f,"screen.json", n => n["elements"]![0]!["objectId"]=1.5)),
                 ("newline in semantic key", "package-schema", f => Edit(f,"screen.json", n => n["elements"]![0]!["key"]="source.music\n")),
@@ -117,7 +116,7 @@ static class PackageTests
                 ("overflow geometry", "package-schema", f => Edit(f,"screen.json", n => n["elements"]![0]!["rect"]![0]=int.MaxValue)),
                 ("wrong state identity", "package-state", f => Edit(f,"screen.json", n => n["elements"]![0]!["states"]![1]!["stateId"]=2)),
                 ("feedback used as press", "spec", f => Edit(f,"screen.json", n => n["elements"]![0]!["press"]="On")),
-                ("pressed mixed with feedback", "package-state", f => Edit(f,"screen.json", n => n["elements"]![0]!["states"]![2]!["role"]="feedback")),
+                ("press references feedback instead of a pressed state", "spec", f => Edit(f,"screen.json", n => n["elements"]![0]!["states"]![2]!["role"]="feedback")),
                 ("missing image reference", "spec", f => Edit(f,"screen.json", n => n["elements"]![0]!["states"]![0]!["image"]="icon.missing")),
                 ("resource name conflict", "spec", f => Edit(f,"screen.json", n => n["assets"]![1]!["resourceName"]="exui-note-light.png")),
                 ("missing resource", "package-resource", f => f.Remove("assets/note-dark.png")),
@@ -186,63 +185,72 @@ static class PackageTests
                 Check(original.Plan.Elements.OrderBy(e=>e.Key).Select(e=>(e.Key,e.ObjectId,e.ControlId)).SequenceEqual(changed.Plan.Elements.OrderBy(e=>e.Key).Select(e=>(e.Key,e.ObjectId,e.ControlId))));
                 Check(changed.Plan.Elements.Where(e=>e.Kind=="button").All(e=>e.PressState==2 && e.States!.Select(s=>s.Role).SequenceEqual(new[]{"normal","feedback","pressed"})));
             });
-            Dictionary<string, byte[]> V3(bool two = true)
+            foreach (int version in new[] { 1, 2, 3, 4 })
+            {
+                test($"Obsolete exui/{version} is rejected without fallback", () =>
+                {
+                    var f = Files();
+                    Edit(f, "manifest.json", n => n["schema"] = $"exui/{version}");
+                    Edit(f, "screen.json", n => n["schema"] = $"exui-screen/{version}");
+                    Reject("package-schema", () => { using var p = ExuiPackage.Load(Zip(work, f)); });
+                });
+                test($"Current manifest rejects obsolete screen/{version}", () =>
+                {
+                    var f = Files(); Edit(f, "screen.json", n => n["schema"] = $"exui-screen/{version}");
+                    Reject("package-schema", () => { using var p = ExuiPackage.Load(Zip(work, f)); });
+                });
+            }
+            Dictionary<string, byte[]> TwoState(bool two = true)
             {
                 var f=Files();
-                Edit(f,"manifest.json",n=>n["schema"]="exui/3");
+                Edit(f,"manifest.json",n=>n["schema"]="exui/5");
                 Edit(f,"screen.json",n=>
                 {
-                    n["schema"]="exui-screen/3";
+                    n["schema"]="exui-screen/5";
                     if(two)foreach(var e in n["elements"]!.AsArray().Where(e=>(string?)e!["kind"]=="button"))
                     { e!["states"]!.AsArray().RemoveAt(2);e.AsObject().Remove("press"); }
                 });
                 return f;
             }
-            test("Package v3 two-state Off/On buttons disable press feedback; IDs preserved",()=>
+            test("Package v5 two-state Off/On buttons disable press feedback; IDs preserved",()=>
             {
-                using var p=ExuiPackage.Load(Zip(work,V3()));
-                Check(p.Contract=="exui/3");
+                using var p=ExuiPackage.Load(Zip(work,TwoState()));
+                Check(p.Contract=="exui/5");
                 Check(p.Plan.Elements.Where(e=>e.Kind=="button").All(e=>e.PressState==-1&&e.States!.Count==2&&e.States.Select(s=>s.Name).SequenceEqual(new[]{"Off","On"})));
                 using var old=ExuiPackage.Load(Zip(work,Files()));
                 Check(p.Plan.Elements.Select(e=>(e.Key,e.ObjectId,e.ControlId)).SequenceEqual(old.Plan.Elements.Select(e=>(e.Key,e.ObjectId,e.ControlId))));
             });
-            test("Package v3 three-state plan equals v1; existing contracts remain strict",()=>
-            {
-                using var p=ExuiPackage.Load(Zip(work,V3(false)));using var old=ExuiPackage.Load(Zip(work,Files()));
-                Check(Signature(p.Plan)==Signature(old.Plan));
-                var f=V3();Edit(f,"manifest.json",n=>n["schema"]="exui/1");Edit(f,"screen.json",n=>n["schema"]="exui-screen/1");
-                Reject("package-schema",()=>{using var invalid=ExuiPackage.Load(Zip(work,f));});
-            });
+
             foreach(var edit in new Action<Dictionary<string,byte[]>>[]
             {
                 f=>Edit(f,"screen.json",n=>n["elements"]![0]!["press"]="On"),
                 f=>Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![1]!["role"]="pressed"),
                 f=>Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![1]!["stateId"]=0),
                 f=>Edit(f,"screen.json",n=>n["schema"]="exui-screen/1")
-            })test("Package v3 refuses invalid two-state press/identity/version",()=>
+            })test("Package v5 refuses invalid two-state press/identity/version",()=>
             {
-                var f=V3();edit(f);bool rejected=false;
+                var f=TwoState();edit(f);bool rejected=false;
                 try{using var p=ExuiPackage.Load(Zip(work,f));}catch(ExuiException){rejected=true;}catch(ScreenSpecException){rejected=true;}
                 Check(rejected);
             });
-            test("Package v3 still requires pressed reference when three states are present",()=>
+            test("Package v5 still requires pressed reference when three states are present",()=>
             {
-                var f=V3(false);Edit(f,"screen.json",n=>n["elements"]![0]!.AsObject().Remove("press"));
+                var f=TwoState(false);Edit(f,"screen.json",n=>n["elements"]![0]!.AsObject().Remove("press"));
                 Reject("spec",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
             });
-            Dictionary<string,byte[]> V4()
+            Dictionary<string,byte[]> Graphics()
             {
-                var f=V3(false);Edit(f,"manifest.json",n=>n["schema"]="exui/4");
+                var f=TwoState(false);
                 Edit(f,"screen.json",n=>
                 {
-                    n["schema"]="exui-screen/4";
+                    n["schema"]="exui-screen/5";
                     var b=n["elements"]![0]!;b["states"]!.AsArray().RemoveAt(1);b["states"]![1]!["stateId"]=1;
                     n["elements"]!.AsArray().Add(new JsonObject { ["kind"]="graphic",["key"]="home.logo",["objectId"]=5,["controlId"]=null,["name"]="logo_Company",["rect"]=new JsonArray(0,0,64,64),["image"]="icon.note-dark" });
                 });return f;
             }
-            test("Package v4 resolves passive graphic and two-state momentary press index",()=>
+            test("Package v5 resolves passive graphic and two-state momentary press index",()=>
             {
-                using var p=ExuiPackage.Load(Zip(work,V4()));Check(p.Contract=="exui/4");
+                using var p=ExuiPackage.Load(Zip(work,Graphics()));Check(p.Contract=="exui/5");
                 var graphic=p.Plan.Elements.Single(e=>e.Kind=="graphic");Check(graphic.ControlId==0&&graphic.Image=="exui-note-dark.png"&&graphic.States==null);
                 Check(p.Plan.Elements[0].States!.Select(s=>s.Role).SequenceEqual(new[]{"normal","pressed"})&&p.Plan.Elements[0].PressState==1);
             });
@@ -254,21 +262,17 @@ static class PackageTests
                 f=>Edit(f,"screen.json",n=>n["elements"]![4]!["text"]="not an image"),
                 f=>Edit(f,"screen.json",n=>n["elements"]![0]!.AsObject().Remove("press")),
                 f=>Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![1]!["stateId"]=2),
-                f=>Edit(f,"screen.json",n=>n["schema"]="exui-screen/3")
-            })test("Package v4 rejects malformed graphic, press or version",()=>
+                f=>Edit(f,"screen.json",n=>n["schema"]="exui-screen/4")
+            })test("Package v5 rejects malformed graphic, press or version",()=>
             {
-                var f=V4();edit(f);bool rejected=false;
+                var f=Graphics();edit(f);bool rejected=false;
                 try{using var p=ExuiPackage.Load(Zip(work,f));}catch(ExuiException){rejected=true;}catch(ScreenSpecException){rejected=true;}
                 Check(rejected);
             });
-            test("Package v3 remains strict: no momentary pair or standalone graphics",()=>
+
+            Dictionary<string,byte[]> Expanded()
             {
-                var f=V4();Edit(f,"manifest.json",n=>n["schema"]="exui/3");Edit(f,"screen.json",n=>{n["schema"]="exui-screen/3";n["elements"]!.AsArray().RemoveAt(4);});
-                Reject("package-state",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
-            });
-            Dictionary<string,byte[]> V5()
-            {
-                var f=V4();Edit(f,"manifest.json",n=>n["schema"]="exui/5");
+                var f=Graphics();Edit(f,"manifest.json",n=>n["schema"]="exui/5");
                 Edit(f,"screen.json",n=>
                 {
                     n["schema"]="exui-screen/5";
@@ -281,14 +285,14 @@ static class PackageTests
             }
             test("Package v5 preserves editable Slider, dynamic label ID and programmer behavior",()=>
             {
-                using var p=ExuiPackage.Load(Zip(work,V5()));Check(p.Contract=="exui/5");
+                using var p=ExuiPackage.Load(Zip(work,Expanded()));Check(p.Contract=="exui/5");
                 var slider=p.Plan.Elements.Single(e=>e.Kind=="slider");Check(slider.Native?.TrackWidth==16&&slider.Native.ThumbWidth==28&&slider.Min==0&&slider.Max==100);
                 var value=p.Plan.Elements.Single(e=>e.Kind=="value");Check(value.ControlId==8207&&value.Behavior?.Visible==false);
                 Check(IdMap.Markdown(p.Plan,p.Profile.Panel).Contains("Доступен при запуске"));
             });
             Dictionary<string,byte[]> ManyImages()
             {
-                var f=V5();
+                var f=Expanded();
                 for(int i=0;i<17;i++)
                 {
                     string file=$"assets/extra-{i}.png",key=$"extra.image{i}";
@@ -308,10 +312,10 @@ static class PackageTests
                 if(project)Edit(f,"screen.json",n=>{var o=n.AsObject();var page=o["page"]!.DeepClone();page["shownBy"]="start";page["elements"]=o["elements"]!.DeepClone();o.Remove("page");o.Remove("elements");o["pages"]=new JsonArray(page);o["popups"]=new JsonArray();o["groups"]=new JsonArray();});
                 using var p=ExuiPackage.Load(Zip(work,f));Check(p.Plan.Images.Count==19);Check(p.Plan.Elements.Count(e=>e.Kind=="graphic")==18);
             });
-            test("Package v4 retains its resource count limit",()=>
+            test("Obsolete package with many resources is refused before decoding",()=>
             {
                 var f=ManyImages();Edit(f,"manifest.json",n=>n["schema"]="exui/4");Edit(f,"screen.json",n=>n["schema"]="exui-screen/4");
-                Reject("package-entries",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
+                Reject("package-schema",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
             });
             test("Package v5 with many images still rejects undeclared files and damaged PNGs",()=>
             {
@@ -328,31 +332,27 @@ static class PackageTests
             });
             test("Package v5 accepts empty Button captions for independent text overlays",()=>
             {
-                var f=V5();Edit(f,"screen.json",n=>{foreach(var state in n["elements"]![0]!["states"]!.AsArray())state!["text"]="";});
+                var f=Expanded();Edit(f,"screen.json",n=>{foreach(var state in n["elements"]![0]!["states"]!.AsArray())state!["text"]="";});
                 using var p=ExuiPackage.Load(Zip(work,f));
                 Check(p.Plan.Elements[0].States!.All(s=>s.Text==""));
                 Check(p.Plan.Elements[1].Text!=null);
             });
-            test("Package v4 still refuses empty Button captions",()=>
-            {
-                var f=V4();Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![0]!["text"]="");
-                Reject("package-schema",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
-            });
+
             test("Package v5 still refuses whitespace Button captions and empty labels",()=>
             {
-                var f=V5();Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![0]!["text"]=" ");
+                var f=Expanded();Edit(f,"screen.json",n=>n["elements"]![0]!["states"]![0]!["text"]=" ");
                 Reject("spec",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
-                f=V5();Edit(f,"screen.json",n=>n["elements"]![1]!["text"]="");
+                f=Expanded();Edit(f,"screen.json",n=>n["elements"]![1]!["text"]="");
                 Reject("package-schema",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
             });
             test("Package v5 uses the same validation for container form",()=>
             {
-                var f=V5();Edit(f,"screen.json",n=>{var o=n.AsObject();var page=o["page"]!.DeepClone();page["shownBy"]="start";page["elements"]=o["elements"]!.DeepClone();o.Remove("page");o.Remove("elements");o["pages"]=new JsonArray(page);o["popups"]=new JsonArray();o["groups"]=new JsonArray();});
+                var f=Expanded();Edit(f,"screen.json",n=>{var o=n.AsObject();var page=o["page"]!.DeepClone();page["shownBy"]="start";page["elements"]=o["elements"]!.DeepClone();o.Remove("page");o.Remove("elements");o["pages"]=new JsonArray(page);o["popups"]=new JsonArray();o["groups"]=new JsonArray();});
                 using var p=ExuiPackage.Load(Zip(work,f));Check(p.Plan.Pages.Count==1&&p.Plan.Elements.Any(e=>e.Kind=="slider"));
             });
             test("Native Slider verifier rejects an invisible vector thumb with no resolvable bitmap",()=>
             {
-                using var p=ExuiPackage.Load(Zip(work,V5()));
+                using var p=ExuiPackage.Load(Zip(work,Expanded()));
                 var e=p.Plan.Elements.Single(e=>e.Kind=="slider");
                 var control=new ControlModel("PBSlider",(ulong)e.ObjectId,(ushort)e.ControlId!,e.Name,"exui-key="+e.Key,
                     20,20,260,32,null,null,[],null,null,null,
@@ -388,11 +388,8 @@ static class PackageTests
                 ("behavior on passive graphic","package-schema",n=>n["elements"]![4]!["behavior"]=new JsonObject{["enabled"]=false}),
                 ("unknown behavior field","package-schema",n=>n["elements"]![6]!["behavior"]!["script"]="execute"),
                 ("mixed single/project forms","package-schema",n=>{n["pages"]=new JsonArray();n["popups"]=new JsonArray();n["groups"]=new JsonArray();})
-            })test("Package v5 rejects "+name,()=>{var f=V5();Edit(f,"screen.json",change);Reject(code,()=>{using var p=ExuiPackage.Load(Zip(work,f));});});
-            test("Package v4 rejects v5 controls instead of silently lowering them",()=>
-            {
-                var f=V5();Edit(f,"manifest.json",n=>n["schema"]="exui/4");Edit(f,"screen.json",n=>n["schema"]="exui-screen/4");Reject("package-schema",()=>{using var p=ExuiPackage.Load(Zip(work,f));});
-            });
+            })test("Package v5 rejects "+name,()=>{var f=Expanded();Edit(f,"screen.json",change);Reject(code,()=>{using var p=ExuiPackage.Load(Zip(work,f));});});
+
         }
         finally { Directory.Delete(work,true); }
     }

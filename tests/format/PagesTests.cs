@@ -6,13 +6,12 @@ using ExtronExporter.Adapter;
 using ExtronExporter.Format;
 using ExtronExporter.Screen;
 
-/// <summary>exui/2: pages, popups, popup groups, popup references and navigation intent.</summary>
+/// <summary>exui/5: pages, popups, popup groups, popup references and navigation intent.</summary>
 static class PagesTests
 {
     static void Check(bool ok, string why = "Assertion failed") { if (!ok) throw new Exception(why); }
     static string Example(string p) => Path.Combine(ScreenTests.Root, "examples", "exui-v2", p);
-    static Dictionary<string, byte[]> Files(string p = "1025m") => Directory.GetFiles(Example(p), "*", SearchOption.AllDirectories)
-        .ToDictionary(f => Path.GetRelativePath(Example(p), f).Replace('\\', '/'), File.ReadAllBytes);
+    static Dictionary<string, byte[]> Files(string p = "1025m") => CurrentPackageFixture.Read(Example(p));
     static void Edit(Dictionary<string, byte[]> files, string name, Action<JsonNode> edit)
     {
         var node = JsonNode.Parse(files[name])!; edit(node); files[name] = Encoding.UTF8.GetBytes(node.ToJsonString());
@@ -49,10 +48,10 @@ static class PagesTests
         try
         {
             foreach (string profile in new[] { "1025m", "300m" })
-                test($"exui/2 {profile}: pages, popups, group and references lower to one plan", () =>
+                test($"exui/5 {profile}: pages, popups, group and references lower to one plan", () =>
                 {
                     using var p = ExuiPackage.Load(Zip(work, Files(profile)));
-                    Check(p.Contract == "exui/2" && p.Plan.Pages.Count == 2 && p.Plan.Popups.Count == 4 && p.Plan.Groups.Count == 1);
+                    Check(p.Contract == "exui/5" && p.Plan.Pages.Count == 2 && p.Plan.Popups.Count == 4 && p.Plan.Groups.Count == 1);
                     Check(p.Plan.StartPage == "page.home" && p.Plan.Page.ObjectId == 100);
                     Check(p.Plan.Groups[0] is { GroupId: 1, Name: "Источники", ReferenceCount: 1 });
                     var confirm = p.Plan.Popups.Single(x => x.Key == "popup.confirm");
@@ -60,14 +59,14 @@ static class PagesTests
                     Check(p.Plan.Popups.Where(x => x.Group == "group.sources").Select(x => x.Key).SequenceEqual(new[] { "popup.sources-1", "popup.sources-2" }));
                     Check(p.Plan.Containers.SelectMany(c => c.Elements).Where(e => e.Kind == "button").All(e => e.PressState == 2));
                 });
-            test("exui/2: both panels carry the same keys and IDs", () =>
+            test("exui/5: both panels carry the same keys and IDs", () =>
             {
                 using var a = ExuiPackage.Load(Zip(work, Files("1025m")));
                 using var b = ExuiPackage.Load(Zip(work, Files("300m")));
                 Check(Ids(a.Plan).OrderBy(x => x.Key).SequenceEqual(Ids(b.Plan).OrderBy(x => x.Key)));
                 Check(a.Plan.Containers.Select(c => (c.Key, c.ObjectId)).SequenceEqual(b.Plan.Containers.Select(c => (c.Key, c.ObjectId))));
             });
-            test("exui/2: IDs ignore order of pages, popups and elements, texts and geometry", () =>
+            test("exui/5: IDs ignore order of pages, popups and elements, texts and geometry", () =>
             {
                 using var original = ExuiPackage.Load(Zip(work, Files()));
                 var f = Files();
@@ -94,7 +93,7 @@ static class PagesTests
                 Check(changed.Plan.Containers.OrderBy(c => c.Key).Select(c => (c.Key, c.ObjectId)).SequenceEqual(original.Plan.Containers.OrderBy(c => c.Key).Select(c => (c.Key, c.ObjectId))));
                 Check(changed.Plan.Pages[0].Key == "page.sources", "order really changed");
             });
-            test("exui/2: ID map lists every control ID and says navigation is not stored in GDL", () =>
+            test("exui/5: ID map lists every control ID and says navigation is not stored in GDL", () =>
             {
                 using var p = ExuiPackage.Load(Zip(work, Files()));
                 string map = IdMap.Markdown(p.Plan, p.Profile.Panel);
@@ -134,7 +133,7 @@ static class PagesTests
                 ("navigate on a label", "package-schema", null, f => Edit(f, "screen.json", n => Element(Page(n, "page.home"), "home.title")["navigate"] = "page.sources")),
             };
             foreach (var c in cases)
-                test("exui/2 refuses " + c.Name, () => { var f = Files(); c.Edit(f); Reject(c.Code, () => { using var p = ExuiPackage.Load(Zip(work, f)); }, c.Fragment); });
+                test("exui/5 refuses " + c.Name, () => { var f = Files(); c.Edit(f); Reject(c.Code, () => { using var p = ExuiPackage.Load(Zip(work, f)); }, c.Fragment); });
             test("exui/1 package still refuses navigate (no silent upgrade)", () =>
             {
                 string dir = Path.Combine(ScreenTests.Root, "examples", "exui-v1", "1025m");
@@ -179,12 +178,12 @@ static class PagesTests
         try
         {
             foreach (string profile in new[] { "1025m", "300m" })
-                test($"exui/2 generate {profile}: all bindings verified independently, deterministic, IDs stable", () =>
+                test($"exui/5 generate {profile}: all bindings verified independently, deterministic, IDs stable", () =>
                 {
                     string package = Zip(work, Files(profile)), output = Path.Combine(work, profile + ".gdl");
                     var a = PackageGenerator.Generate(registry, package, output, adapter);
                     var b = PackageGenerator.Generate(registry, package, Path.Combine(work, profile + "-repeat.gdl"), adapter);
-                    Check(a.Contract == "exui/2" && a.Generation.Checks.All(c => c.Passed) && a.Generation.Checks.Count > 200);
+                    Check(a.Contract == "exui/5" && a.Generation.Checks.All(c => c.Passed) && a.Generation.Checks.Count > 200);
                     Check(a.Generation.OutputSha256 == b.Generation.OutputSha256, "same input, same bytes");
                     var model = ProjectModel.Read(ExtronContainer.ReadFile(output).Payload);
                     Check(model.Pages.Count == 2 && model.Popups.Count == 5 && model.Groups!.Count == 1 && model.DefaultPage == 100);
@@ -211,7 +210,7 @@ static class PagesTests
                     Check(Map(model).SequenceEqual(Map(after)));
                     Check(after.Pages[0].ObjectId == 101, "page order follows the package");
                 });
-            test("exui/2: a donor without popup sources is refused with donor-element; nothing written", () =>
+            test("exui/5: a donor without popup sources is refused with donor-element; nothing written", () =>
             {
                 string dir = Directory.CreateTempSubdirectory("exui2-registry-").FullName;
                 try
@@ -231,7 +230,7 @@ static class PagesTests
                 }
                 finally { Directory.Delete(dir, true); }
             });
-            test("exui/2: donors, sources and examples unchanged", () =>
+            test("exui/5: donors, sources and examples unchanged", () =>
                 Check(protectedFiles.All(f => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(f.Key))) == f.Value)));
         }
         finally { Directory.Delete(work, true); }
@@ -245,7 +244,7 @@ static class PagesTests
         {
             string file = Path.Combine(folder, $"pages-popups-{profile}.gdl");
             if (!File.Exists(file)) continue;
-            test($"exui/2 GUI-built {profile}: Build output, artwork, modal references added by Build, bindings intact", () =>
+            test($"exui/5 GUI-built {profile}: Build output, artwork, modal references added by Build, bindings intact", () =>
             {
                 var c = ExtronContainer.ReadFile(file);
                 Check(c.HasBuildOutput, "Save and Build entry");

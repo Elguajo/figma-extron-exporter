@@ -54,11 +54,11 @@ internal static class ContractJson
             foreach (var item in value.EnumerateArray()) Unique(item, at + "[]");
     }
 
-    public static void Validate(JsonElement value, int version, string name)
+    public static void Validate(JsonElement value, string name)
     {
         var assembly = typeof(ContractJson).Assembly;
-        using var stream = assembly.GetManifestResourceStream($"exui-v{version}/{name}.schema.json")
-            ?? throw new InvalidOperationException($"Embedded schema exui-v{version}/{name} is missing.");
+        using var stream = assembly.GetManifestResourceStream($"exui-v5/{name}.schema.json")
+            ?? throw new InvalidOperationException($"Embedded schema exui-v5/{name} is missing.");
         using var doc = JsonDocument.Parse(stream);
         var errors = new List<string>();
         Visit(value, doc.RootElement, doc.RootElement, name, errors);

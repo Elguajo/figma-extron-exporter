@@ -24,11 +24,11 @@ public sealed class ExuiPackage : IDisposable
     public string ScreenSha256 { get; }
     public ExuiProfile Profile { get; }
     public GeneratePlan Plan { get; }
-    /// <summary>exui/1: one page; exui/2: containers/navigation; exui/3: optional press feedback; exui/4: graphics and momentary buttons.</summary>
-    public string Contract { get; }
+    /// <summary>The current package contract; older exports must be exported again in Figma.</summary>
+    public string Contract => "exui/5";
 
-    private ExuiPackage(string work, string sha, string screenSha, ExuiProfile profile, GeneratePlan plan, string contract)
-    { this.work = work; Sha256 = sha; ScreenSha256 = screenSha; Profile = profile; Plan = plan; Contract = contract; }
+    private ExuiPackage(string work, string sha, string screenSha, ExuiProfile profile, GeneratePlan plan)
+    { this.work = work; Sha256 = sha; ScreenSha256 = screenSha; Profile = profile; Plan = plan; }
 
     public static ExuiProfile GetProfile(string id) => id switch
     {
@@ -65,11 +65,10 @@ public sealed class ExuiPackage : IDisposable
             // This replaces the arbitrary v5 count cap without admitting undeclared ZIP entries.
             byte[] manifestBytes = ReadEntry(manifestEntry, 64 * 1024);
             var manifest = ContractJson.Read(manifestBytes, "manifest.json");
-            int version = manifest.ValueKind == JsonValueKind.Object && manifest.TryGetProperty("schema", out var marker) && marker.ValueKind == JsonValueKind.String
-                ? marker.GetString() switch { "exui/1" => 1, "exui/2" => 2, "exui/3" => 3, "exui/4" => 4, "exui/5" => 5, _ => 0 } : 0;
-            if (version == 0) throw new ExuiException("package-schema", "manifest.json: schema must be exui/1 through exui/5.");
-            if (version < 5 && zip.Entries.Count > 18) throw new ExuiException("package-entries", "exui/1–4 allow at most 18 file entries.");
-            ContractJson.Validate(manifest, version, "manifest");
+            if (manifest.ValueKind != JsonValueKind.Object || !manifest.TryGetProperty("schema", out var marker) ||
+                marker.ValueKind != JsonValueKind.String || marker.GetString() != "exui/5")
+                throw new ExuiException("package-schema", "Only exui/5 is supported. Export the design again with the current Figma plugin.");
+            ContractJson.Validate(manifest, "manifest");
             if (zip.Entries.Count != manifest.GetProperty("resources").GetArrayLength() + 2)
                 throw new ExuiException("package-resource", "ZIP assets must exactly match manifest.resources.");
             var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
@@ -85,7 +84,7 @@ public sealed class ExuiPackage : IDisposable
             }
             byte[] screenBytes = files["screen.json"];
             var screen = ContractJson.Read(screenBytes, "screen.json");
-            ContractJson.Validate(screen, version, "screen");
+            ContractJson.Validate(screen, "screen");
             var profile = GetProfile(manifest.GetProperty("profile").GetString()!);
             var declared = new HashSet<string>(StringComparer.Ordinal);
             foreach (var resource in manifest.GetProperty("resources").EnumerateArray())
@@ -111,13 +110,13 @@ public sealed class ExuiPackage : IDisposable
             var elementLists = !lowered.ContainsKey("pages")
                 ? new[] { lowered["elements"]!.AsArray() }
                 : lowered["pages"]!.AsArray().Concat(lowered["popups"]!.AsArray()).Select(c => c!["elements"]!.AsArray()).ToArray();
-            foreach (var list in elementLists) SortStates(list, version >= 3, version >= 4, version == 5);
+            foreach (var list in elementLists) SortStates(list);
             work = Directory.CreateTempSubdirectory("exui-package-").FullName;
             Directory.CreateDirectory(Path.Combine(work, "assets"));
             foreach (string file in declared) File.WriteAllBytes(Path.Combine(work, file), files[file]);
             var spec = JsonSerializer.Deserialize<ScreenSpec>(lowered.ToJsonString(), ScreenSpecReader.Json)!;
-            var plan = ScreenSpecReader.Normalize(spec, profile.Panel, profile.Width, profile.Height, work, allowTwoStateButtons: version >= 3, allowGraphics: version >= 4, allowMomentaryButtons: version >= 4, allowExtended: version == 5);
-            return new(work, Hash(bytes), Hash(screenBytes), profile, plan, $"exui/{version}");
+            var plan = ScreenSpecReader.Normalize(spec, profile.Panel, profile.Width, profile.Height, work);
+            return new(work, Hash(bytes), Hash(screenBytes), profile, plan);
         }
         catch (Exception e)
         {
@@ -127,26 +126,15 @@ public sealed class ExuiPackage : IDisposable
         }
     }
 
-    private static void SortStates(JsonArray elements, bool allowTwoStateButtons, bool allowMomentaryButtons, bool extended = false)
+    private static void SortStates(JsonArray elements)
     {
         foreach (var element in elements)
         {
-            if (element!["states"] is not JsonArray) continue;
-            var states = element["states"]!.AsArray();
+            if (element!["states"] is not JsonArray states) continue;
             var sorted = states.Select(s => s!.AsObject()).OrderBy(s => (int)s["stateId"]!).ToArray();
-            if (extended)
-            {
-                if (!sorted.Select(s => (int)s["stateId"]!).SequenceEqual(Enumerable.Range(0, sorted.Length)) || sorted.Length is < 2 or > 8 ||
-                    (string?)sorted[0]["role"] != "normal" || sorted.Skip(1).Any(s => (string?)s["role"] == "normal"))
-                    throw new ExuiException("package-state", "exui/5 states require dense IDs 0..N, starting with normal.");
-                states.Clear(); foreach (var state in sorted) { state.Remove("stateId"); states.Add(state); }
-                continue;
-            }
-            bool two = allowTwoStateButtons && sorted.Length == 2;
-            bool momentary = allowMomentaryButtons && sorted.Length == 2 && (string?)sorted[1]["role"] == "pressed";
-            if (!sorted.Select(s => (int)s["stateId"]!).SequenceEqual(two ? new[] { 0, 1 } : new[] { 0, 1, 2 }) ||
-                !sorted.Select(s => (string)s["role"]!).SequenceEqual(momentary ? new[] { "normal", "pressed" } : two ? new[] { "normal", "feedback" } : new[] { "normal", "feedback", "pressed" }))
-                throw new ExuiException("package-state", $"{element["key"]}: explicit stateId/role must be {(allowMomentaryButtons ? "0/normal + 1/pressed, or " : "")}0/normal, 1/feedback{(allowTwoStateButtons ? ", and optional 2/pressed" : ", 2/pressed")}.");
+            if (!sorted.Select(s => (int)s["stateId"]!).SequenceEqual(Enumerable.Range(0, sorted.Length)) || sorted.Length is < 2 or > 8 ||
+                (string?)sorted[0]["role"] != "normal" || sorted.Skip(1).Any(s => (string?)s["role"] == "normal"))
+                throw new ExuiException("package-state", "exui/5 states require dense IDs 0..N, starting with normal.");
             states.Clear();
             foreach (var state in sorted) { state.Remove("stateId"); states.Add(state); }
         }
