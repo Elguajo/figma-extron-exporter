@@ -1,5 +1,7 @@
 import { PROFILES, fail, readMetadata, type Profile, type Metadata } from './model.ts';
 import { byName, pageScreens, type ProjectNode, type ProjectOptions } from './project.ts';
+import { popupNameSuffix } from './popup-name.ts';
+import { KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 
 export type ScopeMode = 'selection' | 'selected-frames' | 'page';
 export const PAGE_SETTINGS_KEY='exui-page-settings';
@@ -42,8 +44,8 @@ function screenOf(node:SceneNode):ProjectNode {
   return fail('screen-unprepared','У выбранного макета ещё нет назначения Extron. Выберите секцию проекта или внешний Frame и профиль, затем нажмите «Распознать по именам» и сохраните назначения. Для ручной подготовки экрана используйте «Подготовить выбранный экран» и «Назначение выбранного элемента».');
 }
 
-// A saved popup connection is part of its screen's export, even when only the
-// screens were selected again. Never pull in unrelated popup or other projects.
+// Include saved connections and first-time name matches from the same project.
+// Ambiguous name matches stay in scope so recognition can request a choice.
 function withLinkedPopups(root:PageNode,members:readonly FrameNode[]):FrameNode[] {
   const boundary=(node:BaseNode):BaseNode=>{
     let p=node.parent;
@@ -53,10 +55,10 @@ function withLinkedPopups(root:PageNode,members:readonly FrameNode[]):FrameNode[
     }
     return p??root;
   };
-  const references:{node:SceneNode;metadata:Metadata;owner:BaseNode}[]=[];
+  const references:{node:SceneNode;metadata:Metadata|null;owner:BaseNode}[]=[];
   for(const screen of members){
     if(selectionKind(screen)==='popup'||selectionKind(screen)==='popup-group')continue;
-    for(const node of screen.children){const metadata=stored(node);if(metadata?.kind==='popup-ref'&&(metadata.popup||metadata.group))references.push({node,metadata,owner:boundary(screen)});}
+    for(const node of screen.children){const metadata=stored(node);if(metadata?.kind==='popup-ref'&&(metadata.popup||metadata.group)||!metadata&&selectionKind(node)==='popup-ref'&&!node.getPluginData(KIT_POPUP_GROUP_KEY))references.push({node,metadata,owner:boundary(screen)});}
   }
   if(!references.length)return [...members];
   const candidates:FrameNode[]=[];
@@ -73,10 +75,13 @@ function withLinkedPopups(root:PageNode,members:readonly FrameNode[]):FrameNode[
   for(const {node:ref,metadata:m,owner} of references){
     const matches=candidates.filter(n=>{
       const target=stored(n);
-      return boundary(n)===owner&&target?.kind===(m.popup?'popup':'popup-group')&&target.key===(m.popup??m.group);
+      if(boundary(n)!==owner)return false;
+      if(m)return target?.kind===(m.popup?'popup':'popup-group')&&target.key===(m.popup??m.group);
+      const suffix=popupNameSuffix(ref.name);
+      return suffix!==undefined&&popupNameSuffix(n.name)===suffix&&(selectionKind(n)==='popup-group'||selectionKind(n)==='popup'&&!target?.group&&!(target?.modal??/^(mdl|modalpopup)_/i.test(n.name)));
     });
-    if(matches.length>1)fail('popup-ref',`${ref.name}: найдены несколько целей ${m.popup??m.group}. Укажите уникальную связь popup.`,ref);
-    const target=matches[0];if(target&&!included.has(target.id)){included.add(target.id);result.push(target);}
+    if(m&&matches.length>1)fail('popup-ref',`${ref.name}: найдены несколько целей ${m.popup??m.group}. Укажите уникальную связь popup.`,ref);
+    for(const target of matches)if(!included.has(target.id)){included.add(target.id);result.push(target);}
   }
   return result;
 }
@@ -147,10 +152,10 @@ export class ExportScope {
     return !!node && node.type==='FRAME' && !selectionKind(node);
   }
   resolveButtons(): Pick<ScopeContext, 'root' | 'options' | 'scope'> {
-    // Styling needs only the selected container, even before it belongs to a
-    // valid export project. Keep batch export modes and their members intact.
-    if (this.mode === 'selection') {
-      let node: BaseNode | null = selected();
+    // A selected popup (or its child) always scopes styling locally, including
+    // when the independent export scope is a saved batch project.
+    if (figma.currentPage.selection.length === 1) {
+      let node: BaseNode | null = figma.currentPage.selection[0];
       while (node && node.type !== 'PAGE') {
         const metadata = stored(node);
         const kind = selectionKind(node);

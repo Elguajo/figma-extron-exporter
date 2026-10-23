@@ -38,7 +38,7 @@ export function authoringLinks(ctx:LinkContext,selection:readonly SceneNode[],pr
   if(chosen&&s.nodes.has(chosen.id)&&s.read(chosen)?.kind==='popup-ref'){
     const m=s.read(chosen)!,targets=popupTargets(s,chosen),linked=s.items.find(i=>m.popup&&i.m.kind==='popup'&&i.m.key===m.popup||m.group&&i.m.kind==='popup-group'&&i.m.key===m.group);
     const members=linked?.m.kind==='popup-group'&&'children' in linked.node?linked.node.children.map(target):linked?[target(linked.node)]:[];
-    result.reference={id:chosen.id,targets:targets.map(({id,name})=>({id,name})),targetId:linked?.node.id,members,missing:!!(m.group||m.popup)&&!linked};
+    result.reference={id:chosen.id,targets:targets.map(({id,name})=>({id,name})),targetId:linked?.node.id,members,missing:!!(m.group||m.popup)&&!linked,...(!readMetadata(chosen,{allowCopied:true})&&linked?{inferred:true}:{})};
   }
   return result;
 }

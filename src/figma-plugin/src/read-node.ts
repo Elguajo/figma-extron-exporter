@@ -32,7 +32,7 @@ export function color(node: SceneNode, allowAlpha=false): string {
   if (!('fills' in node) || !Array.isArray(node.fills)) return fail('color', `${node.name}: нужен один сплошной цвет.`);
   const fills = node.fills.filter(f => f.visible !== false);
   if (fills.length !== 1 || fills[0].type !== 'SOLID' || (!allowAlpha && (fills[0].opacity ?? 1) !== 1))
-    fail('color', `${node.name}: нужен один непрозрачный SOLID fill.`);
+    fail('color', `${node.name}: нужен один ${allowAlpha?'':'непрозрачный '}SOLID fill.`);
   if(allowAlpha)return paintColor(fills[0] as SolidPaint,node.name,'opacity' in node?node.opacity:1);
   const { r, g, b } = (fills[0] as SolidPaint).color;
   return '#'+[r,g,b].map(v => Math.round(v*255).toString(16).padStart(2,'0')).join('').toUpperCase();
@@ -67,7 +67,11 @@ export function textAlignment(node:TextNode):TextAlignment {
 }
 export function readText(node: TextNode, allowEmpty = false) {
   try {
-  plain(node);
+  // GUI Designer would keep Text Color alpha, but its look on the panel and in
+  // GCP is unverified. Refuse translucent text with the fix rather than a
+  // generic opacity error or a silent PNG snapshot.
+  plain(node, false, false, false, {ignoreOpacity:true});
+  if (color(node, true).length !== 7) fail('appearance', `${node.name}: полупрозрачный текст не поддерживается. Поставьте 100% непрозрачность заливки текста и слоя (Opacity).`);
   return { text: allowEmpty && node.characters === '' ? '' : text(node.characters,node.name), textColor: color(node), font: font(node) };
   }catch(error){nodeError(error,node);}
 }

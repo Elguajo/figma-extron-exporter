@@ -69,7 +69,7 @@ for (const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const) test(`
   const bundle = await exportFrame(f.root);
   assert.equal(bundle.resources.length,4);assert.equal(bundle.screen.assets.length,4);
   assert.deepEqual(bundle.screen.elements.map(e => e.states!.map(s => s.name)),[['Off','On'],['Normal','Active']]);
-  assert.ok(bundle.screen.elements.every(e => e.states!.every(s => s.text==='' && s.fill==='#101112')));
+  assert.ok(bundle.screen.elements.every(e => e.states!.every(s => s.text==='' && s.fill==='#00000000')));
   assert.equal(designSignature(f.root),signature);assert.deepEqual(f.page.children.map(n => n.id),layers);
   assert.deepEqual(prepareButtons(f.root),{buttons:0,states:0,skipped:2});assert.equal(designSignature(f.root),signature);
   f.active.fills=[paint('#009900')];prepareButtons(f.root,{},true,true);
@@ -300,6 +300,9 @@ test('Built combined command publishes selection guidance, counts and a scoped s
   const before=designSignature(f.root);await send({type:'button-apply-styles'});
   assert.equal(f.messages.filter(m=>m.type==='error').at(-1)?.code,'button-existing');assert.equal(designSignature(f.root),before);
   f.messages.splice(0);await send({type:'button-apply-styles',existing:'skip'});assert.equal(designSignature(f.root),before);
+  const unchanged=f.messages.filter(m=>m.type==='success'&&m.operation==='button-apply-styles').at(-1)!;
+  assert.match(String(unchanged.message),/Область: screen_Home\. Изменений нет\./);
+  assert.match(String(unchanged.message),/Подготовлено кнопок: 0; обновлено готовых: 0; новых состояний: 0; пропущено готовых: 2/);
   f.active.fills=[paint('#FF7700')];await send({type:'button-apply-styles',existing:'update'});
   assert.equal(JSON.stringify(background(f.buttons[0].children[1]).fills),JSON.stringify(f.active.fills));
   await send({type:'check'});assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);

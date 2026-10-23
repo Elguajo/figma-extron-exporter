@@ -10,6 +10,7 @@ import { requireLatinName } from './latin-name.ts';
 import { recognitionIssue } from './recognition-issue.ts';
 import type { RecognitionIssue } from './model.ts';
 import { usesButtonArtwork, validateArtwork, type ButtonContainer } from './button-artwork.ts';
+import { popupNameSuffix } from './popup-name.ts';
 
 export const REGISTRY_KEY='exui-id-registry';
 interface Registry {schema:'exui-id-registry/1'|'exui-id-registry/2';ownerNodeId:string;nextObjectId:number;nextControlId:number;nextContainerId?:number;nextGroupId?:number}
@@ -67,6 +68,7 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
   function report(error:unknown){const nodeId=(error as {nodeId?:string})?.nodeId;const node=nodes.find(n=>n.id===nodeId)??problemNode;plan.errors.push(error instanceof Error?error.message:String(error));plan.issues.push(recognitionIssue(node,root,error));}
   const reservedKeys=new Set([...repaired.values()].map(m=>m.key).filter((k):k is string=>!!k));
   const read=(node:SceneNode|PageNode)=>proposed.get(node.id)??existingFor(node);
+  const newPopupRefs:SceneNode[]=[];
   function assign(node:SceneNode|PageNode,value:MetadataInput):Metadata {
     const original=saved.get(node.id),prior=existingFor(node),edit=edits.get(node.id);
     const metadata=edit?{...edit,schema:metadataSchema(edit),ownerNodeId:node.id}:node===root&&root.type==='PAGE'&&prior?.kind==='project'?{...prior,profile,projectName:options.projectName??prior.projectName}:prior??{...value,schema:metadataSchema(value),ownerNodeId:node.id};
@@ -119,7 +121,9 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
         value=isControlKind(kind)?{...identity,kind,controlId:integer(registry.nextControlId++,1,65535,'ID управления')}:{...identity,kind,controlId:null};
       }
       if(!existing){if(kind==='graphic'){value.file=`assets/graphic-${value.objectId}.png`;value.resourceName=`exui-graphic-${value.objectId}.png`;}if(named?.buttonMode)value.buttonMode=named.buttonMode;if(named?.display)value.display=named.display;if(kind==='popup-ref'){const group=node.getPluginData(KIT_POPUP_GROUP_KEY);if(group)value.group=key(group,'Группа popup');else value.popup='popup.'+named!.suffix;}}
-      const control=assign(node,value);if(kind==='button'||control.display==='multistate')states(node as ButtonContainer,control);
+      const control=assign(node,value);
+      if(kind==='popup-ref'&&!existing&&!edits.has(node.id)&&!node.getPluginData(KIT_POPUP_GROUP_KEY))newPopupRefs.push(node);
+      if(kind==='button'||control.display==='multistate')states(node as ButtonContainer,control);
     }catch(e){report(e);}}
   }
   if(!isProject){if(root.type!=='FRAME')fail('node-type','Для экрана нужен Frame.');try{requireLatinName(root,'screen_');}catch(e){report(e);}const namespace=existingRoot?key(existingRoot.key,'Ключ экрана').replace(/^page\./,''):containerSuffix(root.name);assign(root,existingRoot??{kind:'page',key:freeKey('page.'+namespace,reservedKeys),objectId:100,profile,projectName:text(options.projectName??root.name,'Имя проекта')});elements(root,namespace);}
@@ -141,6 +145,26 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
     }
     for(const node of options.members??root.children){try{problemNode=node;const existing=existingFor(node),groupMatch=/^(pgrp|popupgroup)_(.+)$/i.exec(node.name);if(existing?.kind==='popup-group'||groupMatch){requireNodeForKind(node,'popup-group');try{requireLatinName(node,'popupgroup_');}catch(e){report(e);}const m=assign(node,existing??{kind:'popup-group',key:freeKey('group.'+containerSuffix(node.name),reservedKeys),objectId:integer(registry.nextGroupId!++,1,65535,'ID группы')});for(const child of node.children)container(child,m.key);}else container(node);}catch(e){report(e);}}
   }
+  // Resolve after every container has its actual key, independent of layer
+  // order. Saved assignments (including an explicitly cleared link) and Kit
+  // bindings never participate in name inference.
+  const nodeById=new Map(nodes.map(n=>[n.id,n]));
+  const popupTargets=plan.rows.flatMap(row=>{
+    const node=nodeById.get(row.id)!,m=read(node)!;
+    return node.type!=='PAGE'&&(m.kind==='popup-group'||m.kind==='popup'&&!m.modal&&!m.group&&(!node.parent||read(node.parent as SceneNode|PageNode)?.kind!=='popup-group'))?[node]:[];
+  });
+  for(const ref of newPopupRefs)try{
+    problemNode=ref;
+    const suffix=popupNameSuffix(ref.name),matches=popupTargets.filter(n=>n.parent===ref.parent?.parent&&suffix!==undefined&&popupNameSuffix(n.name)===suffix),m=read(ref)!;
+    if(matches.length>1){
+      delete m.popup;delete m.group;
+      fail('popup-name-ambiguous',`${ref.name}: найдены несколько целей с совпадающим именем: ${matches.map(n=>n.name).join(', ')}. Выберите popup или группу в «Содержимое места popup» и сохраните связь.`,ref);
+    }
+    if(matches.length===1){
+      const target=read(matches[0])!;delete m.popup;delete m.group;
+      if(target.kind==='popup-group')m.group=target.key;else m.popup=target.key;
+    }
+  }catch(e){report(e);}
   if(!plan.errors.length){try{
     // Separately exported screens can have distinct keys but the same generated
     // PNG paths. Give each distinct asset its own path without touching artwork.

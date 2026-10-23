@@ -8,7 +8,7 @@
 .button-workflow>summary>span{display:flex;align-items:center;gap:8px}.button-context{padding-top:12px}.button-context p+p{margin-top:4px}.button-styles{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-top:12px}.button-style{min-width:0;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface)}.button-style strong{display:block;font-size:11px}.button-swatch{height:42px;margin:8px 0;border:1px solid var(--border);border-radius:6px;background:var(--bg)}.button-style small{overflow-wrap:anywhere;margin-top:4px}.button-style [data-ready=false]{border-style:dashed}.button-plan{margin-top:12px;color:var(--muted);font-size:11px}.button-check{display:flex;gap:8px;align-items:center}.button-check input{width:16px;min-height:16px;margin:0;flex:none}.button-result{margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);overflow-wrap:anywhere}.button-result[data-kind=error]{border-color:var(--danger)}.button-result p{font-size:11px}.button-advanced{margin-top:12px;border-top:1px solid var(--border)}.button-advanced>summary{padding:10px 0;font-size:11px}.button-advanced[open]>summary{border-bottom:0}.button-advanced small:first-child{margin-top:0}#patternPreview{overflow-wrap:anywhere}#patternPreview[data-kind=error]{color:var(--danger)}
 #buttonExistingChoice{min-width:0;margin:12px 0 0;padding:8px 10px;border:1px solid var(--border);border-radius:6px}#buttonExistingChoice legend{padding:0 4px;font-size:11px;font-weight:600}.button-choice{display:flex;align-items:center;gap:8px;min-height:36px;font-size:11px;cursor:pointer}.button-choice input{width:16px;min-height:16px;margin:0;flex:none}
 </style></head><body>
-<header class="app-header"><div class="app-mark" aria-hidden="true">EX</div><div><h1>Figma → Extron Exporter <span class="version">· 0.6.8</span></h1><p class="sub">Экран или проект → пакет .exui</p></div></header>
+<header class="app-header"><div class="app-mark" aria-hidden="true">EX</div><div><h1>Figma → Extron Exporter <span class="version">· 0.7.0</span></h1><p class="sub">Экран или проект → пакет .exui</p></div></header>
 <main aria-label="Подготовка макета">
 <section class="card" aria-labelledby="selectionTitle">
 <div class="section-head"><h2 id="selectionTitle"><span class="step" aria-hidden="true">1</span>Макет и панель</h2><span id="selectionType" class="badge">Нет выбора</span></div>
@@ -99,7 +99,7 @@
 <label class="stack">Ключ popup<input id="popup" placeholder="popup.sources"></label>
 <label class="stack">Или ключ группы popup<input id="group" placeholder="group.zones"></label>
 </div></details>
-<small data-for="popup-ref">Можно сохранить место без ключей и ID — они подготовятся автоматически. Затем выделите popup-фреймы вместе, выберите это место в блоке «Размещение popup» и нажмите «Связать с местом popup». До связывания экспорт проекта недоступен.</small>
+<small data-for="popup-ref">Новое popupref_Name при проверке находит соседний popup_Name или popupgroup_Name автоматически. При нескольких совпадениях выберите цель в «Содержимое места popup» и сохраните связь. Уже сохранённое место без связи нужно связать через список; ключи и ID вводить не требуется.</small>
 <div data-for="popup popup-ref" style="margin-top:12px">
 <label class="button-check"><input id="exportBackground" type="checkbox" aria-describedby="popupAppearanceHelp">Экспортировать фон Frame</label>
 <label class="button-check"><input id="exportStroke" type="checkbox" aria-describedby="popupAppearanceHelp">Экспортировать обводку Frame</label>

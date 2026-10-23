@@ -88,6 +88,21 @@ static class PagesTests
                     using var package = ExuiPackage.Load(Zip(work, files));
                     Check(package.Plan.Pages.SelectMany(p => p.Elements).Single(e => e.Key == "line.alpha").FillColor == color);
                 });
+            foreach (string color in new[] { "#80D2AE6D", "#FFD2AE6D" })
+            {
+                test($"exui/5: translucent text color {color} on native text is refused", () =>
+                {
+                    var files = Files();
+                    Edit(files, "screen.json", n => Page(n, "page.home")["elements"]!.AsArray().First(e => e!["textColor"] != null)!["textColor"] = color);
+                    Reject("package-schema", () => ExuiPackage.Load(Zip(work, files)).Dispose());
+                });
+                test($"exui/5: translucent text color {color} on a button state is refused", () =>
+                {
+                    var files = Files();
+                    Edit(files, "screen.json", n => Popup(n, "popup.volume")["elements"]!.AsArray().First(e => (string?)e!["kind"] == "button")!["states"]![0]!["textColor"] = color);
+                    Reject("package-schema", () => ExuiPackage.Load(Zip(work, files)).Dispose());
+                });
+            }
             foreach (string color in new[] { "#0000000", "#000000000", "#GG000000", "#00000000\n" })
                 test($"exui/5: invalid alpha color {System.Text.Json.JsonSerializer.Serialize(color)} is refused", () =>
                 {

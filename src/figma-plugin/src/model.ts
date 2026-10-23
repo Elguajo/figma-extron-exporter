@@ -5,7 +5,7 @@ export interface PresetPreview { name: string; ready: boolean; hint: string; fil
 export interface LinkTarget {id:string;name:string}
 export interface AuthoringLinks {
   pages:LinkTarget[];startId?:string;
-  reference?:{id:string;targets:LinkTarget[];targetId?:string;members:LinkTarget[];missing:boolean};
+  reference?:{id:string;targets:LinkTarget[];targetId?:string;members:LinkTarget[];missing:boolean;inferred?:boolean};
   groups:{key:string;name:string}[];
   buttons?:{ids:string[];names:string[];group?:string;mixed:boolean};
 }

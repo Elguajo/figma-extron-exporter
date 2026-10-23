@@ -400,7 +400,11 @@ try{
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isEnabled(),true);
  // Named links: explicit save, multi-selection, keyboard, scoping supplied by the host.
  const links={pages:[{id:'main',name:'screen_MainDashboard'},{id:'audio',name:'screen_AudioControl'}],startId:'main',groups:[{key:'hall.choice.1',name:'popup_HallSources · 8: button_Broadcast1, button_Broadcast2…'}],reference:{id:'ref',targets:[{id:'group',name:'popupgroup_AudioControls'}],targetId:'group',members:[{id:'hall',name:'popup_HallSources'},{id:'terrace',name:'popup_TerraceSources'}],missing:false}};
+ await page.evaluate(links=>(window as any).selectNode({id:'ref',name:'popupref_AudioControls',nodeType:'FRAME',links:{...links,reference:{...links.reference,inferred:true}}}),links);
+ await frame.locator('#referenceSaved').filter({hasText:'Найдено по имени: popupgroup_AudioControls'}).waitFor();
+ assert.ok((await frame.locator('#referenceSaved').textContent())!.includes('Связь сохранится при проверке или скачивании'));
  await page.evaluate(links=>(window as any).selectNode({id:'ref',name:'popupref_AudioControls',nodeType:'FRAME',metadata:{kind:'popup-ref',key:'audio.controls',objectId:7,controlId:null,group:'group.audiocontrols'},links}),links);
+ await frame.locator('#referenceSaved').filter({hasText:'Сохранено: popupgroup_AudioControls'}).waitFor();
  await frame.locator('#referenceLinks').waitFor();assert.equal(await frame.locator('#referenceTarget').inputValue(),'group');
  await page.evaluate(()=>(window as any).lastLinksCommand=null);await frame.locator('#referenceTarget').selectOption('');assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand),null);
  await frame.getByRole('button',{name:'Сохранить связь popup',exact:true}).click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.type==='reference-target');assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand.targetId),'');

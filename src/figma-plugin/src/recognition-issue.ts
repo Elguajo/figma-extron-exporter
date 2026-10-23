@@ -6,7 +6,8 @@ export function recognitionIssue(node:SceneNode|PageNode,root:SceneNode|PageNode
   const parts:string[]=[];let current:BaseNode|null=node;
   while(current){parts.unshift(current.name);if(current.id===root.id)break;current=current.parent;}
   let fix='Исправьте указанное требование в Figma и нажмите «Повторить распознавание».';
-  if(code==='popup-ref'&&message.includes('не найдена в составе экспорта'))fix='Проверьте состав и область экспорта. Выберите группу popup → «Размещение popup» → нужное место → «Связать с местом popup». Затем повторите проверку проекта.';
+  if(code==='popup-name-ambiguous')fix='Выберите это место popup. В «Содержимое места popup» укажите нужный popup или группу и нажмите «Сохранить связь popup». Затем повторите проверку проекта.';
+  else if(code==='popup-ref'&&message.includes('не найдена в составе экспорта'))fix='Проверьте состав и область экспорта. Выберите группу popup → «Размещение popup» → нужное место → «Связать с местом popup». Затем повторите проверку проекта.';
   else if(code==='name'&&message.includes('поддерживаемый префикс'))fix='Назовите слой по его роли: ln_Divider — линия, shp_Background — фигура, txt_Title — текст. Декоративный рисунок поместите внутрь Frame logo_Name или img_Name. Примеры есть в справочнике ниже.';
   else if(code==='node-type'&&message.includes('состояние должно быть Frame'))fix='Оберните содержимое этого состояния в обычный Frame и оставьте имя состояния (например, Normal). Frame должен быть непосредственным дочерним слоем кнопки.';
   else if(code==='node-type'&&/^(logo|img|image)_/i.test(node.name))fix='Выделите рисунок и выполните Frame selection в Figma. Имя '+node.name+' задайте получившемуся Frame; векторные слои оставьте внутри него.';

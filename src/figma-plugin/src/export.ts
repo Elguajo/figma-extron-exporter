@@ -178,7 +178,9 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
   for(const node of root.children) {
     try {
     const m=meta(node,undefined,read),strokeLine=m.kind==='line'&&isStrokeLine(node)?readStrokeLine(node):null;
-    if(!strokeLine)plain(node,false,m.kind==='shape'||m.kind==='line',false,{rasterTransform:m.kind==='button',ignoreCornerRadius:m.kind==='popup-ref',ignoreOpacity:m.kind==='popup-ref'||m.kind==='line',ignoreStrokes:m.kind==='popup-ref'});
+    // readText reports a Text layer's own Opacity with the specific fix.
+    const textOpacity=node.type==='TEXT'&&['label','value','datetime'].includes(m.kind);
+    if(!strokeLine)plain(node,false,m.kind==='shape'||m.kind==='line',false,{rasterTransform:m.kind==='button',ignoreCornerRadius:m.kind==='popup-ref',ignoreOpacity:m.kind==='popup-ref'||m.kind==='line'||textOpacity,ignoreStrokes:m.kind==='popup-ref'});
     if(!ELEMENT_KINDS.includes(m.kind)) fail('kind',`${node.name}: неизвестный тип элемента экрана.`);
     const objectId=integer(m.objectId,1,1000000,node.name+'.objectId');
     if(ids.has(objectId)) fail('duplicate-id',`${node.name}: objectId ${objectId} уже используется.`); ids.add(objectId);
@@ -241,9 +243,9 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
           }
           const file=`button-${controlId}-${sm.stateId}.png`;
           const image=addImage(stateNode,{file:'assets/'+file,resourceName:'exui-'+file},key(`button-artwork.${controlId}.state${sm.stateId}`,'Ключ оформления'),{omitTextId:copy.omitTextId,width:w,height:h});
-          // Transparent corners in the full-size PNG reveal the page color,
-          // rather than an opaque square in the button's own fill color.
-          const fill=screen.page.background;
+          // The PNG carries the whole look. A transparent state fill lets its
+          // rounded corners show whatever lies beneath, e.g. a background image.
+          const fill='#00000000';
           states.push({stateId:sm.stateId!,name:text(sm.stateName,'Имя состояния'),role:sm.role,text:copy.text,textColor:copy.textColor,fill,image,imageAlign:'middle-center',...(copy.bottom?{textAlign:'bottom-center' as const}:{})});
           continue;
         }

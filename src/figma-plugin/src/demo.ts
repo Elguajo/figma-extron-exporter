@@ -5,7 +5,10 @@ import { DATA_KEY, integer, isControlKind, metadataSchema, type MetadataInput, t
 export function tag(node:BaseNode, data:MetadataInput):void {
   node.setPluginData(DATA_KEY,JSON.stringify({...data,schema:metadataSchema(data),ownerNodeId:node.id}));
 }
-function paint(hex:string):SolidPaint {return {type:'SOLID',color:{r:parseInt(hex.slice(1,3),16)/255,g:parseInt(hex.slice(3,5),16)/255,b:parseInt(hex.slice(5,7),16)/255}};}
+function paint(hex:string):SolidPaint {
+  const rgb=hex.slice(-6),alpha=hex.length===9?parseInt(hex.slice(1,3),16)/255:1;
+  return {type:'SOLID',color:{r:parseInt(rgb.slice(0,2),16)/255,g:parseInt(rgb.slice(2,4),16)/255,b:parseInt(rgb.slice(4,6),16)/255},...(alpha!==1?{opacity:alpha}:{})};
+}
 // Legacy reproduces examples/exui-v1 exactly, including its Russian layer names.
 // The plugin demo uses Latin layer names and keeps the curated keys as manual.
 const pascal=(value:string)=>value.split(/[.-]/).map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join('');
