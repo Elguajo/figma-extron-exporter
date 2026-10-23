@@ -1,2 +1,1 @@
-add956dfb514e92e58447bb7af542845a3a330d0224c6a3d10e2494587a22b4a *figma-extron-plugin-0.7.0.zip
 6714347ff4301988929ed1c863014f123dc1a20625db098aae93fdf3ef25e981 *figma-extron-cli-0.7.0-windows.zip

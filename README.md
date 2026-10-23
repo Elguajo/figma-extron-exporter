@@ -228,8 +228,8 @@ dotnet run --project tests/format -- --registry samples/donors.json --integratio
 .\scripts\Package-Release.ps1
 ```
 
-4. Стабильный выпуск собирать из чистого коммита и после smoke-тестов класть в **корень `releases/`**: `figma-extron-plugin-<версия>.zip`, `figma-extron-cli-<версия>-windows.zip` и `SHA256SUMS-<версия>.txt`. Архивы в git не хранятся (`.gitignore`), файл контрольных сумм — хранится. Локальный архив `figma-extron-complete-*` с донорами туда не класть.
-5. Закоммитить, запушить и опубликовать релиз на GitHub с текстом из `releases/github/v<версия>.md` и двумя архивами из `releases/` — плагина и CLI. Локальный архив `figma-extron-complete-*` с донорами не публиковать.
+4. Стабильный выпуск собирать из чистого коммита и после smoke-тестов класть рядом с заметками к выпуску: `releases/figma-plugin/<версия>/figma-extron-plugin-<версия>.zip` и `releases/cli/<версия>/figma-extron-cli-<версия>-windows.zip`, в каждой папке — свой `SHA256SUMS.txt`. Архивы в git не хранятся (`.gitignore`), файлы контрольных сумм — хранятся. Локальный архив `figma-extron-complete-*` с донорами туда не класть.
+5. Закоммитить, запушить и опубликовать релиз на GitHub с текстом из `releases/github/v<версия>.md` и двумя архивами из `releases/figma-plugin/<версия>/` и `releases/cli/<версия>/`. Локальный архив `figma-extron-complete-*` с донорами не публиковать.
 
 ### Команды CLI
 

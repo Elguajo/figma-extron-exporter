@@ -13,5 +13,5 @@ src/figma-plugin/dist/
 releases/figma-plugin/*/unpacked/
 releases/figma-plugin/*/figma-extron-plugin-*/
 verification/results/**/*.gdl
-# Stable release archives live in the releases/ root but stay out of git; checksums are tracked.
-/releases/*.zip
+# Stable release archives live next to their release notes but stay out of git; checksums are tracked.
+/releases/**/*.zip
