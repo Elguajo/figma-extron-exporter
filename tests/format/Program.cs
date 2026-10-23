@@ -201,6 +201,7 @@ ScreenTests.Spec(Test);
 ScreenTests.Boundary(Test);
 PackageTests.Unit(Test);
 PagesTests.Unit(Test);
+ComparisonTests.Unit(Test);
 if (args.Length > 0) PagesTests.Graph(Test, args[0]);
 if (flags.TryGetValue("--built", out var built)) ScreenTests.BuiltProject(Test, built!);
 if (flags.TryGetValue("--registry", out var registry)) ScreenTests.Registry(Test, registry!);

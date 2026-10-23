@@ -16,10 +16,11 @@ Usage:
   generate-screen <screen.json> <donor-id> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
   validate-package <input.exui>
   id-map <input.exui>
+  compare-packages <previous.exui> <new.exui> [--json]
   convert-package <input.exui> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
 """;
 
-// Options are only accepted by the adapter commands; everything else is positional.
+// Adapter options are extracted here; compare-packages accepts a final --json below.
 var positional = new List<string>();
 string registryPath = Path.Combine("samples", "donors.json");
 string? extronDir = null;
@@ -34,8 +35,10 @@ for (int i = 0; i < args.Length; i++)
 }
 string command = positional.Count > 0 ? positional[0] : "";
 bool adapterCommand = command is "prepare-donor" or "generate-screen" or "convert-package";
+bool comparisonJson = command == "compare-packages" && positional.Count == 4 && positional[3] == "--json";
 int expected = command switch
 {
+    "compare-packages" => comparisonJson ? 4 : 3,
     "inspect" or "list-controls" or "prepare-donor" or "validate-package" or "id-map" => 2, "repack" or "convert-package" or "compare-graph" => 3, "generate-screen" => 4, "set-button-text" => 6, _ => -1
 };
 if (expected < 0 || positional.Count != expected || (!adapterCommand && args.Length != positional.Count) ||
@@ -49,6 +52,14 @@ try
 {
     switch (command)
     {
+        case "compare-packages":
+        {
+            using var before = ExuiPackage.Load(positional[1]);
+            using var after = ExuiPackage.Load(positional[2]);
+            var report = PackageComparison.Compare(before, after);
+            Console.Write(comparisonJson ? JsonSerializer.Serialize(report, ScreenSpecReader.Json) + Environment.NewLine : PackageComparison.Markdown(report));
+            break;
+        }
         case "validate-package":
         {
             using var package = ExuiPackage.Load(positional[1]);

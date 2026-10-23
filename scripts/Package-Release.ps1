@@ -11,7 +11,10 @@ $repo = Split-Path $PSScriptRoot -Parent
 $plugin = Join-Path $repo 'src/figma-plugin'
 $pluginPackage = Get-Content -Raw -LiteralPath (Join-Path $plugin 'package.json') | ConvertFrom-Json
 $version = $pluginPackage.version
-$cliVersion = if ($pluginPackage.compatibleCliVersion) { $pluginPackage.compatibleCliVersion } else { $version }
+$cliProject = [xml](Get-Content -Raw -LiteralPath (Join-Path $repo 'src/cli/Extron.Cli.csproj'))
+$cliVersion = [string]($cliProject.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1)
+if (!$cliVersion) { throw 'CLI project must declare its release version' }
+if ($pluginPackage.compatibleCliVersion -and [version]$cliVersion -lt [version]$pluginPackage.compatibleCliVersion) { throw 'CLI version is older than the plugin requires' }
 $sourceCommit = (& git -C $repo rev-parse HEAD)
 $sourceDirty = @(& git -C $repo status --porcelain).Count -gt 0
 if (!$OutputDirectory) { $OutputDirectory = Join-Path $repo "output/releases/$version" }
@@ -40,12 +43,14 @@ foreach ($dir in @('samples/donors', 'samples/original', 'examples/home-1025m', 
 Copy-Item -LiteralPath (Join-Path $repo 'scripts/ExtronExporter.ps1') -Destination $stage
 $cliReadme = Get-Content -Raw -LiteralPath (Join-Path $repo "releases/cli/$cliVersion/README.md")
 $cliReadme.Replace("figma-extron-complete-$cliVersion-local.zip", "figma-extron-complete-$version-local.zip").Replace("CLI для плагина $cliVersion", "CLI для плагина $version").Replace("Комплект для плагина $cliVersion", "Комплект для плагина $version").Replace("заголовок плагина должен показывать **$cliVersion**", "заголовок плагина должен показывать **$version**") | Write-Utf8NoBom (Join-Path $stage 'README.md')
+$packagedReadme = Join-Path $stage 'README.md'
+[IO.File]::WriteAllText($packagedReadme, [IO.File]::ReadAllText($packagedReadme).Replace('../../../docs/updating-configured-projects.md', 'docs/updating-configured-projects.md'), [Text.UTF8Encoding]::new($false))
 foreach ($file in @('donors.json', 'manifest.json')) {
     Copy-Item -LiteralPath (Join-Path $repo "samples/$file") -Destination (Join-Path $stage 'samples')
 }
 Copy-Item -LiteralPath (Join-Path $repo 'verification/results/2026-10-21-home-layout-1025m/actual-home-layout.exui') -Destination (Join-Path $stage 'examples/home-1025m/home.exui')
 Copy-Item -LiteralPath (Join-Path $repo 'verification/results/2026-10-21-home-layout-1025m/id-map.md') -Destination (Join-Path $stage 'examples/home-1025m/id-map.md')
-foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md')) {
+foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md', 'updating-configured-projects.md')) {
     Copy-Item -LiteralPath (Join-Path $repo "docs/$file") -Destination (Join-Path $stage 'docs')
 }
 Copy-Item -LiteralPath (Join-Path $plugin 'NATIVE_TEXT.md') -Destination (Join-Path $stage 'docs/native-text.md')
