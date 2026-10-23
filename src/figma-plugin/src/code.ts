@@ -10,6 +10,7 @@ import { requireNodeForKind } from './assignment-rules.ts';
 import { containerSuffix,freeKey } from './assignment-repair.ts';
 import { isButtonContainer } from './button-artwork.ts';
 import { buttonPreparationSummary, markBackground, prepareButtons, presetPreviews, rememberPreset } from './button-preparation.ts';
+import type { ButtonStatePair } from './button-preparation.ts';
 import type { ButtonPreparationSummary } from './model.ts';
 import { focusNode } from './focus-node.ts';
 import { MANUAL_KEY } from './key-sync.ts';
@@ -225,7 +226,7 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
 }
 figma.on('selectionchange',()=>{if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){publish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;publish();});
 figma.on('currentpagechange',()=>{recognition=undefined;diagnosticSelectionId=undefined;scopeContext.reset();publish();});
-figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean})=>{
+figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;contrast?:boolean;statePair?:ButtonStatePair;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean})=>{
   if(message.type==='ready'){publish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
@@ -287,8 +288,10 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profi
       const resolved=scopeContext.resolveButtons();
       const summary=buttonPreparationSummary(resolved.root,resolved.options);
       if(message.type==='button-apply-styles'&&summary.update>0&&!['skip','update'].includes(message.existing??''))fail('button-existing','Выберите, пропустить готовые кнопки или применить к ним новый стиль.');
-      const result=prepareButtons(resolved.root,resolved.options,message.type==='button-apply-styles'?(message.existing==='update'?'apply':'apply-new'):message.type==='button-update-styles',message.corners===true);
-      publish();figma.ui.postMessage({type:'success',operation:message.type,message:message.type==='button-apply-styles'?`Область: ${resolved.scope.name}. ${result.buttons?'Оформление применено.':'Изменений нет.'} Подготовлено кнопок: ${summary.create}; обновлено готовых: ${result.buttons-summary.create}; новых состояний: ${result.states}; пропущено готовых: ${result.skipped}. Далее проверьте макет и скачайте .exui.`:message.type==='button-update-styles'?`Область: ${resolved.scope.name}. Оформление обновлено: ${result.buttons} кнопок. Pressed и другие состояния сохранены.`:`Область: ${resolved.scope.name}. Подготовлено кнопок: ${result.buttons}; создано состояний: ${result.states}; уже готовы: ${result.skipped}. Теперь нажмите «Проверить макет».`});
+      const contrast={corrected:0,unchecked:0};
+      const result=prepareButtons(resolved.root,resolved.options,message.type==='button-apply-styles'?(message.existing==='update'?'apply':'apply-new'):message.type==='button-update-styles',message.corners===true,{enabled:message.contrast!==false,report:contrast},message.statePair);
+      const contrastMessage=message.contrast===false?' Автокоррекция контраста выключена.':` Контраст: исправлено слоёв — ${contrast.corrected}.${contrast.unchecked?` Требуют ручной проверки: ${contrast.unchecked} (сложные заливки, изображения, эффекты или прозрачность).`:''}`;
+      publish();figma.ui.postMessage({type:'success',operation:message.type,message:(message.type==='button-apply-styles'?`Область: ${resolved.scope.name}. ${result.buttons?'Оформление применено.':'Изменений нет.'} Подготовлено кнопок: ${summary.create}; обновлено готовых: ${result.buttons-summary.create}; новых состояний: ${result.states}; пропущено готовых: ${result.skipped}. Далее проверьте макет и скачайте .exui.`:message.type==='button-update-styles'?`Область: ${resolved.scope.name}. Оформление обновлено: ${result.buttons} кнопок. Pressed получает активный образец; имена и ID состояний сохранены.`:`Область: ${resolved.scope.name}. Подготовлено кнопок: ${result.buttons}; создано состояний: ${result.states}; уже готовы: ${result.skipped}. Теперь нажмите «Проверить макет».`)+contrastMessage});
     }else if(message.type==='kit') {
       const result=await createKit(message.profile!);
       publish();figma.ui.postMessage({type:'success',message:`Extron Kit создан: ${result.components.length-result.dateTime.children.length} компонентов, datetime_Clock с ${result.dateTime.children.length} форматами даты/времени и шаблоны проекта. Выбран пример экрана. Изменяйте оформление в слотах Artwork, затем распознайте экран и сохраните назначения.`});

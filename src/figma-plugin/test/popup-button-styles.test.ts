@@ -54,7 +54,7 @@ for(const kind of ['popup','popup-group'] as const)for(const assigned of [false,
   assert.equal(designSignature(f.root),untouched);
 });
 
-for(const scopeMode of ['selected-frames','page'])test(`Popup styling preserves the explicit ${scopeMode} project scope`,async()=>{
+for(const scopeMode of ['selected-frames','page'])test(`Screen styling is local while preserving the ${scopeMode} export project`,async()=>{
   const f=authorButtons(),api=f.api as unknown as PluginAPI;
   const popup=api.createFrame();popup.name='popup_Separate';popup.resize(600,300);popup.appendChild(f.buttons[0].clone());
   const before=designSignature(popup);
@@ -62,7 +62,9 @@ for(const scopeMode of ['selected-frames','page'])test(`Popup styling preserves 
   const send=f.api.ui.onmessage as (m:unknown)=>Promise<void>;
   await send({type:'context',scopeMode});
   const selection=f.messages.filter(m=>m.type==='selection').at(-1)!;
-  assert.equal((selection.buttonScope as any)?.kind,'project');
+  assert.equal((selection.scope as any)?.kind,'project');
+  assert.equal((selection.buttonScope as any)?.id,f.root.id);
+  assert.equal((selection.buttonScope as any)?.kind,'page');
   assert.equal((selection.buttonWorkflow as any)?.total,2);
   await send({type:'button-apply-styles',scopeMode});
   assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);
@@ -139,13 +141,14 @@ for(const scopeMode of ['selection','selected-frames','page'])for(const child of
   assert.deepEqual(raw.children.map(n=>n.name),['Off','On']);
   assert.equal(artwork.parent,raw.children[0]);
   assert.equal(JSON.stringify(background(raw.children[1]).fills),JSON.stringify(f.active.fills));
-  assert.equal(designSignature(momentary.children[1]),pressedBefore);
   assert.deepEqual(ready.children.map(n=>n.visible),[false,true]);
   if(existing==='skip'){
+    assert.equal(designSignature(momentary.children[1]),pressedBefore);
     assert.equal(designSignature(ready),readyBefore);assert.equal(designSignature(momentary),momentaryBefore);
   }else{
     assert.equal(JSON.stringify(background(ready.children[1]).fills),JSON.stringify(f.active.fills));
     assert.equal(JSON.stringify(background(momentary.children[0]).fills),JSON.stringify(f.normal.fills));
+    assert.equal(JSON.stringify(background(momentary.children[1]).fills),JSON.stringify(f.active.fills));
   }
   assert.equal(designSignature(f.root),untouched);
   assert.deepEqual([raw,ready,momentary].map(n=>[n.id,n.type,n.x,n.y,n.width,n.height]),geometry);

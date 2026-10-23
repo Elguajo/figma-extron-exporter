@@ -1,10 +1,12 @@
-import { fail, readMetadata, stateRole, type ButtonMode, type PresetPreview, type ButtonPreparationSummary } from './model.ts';
+import { DATA_KEY, fail, metadataSchema, readMetadata, stateRole, type Role, type ButtonMode, type PresetPreview, type ButtonPreparationSummary } from './model.ts';
 import { BACKGROUND_KEY, background, descendants, fillsArea, hasFill, isButtonContainer, type ButtonContainer } from './button-artwork.ts';
 import { plain } from './read-node.ts';
 import type { ProjectNode, ProjectOptions } from './project.ts';
+import { correctButtonContrast, type ContrastOptions } from './button-contrast.ts';
 
 const PRESETS_KEY = 'exui-button-style-presets';
 type PresetRole = 'normal' | 'feedback';
+export type ButtonStatePair = 'off-on' | 'normal-pressed';
 type Surface = FrameNode | RectangleNode;
 const STYLE_FIELDS = ['fills', 'strokes', 'strokeWeight', 'strokeAlign', 'strokeTopWeight', 'strokeRightWeight', 'strokeBottomWeight', 'strokeLeftWeight', 'dashPattern', 'strokeCap', 'strokeJoin'] as const;
 const RADIUS_FIELDS = ['cornerRadius', 'topLeftRadius', 'topRightRadius', 'bottomRightRadius', 'bottomLeftRadius', 'cornerSmoothing'] as const;
@@ -103,6 +105,11 @@ export function markBackground(node: SceneNode): boolean {
 function roleOf(node: SceneNode) {
   return readMetadata(node, {allowCopied: true})?.role ?? stateRole(node.name.replace(/^(st|state)_/i, ''));
 }
+function presetRole(node: SceneNode, includePressed = true): PresetRole | undefined {
+  const role = roleOf(node);
+  if (role === 'normal') return 'normal';
+  if (role === 'feedback' || includePressed && role === 'pressed') return 'feedback';
+}
 interface Target {node: ButtonContainer; mode: ButtonMode; states: ButtonContainer[]; missing: PresetRole[]}
 function targets(root: ProjectNode, options: ProjectOptions): Target[] {
   const result: Target[] = [];
@@ -141,14 +148,16 @@ export function buttonPreparationSummary(root: ProjectNode, options: ProjectOpti
   try {
     const all = targets(root, options);
     let updateIssue:string|undefined;
-    try { for (const t of all) for (const s of t.states) if (['normal','feedback'].includes(roleOf(s)??'')) background(s); }
+    try { for (const t of all) for (const s of t.states) if (presetRole(s)) background(s); }
     catch(error) { updateIssue=(error as Error).message; }
-    return {total:all.length,create:all.filter(t=>t.missing.length).length,update:all.filter(t=>!t.missing.length&&t.states.some(s=>['normal','feedback'].includes(roleOf(s)??''))).length,...(updateIssue?{updateIssue}:{})};
+    return {total:all.length,create:all.filter(t=>t.missing.length).length,update:all.filter(t=>!t.missing.length&&t.states.some(s=>presetRole(s))).length,...(updateIssue?{updateIssue}:{})};
   } catch (error) { return {total:0,create:0,update:0,issue:(error as Error).message}; }
 }
 // The combined action shares validation and rollback across both kinds of work.
-export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, update: boolean | 'apply' | 'apply-new' = false, corners = false): {buttons: number; states: number; skipped: number} {
-  const all = targets(root, options), pending = all.filter(t => update && update!=='apply-new' ? (update==='apply'&&t.missing.length)||t.states.some(s => ['normal', 'feedback'].includes(roleOf(s) ?? '')) : t.missing.length);
+export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, update: boolean | 'apply' | 'apply-new' = false, corners = false, contrast: ContrastOptions = {}, statePair?: ButtonStatePair): {buttons: number; states: number; skipped: number} {
+  if (statePair !== undefined && statePair !== 'off-on' && statePair !== 'normal-pressed') fail('button-pair', 'Выберите Off / On или Normal / Pressed.');
+  const updatePressed = update === true || update === 'apply';
+  const all = targets(root, options), pending = all.filter(t => updatePressed ? (update==='apply'&&t.missing.length)||t.states.some(s => presetRole(s)) : t.missing.length);
   if (!pending.length) return {buttons: 0, states: 0, skipped: all.length};
   const sources=presetSources();
   const presets = (['normal', 'feedback'] as const).map(role => {
@@ -160,23 +169,44 @@ export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, 
   });
   if (JSON.stringify(presets[0]) === JSON.stringify(presets[1])) fail('button-presets', 'Обычный и активный эталоны должны различаться заливкой или обводкой.');
   // Complete validation before changing the first button.
-  if (update) for (const t of pending) for (const s of t.states) if (roleOf(s) === 'normal' || roleOf(s) === 'feedback') background(s);
+  if (update) for (const t of pending) for (const s of t.states) if (presetRole(s,updatePressed || !!statePair && !!t.missing.length)) background(s);
   const undo: (() => void)[] = [];
+  const painted = new Map<ButtonContainer, Surface>();
   let count = 0;
-  function paint(surface: Surface, role: PresetRole) {
+  function paint(state: ButtonContainer, role: PresetRole) {
+    const surface = background(state);
     const before = styleOf(surface, corners); undo.push(() => setStyle(surface, before));
     setStyle(surface, presets[role === 'normal' ? 0 : 1]);
+    painted.set(state,surface);
   }
   function clearAssignments(node: SceneNode) {
     for (const n of descendants(node)) { n.setPluginData('exui', ''); n.setPluginData('exui-id-registry', ''); }
   }
+  function setPairState(state: ButtonContainer, normal: boolean) {
+    const name = normal ? (statePair === 'off-on' ? 'Off' : 'Normal') : (statePair === 'off-on' ? 'On' : 'Pressed');
+    const role: Role = normal ? 'normal' : statePair === 'off-on' ? 'feedback' : 'pressed';
+    const beforeName = state.name, beforeData = state.getPluginData(DATA_KEY), metadata = readMetadata(state, {allowCopied:true});
+    undo.push(()=>{state.name=beforeName;state.setPluginData(DATA_KEY,beforeData);});
+    state.name = name;
+    if (metadata) {
+      // Keep the button identity and the two exported state slots (0/1).
+      // Explicit IDs let a saved Pressed use slot 1 with metadata/2.
+      const next = {...metadata, role, stateName:name, stateId:normal ? 0 : 1};
+      state.setPluginData(DATA_KEY,JSON.stringify({...next,schema:metadataSchema(next)}));
+    }
+  }
   try {
     for (const t of pending) {
+      if (statePair && t.mode === 'on-off' && (t.missing.length || updatePressed && t.states.length === 2 && t.states.some(s=>roleOf(s)==='normal'))) {
+        for (const state of t.states) setPairState(state,roleOf(state)==='normal');
+      }
       if (update) {
-        for (const state of t.states) { const role = roleOf(state); if (role === 'normal' || role === 'feedback') paint(background(state), role); }
+        for (const state of t.states) { const role = presetRole(state,updatePressed || !!statePair && !!t.missing.length); if (role) paint(state, role); }
       }
       if (update===true || !t.missing.length) continue;
       let source = t.states[0];
+      const momentary = t.mode === 'on-off' && (statePair === 'normal-pressed' || !!source && roleOf(source) === 'pressed');
+      const normalName = t.mode === 'on-off' && !momentary ? 'Off' : 'Normal';
       if(source) {
         const existingSource=source, marker=source.getPluginData('exui-generated-state');
         undo.push(()=>existingSource.setPluginData('exui-generated-state',marker));
@@ -193,8 +223,8 @@ export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, 
         }
         source = figma.group([...t.node.children], t.node, 0);
         const group = source; undo.push(() => {if (!group.removed) figma.ungroup(group);});
-        source.name = t.mode === 'on-off' ? 'Off' : 'Normal';source.setPluginData('exui-generated-state', '1');
-        paint(background(source), 'normal');
+        source.name = normalName;source.setPluginData('exui-generated-state', '1');
+        paint(source, 'normal');
         count++;
       }
       for (const role of t.missing) {
@@ -202,11 +232,19 @@ export function prepareButtons(root: ProjectNode, options: ProjectOptions = {}, 
         const clone = source.clone();undo.push(() => {if (!clone.removed) clone.remove();});
         t.node.appendChild(clone);clone.relativeTransform = source.relativeTransform;
         clearAssignments(clone);clone.setPluginData('exui-generated-state', '1');
-        clone.name = role === 'normal' ? (t.mode === 'on-off' && roleOf(source)!=='pressed' ? 'Off' : 'Normal') : (t.mode === 'on-off' ? 'On' : 'Active');
-        clone.visible = false;paint(background(clone), role);count++;
+        clone.name = role === 'normal' ? normalName : (t.mode === 'on-off' ? (momentary ? 'Pressed' : 'On') : 'Active');
+        clone.visible = false;paint(clone, role);count++;
       }
     }
+    // Clone the original artwork before correcting either state: each state
+    // must assess its original colors independently against its new background.
+    const report = {corrected:0,unchecked:0};
+    if (contrast.enabled !== false) for (const [state,surface] of painted) {
+      const result = correctButtonContrast(state,surface,undo);
+      report.corrected += result.corrected; report.unchecked += result.unchecked;
+    }
     figma.commitUndo();
+    if (contrast.report) Object.assign(contrast.report,report);
     return {buttons: pending.length, states: count, skipped: all.length - pending.length};
   } catch (error) {
     const failures: string[] = [];

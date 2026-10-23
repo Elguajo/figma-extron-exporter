@@ -119,14 +119,14 @@ test('One authored Pressed on an ordinary button gains only Normal and exports a
   const result=capture(f.root).screen.elements[0];assert.equal(result.press,'Pressed');assert.deepEqual(result.states!.map(s=>[s.name,s.stateId]),[['Normal',0],['Pressed',1]]);
 });
 
-test('Existing single On creates only Off; source visibility/style and metadata remain untouched; manual Pressed survives', () => {
+test('Existing single On creates only Off; explicit style update applies the active sample to Pressed', () => {
   const f=authorButtons();prepareButtons(f.root);const b=f.buttons[0];b.children[0].remove();b.children[0].visible=true;
   const on=b.children[0],before=designSignature(on);assert.equal(on.name,'On');
   assert.equal(prepareButtons(f.root).states,1);assert.equal(designSignature(on),before);
   assert.deepEqual(b.children.map(s=>s.name),['On','Off']);assert.deepEqual(b.children.map(s=>s.visible),[true,false]);
   const feedback=f.buttons[1],pressed=feedback.children[1].clone();feedback.appendChild(pressed);pressed.name='Pressed';pressed.visible=false;
-  background(pressed).fills=[paint('#FFFF00')];const pressedBefore=designSignature(pressed);
-  prepareButtons(f.root,{},true);assert.equal(designSignature(pressed),pressedBefore);
+  background(pressed).fills=[paint('#FFFF00')];const pressedId=pressed.id;
+  prepareButtons(f.root,{},true);assert.deepEqual(background(pressed).fills,f.active.fills);assert.equal(pressed.id,pressedId);assert.equal(pressed.visible,false);
   assert.deepEqual(prepareButtons(f.root),{buttons:0,states:0,skipped:2});
 });
 
@@ -212,15 +212,15 @@ test('Built plugin commands: remember presets → create groups → check → pr
   assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);
 });
 
-test('One apply prepares fresh buttons and updates ready ones, preserving artwork, IDs, visibility and manual Pressed', () => {
+test('One apply prepares fresh buttons and updates ready states including Pressed, preserving artwork, IDs and visibility', () => {
   const f=authorButtons();prepareButtons(f.root);applyRecognition(recognize(f.root,'tlp-pro-1025m'));
   const ready=f.buttons[1],pressed=ready.children[1].clone();ready.appendChild(pressed);pressed.name='Pressed';pressed.visible=false;
   for(const n of descendants(pressed))n.setPluginData(DATA_KEY,'');
-  const pressedBefore=designSignature(pressed),identities=f.buttons.flatMap(b=>[b,...b.children]).map(n=>[n,n.getPluginData(DATA_KEY)] as const);
+  const identities=f.buttons.flatMap(b=>[b,...b.children]).map(n=>[n,n.getPluginData(DATA_KEY)] as const);
   const originalArt=f.buttons.flatMap(b=>descendants(b).filter(n=>n.type==='TEXT'||n.name==='Voice').map(n=>[n,designSignature(n)] as const));
   const bg=f.api.createRectangle();bg.resize(120,80);bg.fills=[paint('#111111')];
   const raw=f.api.group([bg],f.root);raw.name='button_New';raw.x=150;raw.y=10;
-  f.active.fills=[paint('#FF7700')];f.normal.fills=[paint('#151515')];
+  f.active.fills=[paint('#003366')];f.normal.fills=[paint('#151515')];
   assert.deepEqual(buttonPreparationSummary(f.root),{total:3,create:1,update:2});
   assert.deepEqual(prepareButtons(f.root,{},'apply',true),{buttons:3,states:2,skipped:0});
   for(const b of [f.buttons[0],ready,raw]) {
@@ -229,7 +229,7 @@ test('One apply prepares fresh buttons and updates ready ones, preserving artwor
   }
   for(const [n,identity] of identities)assert.equal(n.getPluginData(DATA_KEY),identity);
   for(const [n,signature] of originalArt)assert.equal(designSignature(n),signature);
-  assert.equal(designSignature(pressed),pressedBefore);
+  assert.deepEqual(background(pressed).fills,f.active.fills);assert.equal(pressed.visible,false);
   const repeated=designSignature(f.root);prepareButtons(f.root,{},'apply',true);assert.equal(designSignature(f.root),repeated);
   assert.deepEqual(buttonPreparationSummary(f.root),{total:3,create:0,update:3});
   const plan=recognize(f.root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
@@ -253,14 +253,14 @@ test('Combined apply restores existing styles and original fresh artwork after a
   assert.equal(designSignature(f.root),before);assert.deepEqual(f.page.children.map(n=>n.id),pageLayers);
 });
 
-test('Combined apply updates the source of a single state and preserves momentary Pressed', () => {
+test('Combined apply updates the source of a single state and styles momentary Pressed with the active sample', () => {
   const f=authorButtons();prepareButtons(f.root);
   const single=f.buttons[1];single.children[0].remove();const active=single.children[0];active.visible=true;
-  const momentary=f.buttons[0];momentary.children[0].name='Normal';momentary.children[1].name='Pressed';const pressed=momentary.children[1],before=designSignature(pressed);
+  const momentary=f.buttons[0];momentary.children[0].name='Normal';momentary.children[1].name='Pressed';const pressed=momentary.children[1],pressedId=pressed.id;
   f.active.fills=[paint('#FF7700')];f.normal.fills=[paint('#111111')];
   prepareButtons(f.root,{},'apply');assert.deepEqual(background(active).fills,f.active.fills);assert.equal(active.visible,true);
   assert.deepEqual(single.children.map(s=>s.name),['Active','Normal']);assert.deepEqual(background(single.children[1]).fills,f.normal.fills);
-  assert.equal(designSignature(pressed),before);assert.deepEqual(momentary.children.map(s=>s.name),['Normal','Pressed']);
+  assert.deepEqual(background(pressed).fills,f.active.fills);assert.equal(pressed.id,pressedId);assert.equal(pressed.visible,false);assert.deepEqual(momentary.children.map(s=>s.name),['Normal','Pressed']);
 });
 
 test('Combined apply validates existing backgrounds before changing a fresh button', () => {

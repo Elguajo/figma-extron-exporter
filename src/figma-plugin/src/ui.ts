@@ -23,7 +23,8 @@ function setBusy(busy:boolean) {
   $<HTMLButtonElement>('applyRecognition').disabled=busy||recognitionToken===undefined;
   $('mapping').setAttribute('aria-busy',String(busy));
   input('buttonCorners').disabled=busy;
-  document.querySelectorAll<HTMLInputElement>('#buttonExistingChoice input').forEach(e=>e.disabled=busy);
+  input('buttonContrast').disabled=busy;
+  document.querySelectorAll<HTMLInputElement>('#buttonExistingChoice input,#buttonPairChoice input').forEach(e=>e.disabled=busy);
   $<HTMLButtonElement>('bindPopups').disabled=busy||!canBindPopups;
   $<HTMLSelectElement>('popupPlace').disabled=busy||!canBindPopups;
   for(const id of ['referenceTarget','choiceGroup','startPage'])input(id).disabled=busy;
@@ -52,8 +53,8 @@ function buttonWorkflow(msg:{scope?:{id?:string;name:string;kind:string;profile?
   clearButtonResult();
   const previews=msg.buttonStylePreviews, summary=msg.buttonWorkflow;
   const ready=!!previews?.normal.ready&&!!previews?.feedback.ready;
-  const scope=msg.buttonScope??msg.scope;
-  const scopeKey=JSON.stringify([scope?.id,scope?.name,scope?.profile,msg.scopeMode,msg.scopeHint]);
+  const scope=msg.buttonScope;
+  const scopeKey=JSON.stringify([scope?.id,scope?.name,scope?.profile]);
   if(scopeKey!==buttonScopeKey){input('skipExistingButtons').checked=false;input('updateExistingButtons').checked=false;buttonScopeKey=scopeKey;}
   buttonSummary=summary;buttonStylesReady=ready;buttonScopeReady=!!scope;
   for(const [role,prefix] of [['normal','normal'],['feedback','active']] as const) {
@@ -64,9 +65,9 @@ function buttonWorkflow(msg:{scope?:{id?:string;name:string;kind:string;profile?
     $(prefix+'ButtonHint').textContent=p?.hint??'';
   }
   $('buttonStyleHelp').hidden=ready;
-  const label=scope?.kind==='project'?'Проект':scope?.kind==='popup-group'?'Группа popup':scope?.kind==='popup'?'Popup':'Экран';
+  const label=scope?.kind==='frames'?'Выбранные фреймы':scope?.kind==='button'?'Кнопка':scope?.kind==='project'?'Проект':scope?.kind==='popup-group'?'Группа popup':scope?.kind==='popup'?'Popup':'Экран';
   $('buttonScope').textContent=scope?`${label}: ${scope.name}`:'Выберите экран или popup с кнопками';
-  $('buttonScopeHint').textContent=!scope?(ready?'Стили найдены. Теперь выберите Frame экрана, popup_ или popupgroup_ в Figma.':'Выделите Frame экрана, popup_ или popupgroup_ на холсте или в списке слоёв Figma.'):summary?.issue??(summary?`Найдено кнопок: ${summary.total}.`:'Проверяю кнопки выбранного макета.');
+  $('buttonScopeHint').textContent=!scope?(ready?'Стили найдены. Теперь выберите один или несколько фреймов в Figma.':'Выделите фреймы экранов, popup или кнопок на холсте или в списке слоёв Figma.'):summary?.issue??(summary?`Найдено кнопок: ${summary.total}. Оформление изменится только в текущем выделении.`:'Проверяю кнопки выбранного макета.');
   $('buttonExistingChoice').hidden=!scope||!summary||!!summary.issue||summary.update===0;
   buttonPlan();
 }
@@ -94,10 +95,11 @@ $('prepare').onclick=()=>send('prepare',{profile:input('profile').value});
 $('normalButtonPreset').onclick=()=>send('button-preset-normal');
 $('activeButtonPreset').onclick=()=>send('button-preset-active');
 $('buttonBackground').onclick=()=>send('button-background');
-$('applyButtonStyles').onclick=()=>{revokeDownload();buttonResult('Применяю оформление кнопок…','progress');send('button-apply-styles',{corners:input('buttonCorners').checked,existing:input('updateExistingButtons').checked?'update':'skip'});};
+$('applyButtonStyles').onclick=()=>{revokeDownload();buttonResult('Применяю оформление кнопок…','progress');send('button-apply-styles',{corners:input('buttonCorners').checked,contrast:input('buttonContrast').checked,statePair:input('buttonPairNormalPressed').checked?'normal-pressed':'off-on',existing:input('updateExistingButtons').checked?'update':'skip'});};
+$('buttonPairOffOn').onchange=$('buttonPairNormalPressed').onchange=()=>{revokeDownload();clearButtonResult();buttonPlan();setBusy(operationBusy||packing);};
 $('skipExistingButtons').onchange=$('updateExistingButtons').onchange=()=>{clearButtonResult();buttonPlan();setBusy(operationBusy||packing);};
 $('buttonExport').onclick=()=>{revokeDownload();send('export');};
-$('buttonCorners').onchange=()=>{clearButtonResult();setBusy(operationBusy||packing);};
+$('buttonCorners').onchange=$('buttonContrast').onchange=()=>{clearButtonResult();setBusy(operationBusy||packing);};
 function clearRecognition(){recognitionToken=undefined;$('recognitionReport').hidden=true;}
 $('recognize').onclick=()=>{clearRecognition();send('recognize',{profile:input('profile').value});};
 $('retryRecognition').onclick=()=>send('recognize',{fromReport:true});

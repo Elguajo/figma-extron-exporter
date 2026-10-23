@@ -152,21 +152,40 @@ export class ExportScope {
     return !!node && node.type==='FRAME' && !selectionKind(node);
   }
   resolveButtons(): Pick<ScopeContext, 'root' | 'options' | 'scope'> {
-    // A selected popup (or its child) always scopes styling locally, including
-    // when the independent export scope is a saved batch project.
-    if (figma.currentPage.selection.length === 1) {
-      let node: BaseNode | null = figma.currentPage.selection[0];
-      while (node && node.type !== 'PAGE') {
-        const metadata = stored(node);
-        const kind = selectionKind(node);
-        if (node.type === 'FRAME' && (kind === 'popup' || kind === 'popup-group')) {
-          return {root:node,options:{},scope:{id:node.id,name:node.name,kind,profile:metadata?.profile??this.profile}};
-        }
-        if (kind === 'page' || kind === 'project' || node.type === 'SECTION') break;
-        node = node.parent;
+    // Styling follows the live selection, never the saved export project or
+    // automatically linked popups. Resolving it must not change export settings.
+    const selection=figma.currentPage.selection;
+    const isButton=(node:SceneNode)=>stored(node)?.kind==='button'||/^(button|btn|feedbackbutton|fbtn)_/i.test(node.name);
+    const isTarget=(node:SceneNode)=>node.type==='FRAME'||node.type==='SECTION'||node.type==='GROUP'&&isButton(node);
+    if(!selection.length)fail('selection','Выберите один или несколько фреймов для оформления кнопок.');
+    let members:readonly SceneNode[]=selection;
+    if(selection.length===1&&!isTarget(selection[0])){
+      // Selecting artwork retains the nearest screen/popup as the local scope,
+      // without escalating to a containing project or Section.
+      let node:BaseNode|null=selection[0].parent;
+      while(node&&node.type!=='PAGE'){
+        const kind=selectionKind(node),candidate=node;
+        if(node.type==='SECTION'||node.type==='FRAME'&&(
+          ['page','popup','popup-group','project'].includes(kind??'')||/^(scr|screen|prj|project)_/i.test(node.name)||
+          !kind&&candidate.type==='FRAME'&&Object.values(PROFILES).some(p=>candidate.width===p.width&&candidate.height===p.height)
+        ))break;
+        node=node.parent;
       }
+      if(!node||node.type==='PAGE')fail('selection','Выберите один или несколько фреймов для оформления кнопок.');
+      members=[node as SceneNode];
+    }else if(selection.some(node=>!isTarget(node)))fail('selection','Выберите фреймы или группы кнопок без посторонних слоёв.');
+    const ids=new Set(members.map(node=>node.id));
+    members=members.filter(node=>{let parent=node.parent;while(parent&&parent.type!=='PAGE'){if(ids.has(parent.id))return false;parent=parent.parent;}return true;});
+    if(members.length===1){
+      const node=members[0],metadata=stored(node);
+      const kind=selectionKind(node)??(isButton(node)?'button':node.type==='SECTION'||/^(prj|project)_/i.test(node.name)?'project':'page');
+      return {
+        root:node.type==='FRAME'||node.type==='SECTION'?node:figma.currentPage,
+        options:isButton(node)?{members:[node]}:{},
+        scope:{id:node.id,name:node.name,kind,profile:metadata?.profile??this.profile},
+      };
     }
-    return this.resolve();
+    return {root:figma.currentPage,options:{members},scope:{id:JSON.stringify(members.map(node=>node.id).sort()),name:byName(members).map(node=>node.name).join(', '),kind:'frames',profile:this.profile}};
   }
   resolve(forRecognition = false): ScopeContext {
     if(forRecognition&&!this.canRecognize)fail('selection','Для распознавания выберите секцию проекта или внешний Frame экрана. Popup, группы и места popup распознаются в составе проекта.');

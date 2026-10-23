@@ -15,8 +15,8 @@ import { designSignature } from '../src/export.ts';
 const [archive,output,cliRoot]=process.argv.slice(2);
 assert.ok(archive&&output&&cliRoot,'Usage: node test/popup-auto-binding-integration.ts <plugin.zip> <new-output-dir> <cli-root>');
 const files=unzipSync(new Uint8Array(await readFile(archive))),manifest=JSON.parse(strFromU8(files['manifest.json'])),version=JSON.parse(strFromU8(files['version.json']));
-assert.equal(manifest.id,'figma-extron-exporter-local-dev');assert.equal(version.version,'0.7.0');assert.equal(version.compatibleCliVersion,'0.7.0');
-const source=strFromU8(files[manifest.main]),ui=strFromU8(files[manifest.ui]);assert.ok(ui.includes('· 0.7.0'));
+assert.equal(manifest.id,'figma-extron-exporter-local-dev');assert.equal(version.version,version.compatibleCliVersion);assert.match(version.version,/^0\.\d+\.\d+$/);
+const source=strFromU8(files[manifest.main]),ui=strFromU8(files[manifest.ui]);assert.ok(ui.includes('· '+version.version));
 await mkdir(output,{recursive:true});const evidence=[];
 for(const profile of Object.keys(PROFILES) as Profile[])for(const mode of ['selected-frames','page']){
   const f=fakeFigma(),size=PROFILES[profile],screen=frame(null,'screen_VideoWallControl',0,0,size.width,size.height);

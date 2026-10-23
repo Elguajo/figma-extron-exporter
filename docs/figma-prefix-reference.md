@@ -75,7 +75,7 @@ Home
 | Нажатие и удержание | **Normal / Pressed** | `button_` / `btn_` |
 | Выбор с отдельным видом нажатия | **Normal / Active / Pressed** | `feedbackbutton_` / `fbtn_` |
 
-Passive / Active, Normal / Active без Pressed и другие поддержанные синонимы сохраняют совместимость. Переименовывать готовые слои и менять ID не нужно. Команда создания по эталонам добавляет Off / On либо Normal / Active; Normal / Pressed подготавливается вручную, Pressed для тройки добавляется вручную. [Подготовка по эталонам Rectangle](../src/figma-plugin/BUTTON_STATES.md).
+Passive / Active, Normal / Active без Pressed и другие поддержанные синонимы сохраняют совместимость. В оформлении обычных кнопок выбирается Off / On либо Normal / Pressed. Override преобразует готовые пары и обновляет имена и роли назначений; ID кнопок и слоты 0/1 в пакете сохраняются. Пропуск сохраняет готовые пары. Для feedback-кнопок создаётся Normal / Active, Pressed для тройки добавляется вручную. [Подготовка по эталонам Rectangle](../src/figma-plugin/BUTTON_STATES.md).
 
 | Имена состояния | Роль | Когда использовать |
 |---|---|---|

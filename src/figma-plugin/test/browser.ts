@@ -37,7 +37,7 @@ window.scopeMode='selection';window.useBatch=false;window.batchReady=false;windo
 const send=m=>{const target=document.querySelector('iframe').contentWindow;if(new URLSearchParams(location.search).get('transport')==='bridge'){target.dispatchEvent(new target.MessageEvent('message',{data:{pluginMessage:m}}));window.bridgeMessages++;}else target.postMessage({pluginMessage:m},location.origin);};
 const buttonStylePreviews=${JSON.stringify(buttonPreviews)},buttonMixed=${JSON.stringify(buttonMixed)},buttonReady=${JSON.stringify(buttonReady)};
 window.failButtonApply=false;
-window.selectNode=m=>{if(m.metadata?.profile)profile=m.metadata.profile;window.currentSelection=m;send({type:'selection',scopeMode:window.scopeMode,buttonStylePreviews,buttonWorkflow:buttonMixed,canPrepare:!!m.id&&m.nodeType==='FRAME'&&!m.metadata?.kind,canRecognize:!!m.id&&['FRAME','SECTION'].includes(m.nodeType)&&(!m.metadata?.kind||['page','project'].includes(m.metadata.kind)),...m,scope:m.scope??(m.metadata||m.nodeType==='SECTION'?{id:m.id,name:m.name,kind:m.metadata?.kind==='project'||m.nodeType==='SECTION'?'project':'page',profile}:undefined)});};
+window.selectNode=m=>{const scope=m.scope??(m.metadata||m.nodeType==='SECTION'?{id:m.id,name:m.name,kind:m.metadata?.kind==='project'||m.nodeType==='SECTION'?'project':'page',profile}:undefined);if(m.metadata?.profile)profile=m.metadata.profile;window.currentSelection=m;send({type:'selection',scopeMode:window.scopeMode,buttonStylePreviews,buttonWorkflow:buttonMixed,canPrepare:!!m.id&&m.nodeType==='FRAME'&&!m.metadata?.kind,canRecognize:!!m.id&&['FRAME','SECTION'].includes(m.nodeType)&&(!m.metadata?.kind||['page','project'].includes(m.metadata.kind)),...m,scope,buttonScope:Object.hasOwn(m,'buttonScope')?m.buttonScope:scope});};
 window.sendBatch=()=>window.selectNode({id:null,name:'Выбрано фреймов: 2',scopeMode:window.scopeMode,canRecognize:true,scopeHint:'В проекте: screen_Main, screen_AudioControl',profile,scope:{id:'current-page',name:'Trilliant',kind:'project',profile}});
 window.onmessage=e=>{if(e.source!==document.querySelector('iframe').contentWindow)return;const m=e.data.pluginMessage;if(!m)return;
 if(m.scopeMode)window.scopeMode=m.scopeMode;
@@ -103,9 +103,21 @@ try{
  assert.equal(await frame.getByRole('button',{name:'Связать с местом popup',exact:true}).isDisabled(),true);
  await frame.getByText('Места popup не найдены.',{exact:false}).waitFor();
  await frame.locator('#buttonStates > summary').click();
+ assert.equal(await frame.getByLabel('Off / On — включение или выбор',{exact:true}).isChecked(),true);
+ await frame.getByLabel('Off / On — включение или выбор',{exact:true}).focus();await page.keyboard.press('ArrowDown');
+ assert.equal(await frame.getByLabel('Normal / Pressed — нажатие и удержание',{exact:true}).isChecked(),true);
  await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выберите экраны на холсте'}));
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
- await frame.getByText('Стили найдены. Теперь выберите Frame экрана, popup_ или popupgroup_ в Figma.',{exact:true}).waitFor();
+ await frame.getByText('Стили найдены. Теперь выберите один или несколько фреймов в Figma.',{exact:true}).waitFor();
+ // An export project without a styling selection must not appear as the styling scope.
+ await page.evaluate(()=>(window as any).selectNode({id:null,name:'Нет выделения',scope:{id:'saved-project',name:'Saved project',kind:'project',profile:'tlp-pro-1025m'},buttonScope:undefined,buttonWorkflow:undefined}));
+ await frame.locator('#buttonScope').filter({hasText:'Выберите экран или popup с кнопками'}).waitFor();
+ assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
+ await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выбрано фреймов: 2',scope:{id:'saved-project',name:'Saved project',kind:'project',profile:'tlp-pro-1025m'},buttonScope:{id:'two-frames',name:'screen_A, screen_B',kind:'frames',profile:'tlp-pro-1025m'},buttonWorkflow:{total:4,create:0,update:4}}));
+ await frame.getByText('Выбранные фреймы: screen_A, screen_B',{exact:true}).waitFor();
+ await frame.getByLabel('Применить новый стиль и к готовым',{exact:true}).check();
+ assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isEnabled(),true);
+ await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выберите экраны на холсте'}));
  await frame.getByText('Выбрать образцы и фон вручную',{exact:true}).focus();await page.keyboard.press('Enter');
  assert.equal(await frame.getByRole('button',{name:'Выбранное — обычный эталон',exact:true}).isDisabled(),true);
  await page.evaluate(()=>(window as any).selectNode({id:'preset-normal',name:'Passive',nodeType:'RECTANGLE'}));
@@ -117,7 +129,7 @@ try{
  // Selecting the styles container explains the disabled action directly.
  await page.evaluate(()=>(window as any).selectNode({id:'samples',name:'Button Styles',nodeType:'FRAME'}));
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
- await frame.getByText('Стили найдены. Теперь выберите Frame экрана, popup_ или popupgroup_ в Figma.',{exact:true}).waitFor();
+ await frame.getByText('Стили найдены. Теперь выберите один или несколько фреймов в Figma.',{exact:true}).waitFor();
  await frame.locator('#buttonStates').screenshot({path:path.join(out,'button-styles-selected.png')});
  // Styling a standalone popup group does not require an exportable screen.
  await page.evaluate(()=>(window as any).selectNode({id:'popupgroup',name:'popupgroup_AudioControls',nodeType:'FRAME',buttonScope:{id:'popupgroup',name:'popupgroup_AudioControls',kind:'popup-group',profile:'tlp-pro-1025m'},buttonWorkflow:{total:2,create:2,update:0}}));
@@ -141,7 +153,7 @@ try{
  await frame.getByText('Сначала задайте обычный и активный образцы.',{exact:true}).waitFor();
  await page.evaluate(()=>(window as any).selectNode({id:'raw-home',name:'screen_Home',nodeType:'FRAME',scope:{id:'raw-home',name:'screen_Home',kind:'page',profile:'tlp-pro-1025m'}}));
  await frame.getByText('Passive · найден',{exact:true}).waitFor();
- await frame.getByText('Найдено кнопок: 2.',{exact:true}).waitFor();
+ await frame.getByText('Найдено кнопок: 2. Оформление изменится только в текущем выделении.',{exact:true}).waitFor();
  await frame.getByText('Выберите, пропустить готовые кнопки или обновить их оформление.',{exact:true}).waitFor();
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
  assert.equal(await frame.getByLabel('Пропустить готовые кнопки',{exact:true}).isChecked(),false);
@@ -151,18 +163,36 @@ try{
  await frame.getByText('Выбрать образцы и фон вручную',{exact:true}).click();
  await frame.getByLabel('Использовать скругление образцов',{exact:true}).focus();await page.keyboard.press('Space');
  assert.equal(await frame.getByLabel('Использовать скругление образцов',{exact:true}).isChecked(),true);
+ assert.equal(await frame.getByLabel('Исправлять контраст текста и иконок',{exact:true}).isChecked(),true);
+ await frame.getByLabel('Исправлять контраст текста и иконок',{exact:true}).focus();await page.keyboard.press('Space');
+ assert.equal(await frame.getByLabel('Исправлять контраст текста и иконок',{exact:true}).isChecked(),false);
+ await page.keyboard.press('Space');
  await frame.getByRole('button',{name:'Применить оформление',exact:true}).click();
  await frame.locator('#buttonResultMessage').filter({hasText:'Оформление применено'}).waitFor();
  assert.equal(await page.evaluate(()=>(window as any).lastButtonCommand.type),'button-apply-styles');
  assert.equal(await page.evaluate(()=>(window as any).lastButtonCommand.corners),true);
+ assert.equal(await page.evaluate(()=>(window as any).lastButtonCommand.contrast),true);
  assert.equal(await page.evaluate(()=>(window as any).lastButtonCommand.existing),'skip');
+ assert.equal(await page.evaluate(()=>(window as any).lastButtonCommand.statePair),'normal-pressed');
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);
  await frame.getByLabel('Применить новый стиль и к готовым',{exact:true}).check();
  assert.equal(await frame.locator('#buttonResult').isVisible(),false);
+ await frame.getByLabel('Off / On — включение или выбор',{exact:true}).check();
  await frame.getByText('Подготовить кнопок: 0 · обновить оформление: 2.',{exact:true}).waitFor();
+ await frame.getByLabel('Исправлять контраст текста и иконок',{exact:true}).uncheck();
  await frame.getByRole('button',{name:'Применить оформление',exact:true}).click();
  await frame.locator('#buttonResultMessage').filter({hasText:'Оформление применено'}).waitFor();
  assert.equal(await page.evaluate(()=>(window as any).lastButtonCommand.existing),'update');
+ assert.equal(await page.evaluate(()=>(window as any).lastButtonCommand.statePair),'off-on');
+ await frame.getByLabel('Normal / Pressed — нажатие и удержание',{exact:true}).check();
+ assert.equal(await frame.locator('#buttonResult').isVisible(),false);
+ assert.equal(await page.evaluate(()=>(window as any).lastButtonCommand.contrast),false);
+ await frame.getByLabel('Исправлять контраст текста и иконок',{exact:true}).check();
+ assert.equal(await frame.locator('#buttonResult').isVisible(),false);
+ assert.equal(await frame.getByRole('button',{name:'Проверить и скачать .exui',exact:true}).isVisible(),false);
+ await frame.getByRole('button',{name:'Применить оформление',exact:true}).click();
+ await frame.locator('#buttonResultMessage').filter({hasText:'Оформление применено'}).waitFor();
+ assert.equal(await page.evaluate(()=>(window as any).lastButtonCommand.contrast),true);
  assert.equal(await frame.getByRole('button',{name:'Проверить и скачать .exui',exact:true}).isVisible(),true);
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).evaluate(el=>el.classList.contains('secondary')),true);
  assert.equal(await frame.getByRole('button',{name:'Проверить и скачать .exui',exact:true}).evaluate(el=>el.classList.contains('secondary')),false);
@@ -198,6 +228,7 @@ try{
  await frame.getByRole('button',{name:'Применить оформление',exact:true}).click();
  assert.equal(await frame.getByRole('button',{name:'Применить оформление',exact:true}).isDisabled(),true);assert.equal(await frame.getByLabel('Использовать скругление образцов',{exact:true}).isDisabled(),true);
  assert.equal(await frame.getByLabel('Пропустить готовые кнопки',{exact:true}).isDisabled(),true);
+ assert.equal(await frame.getByLabel('Normal / Pressed — нажатие и удержание',{exact:true}).isDisabled(),true);
  await page.evaluate(()=>{(window as any).holdCommand=false;document.querySelector('iframe')!.contentWindow!.postMessage({pluginMessage:{type:'idle'}},location.origin);});
  await frame.locator('#buttonStates>summary').click();
  await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выберите секцию проекта или Frame экрана'}));
