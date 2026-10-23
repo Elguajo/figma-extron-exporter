@@ -141,6 +141,9 @@ public static class ScreenVerifier
             Check($"{at}.type", c.Type == Types[e.Kind], c.Type);
             if(e.Kind is "slider" or "shape" or "line" or "datetime" or "value")
                 Check($"{at}.native-object-type", c.Native?.ObjectType == (e.Kind switch { "slider"=>27,"shape"=>13,"line"=>12,"datetime"=>8,_=>11 }), "native ObjectTypeEnum agrees with the serialized class");
+            // Global Configurator Plus 3.34.1.4 previews these through Text.Length: a null Text blanks the whole page.
+            if(e.Kind is "slider" or "shape" or "line" or "graphic")
+                Check($"{at}.text-not-null", c.Text != null, c.Text == null ? "null" : $"'{c.Text}'");
             Check($"{at}.control-id", c.ControlId == e.ControlId, $"userId {c.ControlId} (expected {e.ControlId})");
             Check($"{at}.key", c.Comments == "exui-key=" + e.Key, c.Comments ?? "null");
             Check($"{at}.name", c.Name == e.Name, c.Name);

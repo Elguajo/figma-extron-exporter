@@ -483,11 +483,13 @@ function Set-PlanStates($Project, $c, $El, $ImageRef) {
 }
 
 # One button, label or level, from a plan element (popup-ref is bound separately).
+# Passive controls get an empty Text, like GUI Designer's own: Build keeps null,
+# and Global Configurator's preview reads Text.Length and leaves the page blank.
 function New-PlanControl($Project, $Donors, $El, $ImageRef) {
     $c = New-Control $Project $Donors[$El.kind] $El
     switch ($El.kind) {
         'slider' {
-            Set-F $c 'textField' $null
+            Set-F $c 'textField' ''
             Set-F $c 'orientationField' $El.orientation
             Set-F $c 'minValueField' ([uint32]$El.min)
             Set-F $c 'maxValueField' ([uint32]$El.max)
@@ -515,7 +517,7 @@ function New-PlanControl($Project, $Donors, $El, $ImageRef) {
             Set-AuthoredBorder $Project $c $El $true
         }
         'shape' {
-            Set-F $c 'textField' $null
+            Set-F $c 'textField' ''
             Set-F $c 'dynamicTextField' $false
             Set-Color $Project $c 'backgroundFillColorField' '#00000000'
             Set-Color $Project $c 'borderFillColorField' $El.fillColor
@@ -523,7 +525,7 @@ function New-PlanControl($Project, $Donors, $El, $ImageRef) {
             Set-AuthoredBorder $Project $c $El $false
         }
         'line' {
-            Set-F $c 'textField' $null
+            Set-F $c 'textField' ''
             Set-F $c 'dynamicTextField' $false
             Set-F $c 'thicknessField' ([int]$El.native.thickness)
             Set-F $c 'startCapField' 'Flat'; Set-F $c 'endCapField' 'Flat'
@@ -546,7 +548,7 @@ function New-PlanControl($Project, $Donors, $El, $ImageRef) {
             Set-Font $Project $c $El.font
         }
         'graphic' {
-            Set-F $c 'textField' $null
+            Set-F $c 'textField' ''
             Set-F $c 'dynamicTextField' $false
             Set-F $c 'shapeTypeField' 'None'
             Set-Color $Project $c 'backgroundFillColorField' '#00000000'

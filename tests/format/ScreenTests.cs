@@ -297,6 +297,18 @@ static class ScreenTests
             foreach (string banned in new[] { "Start-Process", "SendKeys", "UIAutomation", "BuildProject", "BuildManager", "Invoke-Item" })
                 Check(!script.Contains(banned, StringComparison.OrdinalIgnoreCase), banned);
         });
+        test("Adapter: passive controls get an empty Text, never null (GCP blank-page regression)", () =>
+        {
+            string script = File.ReadAllText(AdapterOptions.Default().HostScript);
+            foreach (string kind in new[] { "slider", "shape", "line", "graphic" })
+            {
+                int start = script.IndexOf($"        '{kind}' {{", StringComparison.Ordinal);
+                Check(start >= 0, kind);
+                int end = script.IndexOf("\n        }", start, StringComparison.Ordinal);
+                string block = script[start..end];
+                Check(block.Contains("Set-F $c 'textField' ''", StringComparison.Ordinal) && !block.Contains("'textField' $null", StringComparison.Ordinal), kind);
+            }
+        });
     }
 
     // ---- registry and donors (need the local, git-ignored donor files) ----------------------
