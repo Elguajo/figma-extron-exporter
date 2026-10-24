@@ -54,6 +54,9 @@ function setBusy(busy:boolean) {
   $<HTMLButtonElement>('applyNumbering').disabled=busy||numberingToken===undefined;
   $<HTMLButtonElement>('refreshNumbering').disabled=busy;
   $('buttonNumbering').setAttribute('aria-busy',String(busy));
+  $<HTMLButtonElement>('applyButtonText').disabled=busy||!buttonScopeReady;
+  input('buttonTextMode').disabled=busy;
+  $('buttonText').setAttribute('aria-busy',String(busy));
 }
 function clearNumbering() {numberingToken=undefined;$('numberingPreview').hidden=true;$('numberingResult').hidden=true;$('refreshNumbering').hidden=true;}
 function renderNumbering(msg:{options:ReturnType<typeof numberingOptions>;token?:number;error?:string;rows:{containerId:string;container:string;from:string;to:string;text?:string}[]}|undefined) {
@@ -79,6 +82,7 @@ for(const id of ['numberingBase','numberingStart','numberingMode','numberingName
 $('buttonNumbering').addEventListener('toggle',()=>{if($<HTMLDetailsElement>('buttonNumbering').open)requestNumbering();});
 $('applyNumbering').onclick=()=>{const token=numberingToken;clearNumbering();revokeDownload();send('button-numbering-apply',{token});};
 $('refreshNumbering').onclick=requestNumbering;
+$('applyButtonText').onclick=()=>{revokeDownload();$('buttonTextResult').hidden=true;send('button-text',{buttonText:input('buttonTextMode').value});};
 function clearButtonResult() { buttonResultReady=false;$('buttonResult').hidden=true;$('buttonExport').hidden=true;$('applyButtonStyles').classList.remove('secondary'); }
 function buttonResult(message:string,kind:'success'|'error'|'progress') {
   buttonResultReady=kind==='success';$('buttonResult').hidden=false;$('buttonResult').dataset.kind=kind;
@@ -183,6 +187,10 @@ window.onmessage=async(event:MessageEvent)=>{
   // Figma's bridge guarantees pluginMessage, not a parent Window as source.
   // In particular, platform-dispatched MessageEvent can have source === null.
   const msg=event.data?.pluginMessage;if(!msg||typeof msg!=='object'||typeof msg.type!=='string')return;
+  if(msg.operation==='button-text'&&['success','error'].includes(msg.type)){
+    $('buttonTextResult').hidden=false;$('buttonTextResult').textContent=msg.message;
+    $('buttonTextResult').setAttribute('role',msg.type==='error'?'alert':'status');
+  }
   if(msg.type==='selection') {
     clearNumbering();
     renderNumbering(msg.numbering);

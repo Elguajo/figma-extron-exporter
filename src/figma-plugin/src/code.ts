@@ -17,6 +17,7 @@ import { focusNode } from './focus-node.ts';
 import { MANUAL_KEY } from './key-sync.ts';
 import { DEFAULT_NUMBERING, planNumbering, applyNumbering, type NumberingOptions, type NumberingPlan } from './button-numbering.ts';
 import { requireLatinName } from './latin-name.ts';
+import { setButtonTextMode, type ButtonTextMode } from './button-native-text.ts';
 import { controlText,formatVariant } from './kit-contract.ts';
 import { MANUAL_PATTERN,hasManualPattern,patternProblem,resolvePattern } from './datetime-format.ts';
 import { bindPopups,popupBindingInfo,savePopupPlace,saveContainerSettings,popupContext } from './popup-binding.ts';
@@ -256,7 +257,7 @@ function pageChanged():void {recognition=undefined;diagnosticSelectionId=undefin
 let deferred:'selection'|'page'|undefined;
 figma.on('selectionchange',()=>{if(busy){deferred=deferred??'selection';return;}selectionChanged();});
 figma.on('currentpagechange',()=>{if(busy){deferred='page';return;}pageChanged();});
-figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbering?:NumberingOptions;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;contrast?:boolean;statePair?:ButtonStatePair;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean})=>{
+figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbering?:NumberingOptions;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;contrast?:boolean;statePair?:ButtonStatePair;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean;buttonText?:ButtonTextMode|'design'})=>{
   if(message.type==='ready'){safePublish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
@@ -334,6 +335,11 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
       const result=prepareButtons(resolved.root,resolved.options,message.type==='button-apply-styles'?(message.existing==='update'?'apply':'apply-new'):message.type==='button-update-styles',message.corners===true,{enabled:message.contrast!==false,report:contrast},message.statePair);
       const contrastMessage=message.contrast===false?' Автокоррекция контраста выключена.':` Контраст: исправлено слоёв — ${contrast.corrected}.${contrast.unchecked?` Требуют ручной проверки: ${contrast.unchecked} (сложные заливки, изображения, эффекты или прозрачность).`:''}`;
       publish();figma.ui.postMessage({type:'success',operation:message.type,message:(message.type==='button-apply-styles'?`Область: ${resolved.scope.name}. ${result.buttons?'Оформление применено.':'Изменений нет.'} Подготовлено кнопок: ${summary.create}; обновлено готовых: ${result.buttons-summary.create}; новых состояний: ${result.states}; пропущено готовых: ${result.skipped}. Далее проверьте макет и скачайте .exui.`:message.type==='button-update-styles'?`Область: ${resolved.scope.name}. Оформление обновлено: ${result.buttons} кнопок. Pressed получает активный образец; имена и ID состояний сохранены.`:`Область: ${resolved.scope.name}. Подготовлено кнопок: ${result.buttons}; создано состояний: ${result.states}; уже готовы: ${result.skipped}. Теперь нажмите «Проверить макет».`)+contrastMessage});
+    }else if(message.type==='button-text') {
+      const resolved=scopeContext.resolveButtons();
+      const result=setButtonTextMode(resolved.root,resolved.options,message.buttonText!);
+      recognition=undefined;publish();
+      figma.ui.postMessage({type:'success',operation:message.type,message:message.buttonText==='design'?`Восстановлен экспорт по расположению Figma: ${result.buttons} кнопок. Отдельные подписи снова могут экспортироваться как Label.`:`Текст для GCP настроен: ${result.buttons} кнопок; без изменений: ${result.skipped}. В GDL подписи будут частью Button ${message.buttonText==='bottom-center'?'снизу по центру':'по центру'}, без отдельного Label. Слои Figma и ID сохранены. Скачайте .exui и создайте новый GDL.`});
     }else if(message.type==='kit') {
       const result=await createKit(message.profile!);
       publish();figma.ui.postMessage({type:'success',message:`Extron Kit создан: ${result.components.length-result.dateTime.children.length} компонентов, datetime_Clock с ${result.dateTime.children.length} форматами даты/времени и шаблоны проекта. Выбран пример экрана. Изменяйте оформление в слотах Artwork, затем скачайте .exui — назначения подготовятся автоматически.`});

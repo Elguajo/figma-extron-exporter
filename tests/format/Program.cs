@@ -203,6 +203,7 @@ CompatibilityTests.Unit(Test);
 PackageTests.Unit(Test);
 PagesTests.Unit(Test);
 ComparisonTests.Unit(Test);
+ReconciliationTests.Unit(Test, ButtonFixture);
 FuzzTests.Unit(Test);
 StabilityTests.Unit(Test);
 if (args.Length > 0) PagesTests.Graph(Test, args[0]);

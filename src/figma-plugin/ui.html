@@ -43,6 +43,13 @@
 <small>Новые кнопки: Group или Frame с именем button_ / btn_ → Off / On; feedbackbutton_ / fbtn_ → Normal / Active. Normal / Pressed для удержания и третье состояние Pressed подготавливаются вручную. Passive / Active и другие поддержанные имена сохраняются.</small>
 </details>
 </div></details>
+<details id="buttonText" class="card"><summary>Текст кнопок для GCP</summary><div class="disclosure-body">
+<p class="sub">Выберите кнопки, экран или popup в Figma. Подпись станет текстом самой кнопки, который заменяет Text Feedback.</p>
+<label class="stack">Положение текста в GUI Designer<select id="buttonTextMode"><option value="bottom-center">Снизу по центру</option><option value="middle-center">По центру</option><option value="design">Сохранить расположение Figma</option></select></label>
+<small id="buttonTextHelp">Применяется ко всем состояниям кнопок в выделенной области. Фон, иконки и ID сохраняются. Текст в GDL переместится в выбранное положение; слои Figma останутся на месте. Для одной кнопки нужен один непустой Text в каждом состоянии и общий шрифт. Режим «Сохранить расположение Figma» возвращает прежний экспорт, включая отдельные Label.</small>
+<button id="applyButtonText" class="action" aria-describedby="buttonTextHelp">Применить текст для GCP</button>
+<p id="buttonTextResult" class="button-plan" role="status" aria-live="polite" hidden></p>
+</div></details>
 <details id="buttonNumbering" class="card"><summary>Нумерация кнопок</summary><div class="disclosure-body">
 <p class="sub">Выделите сами кнопки в Figma. Меняются только выделенные кнопки; выбор родительской группы или фрейма не включает их содержимое. В каждом родителе отдельный счёт.</p>
 <div class="row"><label class="stack">Основа имени<input id="numberingBase" value="Box" maxlength="64" spellcheck="false" aria-describedby="numberingHelp"></label><label class="stack">Начать с<input id="numberingStart" type="number" min="1" max="1000000" step="1" value="1"></label></div>

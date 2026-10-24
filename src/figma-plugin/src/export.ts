@@ -7,6 +7,7 @@ import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
 import { ExportError, nodeError } from './model.ts';
 import { artworkText, isButtonContainer, usesButtonArtwork, validateArtwork } from './button-artwork.ts';
 import { popupAppearance,TRANSPARENT } from './popup-appearance.ts';
+import { BUTTON_TEXT_KEY, buttonTextMode, nativeButtonText } from './button-native-text.ts';
 
 export interface ArtworkRender {omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}
 export interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode; artwork?:ArtworkRender }[]; signature: string; signatureMembers?: readonly SceneNode[] }
@@ -108,7 +109,7 @@ function commonButtonCaption(button:SceneNode) {
 }
 function snapshot(node: SceneNode|PageNode, members?: readonly SceneNode[]): unknown {
   // Detect edits across async PNG exports; no package may silently combine two design revisions.
-  const props: Record<string,unknown>={ parentId:node.parent?.id, metadata:node.getPluginData(DATA_KEY),registry:node.getPluginData('exui-id-registry'),kit:node.getPluginData(KIT_KEY),kitPopupGroup:node.getPluginData(KIT_POPUP_GROUP_KEY),buttonBackground:node.getPluginData('exui-button-background'),generatedState:node.getPluginData('exui-generated-state') };
+  const props: Record<string,unknown>={ parentId:node.parent?.id, metadata:node.getPluginData(DATA_KEY),registry:node.getPluginData('exui-id-registry'),kit:node.getPluginData(KIT_KEY),kitPopupGroup:node.getPluginData(KIT_POPUP_GROUP_KEY),buttonBackground:node.getPluginData('exui-button-background'),generatedState:node.getPluginData('exui-generated-state'),buttonText:node.getPluginData(BUTTON_TEXT_KEY) };
   for(const field of ['id','type','name','visible','opacity','clipsContent','relativeTransform','absoluteTransform','absoluteBoundingBox','width','height','fills','strokes','strokeWeight','strokeTopWeight','strokeRightWeight','strokeBottomWeight','strokeLeftWeight','strokeAlign','strokeCap','strokeJoin','dashPattern','variableWidthStrokeProperties','complexStrokeProperties','effects','cornerRadius','topLeftRadius','topRightRadius','bottomRightRadius','bottomLeftRadius','cornerSmoothing','blendMode','isMask','reactions','characters','fontName','fontSize','fontWeight','lineHeight','letterSpacing','textCase','textDecoration','textAlignHorizontal','textAlignVertical','vectorPaths','vectorNetwork','arcData','pointCount','innerRadius'])
     if(field in node) props[field]=(node as unknown as Record<string,unknown>)[field];
   if(node.type==='TEXT'&&[node.fontName,node.fontSize,node.fills,node.textCase,node.textDecoration,node.letterSpacing,node.lineHeight].includes(figma.mixed))
@@ -228,18 +229,19 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       if(node.children.length<2||node.children.length>8) fail('states',`${node.name}: нужны 2..8 состояний, начиная с Normal.`);
       if(node.children.filter(visible).length!==1) fail('states',`${node.name}: для предпросмотра должно быть видно ровно одно состояние.`);
       const states: State[]=[];let commonFont:Font|undefined;
-      const shared=m.kind==='button'?commonButtonCaption(node):undefined;
+      const textMode=m.kind==='button'?buttonTextMode(node):undefined;
+      const shared=m.kind==='button'&&!textMode?commonButtonCaption(node):undefined;
       if(shared){
         const captionId=captionIds.get(objectId)!;ids.add(captionId);
         caption={key:addKey(`button-caption.${screen.page.objectId}.${objectId}`,node.name),kind:'label',objectId:captionId,controlId:null,name:text(node.name.slice(0,248)+' caption','Имя подписи'),rect:[x+shared.rect[0],y+shared.rect[1],shared.rect[2],shared.rect[3]],...shared.copy};
       }
       for(const stateNode of node.children) {
         try {
-        if(m.kind==='button'&&isButtonContainer(stateNode)&&(shared||usesButtonArtwork(stateNode))) {
+        if(m.kind==='button'&&isButtonContainer(stateNode)&&(textMode||shared||usesButtonArtwork(stateNode))) {
           validateArtwork(stateNode,node);
           const sm=meta(stateNode,'state',read);integer(sm.stateId,0,7,'ID состояния');
           if(!sm.role||!(sm.role in ROLE_ID))fail('states',`${stateNode.name}: нужны роли состояний.`);
-          const copy=shared?{font:{family:'Arial' as const,size:12,bold:false},text:'',textColor:'#FFFFFF',bottom:false,omitTextId:shared.labels.get(stateNode.id)}:artworkText(stateNode);
+          const copy=textMode?nativeButtonText(stateNode,textMode):shared?{font:{family:'Arial' as const,size:12,bold:false},text:'',textColor:'#FFFFFF',bottom:false,omitTextId:shared.labels.get(stateNode.id)}:artworkText(stateNode);
           if(copy.omitTextId&&!shared){
             if(commonFont&&JSON.stringify(commonFont)!==JSON.stringify(copy.font))fail('font',`${node.name}: шрифт должен совпадать во всех состояниях.`);
             commonFont=copy.font;

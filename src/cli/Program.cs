@@ -18,6 +18,8 @@ Usage:
   validate-package <input.exui>
   id-map <input.exui>
   compare-packages <previous.exui> <new.exui> [--json]
+  plan-layout-update <existing.gdl> <incoming.gdl>
+  update-layout <existing.gdl> <incoming.gdl> <selection.json> <new-output.gdl>
   convert-package <input.exui> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
 
 Adapter commands also accept --compatibility <file> (exact-version profiles).
@@ -52,6 +54,8 @@ int expected = command switch
 {
     "doctor" => 1,
     "compare-packages" => comparisonJson ? 4 : 3,
+    "plan-layout-update" => 3,
+    "update-layout" => 5,
     "inspect" or "list-controls" or "prepare-donor" or "validate-package" or "id-map" => 2, "repack" or "convert-package" or "compare-graph" => 3, "generate-screen" => 4, "set-button-text" => 6, _ => -1
 };
 if (expected < 0 || positional.Count != expected || (!adapterCommand && args.Length != positional.Count) ||
@@ -69,6 +73,23 @@ try
         StaleTemp.Sweep(Path.GetTempPath(), DateTime.UtcNow);
     switch (command)
     {
+        case "plan-layout-update":
+        {
+            var plan = LayoutReconciliation.Compare(ReadLayout(positional[1]), ReadLayout(positional[2]));
+            Console.WriteLine(JsonSerializer.Serialize(plan, ScreenSpecReader.Json));
+            break;
+        }
+        case "update-layout":
+        {
+            if (new FileInfo(positional[3]).Length > 64 * 1024) throw new InvalidDataException("Selection exceeds 64 KiB.");
+            var selection = JsonSerializer.Deserialize<LayoutUpdateSelection>(File.ReadAllText(positional[3]), ScreenSpecReader.Json)
+                ?? throw new InvalidDataException("Missing layout selection.");
+            var updated = LayoutReconciliation.Apply(ReadLayout(positional[1]), ReadLayout(positional[2]), selection);
+            using (var file = new FileStream(positional[4], FileMode.CreateNew, FileAccess.Write)) file.Write(updated.Gdl);
+            Console.WriteLine(JsonSerializer.Serialize(new { output = Path.GetFullPath(positional[4]), updated.UpdatedIds, updated.ImportedResources,
+                updated.GcpVerified, guiDesignerVerified = false, next = "GUI Designer: Verify, Save and Build; import into a COPY of GCP with existing configuration preserved." }, ScreenSpecReader.Json));
+            break;
+        }
         case "doctor":
         {
             var report = CompatibilityDoctor.Inspect(CreateAdapter(), gcpDir);
@@ -217,6 +238,7 @@ try
     }
     return 0;
 }
+
 catch (AdapterException e)
 {
     Console.Error.WriteLine($"ERROR [{e.Code}]: {e.Message}");
@@ -236,4 +258,11 @@ catch (Exception e) when (e is IOException or InvalidDataException or Unauthoriz
 {
     Console.Error.WriteLine($"ERROR: {e.Message}");
     return 1;
+}
+
+static byte[] ReadLayout(string path)
+{
+    using var file = File.OpenRead(path);
+    if (file.Length > ExtronContainer.MaxFileBytes) throw new InvalidDataException("Layout exceeds 64 MiB.");
+    var bytes = new byte[checked((int)file.Length)]; file.ReadExactly(bytes); return bytes;
 }

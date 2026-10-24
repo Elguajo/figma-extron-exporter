@@ -121,6 +121,15 @@ public sealed class ExtronContainer
     public byte[] Repack()
         => RepackWithPayload(Payload);
 
+    /// <summary>Edited layouts must be rebuilt; never carry an obsolete panel archive into the new GDL.</summary>
+    public byte[] RepackEditablePayload(byte[] payload)
+    {
+        byte[] end = endRecord.ToArray();
+        BinaryPrimitives.WriteUInt16LittleEndian(end.AsSpan(8), 1);
+        BinaryPrimitives.WriteUInt16LittleEndian(end.AsSpan(10), 1);
+        return new ExtronContainer([stored[projectIndex]], 0, end, Payload).RepackWithPayload(payload);
+    }
+
     /// <summary>
     /// Package explicitly supplied NRBF bytes; caller owns graph validation. Other entries are copied
     /// byte for byte with recomputed offsets.

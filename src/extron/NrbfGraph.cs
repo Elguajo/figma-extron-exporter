@@ -28,7 +28,7 @@ public static class NrbfGraph
             // The same left record must always pair with the same right record (shared references keep their shape).
             if (pairs.TryGetValue(l.Id, out var seen)) { if (!seen.Equals(r.Id)) Diff(path, "shared reference", "different reference"); continue; }
             pairs[l.Id] = r.Id;
-            if (l.RecordType != r.RecordType || l.TypeName.AssemblyQualifiedName != r.TypeName.AssemblyQualifiedName)
+            if ((l.RecordType != r.RecordType && !(l is ClassRecord && r is ClassRecord)) || l.TypeName.AssemblyQualifiedName != r.TypeName.AssemblyQualifiedName)
             { Diff(path, $"{l.RecordType} {l.TypeName.FullName}", $"{r.RecordType} {r.TypeName.FullName}"); continue; }
             switch (l)
             {

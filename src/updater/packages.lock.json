@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0-windows7.0": {
+      "extron.adapter": {
+        "type": "Project",
+        "dependencies": {
+          "Extron.Format": "[1.0.0, )",
+          "Extron.Screen": "[1.0.0, )"
+        }
+      },
+      "extron.format": {
+        "type": "Project"
+      },
+      "extron.screen": {
+        "type": "Project",
+        "dependencies": {
+          "Extron.Format": "[1.0.0, )"
+        }
+      }
+    }
+  }
+}

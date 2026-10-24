@@ -156,7 +156,7 @@ export class ExportScope {
     // automatically linked popups. Resolving it must not change export settings.
     const selection=figma.currentPage.selection;
     const isButton=(node:SceneNode)=>stored(node)?.kind==='button'||/^(button|btn|feedbackbutton|fbtn)_/i.test(node.name);
-    const isTarget=(node:SceneNode)=>node.type==='FRAME'||node.type==='SECTION'||node.type==='GROUP'&&isButton(node);
+    const isTarget=(node:SceneNode)=>node.type==='FRAME'||node.type==='SECTION'||(node.type==='GROUP'||node.type==='INSTANCE')&&isButton(node);
     if(!selection.length)fail('selection','Выберите один или несколько фреймов для оформления кнопок.');
     let members:readonly SceneNode[]=selection;
     if(selection.length===1&&!isTarget(selection[0])){

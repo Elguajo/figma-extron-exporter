@@ -12,6 +12,9 @@
   <Folder Name="/src/screen/">
     <Project Path="src/screen/Extron.Screen.csproj" />
   </Folder>
+  <Folder Name="/src/updater/">
+    <Project Path="src/updater/Extron.LayoutUpdater.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/format/">
     <Project Path="tests/format/Extron.Format.Tests.csproj" />
