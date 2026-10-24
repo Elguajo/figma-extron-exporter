@@ -9,6 +9,8 @@ import { packageExui } from '../src/package.ts';
 import { unzipSync } from 'fflate';
 import { DATETIME_FORMATS } from '../src/datetime-format.ts';
 
+const momentaryNames=['button_VolumeUp','button_VolumeDown','button_Back','button_Home','button_Settings'];
+
 test('Figma rejects component property bindings inside slot content',()=>{
   const fake=kitFixture(),master=(fake.api as any).createComponent(),slot=master.createSlot(),text=fake.api.createText() as any;
   slot.appendChild(text);
@@ -68,6 +70,25 @@ test('Creation failure removes only new kit content and restores the user select
   assert.deepEqual(fake.page.children,[existing]);assert.deepEqual(fake.page.selection,[existing]);
 });
 
+test('Creating a fresh kit preserves an assigned older kit and its Off/On instances',async()=>{
+  kitFixture();const old=await createKit('tlp-pro-1025m');
+  for(const button of old.example.children.filter(n=>n.name==='button_VolumeUp'||n.name==='button_VolumeDown')){
+    for(const [index,state]of (button as FrameNode).children.entries()){
+      state.name=index===0?'Off':'On';
+      (state as FrameNode).children[0].name='Artwork / '+state.name;
+    }
+  }
+  const plan=recognize(old.example,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
+  const before=await exportFrame(old.example),signature=designSignature(old.example),library=designSignature(old.library);
+  const fresh=await createKit('tlp-pro-1025m');
+  assert.notEqual(fresh.library.id,old.library.id);
+  assert.equal(designSignature(old.example),signature);assert.equal(designSignature(old.library),library);
+  assert.deepEqual((await exportFrame(old.example)).screen,before.screen);
+  for(const button of before.screen.elements.filter(e=>e.name==='button_VolumeUp'||e.name==='button_VolumeDown')){
+    assert.deepEqual(button.states!.map(s=>s.role),['normal','feedback']);assert.equal(button.press,undefined);
+  }
+});
+
 test('Every generated control has an exportable contract, including multilevel and native primitives',async()=>{
  const fake=kitFixture(),kit=await createKit('tlp-pro-300m-portrait');
  for(const master of kit.components.filter(n=>n.name!=='popupref_Popup')){
@@ -77,6 +98,15 @@ test('Every generated control has an exportable contract, including multilevel a
   if(instance.width>320){instance.resize(320,instance.height);for(const child of instance.children)(child as TextNode).resize(320,child.height);}
   const plan=recognize(kit.example,'tlp-pro-300m-portrait');assert.deepEqual(plan.errors,[],master.name);applyRecognition(plan);
   const bundle=await exportFrame(kit.example);assert.ok(packageExui(bundle).length>0,master.name);
+  if(momentaryNames.includes(master.name)){
+    const button=bundle.screen.elements[0];
+    assert.equal(button.kind,'button');assert.equal(button.press,'Pressed');
+    assert.deepEqual(button.states!.map(s=>[s.stateId,s.name,s.role]),[[0,'Normal','normal'],[1,'Pressed','pressed']]);
+    assert.deepEqual(button.states!.map(s=>s.fill),['#E2E5E5','#AB4300']);
+    assert.deepEqual(button.states!.map(s=>s.textColor),['#20242A','#FFFFFF']);
+    assert.ok(button.states!.every(s=>s.image));
+    assert.deepEqual(instance.children.map(s=>[s.name,s.visible]),[['Normal',true],['Pressed',false]]);
+  }
   // This loop starts a fresh screen assignment for each independent component.
   kit.example.setPluginData(DATA_KEY,'');kit.example.setPluginData('exui-id-registry','');
  }

@@ -25,10 +25,11 @@ function slot(component:ComponentNode,parent:Parent,w:number,h:number,propertyNa
 function component(spec:Spec,parent:FrameNode):ComponentNode {
   const n=figma.createComponent();parent.appendChild(n);n.name=spec.name;n.fills=[];n.strokes=[];n.clipsContent=true;mark(n);
   const w=spec.type==='slider'?300:spec.type==='line'?300:220,h=spec.type==='line'?2:spec.type==='slider'?40:spec.type==='level'?20:spec.type==='text'?40:64;
-  n.resize(w,h);n.description='Extron Kit. Сохраняйте служебное имя. Оформление состояния меняйте в слоте Artwork. ID назначаются экземпляру при распознавании экрана.';
+  n.resize(w,h);n.description=`Extron Kit / ${catalog.revision}. Сохраняйте служебное имя. ${spec.states?'Состояния: '+spec.states.join(' / ')+'. Оформление меняйте в слоте Artwork.':spec.type==='graphic'?'Графику меняйте в слоте Artwork.':'Сохраняйте структуру нативного элемента.'} ID назначаются экземпляру при проверке или экспорте экрана.`;
   if(spec.states){
     spec.states.forEach((name,index)=>{
-      const bg=index===0?c.track:index===1?c.active:c.pressed,fg=index===2?'#FFFFFF':c.ink;
+      const pressed=name==='Pressed'||index===2;
+      const bg=index===0?c.track:pressed?c.pressed:c.active,fg=pressed?'#FFFFFF':c.ink;
       const state=frame(n,name,w,h,bg);state.x=0;state.y=0;stretch(state);state.visible=index===0;mark(state);
       const art=slot(n,state,w,h,'Artwork / '+name);
       const background=frame(art,'Background',w,h,bg);background.x=0;background.y=0;stretch(background);
@@ -82,7 +83,7 @@ export async function createKit(profile:Profile):Promise<KitResult> {
   try{
     const library=frame(undefined,'Extron Kit',1560,2820,c.canvas);created.push(library);library.x=origin;library.y=0;
     const header=label(library,'Title','Extron Kit / Библиотека компонентов',1440,60,36,c.ink,true);header.x=40;header.y=32;
-    const guide=label(library,'Guide','Берите экземпляры из Assets. В Artwork можно добавлять свои слои. Сохраняйте имена контейнеров и состояний.\nВыберите Frame экрана → Распознать по именам → Сохранить назначения → Скачать .exui.',1440,80,20,c.muted);guide.x=40;guide.y=108;
+    const guide=label(library,'Guide',`Ревизия ${catalog.revision}. Берите экземпляры из Assets; сохраняйте имена контейнеров и состояний.\nVolume +/− и навигация: Normal / Pressed. Выберите экран или проект и профиль → Скачать .exui.`,1440,80,20,c.muted);guide.x=40;guide.y=108;
     let top=230;
     for(const section of ['Universal','Presets']){
       const title=label(library,'Section',section==='Universal'?'01 / Универсальные компоненты':'02 / Готовые назначения',1440,48,28,c.ink,true);title.x=40;title.y=top;top+=72;

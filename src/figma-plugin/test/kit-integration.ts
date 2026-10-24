@@ -28,6 +28,10 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
    for(const button of bundle.screen.elements.filter(e=>e.kind==='button')){
     const actual=model.Pages[0].Controls.find((n:any)=>n.Comments==='exui-key='+button.key);assert.equal(actual.ControlId,button.controlId);
     assert.deepEqual(actual.States.map((s:any)=>s.Name),button.states!.map(s=>s.name));
+    if(button.name==='button_VolumeUp'||button.name==='button_VolumeDown'){
+     assert.equal(button.press,'Pressed');assert.deepEqual(button.states!.map(s=>[s.stateId,s.role]),[[0,'normal'],[1,'pressed']]);
+     assert.deepEqual(actual.States.map((s:any)=>s.Name),['Normal','Pressed']);
+    }
    }
    const clock=model.Pages[0].Controls.find((n:any)=>n.Type==='PBDateTime');assert.equal(clock.Native.Pattern,'MMMM d, h:mm tt');
   }else{assert.equal(model.Pages.length,1);assert.equal(model.Groups.length,1);assert.ok(model.Popups.length>=4);}

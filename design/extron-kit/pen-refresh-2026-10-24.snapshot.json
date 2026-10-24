@@ -1,0 +1,4984 @@
+{
+  "revision": "2026-10-24",
+  "boundary": "pen.dev design reference; Figma Format variants are created by the plugin",
+  "sections": [
+    {
+      "type": "frame",
+      "id": "qn7gm",
+      "x": 920,
+      "y": 0,
+      "name": "Extron Kit / Start here",
+      "width": 1560,
+      "height": 324,
+      "fill": "$extron-ink",
+      "layout": "vertical",
+      "gap": 18,
+      "padding": 48,
+      "children": [
+        {
+          "type": "text",
+          "id": "eTvQn",
+          "name": "Eyebrow",
+          "fill": "#FFB587",
+          "content": "TRILLIANT  /  EXTRON KIT  /  РЕВИЗИЯ 2026-10-24",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "text",
+          "id": "XKAd3",
+          "name": "Title",
+          "fill": "#FFFFFF",
+          "content": "Дизайн меняется. Структура остаётся.",
+          "fontFamily": "Inter",
+          "fontSize": 42,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "text",
+          "id": "NNa2L",
+          "name": "Instructions",
+          "fill": "#DFE3E6",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Экземпляр → оформление Artwork → экран или проект → Скачать .exui.\nVolume +/− и навигация: Normal / Pressed. Выбор с feedback: Off / On.",
+          "lineHeight": 1.5,
+          "fontFamily": "Inter",
+          "fontSize": 21,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "no19L",
+          "name": "Workflow",
+          "fill": "#FFB587",
+          "content": "Новый кит в Figma: локальный плагин 0.7.3 → Создать Extron Kit. Уже созданные библиотеки не обновляются автоматически.",
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "MeFgF",
+      "x": 920,
+      "y": 356,
+      "name": "Extron Kit / Universal components",
+      "width": 1560,
+      "height": 1420,
+      "fill": "$extron-canvas",
+      "layout": "vertical",
+      "gap": 24,
+      "padding": 40,
+      "children": [
+        {
+          "type": "text",
+          "id": "ZfybY",
+          "name": "Section title",
+          "fill": "$extron-ink",
+          "content": "01 / Универсальные компоненты",
+          "fontFamily": "Inter",
+          "fontSize": 30,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "text",
+          "id": "fWlI5",
+          "name": "Section description",
+          "fill": "$extron-muted",
+          "content": "16 типов. Имена и состояния подготовлены; каждый элемент — переиспользуемый компонент.",
+          "fontFamily": "Inter",
+          "fontSize": 17,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "h3RWTc",
+          "name": "Controls row 1",
+          "width": "fill_container",
+          "height": 184,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "Ij44j",
+              "name": "Guide / button_Button",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "w0Q5N",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "button_Button",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "C3OidC",
+                  "name": "button_Button",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "w00A8Z",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Off",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "E3S1g",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dtxEc",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Button",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "K5dXN",
+                      "x": 0,
+                      "y": 0,
+                      "name": "On",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "KlQ4Y",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "S5ZKt",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Button",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "iNHeO",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Off  /  On",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "iaW3A",
+              "name": "Guide / feedbackbutton_Feedback",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "zt13O",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "feedbackbutton_Feedback",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "AXc1X",
+                  "name": "feedbackbutton_Feedback",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "VyDp4",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "tZUwB",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "UtUWM",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Feedback",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "AryJe",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Active",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "q8dGc",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "C6RBuj",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Feedback",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QaECW",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Pjo8A",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VrZw4",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Feedback",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "jR3mb",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Normal  /  Active  /  Pressed",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YelPk",
+              "name": "Guide / slider_Slider",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "g7Apzu",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "slider_Slider",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "HhtYm",
+                  "name": "slider_Slider",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 300,
+                  "height": 40,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "NwOOa",
+                      "x": 0,
+                      "y": 12,
+                      "name": "Track",
+                      "width": 300,
+                      "height": 16,
+                      "fill": "$extron-track",
+                      "cornerRadius": 8
+                    },
+                    {
+                      "type": "frame",
+                      "id": "q80qt",
+                      "x": 0,
+                      "y": 12,
+                      "name": "Fill",
+                      "width": 126,
+                      "height": 16,
+                      "fill": "$extron-accent",
+                      "cornerRadius": 8
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "dc2ob",
+                      "x": 112,
+                      "y": 6,
+                      "name": "Thumb",
+                      "fill": "$extron-ink",
+                      "width": 28,
+                      "height": 28
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "dPWSm",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Track  /  Fill  /  Thumb",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "m3sGu7",
+          "name": "Controls row 2",
+          "width": "fill_container",
+          "height": 184,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "YTFOv",
+              "name": "Guide / level_Level",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "J5gvAT",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "level_Level",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "ezrv8",
+                  "name": "level_Level",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 20,
+                  "fill": "$extron-accent",
+                  "layout": "none"
+                },
+                {
+                  "type": "text",
+                  "id": "Ltwcu",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Нативный элемент Extron",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "a8vpO9",
+              "name": "Guide / gauge_Gauge",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "U16t0",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "gauge_Gauge",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "BNbZc",
+                  "name": "gauge_Gauge",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 20,
+                  "fill": "$extron-accent",
+                  "layout": "none"
+                },
+                {
+                  "type": "text",
+                  "id": "VTlzb",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Нативный элемент Extron",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "OVshD",
+              "name": "Guide / indicator_Indicator",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "cxrj7",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "indicator_Indicator",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "Sd6Ir",
+                  "name": "indicator_Indicator",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 20,
+                  "fill": "$extron-accent",
+                  "layout": "none"
+                },
+                {
+                  "type": "text",
+                  "id": "I47Uk",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Нативный элемент Extron",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "qHZlK",
+          "name": "Controls row 3",
+          "width": "fill_container",
+          "height": 184,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "wXXLP",
+              "name": "Guide / volumeled_Led",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "icg7N",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "volumeled_Led",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "Y9Jlp",
+                  "name": "volumeled_Led",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 20,
+                  "fill": "$extron-accent",
+                  "layout": "none"
+                },
+                {
+                  "type": "text",
+                  "id": "s7CDFD",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Нативный элемент Extron",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "kpj7G",
+              "name": "Guide / multilevel_Multilevel",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gmNvO",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "multilevel_Multilevel",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "UflJj",
+                  "name": "multilevel_Multilevel",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YvX8B",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "LKudV",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "gKVpe",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Ready",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "D3l1I",
+                      "x": 0,
+                      "y": 0,
+                      "name": "state_Ready",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "jeP9h",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "W57XvA",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Ready",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "pvW3W",
+                      "x": 0,
+                      "y": 0,
+                      "name": "state_Error",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "FPS9s",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "FWqh8",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Ready",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "Q7zORh",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Normal  /  state_Ready  /  state_Error",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "q1jQe0",
+              "name": "Guide / text_Label",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "eM5j7",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "text_Label",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "OGNLl",
+                  "name": "text_Label",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 40,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "B9yf8P",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Content",
+                      "fill": "$extron-ink",
+                      "textGrowth": "fixed-width-height",
+                      "width": 220,
+                      "height": 40,
+                      "content": "Text label",
+                      "textAlignVertical": "middle",
+                      "fontFamily": "Inter",
+                      "fontSize": 24,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "ePoOA",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Текст остаётся редактируемым",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "EcD2l",
+          "name": "Controls row 4",
+          "width": "fill_container",
+          "height": 184,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "excKO",
+              "name": "Guide / value_Value",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "vFcnl",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "value_Value",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "ECgly",
+                  "name": "value_Value",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 40,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IvQsi",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Content",
+                      "fill": "$extron-ink",
+                      "textGrowth": "fixed-width-height",
+                      "width": 220,
+                      "height": 40,
+                      "content": "42%",
+                      "textAlignVertical": "middle",
+                      "fontFamily": "Inter",
+                      "fontSize": 24,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "bLTo8",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Текст остаётся редактируемым",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "AYpAK",
+              "name": "Guide / datetime_Clock",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "zlGyc",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "datetime_Clock",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "j715yu",
+                  "name": "datetime_Clock",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 440,
+                  "height": 40,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "fC2Dn",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Content",
+                      "fill": "$extron-ink",
+                      "textGrowth": "fixed-width-height",
+                      "width": 440,
+                      "height": 40,
+                      "content": "September 28, 12:00 AM",
+                      "textAlignVertical": "middle",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "vA2L6",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Format в Figma: 28 вариантов / раздел 03",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mkiqq",
+              "name": "Guide / shape_Shape",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gxOiJ",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "shape_Shape",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "wPvYp",
+                  "name": "shape_Shape",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "fill": "$extron-track",
+                  "layout": "none"
+                },
+                {
+                  "type": "text",
+                  "id": "cdo6q",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Нативный элемент Extron",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "YUWiw",
+          "name": "Controls row 5",
+          "width": "fill_container",
+          "height": 184,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "yNjcF",
+              "name": "Guide / line_Line",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "xGK5J",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "line_Line",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "e5t3cx",
+                  "name": "line_Line",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 300,
+                  "height": 2,
+                  "fill": "$extron-track",
+                  "layout": "none"
+                },
+                {
+                  "type": "text",
+                  "id": "e4L8Q",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Нативный элемент Extron",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "LDLfm",
+              "name": "Guide / image_Image",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "UolFn",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "image_Image",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "kJFGi",
+                  "name": "image_Image",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "fill": "$extron-track",
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "e6Lnio",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Artwork",
+                      "slot": [],
+                      "width": 220,
+                      "height": 64,
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "kHjBK",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Placeholder",
+                          "fill": "$extron-muted",
+                          "textGrowth": "fixed-width-height",
+                          "width": 220,
+                          "height": 64,
+                          "content": "Image",
+                          "textAlign": "center",
+                          "textAlignVertical": "middle",
+                          "fontFamily": "Inter",
+                          "fontSize": 20,
+                          "fontWeight": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "N8E8cC",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Artwork / собственная графика",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FIgk9",
+              "name": "Guide / logo_Logo",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "oHuzM",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "logo_Logo",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "A4bSR",
+                  "name": "logo_Logo",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "fill": "$extron-track",
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "y8uAFg",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Artwork",
+                      "slot": [],
+                      "width": 220,
+                      "height": 64,
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Ouj1y",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Placeholder",
+                          "fill": "$extron-muted",
+                          "textGrowth": "fixed-width-height",
+                          "width": 220,
+                          "height": 64,
+                          "content": "LOGO",
+                          "textAlign": "center",
+                          "textAlignVertical": "middle",
+                          "fontFamily": "Inter",
+                          "fontSize": 20,
+                          "fontWeight": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "SXfIG",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Artwork / собственная графика",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Roszt",
+          "name": "Controls row 6",
+          "width": "fill_container",
+          "height": 184,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "Z9fNYc",
+              "name": "Guide / popupref_Popup",
+              "width": "fill_container",
+              "height": 184,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "cvct2",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "popupref_Popup",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "G9Ele",
+                  "name": "popupref_Popup",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none"
+                },
+                {
+                  "type": "text",
+                  "id": "fQguM",
+                  "name": "Contract",
+                  "fill": "$extron-muted",
+                  "content": "Пустой контейнер места popup",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "bBKBy",
+      "x": 920,
+      "y": 1840,
+      "name": "Extron Kit / Ready-to-use controls",
+      "width": 1560,
+      "height": 1040,
+      "fill": "$extron-canvas",
+      "layout": "vertical",
+      "gap": 24,
+      "padding": 40,
+      "children": [
+        {
+          "type": "text",
+          "id": "d86Zt",
+          "name": "Section title",
+          "fill": "$extron-ink",
+          "content": "02 / Готовые назначения",
+          "fontFamily": "Inter",
+          "fontSize": 30,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "text",
+          "id": "jlisn",
+          "name": "Section description",
+          "fill": "$extron-muted",
+          "content": "Ревизия 2026-10-24. Volume +/− и Back/Home/Settings: Normal / Pressed. Feedback: Normal / Active / Pressed.",
+          "fontFamily": "Inter",
+          "fontSize": 17,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "zHMKg",
+          "name": "Preset row 1",
+          "width": "fill_container",
+          "height": 152,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "InD8P",
+              "name": "Guide / feedbackbutton_Mute",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sSeZG",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "feedbackbutton_Mute",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "wo8mX",
+                  "name": "feedbackbutton_Mute",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "SmUiR",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "oDy7f",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "aTY6U",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Mute",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "w3Dr2",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Active",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Hln4I",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Htd1U",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Mute",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "LZKz3",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "fA2UD",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "G1IaTC",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Mute",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "eCVqp",
+              "name": "Guide / button_VolumeUp",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Splf3",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "button_VolumeUp",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "S3Ppfz",
+                  "name": "button_VolumeUp",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "qMtF1",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Lfp3w",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "GWG7m",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "+",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jE2ai",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "qkpU5",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "zRVxN",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "+",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "fR4G2",
+              "name": "Guide / button_VolumeDown",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fG0sZ",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "button_VolumeDown",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "W05L5",
+                  "name": "button_VolumeDown",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "O33koM",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "tG1b2",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qT1wv",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "−",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kW2tA",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "YejR2",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "D7iGXT",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "−",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "OgVHC",
+          "name": "Preset row 2",
+          "width": "fill_container",
+          "height": 152,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "rh5Sm",
+              "name": "Guide / feedbackbutton_Power",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "N66RE",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "feedbackbutton_Power",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "fIFbp",
+                  "name": "feedbackbutton_Power",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "g4yneA",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "cOTr0",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "IN7hL",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Power",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SgH0V",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Active",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "uFJGc",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "J7pTZ9",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Power",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "r0HAiO",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "rHps9",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "edQvL",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Power",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "prAPQ",
+              "name": "Guide / feedbackbutton_Music",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "VK2Dv",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "feedbackbutton_Music",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "C9wM5R",
+                  "name": "feedbackbutton_Music",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "g1YAl",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "h09UI",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Pq6xB",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Music",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "AZqDR",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Active",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "wEmv1",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Fo5mk",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Music",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "PEUa8",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "KBchW",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Da5oW",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Music",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lr78e",
+              "name": "Guide / feedbackbutton_HDMI",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qUo1R",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "feedbackbutton_HDMI",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "q7Gq85",
+                  "name": "feedbackbutton_HDMI",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "MJN14",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "pd5SS",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "gHsMp",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "HDMI",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "G1GYEx",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Active",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "hlIhN",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "sSE2p",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "HDMI",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kSEZd",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "XPNid",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Z4vY4",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "HDMI",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "cVpbK",
+          "name": "Preset row 3",
+          "width": "fill_container",
+          "height": 152,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "gIpOj",
+              "name": "Guide / feedbackbutton_Wireless",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "byPSt",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "feedbackbutton_Wireless",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "APA5k",
+                  "name": "feedbackbutton_Wireless",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "sSyzl",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "yYKJs",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "uWJO5",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Wireless",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "S57ZX",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Active",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "fH0zM",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Ay3ZC",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Wireless",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lQenz",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Xq2zW",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "rhq4Q",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Wireless",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ecUUf",
+              "name": "Guide / feedbackbutton_Hall",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "N8UxYq",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "feedbackbutton_Hall",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "Evm6L",
+                  "name": "feedbackbutton_Hall",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "NW0rW",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "zkXsO",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wgUXJ",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Hall",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hagsC",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Active",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "MO0sD",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "r2PmL",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Hall",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RJ83j",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "TNklv",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dbhTo",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Hall",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "GuB4r",
+              "name": "Guide / feedbackbutton_Terrace",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "rFDHL",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "feedbackbutton_Terrace",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "SY0fx",
+                  "name": "feedbackbutton_Terrace",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "kazBr",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "x53Kok",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "vRQqz",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Terrace",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "I4ejd",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Active",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-active",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "id9Ei",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "m1hFQC",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Terrace",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "oHWen",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "kmFf2",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "cndWc",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Terrace",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "GAr7P",
+          "name": "Preset row 4",
+          "width": "fill_container",
+          "height": 152,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "QrdPx",
+              "name": "Guide / button_Back",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "F8dO0Y",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "button_Back",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "QuGXr",
+                  "name": "button_Back",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "JuUz6",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "c9fU2f",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "FBOX6",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Back",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RJc0A",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Gx7jI",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Y68B2",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Back",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "h5Q4S7",
+              "name": "Guide / button_Home",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Z2fex7",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "button_Home",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "DGR5f",
+                  "name": "button_Home",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "dE5tD",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "s8xB3o",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "PJR5z",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Home",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sXNcm",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "lu3ZU",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "aCzaD",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Home",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "bYPDr",
+              "name": "Guide / button_Settings",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "EqBIl",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "button_Settings",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "worsY",
+                  "name": "button_Settings",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 64,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YyeYY",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Normal",
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-track",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "i0fP9",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "KuqlD",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "$extron-ink",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Settings",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "oflF6",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pressed",
+                      "enabled": false,
+                      "width": 220,
+                      "height": 64,
+                      "fill": "$extron-pressed",
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "DA4N2",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Artwork",
+                          "slot": [],
+                          "width": 220,
+                          "height": 64,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "r26ud1",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Label",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width-height",
+                              "width": 220,
+                              "height": 64,
+                              "content": "Settings",
+                              "textAlign": "center",
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "PODaJ",
+          "name": "Preset row 5",
+          "width": "fill_container",
+          "height": 152,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "WPlM6",
+              "name": "Guide / slider_Volume",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "SPZR8",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "slider_Volume",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "oySRe",
+                  "name": "slider_Volume",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 300,
+                  "height": 40,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "akqzk",
+                      "x": 0,
+                      "y": 12,
+                      "name": "Track",
+                      "width": 300,
+                      "height": 16,
+                      "fill": "$extron-track",
+                      "cornerRadius": 8
+                    },
+                    {
+                      "type": "frame",
+                      "id": "A40ijJ",
+                      "x": 0,
+                      "y": 12,
+                      "name": "Fill",
+                      "width": 126,
+                      "height": 16,
+                      "fill": "$extron-accent",
+                      "cornerRadius": 8
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "B2nXqE",
+                      "x": 112,
+                      "y": 6,
+                      "name": "Thumb",
+                      "fill": "$extron-ink",
+                      "width": 28,
+                      "height": 28
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FqRhT",
+              "name": "Guide / value_VolumeValue",
+              "width": "fill_container",
+              "height": 152,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "nGj4e",
+                  "name": "Service name",
+                  "fill": "$extron-ink",
+                  "content": "value_VolumeValue",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "mNQpm",
+                  "name": "value_VolumeValue",
+                  "reusable": true,
+                  "clip": true,
+                  "width": 220,
+                  "height": 40,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "uaVVM",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Content",
+                      "fill": "$extron-ink",
+                      "textGrowth": "fixed-width-height",
+                      "width": 220,
+                      "height": 40,
+                      "content": "42%",
+                      "textAlignVertical": "middle",
+                      "fontFamily": "Inter",
+                      "fontSize": 24,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "S9VIn",
+      "x": 4260,
+      "y": 356,
+      "name": "Extron Kit / Date and time formats",
+      "metadata": {
+        "type": "extron-kit",
+        "revision": "2026-10-24"
+      },
+      "width": 1560,
+      "fill": "$extron-canvas",
+      "layout": "vertical",
+      "gap": 24,
+      "padding": 40,
+      "children": [
+        {
+          "type": "text",
+          "id": "h3cnX",
+          "name": "Section title",
+          "fill": "$extron-ink",
+          "content": "03 / Дата и время · 28 форматов",
+          "fontFamily": "Inter",
+          "fontSize": 30,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "text",
+          "id": "lZboF",
+          "name": "Section description",
+          "fill": "$extron-muted",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Ревизия 2026-10-24. Здесь — связанные примеры одного datetime_Clock. В Figma генератор создаёт набор вариантов Format.\nТекст показывает пример; панель — текущие дату и время. Pattern сохраняет формат Extron.",
+          "lineHeight": 1.3,
+          "fontFamily": "Inter",
+          "fontSize": 17,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "C8jXv9",
+          "name": "Formats row 1",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "OsHgV",
+              "name": "Guide / Month day time 12h",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ZQUZJ",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Month day time 12h",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "E9tpd",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "MMMM d, h:mm tt",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "ogIxM",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Month day time 12h",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "September 28, 12:00 AM"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "EhvPp",
+              "name": "Guide / Weekday date time 12h",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "yN9n3",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Weekday date time 12h",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "VkyFG",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dddd, MMMM dd, yyyy h:mm tt",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "c1YSiw",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Weekday date time 12h",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "Monday, September 28, 2026 12:00 AM"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "WCCji",
+              "name": "Guide / Weekday date time 12h seconds",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "MyOav",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Weekday date time 12h seconds",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "cQ9U7",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dddd, MMMM dd, yyyy h:mm:ss tt",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "w12Xou",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Weekday date time 12h seconds",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "Monday, September 28, 2026 12:00:00 AM"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "nfPny",
+          "name": "Formats row 2",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "wtyjz",
+              "name": "Guide / Weekday date time 24h seconds",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "CCQYN",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Weekday date time 24h seconds",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "K09Z0f",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dddd, dd MMMM yyyy HH:mm:ss",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "zsdQT",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Weekday date time 24h seconds",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "Monday, 28 September 2026 00:00:00"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "MXzal",
+              "name": "Guide / US date time 12h",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "I3CxE",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "US date time 12h",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "W7IfH",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "M/d/yyyy h:mm tt",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "COxEO",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / US date time 12h",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "9/28/2026 12:00 AM"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "o9RJC",
+              "name": "Guide / US date time 12h seconds",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "U5NEa",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "US date time 12h seconds",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "cjIBM",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "M/d/yyyy h:mm:ss tt",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "Faut2",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / US date time 12h seconds",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "9/28/2026 12:00:00 AM"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "P72HiE",
+          "name": "Formats row 3",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "Ucq2O",
+              "name": "Guide / Dotted date time 24h",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Un71t",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Dotted date time 24h",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "DTDvA",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dd.MM.yyyy HH:mm",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "zhIqx",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Dotted date time 24h",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "28.09.2026 00:00"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YQydQ",
+              "name": "Guide / Time 12h",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "EHiw2",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Time 12h",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "Yq0QR",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "h:mm tt",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "U7T8q",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Time 12h",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "12:00 AM"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "QKw6C",
+              "name": "Guide / Time 12h padded",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "mYw3g",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Time 12h padded",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "k7M2R",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "hh:mm tt",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "o19QgK",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Time 12h padded",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "12:00 AM"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "teF2l",
+          "name": "Formats row 4",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "z4W9qq",
+              "name": "Guide / Time 24h",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "FjlL7",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Time 24h",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "KB8C4",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "H:mm",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "RtF6P",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Time 24h",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "0:00"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Mxpbm",
+              "name": "Guide / Time 24h padded",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "vudJV",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Time 24h padded",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "WOZsF",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "HH:mm",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "smt5y",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Time 24h padded",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "00:00"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "DWC8E",
+              "name": "Guide / Time 12h seconds",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "XgmXc",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Time 12h seconds",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "U2FHB",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "h:mm:ss tt",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "eHQYH",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Time 12h seconds",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "12:00:00 AM"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "LYSYR",
+          "name": "Formats row 5",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "uFi7W",
+              "name": "Guide / Time 12h seconds padded",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Q30PUz",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Time 12h seconds padded",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "LkPGG",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "hh:mm:ss tt",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "Gi8E0",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Time 12h seconds padded",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "12:00:00 AM"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "uzKg7",
+              "name": "Guide / Time 24h seconds",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "s5i7U5",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Time 24h seconds",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "B6TTN",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "H:mm:ss",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "TIurd",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Time 24h seconds",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "0:00:00"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ING7y",
+              "name": "Guide / Time 24h seconds padded",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "zF6jV",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Time 24h seconds padded",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "bbs96",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "HH:mm:ss",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "J21lB",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Time 24h seconds padded",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "00:00:00"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "xNtFq",
+          "name": "Formats row 6",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "EJ59f",
+              "name": "Guide / Weekday month day year",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "JZJWS",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Weekday month day year",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "XRdNk",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dddd, MMMM dd, yyyy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "VzUUV",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Weekday month day year",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "Monday, September 28, 2026"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "fxuRO",
+              "name": "Guide / Month day year",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "a1kdxX",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Month day year",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "XEHC5",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "MMMM dd, yyyy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "IoED2",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Month day year",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "September 28, 2026"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "z7dfW",
+              "name": "Guide / Weekday day month year",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Y5dXtM",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Weekday day month year",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "jSKfr",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dddd, dd MMMM, yyyy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "a59vM",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Weekday day month year",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "Monday, 28 September, 2026"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NWLwu",
+          "name": "Formats row 7",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "u3Mbb",
+              "name": "Guide / Day month year",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "I22V7",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Day month year",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "mbqG5",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dd MMMM, yyyy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "i7sIK",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Day month year",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "28 September, 2026"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "C4epl",
+              "name": "Guide / Weekday month day",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "g3dpLy",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Weekday month day",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "XecGh",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dddd, MMMM d",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "lVAUz",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Weekday month day",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "Monday, September 28"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "f0I4e",
+              "name": "Guide / US date",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gwjSo",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "US date",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "sVrs9",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "M/d/yyyy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "C0TxG",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / US date",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "9/28/2026"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "K2xgSO",
+          "name": "Formats row 8",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "vLOZX",
+              "name": "Guide / US date short year",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Ki1oE",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "US date short year",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "wD3VY",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "M/d/yy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "Fw6Go",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / US date short year",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "9/28/26"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dUQwD",
+              "name": "Guide / US date padded",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "GJkOb",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "US date padded",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "P0lCfN",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "MM/dd/yyyy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "dnoZg",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / US date padded",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "09/28/2026"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Pq8DW",
+              "name": "Guide / US date padded short year",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "TVOpK",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "US date padded short year",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "Ojeam",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "MM/dd/yy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "QRgSe",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / US date padded short year",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "09/28/26"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "h1bsG",
+          "name": "Formats row 9",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "fbioh",
+              "name": "Guide / Year month day short",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "TP25z",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Year month day short",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "kR50u",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "yy/MM/dd",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "uCzWD",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Year month day short",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "26/09/28"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Afb88",
+              "name": "Guide / ISO date",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "oC2vb",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "ISO date",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "XmHGD",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "yyyy-MM-dd",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "Hptfn",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / ISO date",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "2026-09-28"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "q9jII",
+              "name": "Guide / Day month abbreviation year",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "xYqlp",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Day month abbreviation year",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "u8cfN",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dd-MMM-yy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "nucs4",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Day month abbreviation year",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "28-Sep-26"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "cdFIP",
+          "name": "Formats row 10",
+          "width": "fill_container",
+          "height": 132,
+          "gap": 20,
+          "children": [
+            {
+              "type": "frame",
+              "id": "j2LaD",
+              "name": "Guide / Dotted date",
+              "width": "fill_container",
+              "height": 132,
+              "fill": "$extron-surface",
+              "cornerRadius": 10,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "w2eRG",
+                  "name": "Format name",
+                  "fill": "$extron-ink",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Dotted date",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "dniWR",
+                  "name": "Pattern",
+                  "fill": "$extron-muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "dd.MM.yyyy",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "id": "GcAEf",
+                  "type": "ref",
+                  "ref": "j715yu",
+                  "name": "datetime_Clock / Dotted date",
+                  "width": 440,
+                  "height": 40,
+                  "y": 66,
+                  "descendants": {
+                    "fC2Dn": {
+                      "content": "28.09.2026"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "V9hl6Y",
+              "name": "Empty format cell 1",
+              "width": "fill_container",
+              "height": 132,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16
+            },
+            {
+              "type": "frame",
+              "id": "Z0U2lt",
+              "name": "Empty format cell 2",
+              "width": "fill_container",
+              "height": 132,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
