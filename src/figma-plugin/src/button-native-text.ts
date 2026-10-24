@@ -1,16 +1,30 @@
 import { fail, readMetadata, stateRole } from './model.ts';
 import { isButtonContainer, type ArtworkText, type ButtonContainer } from './button-artwork.ts';
-import { plain, readText } from './read-node.ts';
+import { plain, readText, rect } from './read-node.ts';
 import type { ProjectNode, ProjectOptions } from './project.ts';
 
 export const BUTTON_TEXT_KEY = 'exui-button-native-text';
-export type ButtonTextMode = 'middle-center' | 'bottom-center';
+export type ButtonTextMode = 'auto' | 'middle-center' | 'bottom-center';
 export function buttonTextMode(node: SceneNode): ButtonTextMode | undefined {
   const mode = node.getPluginData(BUTTON_TEXT_KEY);
   if (!mode) return;
-  if (mode !== 'middle-center' && mode !== 'bottom-center')
+  if (mode !== 'auto' && mode !== 'middle-center' && mode !== 'bottom-center')
     fail('button-text', `${node.name}: неизвестный режим текста. Повторно выберите положение текста кнопок.`, node);
   return mode;
+}
+
+// The caption's frame position determines the vertical Button anchor. Paragraph
+// settings are deliberately ignored: default LEFT / TOP must not propagate to
+// the Button. Horizontal alignment is always centered, including offset boxes.
+function automaticAlignment(label: TextNode, state: ButtonContainer): 'middle-center' | 'bottom-center' {
+  const [x,y,w,h]=rect(label,state),[,,width,height]=rect(state,state);
+  if(x<0||y<0||x+w>width||y+h>height)
+    fail('button-text-alignment',`${label.name}: текстовая рамка выходит за кнопку. Поместите её внутри кнопки.`,label);
+  const center=y+h/2;
+  // Nearest of top / middle / bottom. Ties are ambiguous, not a guess.
+  if(center>height/4&&center<height*3/4)return 'middle-center';
+  if(center>height*3/4)return 'bottom-center';
+  fail('button-text-alignment',`${label.name}: верхнее или неоднозначное положение текстовой рамки пока не поддержано автоматическим текстом Button. Переместите рамку в среднюю или нижнюю часть кнопки либо выберите положение вручную.`,label);
 }
 
 // A hidden state still needs its caption. Hidden descendants do not contribute.
@@ -32,11 +46,12 @@ export function nativeButtonText(state: ButtonContainer, mode: ButtonTextMode): 
     if ('children' in node && node.children.some(child => 'isMask' in child && child.isMask))
       fail('button-text', `${state.name}: подпись с маской нельзя перенести в текст Button. Уберите маску или сохраните расположение Figma.`, label);
   }
-  return {...readText(label),omitTextId:label.id,bottom:mode==='bottom-center'};
+  const alignment=mode==='auto'?automaticAlignment(label,state):mode;
+  return {...readText(label),omitTextId:label.id,bottom:alignment==='bottom-center'};
 }
 
 export function setButtonTextMode(root: ProjectNode, options: ProjectOptions, mode: ButtonTextMode | 'design'): {buttons:number;skipped:number} {
-  if (!['middle-center','bottom-center','design'].includes(mode)) fail('button-text','Выберите положение текста кнопок.');
+  if (!['auto','middle-center','bottom-center','design'].includes(mode)) fail('button-text','Выберите положение текста кнопок.');
   const buttons: ButtonContainer[] = [];
   function visit(node: SceneNode) {
     const metadata = readMetadata(node, {allowCopied:true});

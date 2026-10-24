@@ -32,7 +32,11 @@ try{
   await frame.locator('#buttonText > summary').focus();await page.keyboard.press('Enter');
   await frame.locator('#applyButtonText').click();
   await frame.locator('#buttonTextResult').filter({hasText:'Текст для GCP настроен: 2'}).waitFor();
-  assert.ok(f.buttons.every(b=>b.getPluginData(BUTTON_TEXT_KEY)==='bottom-center'));
+  assert.ok(f.buttons.every(b=>b.getPluginData(BUTTON_TEXT_KEY)==='auto'));
+  assert.ok(capture(f.root).screen.elements.every(e=>e.states!.every(s=>s.textAlign==='bottom-center')));
+  for(const s of f.buttons[0].children)s.children.find(n=>n.type==='TEXT')!.y=28;
+  assert.ok(capture(f.root).screen.elements[0].states!.every(s=>!s.textAlign));
+  assert.ok(capture(f.root).screen.elements[1].states!.every(s=>s.textAlign==='bottom-center'));
   assert.ok(capture(f.root).screen.elements.every(e=>e.kind==='button'&&e.states!.every(s=>!!s.text)));
   for(const width of [320,420]){
     await page.setViewportSize({width,height:720});

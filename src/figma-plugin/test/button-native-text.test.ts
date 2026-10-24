@@ -17,6 +17,47 @@ function fixture() {
   for(const b of f.buttons)for(const state of b.children)state.children.find(n=>n.type==='TEXT')!.fontName={family:'Inter',style:'Regular'};
   applyRecognition(recognize(f.root,'tlp-pro-1025m'));return f;
 }
+test('Auto mode follows frame position on every export and ignores all paragraph alignments',()=>{
+  const f=fixture(),button=f.buttons[0];
+  setButtonTextMode(f.root,{members:[button]},'auto');
+  for(const horizontal of ['LEFT','CENTER','RIGHT','JUSTIFIED'])for(const vertical of ['TOP','CENTER','BOTTOM']){
+    for(const state of button.children){const label=state.children.find(n=>n.type==='TEXT')!;label.textAlignHorizontal=horizontal as any;label.textAlignVertical=vertical as any;}
+    const native=capture(f.root).screen.elements[0];
+    assert.ok(native.states!.every(s=>s.textAlign==='bottom-center'));
+    assert.ok(capture(f.root).images.filter(i=>i.asset.key.startsWith('button-artwork.'+native.controlId+'.')).every(i=>!!i.artwork?.omitTextId));
+  }
+  for(const state of button.children){const label=state.children.find(n=>n.type==='TEXT')!;label.y=28;}
+  assert.ok(capture(f.root).screen.elements[0].states!.every(s=>!s.textAlign));
+  // A full-area text frame means middle even with paragraph BOTTOM / RIGHT.
+  for(const state of button.children){const label=state.children.find(n=>n.type==='TEXT')!;label.x=0;label.y=0;label.resize(120,80);}
+  assert.ok(capture(f.root).screen.elements[0].states!.every(s=>!s.textAlign));
+  assert.equal(button.getPluginData(BUTTON_TEXT_KEY),'auto');
+});
+
+test('Auto centers a horizontally offset text box without changing source geometry or IDs',()=>{
+  const f=fixture(),button=f.buttons[0];
+  for(const state of button.children){const label=state.children.find(n=>n.type==='TEXT')!;label.x=1;label.resize(80,24);}
+  const before=designSignature(f.root),ids=capture(f.root).screen.elements.filter(e=>e.kind==='button').map(e=>[e.objectId,e.controlId]);
+  setButtonTextMode(f.root,{members:[button]},'auto');
+  const captured=capture(f.root);assert.equal(captured.screen.elements.filter(e=>e.kind==='label').length,1);
+  assert.ok(captured.screen.elements[0].states!.every(s=>s.textAlign==='bottom-center'));
+  assert.deepEqual(captured.screen.elements.filter(e=>e.kind==='button').map(e=>[e.objectId,e.controlId]),ids);
+  setButtonTextMode(f.root,{members:[button]},'design');assert.equal(designSignature(f.root),before);
+});
+
+for(const y of [0,8,48,70])test(`Auto rejects top, ambiguous or out-of-bounds frame y=${y} before any batch writes`,()=>{
+  const f=fixture();
+  for(const state of f.buttons[1].children)state.children.find(n=>n.type==='TEXT')!.y=y;
+  const before=designSignature(f.root);
+  assert.throws(()=>setButtonTextMode(f.root,{},'auto'),(e:any)=>e.code==='button-text-alignment');
+  assert.equal(designSignature(f.root),before);
+});
+
+test('Moving auto caption into an unsupported position after applying gives a contextual export error',()=>{
+  const f=fixture();setButtonTextMode(f.root,{},'auto');
+  const label=f.buttons[0].children[0].children.find(n=>n.type==='TEXT')!;label.y=0;
+  assert.throws(()=>capture(f.root),(e:any)=>e.code==='button-text-alignment'&&e.nodeId===label.id);
+});
 for(const mode of ['middle-center','bottom-center'] as const)test(`${mode}: editable overlay becomes Button text; source layout, IDs and unselected button stay intact`,async()=>{
   const f=fixture(),button=f.buttons[0],before=designSignature(f.root),neighbor=designSignature(f.buttons[1]);
   assert.equal(capture(f.root).screen.elements.filter(e=>e.kind==='label').length,2);
