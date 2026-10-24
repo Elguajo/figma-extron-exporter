@@ -25,6 +25,7 @@ export function kitFixture(){
     },
   });
   const visit=(node:any,fn:(n:any)=>void)=>{fn(node);for(const child of node.children)visit(child,fn);};
+  api.createNodeFromSvg=(svg:string)=>{if(!svg.includes('<svg')||!svg.includes('viewBox="0 0 24 24"'))throw new Error('Invalid fixture SVG');const n=new fake.FakeNode('FRAME') as any;n.resize(Number(/width="(\d+)"/.exec(svg)?.[1]??24),Number(/height="(\d+)"/.exec(svg)?.[1]??24));n.svgSource=svg;fake.page.appendChild(n);return n;};
   api.createComponent=()=>{
     const n=new fake.FakeNode('COMPONENT') as any;fake.page.appendChild(n);n.componentPropertyDefinitions={};
     n.addComponentProperty=(name:string,type:string,defaultValue:string)=>{const key=name+'#'+(++propertyId);n.componentPropertyDefinitions[key]={type,defaultValue};return key;};

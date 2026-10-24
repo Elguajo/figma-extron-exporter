@@ -1,6 +1,7 @@
 import catalog from '../../../design/extron-kit/kit.json' with {type:'json'};
 import { PROFILES,fail,type Profile } from './model.ts';
 import { KIT_KEY,KIT_VERSION,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
+import {createKitExtensions} from './kit-patterns.ts';
 import { DATETIME_FORMATS,FORMAT_PROPERTY,formatDateTime } from './datetime-format.ts';
 
 type Parent=FrameNode|ComponentNode|SlotNode|PageNode;
@@ -98,7 +99,7 @@ function dateTimeSet(spec:Spec,library:FrameNode,top:number):{set:ComponentSetNo
   return {set,variants,height:rows*CLOCK.cell};
 }
 
-export interface KitResult {library:FrameNode;components:ComponentNode[];dateTime:ComponentSetNode;templates:FrameNode[];example:FrameNode}
+export interface KitResult {library:FrameNode;components:ComponentNode[];dateTime:ComponentSetNode;templates:FrameNode[];example:FrameNode;patterns:FrameNode[];patternProject:FrameNode;icons:ComponentNode[]}
 export async function createKit(profile:Profile):Promise<KitResult> {
   if(!Object.prototype.hasOwnProperty.call(PROFILES,profile))fail('profile','Выберите профиль панели.');
   await figma.loadFontAsync({family:t.family,style:'Regular'});await figma.loadFontAsync({family:t.family,style:'Bold'});
@@ -166,6 +167,7 @@ export async function createKit(profile:Profile):Promise<KitResult> {
       const cell=frame(cover,'Contents / '+(index+1),992,112,c.control);cell.x=48+index*1008;cell.y=400;cell.cornerRadius=g.controlRadius;
       const text=label(cell,'Chapter',copy,944,64,24,c.ink,true);text.x=24;text.y=24;
     }
+    const more=label(cover,'Extension contents','06 / Готовые AV-сценарии · 07 / Иконки и размеры — ниже основных шаблонов',5064,40,22,c.muted);more.x=48;more.y=536;
     const basics=chapter(library,'01 / Основы и состояния','01 / Основы','Цвет, типографика и состояния. С них начинается работа с китом.',0,840,1560,1760);
     for(const [index,node]of swatches.entries()){basics.appendChild(node);node.x=40+(index%3)*500;node.y=208+Math.floor(index/3)*128;}
     const typeCard=frame(basics,'Typography',1480,448,c.surface);typeCard.x=40;typeCard.y=520;typeCard.cornerRadius=g.surfaceRadius;
@@ -257,6 +259,7 @@ export async function createKit(profile:Profile):Promise<KitResult> {
     examplesBoard.appendChild(example);example.x=48;example.y=208;
     // No Extron IDs on masters: each placed instance receives its own IDs on recognition.
     figma.currentPage.selection=[example];figma.viewport.scrollAndZoomIntoView([example]);
-    return{library,components,dateTime:clocks.set,templates,example};
+    const extensions=createKitExtensions(profile,components,origin,boardsY+Math.max(templatesBoard.height,examplesBoard.height)+240,created,{frame,label,sizeButton,buttonLabel});
+    return{library,components,dateTime:clocks.set,templates,example,...extensions};
   }catch(error){for(const node of created.reverse())if(!node.removed)node.remove();figma.currentPage.selection=previousSelection.filter(n=>!n.removed);throw error;}
 }

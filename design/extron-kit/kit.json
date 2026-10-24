@@ -1,42 +1,303 @@
 {
   "schema": "extron-kit/1",
   "name": "Extron Kit",
-  "revision": "2026-10-24-apple",
+  "revision": "2026-10-24-av-patterns",
   "style": "Apple-inspired Light",
-  "colors": { "canvas": "#F5F5F7", "surface": "#FFFFFF", "ink": "#1D1D1F", "muted": "#65656B", "line": "#D2D2D7", "track": "#D8D8DE", "control": "#E8E8ED", "accent": "#0066CC", "active": "#0066CC", "pressed": "#004C99", "onAccent": "#FFFFFF", "success": "#247344", "danger": "#B42318" },
-  "geometry": { "controlRadius": 16, "surfaceRadius": 24, "trackHeight": 8, "thumbSize": 28 },
-  "typography": { "family": "Inter", "body": 20, "caption": 14, "title": 36 },
+  "colors": {
+    "canvas": "#F5F5F7",
+    "surface": "#FFFFFF",
+    "ink": "#1D1D1F",
+    "muted": "#65656B",
+    "line": "#D2D2D7",
+    "track": "#D8D8DE",
+    "control": "#E8E8ED",
+    "accent": "#0066CC",
+    "active": "#0066CC",
+    "pressed": "#004C99",
+    "onAccent": "#FFFFFF",
+    "success": "#247344",
+    "danger": "#B42318",
+    "dangerPressed": "#861A12"
+  },
+  "geometry": {
+    "controlRadius": 16,
+    "surfaceRadius": 24,
+    "trackHeight": 8,
+    "thumbSize": 28,
+    "minimumTarget": 56,
+    "iconSize": 24
+  },
+  "typography": {
+    "family": "Inter",
+    "body": 20,
+    "caption": 14,
+    "title": 36
+  },
   "controls": [
-    { "name": "button_Button", "type": "button", "label": "Button", "states": ["Off", "On"], "section": "Universal" },
-    { "name": "feedbackbutton_Feedback", "type": "button", "label": "Feedback", "states": ["Normal", "Active", "Pressed"], "section": "Universal" },
-    { "name": "slider_Slider", "type": "slider", "label": "Custom slider", "section": "Universal" },
-    { "name": "level_Level", "type": "level", "label": "Simple level", "section": "Universal" },
-    { "name": "gauge_Gauge", "type": "level", "label": "Gauge", "section": "Universal" },
-    { "name": "indicator_Indicator", "type": "level", "label": "Indicator", "section": "Universal" },
-    { "name": "volumeled_Led", "type": "level", "label": "Volume LED", "section": "Universal" },
-    { "name": "multilevel_Multilevel", "type": "multilevel", "label": "Ready", "states": ["Normal", "state_Ready", "state_Error"], "section": "Universal" },
-    { "name": "text_Label", "type": "text", "label": "Text label", "section": "Universal" },
-    { "name": "value_Value", "type": "text", "label": "42%", "section": "Universal" },
-    { "name": "datetime_Clock", "type": "datetime", "label": "MMMM d, h:mm tt", "section": "DateTime" },
-    { "name": "shape_Shape", "type": "shape", "label": "Shape", "section": "Universal" },
-    { "name": "line_Line", "type": "line", "label": "Divider", "section": "Universal" },
-    { "name": "image_Image", "type": "graphic", "label": "Image", "section": "Universal" },
-    { "name": "logo_Logo", "type": "graphic", "label": "LOGO", "section": "Universal" },
-    { "name": "popupref_Popup", "type": "popup-ref", "label": "Popup position", "section": "Universal" },
-    { "name": "feedbackbutton_Mute", "type": "button", "label": "Mute", "states": ["Normal", "Active", "Pressed"], "section": "Presets" },
-    { "name": "button_VolumeUp", "type": "button", "label": "+", "states": ["Normal", "Pressed"], "section": "Presets" },
-    { "name": "button_VolumeDown", "type": "button", "label": "−", "states": ["Normal", "Pressed"], "section": "Presets" },
-    { "name": "feedbackbutton_Power", "type": "button", "label": "Power", "states": ["Normal", "Active", "Pressed"], "section": "Presets" },
-    { "name": "feedbackbutton_Music", "type": "button", "label": "Music", "states": ["Normal", "Active", "Pressed"], "section": "Presets" },
-    { "name": "feedbackbutton_HDMI", "type": "button", "label": "HDMI", "states": ["Normal", "Active", "Pressed"], "section": "Presets" },
-    { "name": "feedbackbutton_Wireless", "type": "button", "label": "Wireless", "states": ["Normal", "Active", "Pressed"], "section": "Presets" },
-    { "name": "feedbackbutton_Hall", "type": "button", "label": "Hall", "states": ["Normal", "Active", "Pressed"], "section": "Presets" },
-    { "name": "feedbackbutton_Terrace", "type": "button", "label": "Terrace", "states": ["Normal", "Active", "Pressed"], "section": "Presets" },
-    { "name": "button_Back", "type": "button", "label": "Back", "states": ["Normal", "Pressed"], "section": "Presets" },
-    { "name": "button_Home", "type": "button", "label": "Home", "states": ["Normal", "Pressed"], "section": "Presets" },
-    { "name": "button_Settings", "type": "button", "label": "Settings", "states": ["Normal", "Pressed"], "section": "Presets" },
-    { "name": "slider_Volume", "type": "slider", "label": "Volume", "section": "Presets" },
-    { "name": "value_VolumeValue", "type": "text", "label": "42%", "section": "Presets" }
+    {
+      "name": "button_Button",
+      "type": "button",
+      "label": "Button",
+      "states": [
+        "Off",
+        "On"
+      ],
+      "section": "Universal"
+    },
+    {
+      "name": "feedbackbutton_Feedback",
+      "type": "button",
+      "label": "Feedback",
+      "states": [
+        "Normal",
+        "Active",
+        "Pressed"
+      ],
+      "section": "Universal"
+    },
+    {
+      "name": "slider_Slider",
+      "type": "slider",
+      "label": "Custom slider",
+      "section": "Universal"
+    },
+    {
+      "name": "level_Level",
+      "type": "level",
+      "label": "Simple level",
+      "section": "Universal"
+    },
+    {
+      "name": "gauge_Gauge",
+      "type": "level",
+      "label": "Gauge",
+      "section": "Universal"
+    },
+    {
+      "name": "indicator_Indicator",
+      "type": "level",
+      "label": "Indicator",
+      "section": "Universal"
+    },
+    {
+      "name": "volumeled_Led",
+      "type": "level",
+      "label": "Volume LED",
+      "section": "Universal"
+    },
+    {
+      "name": "multilevel_Multilevel",
+      "type": "multilevel",
+      "label": "Ready",
+      "states": [
+        "Normal",
+        "state_Ready",
+        "state_Error"
+      ],
+      "section": "Universal"
+    },
+    {
+      "name": "text_Label",
+      "type": "text",
+      "label": "Text label",
+      "section": "Universal"
+    },
+    {
+      "name": "value_Value",
+      "type": "text",
+      "label": "42%",
+      "section": "Universal"
+    },
+    {
+      "name": "datetime_Clock",
+      "type": "datetime",
+      "label": "MMMM d, h:mm tt",
+      "section": "DateTime"
+    },
+    {
+      "name": "shape_Shape",
+      "type": "shape",
+      "label": "Shape",
+      "section": "Universal"
+    },
+    {
+      "name": "line_Line",
+      "type": "line",
+      "label": "Divider",
+      "section": "Universal"
+    },
+    {
+      "name": "image_Image",
+      "type": "graphic",
+      "label": "Image",
+      "section": "Universal"
+    },
+    {
+      "name": "logo_Logo",
+      "type": "graphic",
+      "label": "LOGO",
+      "section": "Universal"
+    },
+    {
+      "name": "popupref_Popup",
+      "type": "popup-ref",
+      "label": "Popup position",
+      "section": "Universal"
+    },
+    {
+      "name": "feedbackbutton_Mute",
+      "type": "button",
+      "label": "Mute",
+      "states": [
+        "Normal",
+        "Active",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "button_VolumeUp",
+      "type": "button",
+      "label": "+",
+      "states": [
+        "Normal",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "button_VolumeDown",
+      "type": "button",
+      "label": "−",
+      "states": [
+        "Normal",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "feedbackbutton_Power",
+      "type": "button",
+      "label": "Power",
+      "states": [
+        "Normal",
+        "Active",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "feedbackbutton_Music",
+      "type": "button",
+      "label": "Music",
+      "states": [
+        "Normal",
+        "Active",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "feedbackbutton_HDMI",
+      "type": "button",
+      "label": "HDMI",
+      "states": [
+        "Normal",
+        "Active",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "feedbackbutton_Wireless",
+      "type": "button",
+      "label": "Wireless",
+      "states": [
+        "Normal",
+        "Active",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "feedbackbutton_Hall",
+      "type": "button",
+      "label": "Hall",
+      "states": [
+        "Normal",
+        "Active",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "feedbackbutton_Terrace",
+      "type": "button",
+      "label": "Terrace",
+      "states": [
+        "Normal",
+        "Active",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "button_Back",
+      "type": "button",
+      "label": "Back",
+      "states": [
+        "Normal",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "button_Home",
+      "type": "button",
+      "label": "Home",
+      "states": [
+        "Normal",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "button_Settings",
+      "type": "button",
+      "label": "Settings",
+      "states": [
+        "Normal",
+        "Pressed"
+      ],
+      "section": "Presets"
+    },
+    {
+      "name": "slider_Volume",
+      "type": "slider",
+      "label": "Volume",
+      "section": "Presets"
+    },
+    {
+      "name": "value_VolumeValue",
+      "type": "text",
+      "label": "42%",
+      "section": "Presets"
+    }
   ],
-  "containers": ["project_Project", "screen_Home", "screen_Settings", "popup_Popup", "modalpopup_Confirm", "popupgroup_Zones"]
+  "containers": [
+    "project_Project",
+    "screen_Home",
+    "screen_Settings",
+    "popup_Popup",
+    "modalpopup_Confirm",
+    "popupgroup_Zones"
+  ],
+  "spacing": [
+    8,
+    16,
+    24,
+    32,
+    48,
+    64
+  ]
 }

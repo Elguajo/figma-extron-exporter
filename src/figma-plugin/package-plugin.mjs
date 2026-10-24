@@ -11,6 +11,7 @@ files['docs/figma-extron-prefix-cheatsheet.pdf']=new Uint8Array(await readFile(p
 files['docs/figma-prefix-reference.md']=new Uint8Array(await readFile(path.join(dir,'../../docs/figma-prefix-reference.md')));
 files['PREFIXES.md']=new TextEncoder().encode(new TextDecoder().decode(files['PREFIXES.md']).replace('../../docs/figma-prefix-reference.md','docs/figma-prefix-reference.md').replace('../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf','docs/figma-extron-prefix-cheatsheet.pdf'));
 for(const [name,file] of [['fflate','fflate/LICENSE'],['noble-hashes','@noble/hashes/LICENSE']])files[`licenses/${name}.txt`]=new Uint8Array(await readFile(path.join(dir,'node_modules',file)));
+files['licenses/lucide.txt']=new Uint8Array(await readFile(path.join(dir,'../../design/extron-kit/icons/LICENSE')));
 files['version.json']=new TextEncoder().encode(JSON.stringify({version,...(compatibleCliVersion?{compatibleCliVersion}:{}),contracts:['exui/5'],metadataSchemas:['exui-node/1','exui-node/2','exui-node/3']},null,2)+'\n');
 await mkdir(path.dirname(output),{recursive:true});await writeFile(output,zipSync(files,{level:6,mtime:new Date(2000,0,1)}),{flag:'wx'});
 console.log('Plugin archive: '+output);

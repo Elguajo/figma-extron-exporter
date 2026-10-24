@@ -23,3 +23,7 @@ The upstream delta cache, AI workflow, localhost bridge, sync shell scripts and 
 - `@noble/hashes` 1.8.0 — MIT, https://github.com/paulmillr/noble-hashes
 
 Their complete license texts are included in the installable archive under `licenses/`. Development tooling and exact versions are pinned by package-lock.json. No Extron DLL, donor GDL, third-party font or private SDK is included.
+
+## AV icons
+
+18 SVG icons from `lucide-static` 1.61.0 are embedded in Extron Kit. Source, integrity and original SVGs: `design/extron-kit/icons/`. ISC and applicable Feather MIT notices are preserved in `licenses/lucide.txt` in the plugin archive. Icons have no Extron control IDs and are intended for button Artwork or passive graphics.

@@ -1,5 +1,11 @@
 # История изменений
 
+## После 0.7.3 — Extron Kit / AV-сценарии, иконки и размеры
+
+- Раздел 06: `project_AVPatterns` — Welcome, Presentation, Audio Zones, Connection Help, System Status и `modalpopup_Shutdown` для TLP Pro 1025M и 300M, собранные из существующих компонентов. Для каждого сценария описано, что подключает программа управления. [Исследование](design/extron-kit/RESEARCH-2026-10-24.md).
+- Раздел 07: 18 AV-иконок Lucide 1.61.0 без controlId, цели нажатия от 56 px, шкала отступов. Лицензия Lucide включена в архив плагина.
+- Веб-документация: галерея 12 компоновок, страницы сценариев и скачивание SVG; локальный сервер отдаёт SVG/WOFF2 с правильным MIME. [Протокол проверки](verification/results/2026-10-24-extron-kit-av-patterns.md).
+
 ## После 0.7.3 — Extron Kit / Apple-inspired Light
 
 - Опубликована [приватная визуальная документация Extron Kit](https://extron-kit-docs-trilliant.still-coin-7045.chatgpt.site): 30 семейств, поиск, фильтр, состояния, интерактивный Slider, 28 форматов часов, настоящие рендеры и скачивание текущего плагина. [Исходники сайта](web/extron-kit-docs/README.md).

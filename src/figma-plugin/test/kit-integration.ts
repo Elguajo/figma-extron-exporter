@@ -13,11 +13,11 @@ import {DATETIME_FORMATS} from '../src/datetime-format.ts';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 const out=path.resolve(process.argv[2]??path.join(root,'output/kit-integration-'+Date.now()));await mkdir(out,{recursive:true});
 const dotnet=process.env.DOTNET_EXE??path.join(root,'.tools/dotnet/dotnet.exe');
-function cli(args:string[]){const r=spawnSync(dotnet,[path.join(root,'src/cli/bin/Debug/net10.0/Extron.Cli.dll'),...args],{cwd:root,encoding:'utf8',timeout:180000});assert.equal(r.status,0,r.stderr||r.stdout||String(r.error));return JSON.parse(r.stdout);}
+function cli(args:string[]){const r=spawnSync(dotnet,[process.env.EXTRON_CLI_DLL??path.join(root,'src/cli/bin/Debug/net10.0/Extron.Cli.dll'),...args],{cwd:root,encoding:'utf8',timeout:180000});assert.equal(r.status,0,r.stderr||r.stdout||String(r.error));return JSON.parse(r.stdout);}
 const evidence:unknown[]=[];
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
  kitFixture();const kit=await createKit(profile);
- for(const [name,node]of [['screen',kit.example],['project',kit.templates[0]]] as const){
+ for(const [name,node]of [['screen',kit.example],['project',kit.templates[0]],['patterns',kit.patternProject]] as const){
   const plan=recognize(node,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);const bundle=await exportFrame(node);
   const input=path.join(out,`${name}-${profile}.exui`),output=path.join(out,`${name}-${profile}.gdl`);await writeFile(input,packageExui(bundle),{flag:'wx'});
   const validation=cli(['validate-package',input]),generation=cli(['convert-package',input,output,'--registry',path.join(root,'samples/donors.json')]);
@@ -34,7 +34,8 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
     }
    }
    const clock=model.Pages[0].Controls.find((n:any)=>n.Type==='PBDateTime');assert.equal(clock.Native.Pattern,'MMMM d, h:mm tt');
-  }else{assert.equal(model.Pages.length,1);assert.equal(model.Groups.length,1);assert.ok(model.Popups.length>=4);}
+  }else if(name==='project'){assert.equal(model.Pages.length,1);assert.equal(model.Groups.length,1);assert.ok(model.Popups.length>=4);}
+  else{assert.equal(model.Pages.length,5);const popups=model.Popups.filter((p:any)=>p.Comments.startsWith('exui-key='));assert.equal(popups.length,1);assert.equal(popups[0].Popup.Modal,true);const controls=[...model.Pages,...model.Popups].flatMap((p:any)=>p.Controls);assert.ok(controls.some((c:any)=>c.Type==='PBLevel'&&c.States.map((s:any)=>s.Text).join('/')==='Starting/Ready/Offline'));}
   evidence.push({profile,name,validation,generation,boundary:'Figma API and PNG rendering simulated; real CLI, donor, x86 writer and independent NRBF checks. No GUI Build/device claim.'});
   console.log(`PASS kit ${profile} / ${name}: ${generation.checks}`);
  }

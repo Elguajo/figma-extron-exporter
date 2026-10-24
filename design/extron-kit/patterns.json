@@ -1,0 +1,1453 @@
+{
+  "schema": "extron-kit-patterns/1",
+  "revision": "2026-10-24-av-patterns",
+  "patterns": [
+    {
+      "id": "welcome",
+      "title": "Запуск системы",
+      "container": "screen_Welcome",
+      "summary": "Понятная точка входа: запуск и помощь.",
+      "program": "Start запускает сценарий один раз; основная страница показывается после готовности. Help открывает инструкции.",
+      "layouts": {
+        "tlp-pro-1025m": [
+          {
+            "kind": "icon",
+            "name": "image_Welcome",
+            "bounds": [
+              592,
+              160,
+              96,
+              96
+            ],
+            "icon": "monitor",
+            "color": "accent"
+          },
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              240,
+              288,
+              800,
+              64
+            ],
+            "text": "Ready when you are",
+            "fontSize": 40,
+            "color": "ink",
+            "align": "center",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_Intro",
+            "bounds": [
+              240,
+              368,
+              800,
+              48
+            ],
+            "text": "Start the room for your presentation.",
+            "fontSize": 20,
+            "color": "muted",
+            "align": "center",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Start",
+            "bounds": [
+              464,
+              480,
+              352,
+              64
+            ],
+            "label": "Start system",
+            "master": "button_Back",
+            "icon": "power",
+            "tone": "primary",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              530,
+              640,
+              220,
+              56
+            ],
+            "label": "Need help?",
+            "master": "button_Back",
+            "icon": "circle-help",
+            "selected": false
+          }
+        ],
+        "tlp-pro-300m-portrait": [
+          {
+            "kind": "icon",
+            "name": "image_Welcome",
+            "bounds": [
+              128,
+              56,
+              64,
+              64
+            ],
+            "icon": "monitor",
+            "color": "accent"
+          },
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              24,
+              152,
+              272,
+              72
+            ],
+            "text": "Ready when you are",
+            "fontSize": 28,
+            "color": "ink",
+            "align": "center",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_Intro",
+            "bounds": [
+              24,
+              240,
+              272,
+              56
+            ],
+            "text": "Start the room for your presentation.",
+            "fontSize": 18,
+            "color": "muted",
+            "align": "center",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Start",
+            "bounds": [
+              24,
+              328,
+              272,
+              64
+            ],
+            "label": "Start system",
+            "master": "button_Back",
+            "icon": "power",
+            "tone": "primary",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              24,
+              408,
+              272,
+              56
+            ],
+            "label": "Need help?",
+            "master": "button_Back",
+            "icon": "circle-help",
+            "selected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "presentation",
+      "title": "Презентация",
+      "container": "screen_Presentation",
+      "summary": "Выбор источника, Mute и громкость с постоянными Help / System off.",
+      "program": "Source: взаимоисключающий feedback после фактической маршрутизации. Mute и громкость — из устройства. Help и System off открывают нужный контекст.",
+      "layouts": {
+        "tlp-pro-1025m": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              48,
+              32,
+              800,
+              56
+            ],
+            "text": "Presentation",
+            "fontSize": 36,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_Context",
+            "bounds": [
+              48,
+              96,
+              1000,
+              32
+            ],
+            "text": "Select a source. Volume stays within reach.",
+            "fontSize": 20,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "shape",
+            "name": "shape_Sources",
+            "bounds": [
+              48,
+              160,
+              1184,
+              224
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "text",
+            "name": "text_SourceTitle",
+            "bounds": [
+              80,
+              184,
+              800,
+              32
+            ],
+            "text": "Source",
+            "fontSize": 20,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_Laptop",
+            "bounds": [
+              80,
+              248,
+              336,
+              64
+            ],
+            "label": "Laptop",
+            "master": "feedbackbutton_HDMI",
+            "icon": "laptop",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_HDMI",
+            "bounds": [
+              440,
+              248,
+              336,
+              64
+            ],
+            "label": "HDMI",
+            "master": "feedbackbutton_HDMI",
+            "icon": "monitor",
+            "selected": true
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_Wireless",
+            "bounds": [
+              800,
+              248,
+              336,
+              64
+            ],
+            "label": "Wireless",
+            "master": "feedbackbutton_Wireless",
+            "icon": "wifi",
+            "selected": false
+          },
+          {
+            "kind": "shape",
+            "name": "shape_Audio",
+            "bounds": [
+              48,
+              416,
+              1184,
+              208
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "text",
+            "name": "text_VolumeTitle",
+            "bounds": [
+              80,
+              440,
+              400,
+              40
+            ],
+            "text": "Volume",
+            "fontSize": 24,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_MasterVolume",
+            "bounds": [
+              1056,
+              440,
+              136,
+              48
+            ],
+            "text": "42%",
+            "fontSize": 32,
+            "color": "ink",
+            "align": "right",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_Mute",
+            "bounds": [
+              80,
+              528,
+              220,
+              64
+            ],
+            "label": "Mute",
+            "master": "feedbackbutton_Mute",
+            "icon": "volume-x",
+            "selected": false
+          },
+          {
+            "kind": "slider",
+            "name": "slider_MasterVolume",
+            "bounds": [
+              348,
+              528,
+              784,
+              64
+            ],
+            "value": 42
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              48,
+              672,
+              220,
+              56
+            ],
+            "label": "Help",
+            "master": "button_Back",
+            "icon": "circle-help",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_SystemOff",
+            "bounds": [
+              1012,
+              672,
+              220,
+              56
+            ],
+            "label": "System off",
+            "master": "button_Back",
+            "icon": "power",
+            "selected": false
+          }
+        ],
+        "tlp-pro-300m-portrait": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              24,
+              16,
+              272,
+              40
+            ],
+            "text": "Presentation",
+            "fontSize": 28,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_SourceTitle",
+            "bounds": [
+              24,
+              72,
+              272,
+              24
+            ],
+            "text": "Choose a source",
+            "fontSize": 16,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_HDMI",
+            "bounds": [
+              24,
+              112,
+              128,
+              56
+            ],
+            "label": "HDMI",
+            "master": "feedbackbutton_HDMI",
+            "selected": true
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_Wireless",
+            "bounds": [
+              168,
+              112,
+              128,
+              56
+            ],
+            "label": "Wireless",
+            "master": "feedbackbutton_Wireless",
+            "selected": false
+          },
+          {
+            "kind": "text",
+            "name": "text_Context",
+            "bounds": [
+              24,
+              184,
+              272,
+              32
+            ],
+            "text": "HDMI selected",
+            "fontSize": 20,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_Mute",
+            "bounds": [
+              24,
+              232,
+              272,
+              56
+            ],
+            "label": "Mute",
+            "master": "feedbackbutton_Mute",
+            "icon": "volume-x",
+            "selected": false
+          },
+          {
+            "kind": "text",
+            "name": "text_VolumeTitle",
+            "bounds": [
+              24,
+              304,
+              160,
+              32
+            ],
+            "text": "Volume",
+            "fontSize": 20,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_MasterVolume",
+            "bounds": [
+              224,
+              304,
+              72,
+              32
+            ],
+            "text": "42%",
+            "fontSize": 24,
+            "color": "ink",
+            "align": "right",
+            "bold": false
+          },
+          {
+            "kind": "slider",
+            "name": "slider_MasterVolume",
+            "bounds": [
+              24,
+              352,
+              272,
+              56
+            ],
+            "value": 42
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              24,
+              416,
+              128,
+              56
+            ],
+            "label": "Help",
+            "master": "button_Back",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_SystemOff",
+            "bounds": [
+              168,
+              416,
+              128,
+              56
+            ],
+            "label": "System off",
+            "master": "button_Back",
+            "selected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "audio-zones",
+      "title": "Громкость по зонам",
+      "container": "screen_AudioZones",
+      "summary": "Два независимых канала: Hall и Terrace.",
+      "program": "Каждая зона имеет собственные Slider, Value и Mute ID. Обратная связь одной зоны не меняет другую.",
+      "layouts": {
+        "tlp-pro-1025m": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              48,
+              32,
+              900,
+              56
+            ],
+            "text": "Audio zones",
+            "fontSize": 36,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_Context",
+            "bounds": [
+              48,
+              96,
+              1000,
+              32
+            ],
+            "text": "Adjust each zone independently.",
+            "fontSize": 20,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "shape",
+            "name": "shape_Hall",
+            "bounds": [
+              48,
+              176,
+              560,
+              384
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "text",
+            "name": "text_Hall",
+            "bounds": [
+              80,
+              208,
+              360,
+              40
+            ],
+            "text": "Hall",
+            "fontSize": 28,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_HallVolume",
+            "bounds": [
+              440,
+              208,
+              136,
+              48
+            ],
+            "text": "42%",
+            "fontSize": 32,
+            "color": "ink",
+            "align": "right",
+            "bold": false
+          },
+          {
+            "kind": "slider",
+            "name": "slider_HallVolume",
+            "bounds": [
+              80,
+              304,
+              496,
+              64
+            ],
+            "value": 42
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_HallMute",
+            "bounds": [
+              80,
+              432,
+              220,
+              64
+            ],
+            "label": "Mute",
+            "master": "feedbackbutton_Mute",
+            "icon": "volume-x",
+            "selected": false
+          },
+          {
+            "kind": "shape",
+            "name": "shape_Terrace",
+            "bounds": [
+              672,
+              176,
+              560,
+              384
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "text",
+            "name": "text_Terrace",
+            "bounds": [
+              704,
+              208,
+              360,
+              40
+            ],
+            "text": "Terrace",
+            "fontSize": 28,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_TerraceVolume",
+            "bounds": [
+              1064,
+              208,
+              136,
+              48
+            ],
+            "text": "42%",
+            "fontSize": 32,
+            "color": "ink",
+            "align": "right",
+            "bold": false
+          },
+          {
+            "kind": "slider",
+            "name": "slider_TerraceVolume",
+            "bounds": [
+              704,
+              304,
+              496,
+              64
+            ],
+            "value": 42
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_TerraceMute",
+            "bounds": [
+              704,
+              432,
+              220,
+              64
+            ],
+            "label": "Mute",
+            "master": "feedbackbutton_Mute",
+            "icon": "volume-x",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              48,
+              672,
+              220,
+              56
+            ],
+            "label": "Help",
+            "master": "button_Back",
+            "icon": "circle-help",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_SystemOff",
+            "bounds": [
+              1012,
+              672,
+              220,
+              56
+            ],
+            "label": "System off",
+            "master": "button_Back",
+            "icon": "power",
+            "selected": false
+          }
+        ],
+        "tlp-pro-300m-portrait": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              24,
+              16,
+              272,
+              40
+            ],
+            "text": "Audio zones",
+            "fontSize": 28,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_Context",
+            "bounds": [
+              24,
+              72,
+              272,
+              24
+            ],
+            "text": "Independent room levels",
+            "fontSize": 16,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "text",
+            "name": "text_Hall",
+            "bounds": [
+              24,
+              112,
+              180,
+              32
+            ],
+            "text": "Hall",
+            "fontSize": 22,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_HallVolume",
+            "bounds": [
+              224,
+              112,
+              72,
+              32
+            ],
+            "text": "42%",
+            "fontSize": 24,
+            "color": "ink",
+            "align": "right",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_HallMute",
+            "bounds": [
+              24,
+              160,
+              80,
+              56
+            ],
+            "label": "Mute",
+            "master": "feedbackbutton_Mute",
+            "selected": false
+          },
+          {
+            "kind": "slider",
+            "name": "slider_HallVolume",
+            "bounds": [
+              120,
+              160,
+              176,
+              56
+            ],
+            "value": 42
+          },
+          {
+            "kind": "text",
+            "name": "text_Terrace",
+            "bounds": [
+              24,
+              256,
+              180,
+              32
+            ],
+            "text": "Terrace",
+            "fontSize": 22,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_TerraceVolume",
+            "bounds": [
+              224,
+              256,
+              72,
+              32
+            ],
+            "text": "42%",
+            "fontSize": 24,
+            "color": "ink",
+            "align": "right",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "feedbackbutton_TerraceMute",
+            "bounds": [
+              24,
+              304,
+              80,
+              56
+            ],
+            "label": "Mute",
+            "master": "feedbackbutton_Mute",
+            "selected": false
+          },
+          {
+            "kind": "slider",
+            "name": "slider_TerraceVolume",
+            "bounds": [
+              120,
+              304,
+              176,
+              56
+            ],
+            "value": 42
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              24,
+              416,
+              128,
+              56
+            ],
+            "label": "Help",
+            "master": "button_Back",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_SystemOff",
+            "bounds": [
+              168,
+              416,
+              128,
+              56
+            ],
+            "label": "System off",
+            "master": "button_Back",
+            "selected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "connection-help",
+      "title": "Помощь с подключением",
+      "container": "screen_ConnectionHelp",
+      "summary": "Короткая инструкция и возврат в контекст.",
+      "program": "Показывать фактический вход/кабель помещения. Back возвращает туда, откуда была открыта помощь.",
+      "layouts": {
+        "tlp-pro-1025m": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              48,
+              32,
+              960,
+              56
+            ],
+            "text": "Connect your laptop",
+            "fontSize": 36,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "icon",
+            "name": "image_Cable",
+            "bounds": [
+              1104,
+              40,
+              80,
+              80
+            ],
+            "icon": "cable",
+            "color": "accent"
+          },
+          {
+            "kind": "text",
+            "name": "text_Context",
+            "bounds": [
+              48,
+              112,
+              1000,
+              40
+            ],
+            "text": "Two steps to put your content on the display.",
+            "fontSize": 20,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "text",
+            "name": "text_StepOne",
+            "bounds": [
+              80,
+              240,
+              496,
+              48
+            ],
+            "text": "01  Connect the cable",
+            "fontSize": 28,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_StepOneBody",
+            "bounds": [
+              80,
+              312,
+              496,
+              96
+            ],
+            "text": "Connect the HDMI cable to your laptop.\nUse your adapter if needed.",
+            "fontSize": 20,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "text",
+            "name": "text_StepTwo",
+            "bounds": [
+              704,
+              240,
+              496,
+              48
+            ],
+            "text": "02  Choose HDMI",
+            "fontSize": 28,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_StepTwoBody",
+            "bounds": [
+              704,
+              312,
+              496,
+              96
+            ],
+            "text": "Return to Presentation and select HDMI.\nKeep your laptop awake.",
+            "fontSize": 20,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "text",
+            "name": "text_Trouble",
+            "bounds": [
+              80,
+              496,
+              1104,
+              64
+            ],
+            "text": "No signal? Check the cable and your display output.",
+            "fontSize": 20,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Back",
+            "bounds": [
+              48,
+              672,
+              220,
+              56
+            ],
+            "label": "Back",
+            "master": "button_Back",
+            "icon": "arrow-left",
+            "selected": false
+          }
+        ],
+        "tlp-pro-300m-portrait": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              24,
+              16,
+              272,
+              72
+            ],
+            "text": "Connect your laptop",
+            "fontSize": 28,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_StepOne",
+            "bounds": [
+              24,
+              128,
+              272,
+              32
+            ],
+            "text": "01  Connect the cable",
+            "fontSize": 20,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_StepOneBody",
+            "bounds": [
+              24,
+              176,
+              272,
+              64
+            ],
+            "text": "Connect HDMI to your laptop.\nUse an adapter if needed.",
+            "fontSize": 16,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "text",
+            "name": "text_StepTwo",
+            "bounds": [
+              24,
+              272,
+              272,
+              32
+            ],
+            "text": "02  Choose HDMI",
+            "fontSize": 20,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_StepTwoBody",
+            "bounds": [
+              24,
+              320,
+              272,
+              64
+            ],
+            "text": "Return to Presentation.\nSelect HDMI. Keep laptop awake.",
+            "fontSize": 16,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Back",
+            "bounds": [
+              24,
+              408,
+              272,
+              56
+            ],
+            "label": "Back",
+            "master": "button_Back",
+            "icon": "arrow-left",
+            "selected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "system-status",
+      "title": "Состояние системы",
+      "container": "screen_SystemStatus",
+      "summary": "Starting / Ready / Offline и понятный следующий шаг.",
+      "program": "Multilevel и Value обновляются по реальному состоянию. Retry ограничить тайм-аутом и защитить от повторов. Help открывает помощь.",
+      "layouts": {
+        "tlp-pro-1025m": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              48,
+              32,
+              960,
+              56
+            ],
+            "text": "System status",
+            "fontSize": 36,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "shape",
+            "name": "shape_Status",
+            "bounds": [
+              240,
+              176,
+              800,
+              400
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "status",
+            "name": "multilevel_Connection",
+            "bounds": [
+              480,
+              208,
+              320,
+              64
+            ],
+            "labels": [
+              "Starting",
+              "Ready",
+              "Offline"
+            ],
+            "selected": 2
+          },
+          {
+            "kind": "text",
+            "name": "value_StatusMessage",
+            "bounds": [
+              320,
+              312,
+              640,
+              96
+            ],
+            "text": "Device is not responding.\nCheck the power and network connection.",
+            "fontSize": 24,
+            "color": "ink",
+            "align": "center",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Retry",
+            "bounds": [
+              392,
+              464,
+              220,
+              64
+            ],
+            "label": "Retry",
+            "master": "button_Back",
+            "tone": "primary",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              640,
+              464,
+              220,
+              64
+            ],
+            "label": "Help",
+            "master": "button_Back",
+            "icon": "circle-help",
+            "selected": false
+          }
+        ],
+        "tlp-pro-300m-portrait": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              24,
+              16,
+              272,
+              40
+            ],
+            "text": "System status",
+            "fontSize": 28,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "status",
+            "name": "multilevel_Connection",
+            "bounds": [
+              24,
+              104,
+              272,
+              56
+            ],
+            "labels": [
+              "Starting",
+              "Ready",
+              "Offline"
+            ],
+            "selected": 2
+          },
+          {
+            "kind": "text",
+            "name": "value_StatusMessage",
+            "bounds": [
+              24,
+              200,
+              272,
+              96
+            ],
+            "text": "Device is not responding.\nCheck power and network.",
+            "fontSize": 20,
+            "color": "ink",
+            "align": "center",
+            "bold": false
+          },
+          {
+            "kind": "text",
+            "name": "text_NextStep",
+            "bounds": [
+              24,
+              320,
+              272,
+              48
+            ],
+            "text": "Try again or open connection help.",
+            "fontSize": 16,
+            "color": "muted",
+            "align": "center",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Retry",
+            "bounds": [
+              24,
+              408,
+              128,
+              56
+            ],
+            "label": "Retry",
+            "master": "button_Back",
+            "tone": "primary",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              168,
+              408,
+              128,
+              56
+            ],
+            "label": "Help",
+            "master": "button_Back",
+            "selected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "shutdown",
+      "title": "Подтверждение выключения",
+      "container": "modalpopup_Shutdown",
+      "summary": "Объяснение последствий, Cancel и подтверждение.",
+      "program": "System off открывает modal. Cancel только закрывает. Turn off запускает выключение; по завершении показывается Welcome.",
+      "layouts": {
+        "tlp-pro-1025m": [
+          {
+            "kind": "shape",
+            "name": "shape_Dialog",
+            "bounds": [
+              352,
+              224,
+              576,
+              352
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              384,
+              256,
+              512,
+              56
+            ],
+            "text": "Turn system off?",
+            "fontSize": 32,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_Consequences",
+            "bounds": [
+              384,
+              336,
+              512,
+              96
+            ],
+            "text": "Displays and audio will stop.\nYou can start the system again later.",
+            "fontSize": 20,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Cancel",
+            "bounds": [
+              384,
+              480,
+              220,
+              64
+            ],
+            "label": "Cancel",
+            "master": "button_Back",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_TurnOff",
+            "bounds": [
+              676,
+              480,
+              220,
+              64
+            ],
+            "label": "Turn off",
+            "master": "button_Back",
+            "tone": "danger",
+            "selected": false
+          }
+        ],
+        "tlp-pro-300m-portrait": [
+          {
+            "kind": "shape",
+            "name": "shape_Dialog",
+            "bounds": [
+              24,
+              80,
+              272,
+              328
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              48,
+              104,
+              224,
+              72
+            ],
+            "text": "Turn system off?",
+            "fontSize": 26,
+            "color": "ink",
+            "align": "left",
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "text_Consequences",
+            "bounds": [
+              48,
+              192,
+              224,
+              80
+            ],
+            "text": "Displays and audio will stop.\nYou can start again later.",
+            "fontSize": 16,
+            "color": "muted",
+            "align": "left",
+            "bold": false
+          },
+          {
+            "kind": "button",
+            "name": "button_Cancel",
+            "bounds": [
+              48,
+              328,
+              96,
+              56
+            ],
+            "label": "Cancel",
+            "master": "button_Back",
+            "selected": false
+          },
+          {
+            "kind": "button",
+            "name": "button_TurnOff",
+            "bounds": [
+              160,
+              328,
+              112,
+              56
+            ],
+            "label": "Turn off",
+            "master": "button_Back",
+            "tone": "danger",
+            "selected": false
+          }
+        ]
+      }
+    }
+  ]
+}

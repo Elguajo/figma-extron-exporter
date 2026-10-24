@@ -16,7 +16,7 @@ const momentaryNames=['button_VolumeUp','button_VolumeDown','button_Back','butto
 test('Apple-inspired palette keeps label contrast and a discernible slider thumb',()=>{
   const rgb=(hex:string)=>({r:parseInt(hex.slice(1,3),16)/255,g:parseInt(hex.slice(3,5),16)/255,b:parseInt(hex.slice(5,7),16)/255});
   const c=catalog.colors;
-  for(const [fg,bg]of [[c.ink,c.control],[c.ink,c.surface],[c.muted,c.canvas],[c.muted,c.surface],[c.onAccent,c.active],[c.onAccent,c.pressed],[c.onAccent,c.success],[c.onAccent,c.danger]])assert.ok(contrastRatio(rgb(fg),rgb(bg))>=4.5,`${fg} on ${bg}`);
+  for(const [fg,bg]of [[c.ink,c.control],[c.ink,c.surface],[c.muted,c.canvas],[c.muted,c.surface],[c.onAccent,c.active],[c.onAccent,c.pressed],[c.onAccent,c.success],[c.onAccent,c.danger],[c.onAccent,c.dangerPressed]])assert.ok(contrastRatio(rgb(fg),rgb(bg))>=4.5,`${fg} on ${bg}`);
   assert.ok(contrastRatio(rgb(c.accent),rgb(c.track))>=3);
 });
 
