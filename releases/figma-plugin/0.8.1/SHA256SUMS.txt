@@ -1,1 +1,1 @@
-2df71149b8b0e5fe196e888c03f014a7bb2a87af5ec2cbe35a9245f0357e4ca9  figma-extron-plugin-0.8.1.zip
+e7b3c6b1a09e64c8e07c8daf8e07ee788a03d56cfec2c2d64f9f9d70ecc8ac32  figma-extron-plugin-0.8.1.zip
