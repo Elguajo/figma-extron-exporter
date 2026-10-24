@@ -14,6 +14,8 @@ let links:AuthoringLinks|undefined,navigationTargets:{id:string;key:string}[]=[]
 const NEW_GROUP='__create__';
 let buttonCanApply=false,buttonResultReady=false;
 let buttonSummary:ButtonPreparationSummary|undefined,buttonStylesReady=false,buttonScopeReady=false,buttonScopeKey='';
+let numberingToken:number|undefined,numberingTimer:ReturnType<typeof setTimeout>|undefined;
+const numberingOptions=()=>({base:input('numberingBase').value,start:Number(input('numberingStart').value),mode:input('numberingMode').value,names:input('numberingNames').checked,labels:input('numberingLabels').checked});
 const send=(type:string,extra:Record<string,unknown>={})=>{if(!['recognize','apply-recognition','select-issue'].includes(type))clearRecognition();setBusy(true);if(type==='export'){const bar=$('bar');bar.hidden=false;bar.dataset.complete='false';bar.removeAttribute('aria-valuenow');bar.setAttribute('aria-valuetext','Подготовка экспорта');}parent.postMessage({pluginMessage:{type,scopeMode:input('scopeMode').value,profile:input('profile').value,...extra}},'*');};
 function status(message:string,kind='progress') { $('status').textContent=message;$('status').dataset.kind=kind;$('status').setAttribute('role',kind==='error'?'alert':'status');if(kind==='error')$('bar').hidden=true; }
 function setBusy(busy:boolean) {
@@ -34,7 +36,35 @@ function setBusy(busy:boolean) {
   $<HTMLButtonElement>('showNavigation').disabled=busy||!navigationTargets.some(t=>t.key===input('navigate').value&&t.id);
   document.querySelectorAll<HTMLButtonElement>('[data-linked-node]').forEach(b=>b.disabled=busy);
   $('buttonStates').setAttribute('aria-busy',String(busy));
+  document.querySelectorAll<HTMLInputElement|HTMLSelectElement>('#buttonNumbering input,#buttonNumbering select').forEach(e=>e.disabled=busy);
+  $<HTMLButtonElement>('applyNumbering').disabled=busy||numberingToken===undefined;
+  $<HTMLButtonElement>('refreshNumbering').disabled=busy;
+  $('buttonNumbering').setAttribute('aria-busy',String(busy));
 }
+function clearNumbering() {numberingToken=undefined;$('numberingPreview').hidden=true;$('numberingResult').hidden=true;$('refreshNumbering').hidden=true;}
+function renderNumbering(msg:{options:ReturnType<typeof numberingOptions>;token?:number;error?:string;rows:{containerId:string;container:string;from:string;to:string;text?:string}[]}|undefined) {
+  if(!msg||JSON.stringify(msg.options)!==JSON.stringify(numberingOptions()))return;
+  numberingToken=msg.error?undefined:msg.token;
+  const rows=$('numberingRows');rows.replaceChildren();
+  const containers=new Map<string,{name:string;count:number}>();
+  for(const row of msg.rows??[]){
+    containers.set(row.containerId,{name:row.container,count:(containers.get(row.containerId)?.count??0)+1});
+    const li=document.createElement('li');li.className='recognition-item';
+    li.textContent=`${row.container}: ${row.from} → ${row.to}${row.text!==undefined?` · «${row.text}»`:''}`;rows.appendChild(li);
+  }
+  $('numberingPreview').hidden=!msg.rows?.length;
+  $('numberingSummary').textContent=msg.error??`Кнопок: ${msg.rows.length}. ${[...containers.values()].map(({name,count})=>`${name}: ${count}`).join('; ')}. В каждом контейнере отдельный счёт. ID Extron сохраняются.`;
+}
+function requestNumbering() {
+  clearNumbering();$('numberingSummary').textContent='Обновляю предпросмотр…';setBusy(operationBusy||packing);
+  clearTimeout(numberingTimer);
+  const preview=()=>{if(operationBusy||packing){numberingTimer=setTimeout(preview,180);return;}parent.postMessage({pluginMessage:{type:'button-numbering-preview',numbering:numberingOptions()}},'*');};
+  numberingTimer=setTimeout(preview,180);
+}
+for(const id of ['numberingBase','numberingStart','numberingMode','numberingNames','numberingLabels'])$(id).addEventListener('input',requestNumbering);
+$('buttonNumbering').addEventListener('toggle',()=>{if($<HTMLDetailsElement>('buttonNumbering').open)requestNumbering();});
+$('applyNumbering').onclick=()=>{const token=numberingToken;clearNumbering();revokeDownload();send('button-numbering-apply',{token});};
+$('refreshNumbering').onclick=requestNumbering;
 function clearButtonResult() { buttonResultReady=false;$('buttonResult').hidden=true;$('buttonExport').hidden=true;$('applyButtonStyles').classList.remove('secondary'); }
 function buttonResult(message:string,kind:'success'|'error'|'progress') {
   buttonResultReady=kind==='success';$('buttonResult').hidden=false;$('buttonResult').dataset.kind=kind;
@@ -140,6 +170,8 @@ window.onmessage=async(event:MessageEvent)=>{
   // In particular, platform-dispatched MessageEvent can have source === null.
   const msg=event.data?.pluginMessage;if(!msg||typeof msg!=='object'||typeof msg.type!=='string')return;
   if(msg.type==='selection') {
+    clearNumbering();
+    renderNumbering(msg.numbering);
     if(!msg.keepRecognition)clearRecognition();
     if(selectedId!==msg.id)revokeDownload();
     selectedId=msg.id;$('selection').textContent=msg.name;
@@ -189,6 +221,9 @@ window.onmessage=async(event:MessageEvent)=>{
     for(const state of msg.states??[]){const option=document.createElement('option');option.value=state.stateId!==undefined?'id:'+state.stateId:state.role;option.textContent=state.stateId!==undefined?`${state.stateId} · ${state.name} · ${state.role}`:state.name;preview.appendChild(option);}
     if(msg.profile??m.profile??msg.scope?.profile)input('profile').value=msg.profile??m.profile??msg.scope.profile;input('role').value=m.role??'normal';
     fields();if(msg.warning)status(msg.warning,'error');else if(!msg.keepRecognition)status(msg.scope?'Можно скачать пакет. Новые элементы и копии получат ключи и ID автоматически.':selectedId?'Выберите экран для экспорта или задайте особые свойства вручную.':'Выберите секцию проекта или Frame экрана.');setBusy(operationBusy||packing);
+  }else if(msg.type==='numbering-plan') {
+    renderNumbering(msg);
+    setBusy(operationBusy||packing);
   }else if(msg.type==='recognition') {
     revokeDownload();$('bar').hidden=true;
     const hasErrors=msg.errors.length>0;
@@ -228,8 +263,8 @@ window.onmessage=async(event:MessageEvent)=>{
     status(hasErrors?`Исправьте ошибки (${msg.errors.length}) в отчёте выше и повторите распознавание. Назначения не изменены.`:'Распознавание завершено. Проверьте список и сохраните назначения.',hasErrors?'error':'success');setBusy(false);
     if(hasErrors){$('recognitionErrorTitle').focus();$('recognitionProblems').scrollIntoView({block:'start'});}
   }else if(msg.type==='progress'){status(msg.message);$('bar').setAttribute('aria-valuetext',msg.message);}
-  else if(msg.type==='error'){status(msg.message,'error');if(msg.operation==='button-apply-styles'){buttonResult(msg.message,'error');if(['button-background','button-presets'].includes(msg.code))$<HTMLDetailsElement>('buttonAdvanced').open=true;}setBusy(false);}
-  else if(msg.type==='success'){status(msg.message,'success');if(msg.operation==='button-apply-styles')buttonResult(msg.message,'success');setBusy(false);}
+  else if(msg.type==='error'){status(msg.message,'error');if(msg.operation==='button-numbering-apply'){clearNumbering();$('numberingResult').hidden=false;$('numberingResult').textContent=msg.message;$('numberingResult').setAttribute('role','alert');$('refreshNumbering').hidden=false;}if(msg.operation==='button-apply-styles'){buttonResult(msg.message,'error');if(['button-background','button-presets'].includes(msg.code))$<HTMLDetailsElement>('buttonAdvanced').open=true;}setBusy(false);}
+  else if(msg.type==='success'){status(msg.message,'success');if(msg.operation==='button-numbering-apply'){$('numberingResult').hidden=false;$('numberingResult').textContent=msg.message;$('numberingResult').setAttribute('role','status');}if(msg.operation==='button-apply-styles')buttonResult(msg.message,'success');setBusy(false);}
   else if(msg.type==='idle'){if(!packing)setBusy(false);}
   else if(msg.type==='bundle') {
     packing=true;setBusy(true);status('Проверка ресурсов и упаковка .exui…');

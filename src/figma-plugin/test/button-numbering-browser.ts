@@ -1,0 +1,105 @@
+// Actual built UI + bundled plugin code in Chromium. Figma API is modeled.
+import { chromium } from 'playwright';
+import { createServer } from 'node:http';
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+import { fakeFigma } from './fake-figma.ts';
+
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
+const out=path.resolve(process.argv[2]??path.join(root,'output/figma-plugin/numbering-browser-'+Date.now()));await mkdir(out,{recursive:true});
+const f=fakeFigma(),api=f.api as unknown as PluginAPI;
+const group=api.createFrame();group.name='popupgroup_AudioControls';group.resize(900,300);
+const buttons:FrameNode[]=[];
+for(let i=0;i<24;i++){
+  const b=api.createFrame();b.name='button_Box1';b.resize(100,40);group.appendChild(b);b.x=(i%6)*110;b.y=Math.floor(i/6)*50;
+  for(const name of ['Off','On']){const state=api.createFrame();state.name=name;state.visible=name==='Off';b.appendChild(state);const text=api.createText();text.characters='Box 1';state.appendChild(text);}
+  buttons.push(b);
+}
+vm.runInNewContext(await readFile(path.join(root,'src/figma-plugin/dist/code.js'),'utf8'),{figma:f.api,Uint8Array,console});
+const dispatch=f.api.ui.onmessage as (m:unknown)=>Promise<void>;
+const host='<!doctype html><meta charset="utf-8"><style>body{margin:0}iframe{display:block;width:100vw;height:100vh;border:0}</style><iframe src="/ui"></iframe><script>window.sendMessages=messages=>{for(const m of messages)document.querySelector("iframe").contentWindow.postMessage({pluginMessage:m},location.origin);};window.onmessage=async e=>{if(e.source===document.querySelector("iframe").contentWindow&&e.data.pluginMessage)window.sendMessages(await window.dispatchNumbering(e.data.pluginMessage));};</script>';
+const ui=await readFile(path.join(root,'src/figma-plugin/dist/ui.html'));
+const server=createServer((req,res)=>{res.setHeader('Content-Type','text/html; charset=utf-8');res.end(req.url==='/ui'?ui:host);});
+await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));const address=server.address() as {port:number};
+let browser:Awaited<ReturnType<typeof chromium.launch>>|undefined;
+const errors:string[]=[];let releaseFont:(()=>void)|undefined,holdFonts=false;
+api.loadFontAsync=async()=>{if(holdFonts)await new Promise<void>(resolve=>{releaseFont=resolve;});};
+try{
+  browser=await chromium.launch({headless:true});
+  const page=await browser.newPage({viewport:{width:420,height:720}});
+  page.on('pageerror',error=>errors.push(error.message));page.on('console',msg=>{if(msg.type()==='error')errors.push(msg.text());});
+  page.on('requestfailed',req=>errors.push(req.failure()?.errorText??'request failed'));
+  await page.exposeFunction('dispatchNumbering',async(message:unknown)=>{const start=f.messages.length;await dispatch(message);return f.messages.slice(start);});
+  await page.goto(`http://127.0.0.1:${address.port}`);const frame=page.frameLocator('iframe');
+  await frame.locator('#buttonNumbering > summary').focus();await page.keyboard.press('Enter');
+  await frame.locator('#numberingSummary').filter({hasText:'Выделите сами кнопки'}).waitFor();
+  assert.equal(await frame.getByRole('button',{name:'Пронумеровать',exact:true}).isDisabled(),true);
+  f.page.selection=[group as never];let start=f.messages.length;f.emit('selectionchange');
+  await page.evaluate(messages=>(window as any).sendMessages(messages),f.messages.slice(start));
+  await frame.locator('#numberingSummary').filter({hasText:'Выделите сами кнопки'}).waitFor();
+  assert.equal(await frame.getByRole('button',{name:'Пронумеровать',exact:true}).isDisabled(),true);
+  assert.ok(buttons.every(b=>b.name==='button_Box1'),'selecting a parent does not include its buttons');
+  f.page.selection=buttons as never;start=f.messages.length;f.emit('selectionchange');
+  await page.evaluate(messages=>(window as any).sendMessages(messages),f.messages.slice(start));
+  await frame.locator('#numberingSummary').filter({hasText:'Кнопок: 24.'}).waitFor();
+  // An edit in Figma after preview requires a new plan, with an explicit retry.
+  buttons[0].name='button_Changed';
+  await frame.getByRole('button',{name:'Пронумеровать',exact:true}).click();
+  await frame.locator('#numberingResult').filter({hasText:'Выделение или макет изменились.'}).waitFor();
+  assert.equal(buttons[0].name,'button_Changed');
+  await frame.getByRole('button',{name:'Обновить предпросмотр',exact:true}).click();
+  await frame.locator('#numberingSummary').filter({hasText:'Кнопок: 24.'}).waitFor();
+  assert.equal(await frame.getByRole('button',{name:'Пронумеровать',exact:true}).isEnabled(),true);
+  buttons[0].name='button_Box1';start=f.messages.length;f.emit('selectionchange');
+  await page.evaluate(messages=>(window as any).sendMessages(messages),f.messages.slice(start));
+  await frame.locator('#numberingSummary').filter({hasText:'Кнопок: 24.'}).waitFor();
+  await frame.locator('#numberingPreview > summary').click();
+  assert.equal(await frame.getByRole('list',{name:'План нумерации'}).locator('li').count(),24);
+  await frame.getByText('popupgroup_AudioControls: button_Box1 → button_Box24',{exact:true}).waitFor();
+  await page.screenshot({path:path.join(out,'numbering-420.png')});
+  await frame.getByLabel('Обновлять текст кнопок',{exact:true}).check();
+  await frame.getByLabel('Начать с',{exact:true}).fill('0');
+  await frame.locator('#numberingSummary').filter({hasText:'Начальный номер'}).waitFor();
+  assert.equal(await frame.getByRole('button',{name:'Пронумеровать',exact:true}).isDisabled(),true);
+  await frame.getByLabel('Начать с',{exact:true}).fill('1');
+  await frame.locator('#numberingSummary').filter({hasText:'Кнопок: 24.'}).waitFor();
+  // Background previews keep keyboard focus in the field being edited.
+  assert.equal(await frame.getByLabel('Начать с',{exact:true}).evaluate(el=>el===document.activeElement),true);
+  holdFonts=true;
+  await frame.getByRole('button',{name:'Пронумеровать',exact:true}).click();
+  await frame.locator('#buttonNumbering[aria-busy=true]').waitFor();
+  assert.equal(await frame.getByLabel('Основа имени',{exact:true}).isDisabled(),true);
+  assert.ok(buttons.every(b=>b.name==='button_Box1'),'font loading does not partially rename');
+  holdFonts=false;assert.ok(releaseFont);releaseFont();
+  await frame.locator('#numberingResult').filter({hasText:'Переименовано кнопок: 23; обновлено текстовых слоёв: 46.'}).waitFor();
+  assert.deepEqual(buttons.map(b=>b.name),buttons.map((_,i)=>'button_Box'+(i+1)));
+  assert.equal(((buttons[23].children[1] as FrameNode).children[0] as TextNode).characters,'Box 24');
+  await frame.getByLabel('Режим нумерации').selectOption('duplicates');
+  await frame.locator('#numberingSummary').filter({hasText:'Кнопок: 24.'}).waitFor();
+  await frame.getByRole('button',{name:'Пронумеровать',exact:true}).click();
+  await frame.locator('#numberingResult').filter({hasText:'Переименовано кнопок: 0; обновлено текстовых слоёв: 0.'}).waitFor();
+  const unselectedBefore=buttons.slice(0,23).map(b=>[b.name,...b.children.map(s=>((s as FrameNode).children[0] as TextNode).characters)]);
+  f.page.selection=[buttons[23] as never];start=f.messages.length;f.emit('selectionchange');
+  await page.evaluate(messages=>(window as any).sendMessages(messages),f.messages.slice(start));
+  await frame.getByLabel('Режим нумерации').selectOption('position');
+  await frame.getByLabel('Начать с',{exact:true}).fill('30');
+  await frame.locator('#numberingSummary').filter({hasText:'Кнопок: 1.'}).waitFor();
+  assert.equal(await frame.getByRole('list',{name:'План нумерации'}).locator('li').count(),1);
+  await frame.getByRole('button',{name:'Пронумеровать',exact:true}).click();
+  await frame.locator('#numberingResult').filter({hasText:'Переименовано кнопок: 1; обновлено текстовых слоёв: 2.'}).waitFor();
+  assert.equal(buttons[23].name,'button_Box30');
+  assert.deepEqual(buttons.slice(0,23).map(b=>[b.name,...b.children.map(s=>((s as FrameNode).children[0] as TextNode).characters)]),unselectedBefore);
+  await page.setViewportSize({width:320,height:720});
+  await frame.locator('#buttonNumbering').evaluate(el=>el.scrollIntoView({block:'start'}));
+  assert.equal(await frame.locator('body').evaluate(el=>el.scrollWidth<=innerWidth),true);
+  await page.screenshot({path:path.join(out,'numbering-320.png')});
+  await frame.locator('html').evaluate(el=>{el.style.setProperty('--bg','#202020');el.style.setProperty('--text','#f0f0f0');el.style.setProperty('--muted','#c0c0c0');el.style.setProperty('--border','#666666');el.style.setProperty('--surface','#303030');});
+  await frame.locator('#numberingPreview > summary').click();
+  await page.screenshot({path:path.join(out,'numbering-dark-320.png')});
+  assert.deepEqual(errors,[]);
+  await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,browser:browser.version(),checks:['actual UI-to-plugin bridge','empty selection','parent-only selection is disabled','read-only directly selected 24-button preview','stale plan rejection and refresh recovery','input validation','focus during background preview','font-loading busy locks','24 renamed buttons and all hidden-state captions','idempotent duplicate repair','one selected button leaves other 23 names and all captions unchanged','keyboard disclosure','320/420 widths and dark tokens'],errors,boundary:'real Chromium and bundled plugin; Figma API modeled; no Figma Desktop claim'},null,2)+'\n');
+  console.log('PASS numbering Chromium UI + bundled plugin: '+out);
+}finally{await browser?.close();await new Promise<void>((resolve,reject)=>server.close(error=>error?reject(error):resolve()));}

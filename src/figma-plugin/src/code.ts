@@ -14,6 +14,7 @@ import type { ButtonStatePair } from './button-preparation.ts';
 import type { ButtonPreparationSummary } from './model.ts';
 import { focusNode } from './focus-node.ts';
 import { MANUAL_KEY } from './key-sync.ts';
+import { DEFAULT_NUMBERING, planNumbering, applyNumbering, type NumberingOptions, type NumberingPlan } from './button-numbering.ts';
 import { requireLatinName } from './latin-name.ts';
 import { controlText,formatVariant } from './kit-contract.ts';
 import { MANUAL_PATTERN,hasManualPattern,patternProblem,resolvePattern } from './datetime-format.ts';
@@ -28,6 +29,14 @@ let recognitionMode:ScopeMode='selection';
 let busy=false;
 let recognition:RecognitionPlan|undefined, recognitionToken=0;
 let diagnosticSelectionId:string|undefined;
+let numberingOptions={...DEFAULT_NUMBERING},numberingPlan:NumberingPlan|undefined,numberingToken=0,numberingEnabled=false;
+function numberingView() {
+  numberingPlan=undefined;
+  try {
+    numberingPlan=planNumbering(figma.currentPage.selection,numberingOptions);
+    return {type:'numbering-plan',token:++numberingToken,options:numberingOptions,rows:numberingPlan.rows};
+  } catch(error) {return {type:'numbering-plan',options:numberingOptions,rows:[],error:error instanceof Error?error.message:String(error)};}
+}
 function postRecognition(plan:RecognitionPlan):void {
   recognition=plan;recognitionMode=scopeContext.mode;
   figma.ui.postMessage({type:'recognition',token:++recognitionToken,rows:plan.rows,errors:plan.errors,issues:plan.issues,warnings:plan.warnings});
@@ -124,7 +133,7 @@ function publish(keepRecognition=false):void {
   const buttonPresets={normal:buttonStylePreviews.normal.name,feedback:buttonStylePreviews.feedback.name};
   let links:AuthoringLinks|undefined;try{links=preparedLinks?authoringLinks(preparedLinks.context,selection,preparedLinks.plan):authoringLinks(linksContext(),selection);}catch{ /* Incomplete layouts retain manual assignment fields. */ }
   try{scopeContext.persist(scope?.profile??scopeContext.profile);}catch{warning=warning||'Не удалось сохранить настройки текущей страницы. Назначения слоёв остаются в файле Figma.';}
-  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,links,popupBinding:popupBindingInfo(scope?.profile??scopeContext.profile),buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile});
+  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,links,popupBinding:popupBindingInfo(scope?.profile??scopeContext.profile),buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile,numbering:numberingEnabled?numberingView():undefined});
 }
 function apply(input:Record<string,unknown>):void {
   const node=selected(),kind=input.kind as Metadata['kind'];
@@ -226,11 +235,23 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
 }
 figma.on('selectionchange',()=>{if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){publish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;publish();});
 figma.on('currentpagechange',()=>{recognition=undefined;diagnosticSelectionId=undefined;scopeContext.reset();publish();});
-figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;contrast?:boolean;statePair?:ButtonStatePair;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean})=>{
+figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbering?:NumberingOptions;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;contrast?:boolean;statePair?:ButtonStatePair;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean})=>{
   if(message.type==='ready'){publish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
   try {
+    if(message.type==='button-numbering-preview') {
+      if(!message.numbering||typeof message.numbering!=='object')fail('button-numbering','Проверьте настройки нумерации.');
+      numberingOptions={base:message.numbering.base,start:message.numbering.start,mode:message.numbering.mode,names:message.numbering.names,labels:message.numbering.labels};
+      numberingEnabled=true;
+      figma.ui.postMessage(numberingView());return;
+    }
+    if(message.type==='button-numbering-apply') {
+      const plan=numberingPlan;numberingPlan=undefined;recognition=undefined;
+      if(!plan||message.token!==numberingToken)fail('button-numbering-stale','Предпросмотр устарел. Обновите настройки нумерации.');
+      const result=await applyNumbering(plan);
+      publish();figma.ui.postMessage({type:'success',operation:message.type,message:`Нумерация завершена. Переименовано кнопок: ${result.names}; обновлено текстовых слоёв: ${result.labels}. ID Extron сохранены.`});return;
+    }
     if(message.scopeMode){if(!['selection','selected-frames','page'].includes(message.scopeMode))fail('scope','Выберите область экспорта.');scopeContext.mode=message.scopeMode;}
     if(message.profile&&Object.prototype.hasOwnProperty.call(PROFILES,message.profile))scopeContext.profile=message.profile;
     if(message.type==='context'){recognition=undefined;publish();return;}

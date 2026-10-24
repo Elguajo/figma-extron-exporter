@@ -1,7 +1,7 @@
 {
   "name": "figma-extron-exporter-plugin",
-  "version": "0.7.2",
-  "compatibleCliVersion": "0.7.2",
+  "version": "0.7.3",
+  "compatibleCliVersion": "0.7.3",
   "private": true,
   "type": "module",
   "engines": {
@@ -14,6 +14,7 @@
     "test": "node --test test/*.test.ts",
     "verify": "npm run typecheck && npm test && npm run build",
     "test:browser": "npm run build && node test/browser.ts",
+    "test:numbering-browser": "npm run build && node test/button-numbering-browser.ts",
     "test:integration": "node test/native-integration.ts",
     "test:popup-integration": "node test/popup-appearance-integration.ts",
     "package": "npm run build && node package-plugin.mjs"
