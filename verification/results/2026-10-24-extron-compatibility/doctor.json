@@ -1,0 +1,155 @@
+{
+  "Ready": true,
+  "GuiDesigner": {
+    "Path": "C:\\Program Files (x86)\\Extron\\GUI Designer\\GUI Designer.exe",
+    "Exists": true,
+    "Version": "1.28.0.7"
+  },
+  "Gcp": {
+    "Path": "C:\\Program Files (x86)\\Extron\\GCP\\GCP.exe",
+    "Exists": true,
+    "Version": "3.34.1.4"
+  },
+  "Profile": {
+    "Id": "gui-designer-1.28.0.7",
+    "Adapter": "gui-designer-nrbf-x86/1",
+    "GuiDesignerVersion": "1.28.0.7",
+    "DonorVersions": [
+      "1.28.0.7"
+    ],
+    "Status": "baseline"
+  },
+  "CompatibilityFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\compatibility-20261024-a4dcf6ca\\stage-b054665baf4644eeb155fa69529d4b6a\\cli\\compatibility\\extron.json",
+  "Checks": [
+    {
+      "Id": "environment",
+      "Passed": true,
+      "Detail": "Profile gui-designer-1.28.0.7 (baseline)."
+    },
+    {
+      "Id": "adapter-contract",
+      "Passed": true,
+      "Detail": "Core types, serialized fields, factory and enums available; no donor deserialized."
+    },
+    {
+      "Id": "gcp",
+      "Passed": true,
+      "Detail": "Installed 3.34.1.4; import/binding preservation requires a separate manual test."
+    }
+  ],
+  "Probe": {
+    "ok": true,
+    "code": "ok",
+    "message": "probed; no payload deserialized",
+    "warnings": [],
+    "extron": {
+      "installDir": "C:\\Program Files (x86)\\Extron\\GUI Designer",
+      "guiDesignerVersion": "1.28.0.7",
+      "assemblies": 40
+    },
+    "compatibility": {
+      "id": "gui-designer-1.28.0.7",
+      "adapter": "gui-designer-nrbf-x86/1",
+      "guiDesignerVersion": "1.28.0.7",
+      "donorVersions": [
+        "1.28.0.7"
+      ],
+      "status": "baseline"
+    },
+    "contract": {
+      "fingerprint": "6F91D876831867DBD26CC87ADBD3476FAA8F21FB5D112ABAA6B67D6886C31716",
+      "surfaceEntries": 96,
+      "enums": {
+        "PlatformProTypeEnum": {
+          "Unknown": 0,
+          "TLP720T": 1,
+          "TLP720M": 2,
+          "TLP720C": 3,
+          "TLP1020T": 4,
+          "TLP1020M": 5,
+          "TLP520M": 6,
+          "VTLPWeb": 7,
+          "VTLPiOS": 8,
+          "TLI101": 9,
+          "TLP320M": 10,
+          "TLP1520TG": 11,
+          "MLC84D": 12,
+          "MLC84EU": 13,
+          "MLC84MK": 14,
+          "TLP320C": 15,
+          "TLP1220TG": 16,
+          "TLP1220MG": 17,
+          "TLP1520MG": 18,
+          "TLC521M": 20,
+          "TLP1720TG": 21,
+          "TLP1720MG": 22,
+          "TLP1022T": 23,
+          "TLP1022M": 24,
+          "TLP1022W": 25,
+          "VTLPAndroid": 26,
+          "TLP725T": 27,
+          "TLP725M": 28,
+          "TLP725C": 29,
+          "TLP1025M": 30,
+          "TLP1025T": 31,
+          "TLP525C": 32,
+          "TLP525M": 33,
+          "TLP525T": 34,
+          "TLP1225MG": 35,
+          "TLP1225TG": 36,
+          "TLP1525MG": 37,
+          "TLP1525TG": 38,
+          "TLP1725MG": 39,
+          "TLP1725TG": 40,
+          "TLC526M": 41,
+          "TLC726M": 42,
+          "TLC1026M": 43,
+          "TLP300M": 44,
+          "TLP1230WTG": 45,
+          "TLI201": 46,
+          "ZRTP725M": 47,
+          "ZRTP725T": 48,
+          "ZRTP1025M": 49,
+          "ZRTP1025T": 50,
+          "TLP535M": 51,
+          "TLP535T": 52,
+          "TLP835T": 53,
+          "TLP835M": 54,
+          "TLP835C": 55,
+          "TLP1035M": 56,
+          "TLP1035T": 57,
+          "TLP1535M": 58,
+          "TLP1535T": 59,
+          "VTLPEcp": 60
+        },
+        "LevelDisplayTypeEnum": {
+          "Gauge": 0,
+          "Slider": 1,
+          "MultistateLevel": 2,
+          "None": 3,
+          "VolumeLED": 4
+        },
+        "LevelOrientationEnum": {
+          "LeftToRight": 0,
+          "RightToLeft": 1,
+          "BottomToTop": 2,
+          "TopToBottom": 3
+        }
+      },
+      "components": [
+        {
+          "name": "GUI Designer",
+          "version": "1.28.0.7",
+          "sha256": "061550267E89729E02C6AA32A8D8155B21A6957E72FEFC3033789A761DB7A86D"
+        },
+        {
+          "name": "Extron.GUICPro.Layout.Contracts",
+          "version": "5.6.0.0",
+          "sha256": "D1DAEB75E908F4B4C603C4185680B1CA99F3A0E984EDB90BAD4D33762D23BE3E"
+        }
+      ]
+    }
+  },
+  "GuiDesignerVerified": false,
+  "GcpVerified": false
+}

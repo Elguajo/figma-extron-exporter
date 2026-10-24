@@ -18,9 +18,23 @@ let numberingToken:number|undefined,numberingTimer:ReturnType<typeof setTimeout>
 const numberingOptions=()=>({base:input('numberingBase').value,start:Number(input('numberingStart').value),mode:input('numberingMode').value,names:input('numberingNames').checked,labels:input('numberingLabels').checked});
 const send=(type:string,extra:Record<string,unknown>={})=>{if(!['recognize','apply-recognition','select-issue'].includes(type))clearRecognition();setBusy(true);if(type==='export'){const bar=$('bar');bar.hidden=false;bar.dataset.complete='false';bar.removeAttribute('aria-valuenow');bar.setAttribute('aria-valuetext','Подготовка экспорта');}parent.postMessage({pluginMessage:{type,scopeMode:input('scopeMode').value,profile:input('profile').value,...extra}},'*');};
 function status(message:string,kind='progress') { $('status').textContent=message;$('status').dataset.kind=kind;$('status').setAttribute('role',kind==='error'?'alert':'status');if(kind==='error')$('bar').hidden=true; }
+// Support details stay available even when the panel looks stuck; no design content is included.
+let lastError:{code?:string;operation?:string;message:string;at:string}|undefined;
+function diagnostics():string {
+  return [`${document.querySelector('h1')?.textContent?.trim()??'Figma → Extron Exporter'}`,`Время: ${new Date().toISOString()}`,`Область: ${input('scopeMode').value}; профиль: ${input('profile').value}`,`Выбор: ${$('selectionType').textContent??''}`,`Операция выполняется: ${operationBusy||packing?'да':'нет'}`,
+    lastError?`Последняя ошибка (${lastError.at}): [${lastError.code??'plugin'}] ${lastError.operation??''} ${lastError.message}`:'Последняя ошибка: нет',`Статус: ${$('status').textContent??''}`].join('\n');
+}
+async function copyDiagnostics() {
+  const text=diagnostics(),button=$<HTMLButtonElement>('copyDiagnostics');
+  let copied=false;
+  try{await navigator.clipboard.writeText(text);copied=true;}catch{ /* Figma iframes may block the async clipboard. */ }
+  if(!copied){const area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();try{copied=document.execCommand('copy');}catch{copied=false;}area.remove();}
+  button.textContent=copied?'Диагностика скопирована':'Не удалось скопировать';setTimeout(()=>{button.textContent='Скопировать диагностику';},2000);
+}
+$('copyDiagnostics').onclick=()=>{void copyDiagnostics();};
 function setBusy(busy:boolean) {
   operationBusy=busy;
-  document.querySelectorAll<HTMLButtonElement>('button').forEach(b=>b.disabled=busy||(!selectedId&&!['kit','recognize','check','export','retryRecognition','applyButtonStyles','buttonExport'].includes(b.id)&&!b.dataset.issueNode)||(b.id==='recognize'&&!canRecognize)||(b.id==='prepare'&&!canPrepare)||(['check','export','buttonExport'].includes(b.id)&&!hasScope)||(b.id==='applyButtonStyles'&&!buttonCanApply)||(b.id==='buttonExport'&&!buttonResultReady)||(b.id==='preview'&&!$<HTMLSelectElement>('previewRole').options.length));
+  document.querySelectorAll<HTMLButtonElement>('button').forEach(b=>b.disabled=b.id==='copyDiagnostics'?false:busy||(!selectedId&&!['kit','recognize','check','export','retryRecognition','applyButtonStyles','buttonExport'].includes(b.id)&&!b.dataset.issueNode)||(b.id==='recognize'&&!canRecognize)||(b.id==='prepare'&&!canPrepare)||(['check','export','buttonExport'].includes(b.id)&&!hasScope)||(b.id==='applyButtonStyles'&&!buttonCanApply)||(b.id==='buttonExport'&&!buttonResultReady)||(b.id==='preview'&&!$<HTMLSelectElement>('previewRole').options.length));
   document.querySelectorAll<HTMLInputElement|HTMLSelectElement>('#mapping input,#mapping select,#profile,#scopeMode,#previewRole').forEach(e=>e.disabled=busy||(!selectedId&&!['profile','scopeMode'].includes(e.id)));
   $<HTMLButtonElement>('applyRecognition').disabled=busy||recognitionToken===undefined;
   $('mapping').setAttribute('aria-busy',String(busy));
@@ -263,7 +277,7 @@ window.onmessage=async(event:MessageEvent)=>{
     status(hasErrors?`Исправьте ошибки (${msg.errors.length}) в отчёте выше и повторите распознавание. Назначения не изменены.`:'Распознавание завершено. Проверьте список и сохраните назначения.',hasErrors?'error':'success');setBusy(false);
     if(hasErrors){$('recognitionErrorTitle').focus();$('recognitionProblems').scrollIntoView({block:'start'});}
   }else if(msg.type==='progress'){status(msg.message);$('bar').setAttribute('aria-valuetext',msg.message);}
-  else if(msg.type==='error'){status(msg.message,'error');if(msg.operation==='button-numbering-apply'){clearNumbering();$('numberingResult').hidden=false;$('numberingResult').textContent=msg.message;$('numberingResult').setAttribute('role','alert');$('refreshNumbering').hidden=false;}if(msg.operation==='button-apply-styles'){buttonResult(msg.message,'error');if(['button-background','button-presets'].includes(msg.code))$<HTMLDetailsElement>('buttonAdvanced').open=true;}setBusy(false);}
+  else if(msg.type==='error'){lastError={code:msg.code,operation:msg.operation,message:msg.message,at:new Date().toISOString()};status(msg.message,'error');if(msg.operation==='button-numbering-apply'){clearNumbering();$('numberingResult').hidden=false;$('numberingResult').textContent=msg.message;$('numberingResult').setAttribute('role','alert');$('refreshNumbering').hidden=false;}if(msg.operation==='button-apply-styles'){buttonResult(msg.message,'error');if(['button-background','button-presets'].includes(msg.code))$<HTMLDetailsElement>('buttonAdvanced').open=true;}setBusy(false);}
   else if(msg.type==='success'){status(msg.message,'success');if(msg.operation==='button-numbering-apply'){$('numberingResult').hidden=false;$('numberingResult').textContent=msg.message;$('numberingResult').setAttribute('role','status');}if(msg.operation==='button-apply-styles')buttonResult(msg.message,'success');setBusy(false);}
   else if(msg.type==='idle'){if(!packing)setBusy(false);}
   else if(msg.type==='bundle') {

@@ -110,8 +110,8 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     await writeFile(input, packageExui(bundle), { flag: 'wx' });
     const validation = cli(['validate-package', input]);
     assert.equal(validation.contract, 'exui/5');
-    // Pages follow the frame names; the first selected page stays the start page.
-    if(batch){assert.ok('pages' in bundle.screen);assert.deepEqual(Array.from(bundle.screen.pages,p=>[p.name,p.shownBy]),[['screen_AudioControl','navigation'],['screen_Main','start']]);assert.equal(bundle.screen.pages[1].elements.find(e=>e.kind==='button')!.navigate,'page.audiocontrol');}
+    // The first selected page stays the start page; GUI Designer lists it first, then frame-name order.
+    if(batch){assert.ok('pages' in bundle.screen);assert.deepEqual(Array.from(bundle.screen.pages,p=>[p.name,p.shownBy]),[['screen_Main','start'],['screen_AudioControl','navigation']]);assert.equal(bundle.screen.pages[0].elements.find(e=>e.kind==='button')!.navigate,'page.audiocontrol');}
     if(scenario==='section'){
       assert.ok('pages' in bundle.screen);assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.popups.length,4);
       const map=spawnSync(process.env.DOTNET_EXE??'dotnet',[path.join(installed,'cli/Extron.Cli.dll'),'id-map',input],{cwd:out,encoding:'utf8',timeout:30000});

@@ -22,7 +22,7 @@ public sealed record DonorEntry(string Id, string Panel, string File, string? Sh
 
 public sealed record DonorRegistryFile(int SchemaVersion, string GuiDesignerVersion, IReadOnlyList<DonorEntry> Donors);
 
-public sealed record LoadedDonor(DonorEntry Entry, string Path, string Sha256, ExtronContainer Container, ProjectModel Model);
+public sealed record LoadedDonor(DonorEntry Entry, string Path, string Sha256, ExtronContainer Container, ProjectModel Model, string GuiDesignerVersion);
 
 /// <summary>
 /// samples/donors.json: the ONLY projects whose payload is handed to the Extron deserializer. Each entry is
@@ -51,7 +51,7 @@ public sealed class DonorRegistry
         DonorRegistryFile data;
         try { data = JsonSerializer.Deserialize<DonorRegistryFile>(System.IO.File.ReadAllText(path), Json) ?? throw new JsonException("empty"); }
         catch (JsonException e) { throw new AdapterException("registry-invalid", $"Donor registry is invalid: {e.Message}"); }
-        if (data.SchemaVersion != 1 || data.GuiDesignerVersion != AdapterOptions.GuiDesignerVersion)
+        if (data.SchemaVersion != 1 || !Compatibility.IsVersion(data.GuiDesignerVersion))
             throw new AdapterException("registry-invalid", "Donor registry has an unknown schema or GUI Designer version.");
         if (data.Donors.Select(d => d.Id).Distinct().Count() != data.Donors.Count) throw new AdapterException("registry-invalid", "Duplicate donor ids.");
         if (data.Donors.Any(d => d.Profile.Panel != d.Panel)) throw new AdapterException("registry-invalid", "Donor panel and profile panel disagree.");
@@ -83,9 +83,11 @@ public sealed class DonorRegistry
         var container = ExtronContainer.Parse(bytes);
         if (container.HasBuildOutput) throw new AdapterException("donor-unsuitable", "Donor must be an unbuilt single-entry project.");
         var model = ProjectModel.Read(container.Payload);
-        var bad = ScreenVerifier.ProfileChecks(model, entry.Profile).Where(c => !c.Passed).ToArray();
+        if (model.AppVersion != Data.GuiDesignerVersion)
+            throw new AdapterException("donor-version", $"Donor version {model.AppVersion} differs from registry {Data.GuiDesignerVersion}.");
+        var bad = ScreenVerifier.ProfileChecks(model, entry.Profile, Data.GuiDesignerVersion).Where(c => !c.Passed).ToArray();
         if (bad.Length > 0) throw new AdapterException("profile-mismatch", $"Donor '{id}' profile differs from the registry: {string.Join("; ", bad.Select(c => $"{c.Id}: {c.Detail}"))}.");
-        return new(entry, path, sha, container, model);
+        return new(entry, path, sha, container, model, Data.GuiDesignerVersion);
     }
 
     /// <summary>The preparation source must be an immutable local reference listed in manifest.json.</summary>

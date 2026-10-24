@@ -102,13 +102,68 @@ function Save-Payload($Project, [string]$Path) {
 # --- reflection on serialized backing fields ---------------------------------
 
 function Find-Field($Object, [string]$Name) {
-    $t = $Object.GetType()
+    return Find-TypeField $Object.GetType() $Name
+}
+
+# Do not cache these lookups: .NET Framework orders a type's serialized members by how its
+# reflection cache was filled, so fewer GetField calls change the BinaryFormatter output bytes.
+function Find-TypeField([Type]$Type, [string]$Name) {
+    $t = $Type
     while ($t -and $t.FullName -ne 'System.Object') {
         $f = $t.GetField($Name, 'Instance,Public,NonPublic,DeclaredOnly')
         if ($f) { return $f }
         $t = $t.BaseType
     }
     return $null
+}
+
+# Check the common adapter surface before deserializing a donor. Operation-specific
+# fields are still checked at every read/write and by the independent NRBF verifier.
+function Test-AdapterContract {
+    $required = [ordered]@{
+        PBProject = @('pagesField', 'popupPagesField', 'resourceSetField', 'platformTypeField', 'applicationBuildVersionInfoField', 'checksum')
+        PBPage = @('controlsField', 'nameField', 'widthField', 'heightField')
+        PBButton = @('userIdField', 'statesField')
+        PBLabel = @('userIdField', 'statesField')
+        PBLevel = @('userIdField', 'statesField')
+        PBSlider = @('userIdField', 'statesField')
+        PBImage = @('userIdField', 'statesField')
+        PBShape = @('userIdField', 'statesField')
+        PBLine = @('userIdField', 'statesField')
+        PBDateTime = @('userIdField', 'statesField')
+        PBPopupPageReference = @('popupPageIDField')
+    }
+    $surface = @()
+    foreach ($name in $required.Keys) {
+        $t = Get-ExtronType ('Extron.GUICPro.' + $name)
+        if (-not $t.IsSerializable) { Fail 'adapter-contract' "Type '$name' is no longer serializable." }
+        foreach ($field in $required[$name]) {
+            $f = Find-TypeField $t $field
+            if (-not $f -or $f.IsNotSerialized) { Fail 'adapter-contract' "Missing serialized field '$name.$field'." }
+            $surface += $name + '.' + $field + ':' + $f.FieldType.FullName
+        }
+    }
+    if (-not (Get-ExtronType 'Extron.GUICPro.PBPlatformPro').GetMethod('CreatePlatform')) { Fail 'adapter-contract' 'Missing platform factory.' }
+    $enums = [ordered]@{}
+    foreach ($name in 'PlatformProTypeEnum', 'LevelDisplayTypeEnum', 'LevelOrientationEnum') {
+        $t = Get-ExtronType ('Extron.GUICPro.Layout.Contracts.Enumerations.' + $name)
+        if (-not $t.IsEnum) { Fail 'adapter-contract' "Type '$name' is no longer an enum." }
+        $values = [ordered]@{}
+        foreach ($n in [Enum]::GetNames($t)) {
+            $values[$n] = [int][Enum]::Parse($t, $n)
+            $surface += $name + '.' + $n + ':' + $values[$n]
+        }
+        $enums[$name] = $values
+    }
+    $bytes = [Text.Encoding]::UTF8.GetBytes(($surface -join "`n"))
+    $contractHash = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($bytes)).Replace('-', '')
+    $components = @('GUI Designer', 'Extron.GUICPro.Layout.Contracts' | ForEach-Object {
+        $a = $script:Assemblies[$_]
+        $sha = [Security.Cryptography.SHA256]::Create()
+        try { $hash = [BitConverter]::ToString($sha.ComputeHash([IO.File]::ReadAllBytes($a.Location))).Replace('-', '') } finally { $sha.Dispose() }
+        [ordered]@{ name = $_; version = $a.GetName().Version.ToString(); sha256 = $hash }
+    })
+    $script:Result.contract = [ordered]@{ fingerprint = $contractHash; surfaceEntries = $surface.Count; enums = $enums; components = $components }
 }
 
 function Get-F($Object, [string]$Name) {
@@ -218,6 +273,25 @@ function Add-EmbeddedFonts($Project, $Fonts) {
         Set-F $r 'sizeField' $data.Length;Set-F $r 'indexField' $resources.Count;Set-F $r 'mIsDefault' $false
         $resources.Add($r)
     }
+    $script:FontResourceNames.Clear()
+}
+
+# Font resources change only in Add-EmbeddedFonts, which clears this cache; every
+# state of every control otherwise scans all resources for the same answer.
+$script:FontResourceNames = [Collections.Generic.Dictionary[string, string]]::new([StringComparer]::Ordinal)
+function Find-FontResourceName($Project, $Font) {
+    $key = if ($Font.resource) { 'resource|' + $Font.resource } else { 'family|' + $Font.family }
+    $cached = $null
+    if ($script:FontResourceNames.TryGetValue($key, [ref]$cached)) { return $cached }
+    $resources = @(Items (Get-Resources $Project) | Where-Object { $_.GetType().Name -eq 'PBFontResource' })
+    $match = @($resources | Where-Object { if($Font.resource){(Get-F $_ 'nameField') -ceq $Font.resource}else{((Get-F $_ 'nameField') -replace '(\s+(Regular|Bold|Italic))+$', '') -ieq $Font.family} })
+    if ($match.Count -lt 1) {
+        $have = ($resources | ForEach-Object { Get-F $_ 'nameField' }) -join ', '
+        Fail 'resource-missing' "Font family '$($Font.family)' has no PBFontResource in the donor (has: $have)."
+    }
+    $name = Get-F $match[0] 'nameField'
+    $script:FontResourceNames[$key] = $name
+    return $name
 }
 
 function Set-Font($Project, $Target, $Font) {
@@ -226,17 +300,12 @@ function Set-Font($Project, $Target, $Font) {
     if (-not $existing) { Fail 'donor-element' "$($Target.GetType().Name) has no font to clone." }
     $f = Copy-Graph $existing
     if ($Font.family) {
-        $resources = @(Items (Get-Resources $Project) | Where-Object { $_.GetType().Name -eq 'PBFontResource' })
-        $match = @($resources | Where-Object { if($Font.resource){(Get-F $_ 'nameField') -ceq $Font.resource}else{((Get-F $_ 'nameField') -replace '(\s+(Regular|Bold|Italic))+$', '') -ieq $Font.family} })
-        if ($match.Count -lt 1) {
-            $have = ($resources | ForEach-Object { Get-F $_ 'nameField' }) -join ', '
-            Fail 'resource-missing' "Font family '$($Font.family)' has no PBFontResource in the donor (has: $have)."
-        }
+        $resourceName = Find-FontResourceName $Project $Font
         Set-F $f 'nameField' $Font.family
         $ref = Get-F $f 'fontResourceReferenceField'
         if (-not $ref) { Fail 'donor-element' 'Donor font has no resource reference to retarget.' }
         $r = Copy-Graph $ref
-        Set-F $r 'resourceNameField' (Get-F $match[0] 'nameField')
+        Set-F $r 'resourceNameField' $resourceName
         Set-F $f 'fontResourceReferenceField' $r
     }
     if ($null -ne $Font.size) { Set-F $f 'pointSizeField' ([single]$Font.size) }
@@ -755,22 +824,36 @@ function Get-EnumValues($Project) {
 # --- main ---------------------------------------------------------------------------
 
 $exit = 3
+# EXUI_HOST_TRACE=1 reports stage timings on stderr (captured in the report's HostOutput). Off by default.
+$script:TraceClock = if ($env:EXUI_HOST_TRACE -eq '1') { [Diagnostics.Stopwatch]::StartNew() } else { $null }
+function Write-StageTime([string]$Stage) { if ($script:TraceClock) { [Console]::Error.WriteLine(('trace {0,-12} {1,7} ms' -f $Stage, $script:TraceClock.ElapsedMilliseconds)) } }
 try {
     $req = [IO.File]::ReadAllText($Request, [Text.Encoding]::UTF8) | ConvertFrom-Json
     $script:ResultPath = $req.resultPath
     if ($req.protocol -ne 'extron-adapter/1') { Fail 'protocol' "Unknown request protocol '$($req.protocol)'." }
     Initialize-Extron $req.installDir $req.guiDesignerVersion
-    $project = Read-Payload $req.payloadPath $req.payloadSha256
-    $app = [string](Get-F $project 'applicationBuildVersionInfoField')
-    if ($app -ne $req.guiDesignerVersion) { Fail 'donor-unsuitable' "Donor was saved by GUI Designer $app; expected $($req.guiDesignerVersion)." }
-    switch ($req.operation) {
-        'prepare-donor' { Invoke-PrepareDonor $project $req.prepare }
-        'generate' { Invoke-Generate $project $req.generate }
-        default { Fail 'protocol' "Unknown operation '$($req.operation)'." }
+    Write-StageTime 'load-extron'
+    if ($req.compatibilityProfile.adapter -ne 'gui-designer-nrbf-x86/1' -or $req.compatibilityProfile.guiDesignerVersion -ne $req.guiDesignerVersion) { Fail 'protocol' 'Inconsistent compatibility profile.' }
+    $script:Result.compatibility = $req.compatibilityProfile
+    Test-AdapterContract
+    Write-StageTime 'contract'
+    if ($req.operation -ne 'probe') {
+        if (@($req.compatibilityProfile.donorVersions) -notcontains $req.donorVersion) { Fail 'donor-version' 'Donor version is not accepted by this compatibility profile.' }
+        $project = Read-Payload $req.payloadPath $req.payloadSha256
+        Write-StageTime 'deserialize'
+        $app = [string](Get-F $project 'applicationBuildVersionInfoField')
+        if ($app -ne $req.donorVersion) { Fail 'donor-unsuitable' "Donor was saved by GUI Designer $app; expected $($req.donorVersion)." }
+        switch ($req.operation) {
+            'prepare-donor' { Invoke-PrepareDonor $project $req.prepare }
+            'generate' { Invoke-Generate $project $req.generate }
+            default { Fail 'protocol' "Unknown operation '$($req.operation)'." }
+        }
+        Write-StageTime $req.operation
+        $script:Result.enumValues = Get-EnumValues $project
+        $script:Result.outputBytes = Save-Payload $project $req.outputPath
+        Write-StageTime 'serialize'
     }
-    $script:Result.enumValues = Get-EnumValues $project
-    $script:Result.outputBytes = Save-Payload $project $req.outputPath
-    $script:Result.ok = $true; $script:Result.code = 'ok'; $script:Result.message = 'written'
+    $script:Result.ok = $true; $script:Result.code = 'ok'; $script:Result.message = if ($req.operation -eq 'probe') { 'probed; no payload deserialized' } else { 'written' }
     $exit = 0
 } catch [AdapterError] {
     $script:Result.code = $_.Exception.Code; $script:Result.message = $_.Exception.Message

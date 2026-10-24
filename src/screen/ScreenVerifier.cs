@@ -22,7 +22,7 @@ public static class ScreenVerifier
 
     private static readonly Dictionary<string, string> Types = new() { ["button"] = "PBButton", ["label"] = "PBLabel", ["level"] = "PBLevel", ["popup-ref"] = "PBPopupPageReference", ["graphic"] = "PBImage", ["value"] = "PBLabel", ["slider"] = "PBSlider", ["shape"] = "PBShape", ["line"] = "PBLine", ["datetime"] = "PBDateTime" };
 
-    public static IReadOnlyList<CheckResult> ProfileChecks(ProjectModel model, ExpectedProfile expected)
+    public static IReadOnlyList<CheckResult> ProfileChecks(ProjectModel model, ExpectedProfile expected, string expectedAppVersion)
     {
         var p = model.Platform;
         return
@@ -32,7 +32,7 @@ public static class ScreenVerifier
             new("profile.part-number", p.PartNumber == expected.PartNumber, $"{p.PartNumber} (expected {expected.PartNumber})"),
             new("profile.screen", p.ScreenWidth == expected.Width && p.ScreenHeight == expected.Height && p.PlatformWidth == expected.Width && p.PlatformHeight == expected.Height,
                 $"screen {p.ScreenWidth}x{p.ScreenHeight}, platform {p.PlatformWidth}x{p.PlatformHeight} (expected {expected.Width}x{expected.Height})"),
-            new("profile.app-version", model.AppVersion == "1.28.0.7", model.AppVersion),
+            new("profile.app-version", model.AppVersion == expectedAppVersion, $"{model.AppVersion} (expected {expectedAppVersion})"),
             new("profile.checksum", model.Checksum == 0, $"checksum {model.Checksum?.ToString() ?? "absent"}")
         ];
     }
@@ -44,7 +44,7 @@ public static class ScreenVerifier
     /// </param>
     public static IReadOnlyList<CheckResult> Verify(GeneratePlan plan, ProjectModel model, ProjectModel donor, ExpectedProfile expected, bool afterGuiBuild = false)
     {
-        var checks = new List<CheckResult>(ProfileChecks(model, expected));
+        var checks = new List<CheckResult>(ProfileChecks(model, expected, donor.AppVersion));
         void Check(string id, bool ok, string detail) => checks.Add(new(id, ok, detail));
         const ulong None = ulong.MaxValue;
         const int ControlObject = 3; // ObjectTypeEnum.Control, read from the reference project

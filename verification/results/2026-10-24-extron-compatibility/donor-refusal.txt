@@ -1,0 +1,1 @@
+ERROR [donor-version]: Profile 'local-candidate' does not accept donors from GUI Designer 1.28.0.7.

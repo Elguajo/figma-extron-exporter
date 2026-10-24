@@ -19,6 +19,7 @@ src/cli  (.NET 10, точка входа Program.cs)
 - **DLL Extron не входят в поставку** и загружаются только в отдельном 32-битном процессе `adapter/host` из установленного GUI Designer. Основной процесс читает NRBF через `System.Formats.Nrbf`, не создавая объектов Extron.
 - **Новые объекты клонируются из доноров** — закреплённых по SHA-256 эталонных GDL, а не создаются с нуля.
 - **Результат проверяется независимо**: после генерации `src/extron` перечитывает GDL и сверяет его с пакетом (`.gdl.report.json`).
+- **Версии Extron задаются профилями** в `compatibility/extron.json`; `doctor` проверяет установленную среду и общий контракт адаптера. Порядок подключения обновлений GUI Designer и проверки GCP — [совместимость](extron-compatibility.md).
 
 Обоснования — [docs/decisions.md](decisions.md), формат GDL — [docs/extron-format.md](extron-format.md), контракт пакета — [docs/exui-v5.md](exui-v5.md).
 
@@ -78,6 +79,14 @@ dotnet run --project src/cli -- validate-package examples/exui-v5/expanded-1025m
 dotnet run --project tests/format -- --registry samples/donors.json --integration
 ```
 
+`--integration` включает и эталонную проверку: шесть пакетов из [tests/format/golden-gdl.json](../tests/format/golden-gdl.json) должны дать тот же ProjectGCP байт в байт. Отдельно и быстрее — `--golden`. Используйте её после любой правки генератора или хоста: генерация детерминирована, и даже безобидная на вид оптимизация может изменить байты. Например, кэш поиска полей в хосте менял порядок полей BinaryFormatter. Эталон обновляют только при намеренном изменении результата.
+
+```powershell
+dotnet run --project tests/format -- --registry samples/donors.json --golden
+```
+
+CI ([.github/workflows/ci.yml](../.github/workflows/ci.yml)) на каждом push в `main` проверяет чистый checkout без Extron: `npm run verify`, сборку .NET, unit-тесты и `validate-package`. Тест `performance-budget.test.ts` ограничивает число полных обходов дерева дизайна на событие плагина.
+
 Автотесты не заменяют проверку в GUI Designer и на панели — порядок ручной проверки в [verification/checklist.md](../verification/checklist.md).
 
 ## Выпуск
@@ -97,6 +106,7 @@ dotnet run --project tests/format -- --registry samples/donors.json --integratio
 
 | Команда | Назначение |
 |---|---|
+| `doctor` | версии GUI Designer/GCP, профиль, проверка типов/полей/enum и отпечаток адаптера без загрузки проекта |
 | `validate-package <in.exui>` | проверка ZIP, схем, ID, ссылок и ресурсов |
 | `id-map <in.exui>` | Markdown-карта ID для программиста |
 | `compare-packages <old.exui> <new.exui> [--json]` | сравнение экспортов перед обновлением настроенного проекта GCP |
@@ -109,6 +119,6 @@ dotnet run --project tests/format -- --registry samples/donors.json --integratio
 | `set-button-text <in> <new> <id> <old> <new-text>` | замена текста состояний кнопки |
 | `generate-screen <screen.json> <donor-id> <new.gdl>` | экспериментальная генерация из JSON |
 
-Общие опции: `--registry <donors.json>`, `--extron-dir <папка GUI Designer>`; переменные `EXTRON_GUI_DESIGNER_DIR`, `EXUI_DOTNET_EXE`.
+Опции команд адаптера: `--registry <donors.json>`, `--extron-dir <папка GUI Designer>`, `--compatibility <профили.json>`. `doctor` принимает `--gcp-dir <папка GCP>`; переменные `EXTRON_GUI_DESIGNER_DIR`, `EXTRON_GCP_DIR`, `EXUI_DOTNET_EXE`, `EXUI_HOST_TIMEOUT` (таймаут хоста в минутах, 1–1440, по умолчанию 10) и `EXUI_HOST_TRACE=1` (время этапов хоста в `HostOutput` отчёта).
 
 [Вернуться к README](../README.md)

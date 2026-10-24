@@ -5,12 +5,12 @@ using ExtronExporter.Format;
 
 // Positional: [real-gdl] [templates-dir]. Options: --built <gui-saved.gdl> --registry <donors.json>
 // --gui-built-screens <folder with GUI-built first-screen-*.gdl> --gui-built-pages <folder with GUI-built pages-popups-*.gdl>
-// --integration
+// --integration, --golden (needs --registry; only the golden GDL payload checks)
 var flags = new Dictionary<string, string?>();
 var positional = new List<string>();
 for (int i = 0; i < args.Length; i++)
 {
-    if (args[i] == "--integration") flags[args[i]] = null;
+    if (args[i] is "--integration" or "--golden") flags[args[i]] = null;
     else if (args[i] is "--built" or "--registry" or "--gui-built-screens" or "--gui-built-pages" && i + 1 < args.Length) flags[args[i]] = args[++i];
     else if (args[i].StartsWith("--", StringComparison.Ordinal)) { Console.Error.WriteLine($"Unknown option {args[i]}"); return 2; }
     else positional.Add(args[i]);
@@ -199,9 +199,12 @@ if (args.Length > 1)
 ScreenTests.Container(Test);
 ScreenTests.Spec(Test);
 ScreenTests.Boundary(Test);
+CompatibilityTests.Unit(Test);
 PackageTests.Unit(Test);
 PagesTests.Unit(Test);
 ComparisonTests.Unit(Test);
+FuzzTests.Unit(Test);
+StabilityTests.Unit(Test);
 if (args.Length > 0) PagesTests.Graph(Test, args[0]);
 if (flags.TryGetValue("--built", out var built)) ScreenTests.BuiltProject(Test, built!);
 if (flags.TryGetValue("--registry", out var registry)) ScreenTests.Registry(Test, registry!);
@@ -218,9 +221,15 @@ if (flags.TryGetValue("--gui-built-pages", out var builtPages))
 if (flags.ContainsKey("--integration"))
 {
     if (registry == null) { Console.Error.WriteLine("--integration needs --registry"); return 2; }
+    CompatibilityTests.Integration(Test);
     ScreenTests.Integration(Test, registry);
     PackageTests.Integration(Test, registry);
     PagesTests.Integration(Test, registry);
+}
+if (flags.ContainsKey("--integration") || flags.ContainsKey("--golden"))
+{
+    if (registry == null) { Console.Error.WriteLine("--golden needs --registry"); return 2; }
+    GoldenTests.Integration(Test, registry);
 }
 Console.WriteLine($"RESULT: {passed} passed, {failed} failed. GUI Designer validation is separate.");
 return failed == 0 ? 0 : 1;

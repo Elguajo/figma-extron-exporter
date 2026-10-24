@@ -17,7 +17,7 @@ assert.ok(archive&&cliDirectory&&output,'Usage: node test/button-numbering-integ
 const files=unzipSync(new Uint8Array(await readFile(archive)));
 const version=JSON.parse(strFromU8(files['version.json'])),manifest=JSON.parse(strFromU8(files['manifest.json']));
 const cliVersion=JSON.parse(await readFile(path.join(cliDirectory,'version.json'),'utf8'));
-assert.equal(version.version,'0.7.3');assert.equal(version.compatibleCliVersion,cliVersion.version);
+assert.equal(version.version,'0.8.0');assert.equal(version.compatibleCliVersion,cliVersion.version);
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..'),out=path.resolve(output),installed=path.resolve(cliDirectory);
 await mkdir(out,{recursive:true});
 function cli(args:string[]) {

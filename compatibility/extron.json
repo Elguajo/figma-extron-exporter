@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "id": "gui-designer-1.28.0.7",
+      "adapter": "gui-designer-nrbf-x86/1",
+      "guiDesignerVersion": "1.28.0.7",
+      "donorVersions": ["1.28.0.7"],
+      "status": "baseline"
+    }
+  ]
+}

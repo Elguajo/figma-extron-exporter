@@ -120,7 +120,7 @@ public sealed class ExuiPackage : IDisposable
         }
         catch (Exception e)
         {
-            if (work != null) Directory.Delete(work, true);
+            if (work != null) TryDelete(work);
             if (e is InvalidDataException) throw new ExuiException("package-zip", e.Message);
             throw;
         }
@@ -185,5 +185,11 @@ public sealed class ExuiPackage : IDisposable
         if (!data || !ended || cursor != bytes.Length) Fail();
     }
 
-    public void Dispose() => Directory.Delete(work, true);
+    public void Dispose() => TryDelete(work);
+
+    // Best effort: a failed cleanup must neither mask the original error nor fail a finished command.
+    private static void TryDelete(string directory)
+    {
+        try { Directory.Delete(directory, true); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+    }
 }

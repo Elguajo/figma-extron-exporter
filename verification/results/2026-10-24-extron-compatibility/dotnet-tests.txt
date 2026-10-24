@@ -1,0 +1,254 @@
+PASS CRC32 standard check vector
+PASS DEFLATE from standard ZIP writer
+PASS Stored entry
+PASS Repack preserves payload and supports a second repack
+PASS Reject truncated container
+PASS Reject wrong local signature
+PASS Reject central directory outside file
+PASS Reject mismatched metadata
+PASS Reject payload corruption even with consistent stored sizes
+PASS Reject oversized declared payload before allocating
+PASS Reject encrypted/data-descriptor flags
+PASS Reject expansion beyond declared size
+PASS Reject expansion shorter than declared size
+PASS Reject foreign entry name
+PASS Reject multi-entry declaration
+PASS Reject non-NRBF data
+PASS Synthetic button: edits two distinct strings, exact reverse
+PASS Synthetic button: reject version
+PASS Synthetic button: reject checksum
+PASS Synthetic button: reject inherited-id
+PASS Synthetic button: reject formatted
+PASS Synthetic button: reject shared-string
+PASS Synthetic button: reject shared-collection
+PASS Synthetic button: reject shared-state-array
+PASS Multi-entry: ProjectGCP + build output parsed structurally
+PASS Multi-entry: repack with new payload keeps other entry bytes and fixes offsets
+PASS Multi-entry: reject ProjectGCP not first
+PASS Multi-entry: reject missing ProjectGCP
+PASS Multi-entry: reject duplicate entry names
+PASS Multi-entry: reject CRC mismatch in the second entry
+PASS Multi-entry: reject gap between entries
+PASS Multi-entry: reject path-like entry name
+PASS Multi-entry: reject more than 16 entries
+PASS Multi-entry: reject declared entry count larger than the directory
+PASS Spec: both examples normalize; four kinds present; Cyrillic kept
+PASS Spec: IDs do not depend on element order, text or coordinates
+PASS Spec: panel name must match the donor
+PASS Spec: 1025M layout does not fit the 300M canvas
+PASS Spec: duplicate key / objectId / controlId rejected
+PASS Spec: page objectId must fit the UInt16 start page and avoid Offline 65535
+PASS Spec: controlId out of UInt16 range rejected
+PASS Spec: missing and non-PNG resources rejected
+PASS Spec: button state roles keep press feedback apart from program feedback
+PASS Spec: kind-specific properties and unknown kinds rejected
+PASS Spec: unknown JSON property rejected (no silent typos)
+PASS Spec: NUL and broken Unicode text rejected
+PASS Adapter: missing GUI Designer reported as extron-missing
+PASS Adapter: missing 32-bit PowerShell reported as host-missing
+PASS Adapter: host script is deployed with the build
+PASS Adapter: host script never automates GUI Designer or Build
+PASS Adapter: passive controls get an empty Text, never null (GCP blank-page regression)
+PASS Compatibility: deployed baseline selects the exact installed build only
+PASS Compatibility: a local profile routes a future build and explicitly allows older donors without rebuilding
+PASS Compatibility: refuses schema
+PASS Compatibility: refuses adapter
+PASS Compatibility: refuses range
+PASS Compatibility: refuses short version
+PASS Compatibility: refuses status
+PASS Compatibility: refuses typo
+PASS Compatibility: refuses null profiles
+PASS Compatibility: refuses null profile
+PASS Compatibility: refuses empty profiles
+PASS Compatibility: refuses null donor versions
+PASS Compatibility: refuses ambiguous version
+PASS Compatibility: refuses malformed JSON
+PASS Compatibility: a missing explicit file never falls back to baseline
+PASS Compatibility: changed enum values require an adapter update
+PASS Doctor: missing Extron returns actionable diagnostics; missing GCP is optional
+PASS Real Figma Home layout v5: separate native overlays retain original positions
+PASS Real Figma Home v5: complete screen, distinct states and clean volume values
+PASS Native Inter: static weights, italics and label alignment survive package normalization
+PASS Native Inter refuses inconsistent styles and Arial cannot masquerade as an Inter weight
+PASS Package 1025m: lowers to the exact experimental plan; resources cleaned up
+PASS Package 300m: lowers to the exact experimental plan; resources cleaned up
+PASS Package refuses unknown contract
+PASS Package refuses unsupported profile
+PASS Package refuses missing project
+PASS Package refuses null element
+PASS Package refuses unknown property
+PASS Package refuses unsupported display
+PASS Package refuses unsupported font
+PASS Package refuses integer type
+PASS Package refuses newline in semantic key
+PASS Package refuses duplicate semantic key
+PASS Package refuses duplicate objectId
+PASS Package refuses duplicate controlId
+PASS Package refuses bounds
+PASS Package refuses overflow geometry
+PASS Package refuses wrong state identity
+PASS Package refuses feedback used as press
+PASS Package refuses press references feedback instead of a pressed state
+PASS Package refuses missing image reference
+PASS Package refuses resource name conflict
+PASS Package refuses missing resource
+PASS Package refuses extra file
+PASS Package refuses traversal
+PASS Package refuses backslash
+PASS Package refuses absolute path
+PASS Package refuses directory
+PASS Package refuses undeclared resource
+PASS Package refuses wrong SHA
+PASS Package refuses resource map mismatch
+PASS Package refuses duplicate resource declaration
+PASS Package refuses duplicate JSON
+PASS Package refuses malformed JSON
+PASS Package refuses expanded resource limit
+PASS Package refuses duplicate/case-colliding ZIP paths
+PASS Package refuses corrupt PNG even with updated manifest SHA
+PASS Package refuses corrupt stored ZIP CRC
+PASS Package JSON Schema integer semantics accept 1.0 and 1e0 without changing IDs
+PASS Package never rounds a fractional ID to an integer
+PASS Package state order, text, geometry and element order cannot reassign IDs
+PASS Obsolete exui/1 is rejected without fallback
+PASS Current manifest rejects obsolete screen/1
+PASS Obsolete exui/2 is rejected without fallback
+PASS Current manifest rejects obsolete screen/2
+PASS Obsolete exui/3 is rejected without fallback
+PASS Current manifest rejects obsolete screen/3
+PASS Obsolete exui/4 is rejected without fallback
+PASS Current manifest rejects obsolete screen/4
+PASS Package v5 two-state Off/On buttons disable press feedback; IDs preserved
+PASS Package v5 refuses invalid two-state press/identity/version
+PASS Package v5 refuses invalid two-state press/identity/version
+PASS Package v5 refuses invalid two-state press/identity/version
+PASS Package v5 refuses invalid two-state press/identity/version
+PASS Package v5 still requires pressed reference when three states are present
+PASS Package v5 resolves passive graphic and two-state momentary press index
+PASS Package v5 rejects malformed graphic, press or version
+PASS Package v5 rejects malformed graphic, press or version
+PASS Package v5 rejects malformed graphic, press or version
+PASS Package v5 rejects malformed graphic, press or version
+PASS Package v5 rejects malformed graphic, press or version
+PASS Package v5 rejects malformed graphic, press or version
+PASS Package v5 rejects malformed graphic, press or version
+PASS Package v5 preserves editable Slider, dynamic label ID and programmer behavior
+PASS Package v5: 19 PNGs in screen retain all native images
+PASS Package v5: 19 PNGs in project retain all native images
+PASS Obsolete package with many resources is refused before decoding
+PASS Package v5 with many images still rejects undeclared files and damaged PNGs
+PASS Package v5 with many images retains the total expanded size limit
+PASS Package v5 accepts empty Button captions for independent text overlays
+PASS Package v5 still refuses whitespace Button captions and empty labels
+PASS Package v5 uses the same validation for container form
+PASS Native Slider verifier rejects an invisible vector thumb with no resolvable bitmap
+PASS Package v5 rejects missing ID
+PASS Package v5 rejects duplicate ID
+PASS Package v5 rejects oversized thumb
+PASS Package v5 rejects invalid range
+PASS Package v5 rejects unknown native field
+PASS Package v5 rejects inappropriate native appearance
+PASS Package v5 rejects behavior on passive graphic
+PASS Package v5 rejects unknown behavior field
+PASS Package v5 rejects mixed single/project forms
+PASS exui/5: transparent popup backgrounds and shape paints preserve alpha
+PASS exui/5: button state fill preserves color #00000000
+PASS exui/5: button state fill preserves color #80123456
+PASS exui/5: button state fill preserves color #123456
+PASS exui/5: native line preserves color #1AD2AE6D
+PASS exui/5: native line preserves color #0DD2AE6D
+PASS exui/5: native line preserves color #00000000
+PASS exui/5: native line preserves color #D2AE6D
+PASS exui/5: translucent text color #80D2AE6D on native text is refused
+PASS exui/5: translucent text color #80D2AE6D on a button state is refused
+PASS exui/5: translucent text color #FFD2AE6D on native text is refused
+PASS exui/5: translucent text color #FFD2AE6D on a button state is refused
+PASS exui/5: invalid alpha color "#0000000" is refused
+PASS exui/5: invalid alpha color "#000000000" is refused
+PASS exui/5: invalid alpha color "#GG000000" is refused
+PASS exui/5: invalid alpha color "#00000000\n" is refused
+PASS exui/5: alpha extension does not allow transparent ordinary pages
+PASS exui/5 1025m: pages, popups, group and references lower to one plan
+PASS exui/5 300m: pages, popups, group and references lower to one plan
+PASS exui/5: a start page in the middle leads while other pages keep their package order
+PASS exui/5: both panels carry the same keys and IDs
+PASS exui/5: IDs ignore order of pages, popups and elements, texts and geometry
+PASS exui/5: ID map lists every control ID and says navigation is not stored in GDL
+PASS exui/5 refuses v1 manifest with v2 screen
+PASS exui/5 refuses unknown contract
+PASS exui/5 refuses popup-ref inside a popup
+PASS exui/5 refuses popup-ref with control ID
+PASS exui/5 refuses unknown popup property
+PASS exui/5 refuses modal popup with size
+PASS exui/5 refuses standard popup without size
+PASS exui/5 refuses reference to a modal popup
+PASS exui/5 refuses direct reference to a grouped popup
+PASS exui/5 refuses reference naming popup and group
+PASS exui/5 refuses reference size differs from popup
+PASS exui/5 refuses standard popup placed nowhere
+PASS exui/5 refuses group without members
+PASS exui/5 refuses members of different size
+PASS exui/5 refuses navigation to an unknown target
+PASS exui/5 refuses navigation page nobody leads to
+PASS exui/5 refuses two start pages
+PASS exui/5 refuses no start page
+PASS exui/5 refuses page and popup share an ID
+PASS exui/5 refuses page and popup share a name
+PASS exui/5 refuses popup named like the Offline page
+PASS exui/5 refuses Offline page ID
+PASS exui/5 refuses control ID used on two containers
+PASS exui/5 refuses element outside its popup
+PASS exui/5 refuses navigate on a label
+PASS exui/1 package still refuses navigate (no silent upgrade)
+PASS Comparison 1025m: identical normalized exports have no changes or GCP claim
+PASS Comparison 1025m: geometry, caption and paint preserve control identity
+PASS Comparison 300m: identical normalized exports have no changes or GCP claim
+PASS Comparison 300m: geometry, caption and paint preserve control identity
+PASS Comparison: renamed element and key are matched by original object identity
+PASS Comparison: renamed page updates references without losing its elements
+PASS Comparison: add and delete buttons keeps unrelated assignments unchanged
+PASS Comparison: redraw with the same key and new ID is breaking
+PASS Comparison: swapping two IDs is detected for both controls
+PASS Comparison: a reused ID with a different key and object is never declared unchanged
+PASS Comparison: button replaced by a level retains ID but changes type
+PASS Comparison: state removal and press mapping changes require review
+PASS Comparison: state names matter independently of role and artwork
+PASS Comparison: explicit state IDs make input array order irrelevant
+PASS Comparison: range and feedback instructions are not merely appearance
+PASS Comparison: popup links and navigation targets require review
+PASS Comparison: moved control is found by key and container change is visible
+PASS Comparison: stacking order changes are not hidden by sorting
+PASS Comparison: changed PNG bytes are compared by hash, not temporary paths
+PASS Comparison: different panel profile is a breaking project change
+PASS Comparison: start page changes are explicit
+PASS Comparison: deterministic output, immutable inputs and escaped Markdown cells
+PASS Donor tlp-pro-300m-portrait: hash pinned, profile PBTLP300MPlatform 320x480 read independently
+PASS Donor tlp-pro-1025m: hash pinned, profile PBTLP1025MPlatform 1280x800 read independently
+PASS Registry: unknown donor refused
+PASS Registry: declared donor version must match the pinned project's real version
+PASS Verifier: app version follows the explicit donor contract, not a hardcoded GUI build
+PASS Registry: modified donor refused before deserialization
+PASS Registry: unpinned donor refused
+PASS Registry: renaming the model is not enough - profile mismatch detected
+PASS Registry: preparation source must be an immutable manifest entry
+PASS Registry: paths escaping the registry folder refused
+PASS Doctor: real x86 contract probe is stable and never claims GUI or GCP verification
+PASS Doctor: explicit experimental profile is used without changing the bundled catalog
+PASS Generate TLP Pro 1025M: independent verification passes, deterministic output
+PASS Generate TLP Pro 300M: independent verification passes, deterministic output
+PASS Generate: IDs survive reordering, new text and moved elements
+PASS Generate: tampered expectation is caught by the verifier
+PASS Generate: host refuses missing font family (resource-missing); nothing written
+PASS Generate: host refuses resource name already in donor (resource-conflict); nothing written
+PASS Generate: donor element missing reported as donor-element
+PASS Generate: arbitrary external GDL never reaches the deserializer
+PASS Generate: donors and local references unchanged
+PASS Real Figma Home: deterministic native GDL with independent verification
+PASS Package generate 1025m: same GDL bytes as proven experiment, deterministic, full independent checks
+PASS Package generate 300m: same GDL bytes as proven experiment, deterministic, full independent checks
+PASS Package generation leaves sources, donors and examples unchanged
+PASS exui/5 generate 1025m: all bindings verified independently, deterministic, IDs stable
+PASS exui/5 generate 300m: all bindings verified independently, deterministic, IDs stable
+PASS exui/5: a donor without popup sources is refused with donor-element; nothing written
+PASS exui/5: donors, sources and examples unchanged
+RESULT: 253 passed, 0 failed. GUI Designer validation is separate.

@@ -200,7 +200,11 @@ try{
  await frame.locator('#buttonStates').screenshot({path:path.join(out,'button-states-420.png')});
  await page.setViewportSize({width:320,height:720});
  assert.equal(await frame.locator('body').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
- await frame.locator('#buttonStates').screenshot({path:path.join(out,'button-states-320.png')});await page.setViewportSize({width:420,height:720});
+ await frame.locator('#buttonStates').screenshot({path:path.join(out,'button-states-320.png')});
+ // Support details can be copied at the narrowest width, even while an operation runs.
+ const diagnostics=frame.getByRole('button',{name:'Скопировать диагностику',exact:true});assert.equal(await diagnostics.isEnabled(),true);
+ await diagnostics.click();await frame.getByRole('button',{name:'Диагностика скопирована',exact:true}).waitFor();
+ await page.setViewportSize({width:420,height:720});
  // A taller capture lets the full scrollable card be inspected without clipping.
  await page.setViewportSize({width:420,height:1200});await frame.locator('#buttonStates').screenshot({path:path.join(out,'button-workflow-complete-420.png')});
  await page.setViewportSize({width:320,height:1200});

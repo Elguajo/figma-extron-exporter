@@ -7,6 +7,7 @@ using ExtronExporter.Screen;
 var json = new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 const string Usage = """
 Usage:
+  doctor [--extron-dir <dir>] [--compatibility <file>] [--gcp-dir <dir>]
   inspect <input.gdl|glt>
   list-controls <input.gdl>
   compare-graph <a.gdl> <b.gdl>
@@ -18,30 +19,43 @@ Usage:
   id-map <input.exui>
   compare-packages <previous.exui> <new.exui> [--json]
   convert-package <input.exui> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
+
+Adapter commands also accept --compatibility <file> (exact-version profiles).
 """;
 
 // Adapter options are extracted here; compare-packages accepts a final --json below.
 var positional = new List<string>();
 string registryPath = Path.Combine("samples", "donors.json");
 string? extronDir = null;
+string? compatibilityPath = null, gcpDir = null;
+var seenOptions = new HashSet<string>();
 for (int i = 0; i < args.Length; i++)
 {
-    if (args[i] is "--registry" or "--extron-dir")
+    if (args[i] is "--registry" or "--extron-dir" or "--compatibility" or "--gcp-dir")
     {
-        if (i + 1 >= args.Length) { Console.Error.Write(Usage); return 2; }
-        if (args[i] == "--registry") registryPath = args[++i]; else extronDir = args[++i];
+        if (!seenOptions.Add(args[i]) || i + 1 >= args.Length || args[i + 1].StartsWith("--", StringComparison.Ordinal)) { Console.Error.Write(Usage); return 2; }
+        switch (args[i])
+        {
+            case "--registry": registryPath = args[++i]; break;
+            case "--extron-dir": extronDir = args[++i]; break;
+            case "--compatibility": compatibilityPath = args[++i]; break;
+            case "--gcp-dir": gcpDir = args[++i]; break;
+        }
     }
     else positional.Add(args[i]);
 }
 string command = positional.Count > 0 ? positional[0] : "";
-bool adapterCommand = command is "prepare-donor" or "generate-screen" or "convert-package";
+bool adapterCommand = command is "prepare-donor" or "generate-screen" or "convert-package" or "doctor";
+ExtronAdapter CreateAdapter() => new(AdapterOptions.Default(extronDir) with { CompatibilityPath = compatibilityPath });
 bool comparisonJson = command == "compare-packages" && positional.Count == 4 && positional[3] == "--json";
 int expected = command switch
 {
+    "doctor" => 1,
     "compare-packages" => comparisonJson ? 4 : 3,
     "inspect" or "list-controls" or "prepare-donor" or "validate-package" or "id-map" => 2, "repack" or "convert-package" or "compare-graph" => 3, "generate-screen" => 4, "set-button-text" => 6, _ => -1
 };
 if (expected < 0 || positional.Count != expected || (!adapterCommand && args.Length != positional.Count) ||
+    (gcpDir != null && command != "doctor") || (command == "doctor" && seenOptions.Contains("--registry")) ||
     (command == "set-button-text" && !int.TryParse(positional[3], out _)))
 {
     Console.Error.Write(Usage);
@@ -50,8 +64,17 @@ if (expected < 0 || positional.Count != expected || (!adapterCommand && args.Len
 
 try
 {
+    // Commands that unpack packages or start the host clean up after interrupted earlier runs.
+    if (command is "validate-package" or "id-map" or "compare-packages" or "convert-package" or "generate-screen" or "prepare-donor")
+        StaleTemp.Sweep(Path.GetTempPath(), DateTime.UtcNow);
     switch (command)
     {
+        case "doctor":
+        {
+            var report = CompatibilityDoctor.Inspect(CreateAdapter(), gcpDir);
+            Console.WriteLine(JsonSerializer.Serialize(report, json));
+            return report.Ready ? 0 : 1;
+        }
         case "compare-packages":
         {
             using var before = ExuiPackage.Load(positional[1]);
@@ -80,7 +103,7 @@ try
         }
         case "convert-package":
         {
-            var report = PackageGenerator.Generate(DonorRegistry.Load(registryPath), positional[1], positional[2], new ExtronAdapter(AdapterOptions.Default(extronDir)));
+            var report = PackageGenerator.Generate(DonorRegistry.Load(registryPath), positional[1], positional[2], CreateAdapter());
             Console.WriteLine(JsonSerializer.Serialize(new
             {
                 report.Contract, report.Profile, report.PackageSha256, report.Generation.Output, report.Generation.OutputSha256,
@@ -163,7 +186,7 @@ try
         case "prepare-donor":
         {
             var registry = DonorRegistry.Load(registryPath);
-            var report = ScreenGenerator.PrepareDonor(registry, positional[1], new ExtronAdapter(AdapterOptions.Default(extronDir)));
+            var report = ScreenGenerator.PrepareDonor(registry, positional[1], CreateAdapter());
             Console.WriteLine(JsonSerializer.Serialize(new
             {
                 report.Output, report.Sha256, report.Bytes, report.Profile, report.Pages, report.Popups, report.MatchesRegistry,
@@ -176,7 +199,7 @@ try
         case "generate-screen":
         {
             var registry = DonorRegistry.Load(registryPath);
-            var report = ScreenGenerator.Generate(registry, positional[2], positional[1], positional[3], new ExtronAdapter(AdapterOptions.Default(extronDir)));
+            var report = ScreenGenerator.Generate(registry, positional[2], positional[1], positional[3], CreateAdapter());
             string text = JsonSerializer.Serialize(report, json);
             // Report next to the output; never overwrite one.
             using (var file = new FileStream(positional[3] + ".report.json", FileMode.CreateNew, FileAccess.Write))
@@ -209,7 +232,7 @@ catch (ScreenSpecException e)
     Console.Error.WriteLine($"ERROR [spec]: {e.Message}");
     return 1;
 }
-catch (Exception e) when (e is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException or NotSupportedException or System.Runtime.Serialization.SerializationException)
+catch (Exception e) when (e is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException or NotSupportedException or System.Runtime.Serialization.SerializationException or JsonException or InvalidOperationException)
 {
     Console.Error.WriteLine($"ERROR: {e.Message}");
     return 1;

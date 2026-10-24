@@ -45,6 +45,8 @@ public static class PackageGenerator
             if (reportCreated) File.Delete(reportPath);
             throw;
         }
-        finally { Directory.Delete(stage, true); }
+        // Cleanup is best effort: a scanner briefly holding a staged file must not turn a
+        // published result into an error, after which the same output name would be refused.
+        finally { try { Directory.Delete(stage, true); } catch (IOException) { } catch (UnauthorizedAccessException) { } }
     }
 }

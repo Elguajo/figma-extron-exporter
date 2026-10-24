@@ -1,0 +1,2 @@
+PASS archive 0.7.3: expanded / tlp-pro-1025m → 116/116 passed
+PASS archive 0.7.3: expanded / tlp-pro-300m-portrait → 116/116 passed

@@ -345,6 +345,19 @@ static class ScreenTests
                 Check(ScreenGenerator.BoundsChecks(donor.Model).All(c => c.Passed), "every donor control inside the canvas");
             });
         test("Registry: unknown donor refused", () => Code("donor-unknown", () => registry.LoadDonor("tlp-pro-9999")));
+        test("Registry: declared donor version must match the pinned project's real version", () =>
+        {
+            string copy = CopyRegistry(registryPath, j => j["guiDesignerVersion"] = "1.29.0.1");
+            try { Code("donor-version", () => DonorRegistry.Load(copy).LoadDonor("tlp-pro-1025m")); }
+            finally { Cleanup(copy); }
+        });
+        test("Verifier: app version follows the explicit donor contract, not a hardcoded GUI build", () =>
+        {
+            var donor = registry.LoadDonor("tlp-pro-1025m");
+            var model = donor.Model with { AppVersion = "1.29.0.1" };
+            Check(ScreenVerifier.ProfileChecks(model, donor.Entry.Profile, "1.29.0.1").All(c => c.Passed));
+            Check(!ScreenVerifier.ProfileChecks(model, donor.Entry.Profile, "1.28.0.7").Single(c => c.Id == "profile.app-version").Passed);
+        });
         test("Registry: modified donor refused before deserialization", () =>
         {
             string copy = CopyRegistry(registryPath, corruptDonor: true);

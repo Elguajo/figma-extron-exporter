@@ -75,6 +75,14 @@ export function readText(node: TextNode, allowEmpty = false) {
   return { text: allowEmpty && node.characters === '' ? '' : text(node.characters,node.name), textColor: color(node), font: font(node) };
   }catch(error){nodeError(error,node);}
 }
+// Marks the temporary top-level copy of a PNG export. If Figma closes mid-export,
+// the next plugin start removes such leftovers (see sweepExportLeftovers).
+export const EXPORT_TEMP_KEY='exui-export-temp';
+export function sweepExportLeftovers(page:PageNode):number {
+  let removed=0;
+  for(const node of [...page.children])if(node.getPluginData(EXPORT_TEMP_KEY)==='1'){node.remove();removed++;}
+  return removed;
+}
 export async function exportPng(node: SceneNode, artwork?:{omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}): Promise<Uint8Array> {
   let temporary:SceneNode|undefined,cloned:SceneNode|undefined;
   try {
@@ -95,6 +103,7 @@ export async function exportPng(node: SceneNode, artwork?:{omitTextId?:string;wi
       ];
       omit(node,cloned);
     }
+    temporary.setPluginData(EXPORT_TEMP_KEY,'1');
     const right=Math.max(0,...figma.currentPage.children.filter(n=>n!==temporary).map(n=>n.x+n.width));
     temporary.x=Math.ceil(right)+128;temporary.y=0;
     return await temporary.exportAsync({ format:'PNG', constraint:{ type:'SCALE', value:1 }, useAbsoluteBounds:true, contentsOnly:true });

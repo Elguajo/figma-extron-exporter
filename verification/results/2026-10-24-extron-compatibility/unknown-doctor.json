@@ -1,0 +1,30 @@
+{
+  "Ready": false,
+  "GuiDesigner": {
+    "Path": "C:\\Program Files (x86)\\Extron\\GUI Designer\\GUI Designer.exe",
+    "Exists": true,
+    "Version": "1.28.0.7"
+  },
+  "Gcp": {
+    "Path": "C:\\Program Files (x86)\\Extron\\GCP\\GCP.exe",
+    "Exists": true,
+    "Version": "3.34.1.4"
+  },
+  "Profile": null,
+  "CompatibilityFile": "D:\\PROJECTS\\Tashkent\\2026-10 - Trilliant\\figma-extron-exporter\\output\\releases\\compatibility-20261024-a4dcf6ca\\unknown.json",
+  "Checks": [
+    {
+      "Id": "extron-version",
+      "Passed": false,
+      "Detail": "GUI Designer 1.28.0.7 has no compatibility profile. Run doctor; qualify an exact-version profile with --compatibility <file>."
+    },
+    {
+      "Id": "gcp",
+      "Passed": true,
+      "Detail": "Installed 3.34.1.4; import/binding preservation requires a separate manual test."
+    }
+  ],
+  "Probe": null,
+  "GuiDesignerVerified": false,
+  "GcpVerified": false
+}

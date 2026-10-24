@@ -176,7 +176,7 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
       paths.set(m.file!,m.key!);resources.set(m.resourceName?.toLowerCase()??'',m.key!);
     }
     const visibility=new Map(plan.visibility.map(change=>[change.node.id,change.visible]));
-    problemNode=root;capture(root,read,options,node=>visibility.get(node.id)??node.visible);
+    problemNode=root;capture(root,read,options,node=>visibility.get(node.id)??node.visible,false);
   }catch(e){report(e);}}
   plan.registry=JSON.stringify(registry);return plan;
 }

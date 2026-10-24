@@ -1,0 +1,14 @@
+[
+  {
+    "panel": "1025m",
+    "profile": "local-candidate",
+    "checks": 116,
+    "passed": 116
+  },
+  {
+    "panel": "300m",
+    "profile": "local-candidate",
+    "checks": 116,
+    "passed": 116
+  }
+]

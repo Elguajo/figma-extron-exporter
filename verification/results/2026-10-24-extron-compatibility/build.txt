@@ -1,0 +1,11 @@
+  Extron.Format -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\src\extron\bin\Debug\net10.0\Extron.Format.dll
+  Extron.Screen -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\src\screen\bin\Debug\net10.0\Extron.Screen.dll
+  Extron.Adapter -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\src\adapter\bin\Debug\net10.0\Extron.Adapter.dll
+  Extron.Cli -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\src\cli\bin\Debug\net10.0\Extron.Cli.dll
+  Extron.Format.Tests -> D:\PROJECTS\Tashkent\2026-10 - Trilliant\figma-extron-exporter\tests\format\bin\Debug\net10.0\Extron.Format.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.58

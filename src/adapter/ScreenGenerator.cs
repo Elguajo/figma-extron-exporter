@@ -26,10 +26,10 @@ public static class ScreenGenerator
         var run = adapter.Run("prepare-donor", source.Payload, "prepare", new
         {
             keepPages = p.KeepPages, keepPopupIds = p.KeepPopupIds, retarget = p.Retarget, projectName = p.ProjectName
-        });
+        }, registry.Data.GuiDesignerVersion);
         var model = ProjectModel.Read(run.Output);
         CheckHostEnums(run.Result, entry.Profile);
-        var bad = ScreenVerifier.ProfileChecks(model, entry.Profile).Where(c => !c.Passed).ToList();
+        var bad = ScreenVerifier.ProfileChecks(model, entry.Profile, registry.Data.GuiDesignerVersion).Where(c => !c.Passed).ToList();
         if (!model.Pages.Select(x => x.Name).SequenceEqual(p.KeepPages)) bad.Add(new("donor.pages", false, string.Join(", ", model.Pages.Select(x => x.Name))));
         bad.AddRange(BoundsChecks(model).Where(c => !c.Passed));
         if (bad.Count > 0) throw new AdapterException("profile-mismatch", "Prepared donor does not have the expected profile: " + string.Join("; ", bad.Select(c => $"{c.Id}: {c.Detail}")));
@@ -76,7 +76,7 @@ public static class ScreenGenerator
                 popupReference = e.Elements.PopupReference, standardPopup = e.Elements.StandardPopup, modalPopup = e.Elements.ModalPopup, graphic = e.Elements.Graphic,
                 shape = e.Elements.Shape, line = e.Elements.Line, datetime = e.Elements.Datetime
             }
-        });
+        }, donor.GuiDesignerVersion);
         CheckHostEnums(run.Result, e.Profile);
         var model = ProjectModel.Read(run.Output);
         var checks = ScreenVerifier.Verify(plan, model, donor.Model, e.Profile).ToList();

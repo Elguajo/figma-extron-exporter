@@ -4,6 +4,7 @@ import { createDemo, tag } from './demo.ts';
 import { recognize, applyRecognition, type RecognitionPlan } from './recognize.ts';
 import { createKit } from './kit.ts';
 import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
+import { sweepExportLeftovers } from './read-node.ts';
 import { projectMembers, type ProjectNode,type ProjectOptions } from './project.ts';
 import { ExportScope, selected, pageOf, selectionKind, type ScopeMode } from './scope.ts';
 import { requireNodeForKind } from './assignment-rules.ts';
@@ -24,6 +25,7 @@ import { authoringLinks,setReferenceTarget,setSelectionGroup,setStartPage,linked
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
 figma.showUI(__html__,{width:420,height:720,themeColors:true});
+try{sweepExportLeftovers(figma.currentPage);}catch{ /* A leftover copy is harmless; startup must not fail on it. */ }
 const scopeContext = new ExportScope();
 let recognitionMode:ScopeMode='selection';
 let busy=false;
@@ -42,9 +44,9 @@ function postRecognition(plan:RecognitionPlan):void {
   figma.ui.postMessage({type:'recognition',token:++recognitionToken,rows:plan.rows,errors:plan.errors,issues:plan.issues,warnings:plan.warnings});
 }
 const stored=(node:BaseNode)=>readMetadata(node,{allowCopied:true});
-function linksContext():LinkContext {
+function linksContext(resolve:()=>ReturnType<ExportScope['resolve']>=()=>scopeContext.resolve()):LinkContext {
   let profile=scopeContext.profile;
-  try{const resolved=scopeContext.resolve();profile=resolved.profile;if(resolved.scope.kind==='project')return resolved;}catch{ /* Multi-selection can be authored before choosing an export scope. */ }
+  try{const resolved=resolve();profile=resolved.profile;if(resolved.scope.kind==='project')return resolved;}catch{ /* Multi-selection can be authored before choosing an export scope. */ }
   const node=figma.currentPage.selection[0];if(!node)fail('links','Выберите элемент проекта.');
   return {...popupContext(node,profile),profile};
 }
@@ -83,10 +85,18 @@ function exportRoot():{root:ProjectNode;options:ProjectOptions;captured:Capture;
   const captured=applyRecognition(plan);
   const previewCount=new Set(plan.visibility.map(change=>change.node.parent!.id)).size;
   const assignmentSummary=[plan.writes.length?`Автоматически сохранено назначений: ${plan.writes.length}.`:'',plan.keys.length?`Ключи обновлены по именам слоёв: ${plan.keys.length}; ID не изменены.`:'',previewCount?`Автоматически настроен предпросмотр кнопок: ${previewCount}. Все состояния сохранены.`:''].filter(Boolean).join(' ');
-  publish();return {...resolved,captured,assignmentSummary};
+  // The plan just applied equals a fresh recognition of the same scope: reuse it.
+  publish(false,{root:resolved.root,options:resolved.options,plan});return {...resolved,captured,assignmentSummary};
 }
-function publish(keepRecognition=false):void {
+// One canvas event resolves the export scope once; nothing in publish() changes it.
+function once<T>(compute:()=>T):()=>T {
+  let state:{value:T}|{error:unknown}|undefined;
+  return ()=>{state??=(()=>{try{return {value:compute()};}catch(error){return {error};}})();if('error' in state)throw state.error;return state.value;};
+}
+const sameMembers=(a:ProjectOptions,b:ProjectOptions)=>(a.members?.map(n=>n.id).join()??'')===(b.members?.map(n=>n.id).join()??'');
+function publish(keepRecognition=false,applied?:{root:ProjectNode;options:ProjectOptions;plan:RecognitionPlan}):void {
   const selection=figma.currentPage.selection,n=selection.length===1?selection[0]:undefined;
+  const resolveScope=once(()=>scopeContext.resolve());
   let warning='',metadata:Metadata|null=null;
   try{scopeContext.refreshSelection();if(n)metadata=stored(n);}catch(e){warning=(e as Error).message;}
   let states:{stateId?:number;name?:string;role?:Role}[]=[];
@@ -105,13 +115,13 @@ function publish(keepRecognition=false):void {
   }catch{ /* Export guidance and manual assignments remain available. */ }
   try{canRecognize=scopeContext.canRecognize;}catch{ /* Metadata errors are shown above. */ }
   try {
-    const resolved=scopeContext.resolve();
+    const resolved=resolveScope();
     const {root,options}=resolved,rm=stored(root);
     canRecognize=resolved.canRecognize;scopeHint=resolved.hint;scope=resolved.scope;
     if(rm?.kind==='project'||resolved.scope.kind==='project'){
         // A navigation error can prevent the very assignments needed to repair
         // it. Offer the draft keys without writing anything on selection.
-        const plan=recognize(root,resolved.profile,options);
+        const plan=applied&&applied.root===root&&sameMembers(applied.options,options)&&applied.plan.profile===resolved.profile?applied.plan:recognize(root,resolved.profile,options);
         preparedLinks={context:resolved,plan};
         const proposed=new Map(plan.writes.map(w=>[w.node.id,w.metadata]));
         const read=(node:SceneNode|PageNode)=>proposed.get(node.id)??readMetadata(node);
@@ -131,9 +141,10 @@ function publish(keepRecognition=false):void {
   }catch(e){warning=warning||(e as Error).message;}
   const buttonStylePreviews=presetPreviews();
   const buttonPresets={normal:buttonStylePreviews.normal.name,feedback:buttonStylePreviews.feedback.name};
-  let links:AuthoringLinks|undefined;try{links=preparedLinks?authoringLinks(preparedLinks.context,selection,preparedLinks.plan):authoringLinks(linksContext(),selection);}catch{ /* Incomplete layouts retain manual assignment fields. */ }
+  let links:AuthoringLinks|undefined;try{links=preparedLinks?authoringLinks(preparedLinks.context,selection,preparedLinks.plan):authoringLinks(linksContext(resolveScope),selection);}catch{ /* Incomplete layouts retain manual assignment fields. */ }
   try{scopeContext.persist(scope?.profile??scopeContext.profile);}catch{warning=warning||'Не удалось сохранить настройки текущей страницы. Назначения слоёв остаются в файле Figma.';}
-  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,links,popupBinding:popupBindingInfo(scope?.profile??scopeContext.profile),buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile,numbering:numberingEnabled?numberingView():undefined});
+  let popupBinding:ReturnType<typeof popupBindingInfo>;try{popupBinding=popupBindingInfo(scope?.profile??scopeContext.profile);}catch(e){warning=warning||(e as Error).message;}
+  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,links,popupBinding,buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile,numbering:numberingEnabled?numberingView():undefined});
 }
 function apply(input:Record<string,unknown>):void {
   const node=selected(),kind=input.kind as Metadata['kind'];
@@ -233,10 +244,20 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
   if(!allowed.includes(parentKind))fail('placement',`${node.name}: недопустимый родитель для ${kind}.`);
   tag(node,value);
 }
-figma.on('selectionchange',()=>{if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){publish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;publish();});
-figma.on('currentpagechange',()=>{recognition=undefined;diagnosticSelectionId=undefined;scopeContext.reset();publish();});
+// Canvas events have no caller to report to: an unexpected error must reach the
+// panel instead of leaving it showing a stale selection.
+function safePublish(keepRecognition=false):void {
+  try{publish(keepRecognition);}catch(e){figma.ui.postMessage({type:'error',message:e instanceof Error?e.message:String(e),code:(e as {code?:string}).code??'plugin'});}
+}
+function selectionChanged():void {if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){safePublish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;safePublish();}
+function pageChanged():void {recognition=undefined;diagnosticSelectionId=undefined;scopeContext.reset();safePublish();}
+// Figma delivers canvas events while an operation awaits fonts or PNG exports.
+// Handle them once the operation ends rather than on a half-finished document.
+let deferred:'selection'|'page'|undefined;
+figma.on('selectionchange',()=>{if(busy){deferred=deferred??'selection';return;}selectionChanged();});
+figma.on('currentpagechange',()=>{if(busy){deferred='page';return;}pageChanged();});
 figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbering?:NumberingOptions;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;contrast?:boolean;statePair?:ButtonStatePair;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean})=>{
-  if(message.type==='ready'){publish();return;}
+  if(message.type==='ready'){safePublish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
   try {
@@ -344,5 +365,9 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
     }else fail('message','Неизвестная команда.');
     }
   }catch(e){figma.ui.postMessage({type:'error',operation:message.type,message:e instanceof Error?e.message:String(e),code:(e as {code?:string}).code??'plugin'});}
-  finally {busy=false;figma.ui.postMessage({type:'idle'});}
+  finally {
+    busy=false;figma.ui.postMessage({type:'idle'});
+    const event=deferred;deferred=undefined;
+    if(event==='page')pageChanged();else if(event==='selection')selectionChanged();
+  }
 };

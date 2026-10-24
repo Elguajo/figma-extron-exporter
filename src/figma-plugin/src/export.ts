@@ -118,18 +118,21 @@ function snapshot(node: SceneNode|PageNode, members?: readonly SceneNode[]): unk
 }
 export function scopedDesignSignature(root: SceneNode|PageNode, members?: readonly SceneNode[]): string { return JSON.stringify(snapshot(root,members)); }
 export function designSignature(root: SceneNode|PageNode): string { return scopedDesignSignature(root); }
-export function capture(root: SceneNode|PageNode, read: MetadataReader = readMetadata,options:ProjectOptions={},visible:VisibilityReader=node=>node.visible): Capture {
+// `signed=false` is for validation-only captures: their signature would be discarded,
+// and a full design snapshot is the most expensive part of a capture.
+export function capture(root: SceneNode|PageNode, read: MetadataReader = readMetadata,options:ProjectOptions={},visible:VisibilityReader=node=>node.visible,signed=true): Capture {
   if(read(root)?.kind==='project'){
     const members=options.members?[...options.members]:undefined;
-    return {...captureProject(root,read,(node,metadata,inProject)=>captureSingle(node,metadata,inProject,visible),node=>scopedDesignSignature(node,members),options),...(members?{signatureMembers:members}:{})};
+    // A project signs its whole scope once; member signatures are never read.
+    return {...captureProject(root,read,(node,metadata,inProject)=>captureSingle(node,metadata,inProject,visible,false),node=>signed?scopedDesignSignature(node,members):'',options),...(members?{signatureMembers:members}:{})};
   }
   if(root.type==='PAGE')fail('screen-unprepared','Распознайте выбранные фреймы или экраны текущей страницы.');
-  return captureSingle(root,read,false,visible);
+  return captureSingle(root,read,false,visible,signed);
 }
-export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,inProject=false,visible:VisibilityReader=node=>node.visible):Capture&{screen:SingleScreen} {
-  try{return captureSingleContent(root,read,inProject,visible);}catch(error){nodeError(error,root);}
+export function captureSingle(root:SceneNode,read:MetadataReader=readMetadata,inProject=false,visible:VisibilityReader=node=>node.visible,signed=true):Capture&{screen:SingleScreen} {
+  try{return captureSingleContent(root,read,inProject,visible,signed);}catch(error){nodeError(error,root);}
 }
-function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boolean,visible:VisibilityReader):Capture&{screen:SingleScreen} {
+function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boolean,visible:VisibilityReader,signed:boolean):Capture&{screen:SingleScreen} {
   frame(root);
   const pm=meta(root,undefined,read);if(pm.kind!=='page'&&!(inProject&&pm.kind==='popup'))fail('kind',`${root.name}: нужен экран или popup проекта.`);
   // Screen corners are canvas presentation in Figma. Native Extron pages
@@ -295,7 +298,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
   }
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
   if(screen.elements.length>64)fail('elements','С учётом отдельных подписей и оформления popup на странице допустимо до 64 элементов.');
-  return {profile,screen,images,signature:designSignature(root)};
+  return {profile,screen,images,signature:signed?designSignature(root):''};
 }
 
 export async function exportFrame(root:SceneNode|PageNode, progress:(message:string)=>void=()=>{},options:ProjectOptions={}):Promise<Bundle> {

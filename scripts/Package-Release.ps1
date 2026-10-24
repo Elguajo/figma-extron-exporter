@@ -36,6 +36,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Plugin packaging failed' }
 & $DotnetExe publish (Join-Path $repo 'src/cli/Extron.Cli.csproj') --no-restore --configuration Release --self-contained false -p:UseAppHost=false "-p:Version=$cliVersion" --output (Join-Path $stage 'cli')
 if ($LASTEXITCODE -ne 0) { throw 'CLI publish failed' }
 if (!(Test-Path -LiteralPath (Join-Path $stage 'cli/host/ExtronAdapterHost.ps1'))) { throw 'Published adapter host is missing' }
+if (!(Test-Path -LiteralPath (Join-Path $stage 'cli/compatibility/extron.json'))) { throw 'Published compatibility profiles are missing' }
+$compatibility = Get-Content -Raw -LiteralPath (Join-Path $stage 'cli/compatibility/extron.json') | ConvertFrom-Json
 Get-ChildItem -LiteralPath (Join-Path $stage 'cli') -Filter '*.pdb' | Remove-Item
 foreach ($dir in @('samples/donors', 'samples/original', 'examples/home-1025m', 'docs', 'licenses')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $stage $dir) | Out-Null
@@ -50,7 +52,7 @@ foreach ($file in @('donors.json', 'manifest.json')) {
 }
 Copy-Item -LiteralPath (Join-Path $repo 'verification/results/2026-10-21-home-layout-1025m/actual-home-layout.exui') -Destination (Join-Path $stage 'examples/home-1025m/home.exui')
 Copy-Item -LiteralPath (Join-Path $repo 'verification/results/2026-10-21-home-layout-1025m/id-map.md') -Destination (Join-Path $stage 'examples/home-1025m/id-map.md')
-foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md', 'updating-configured-projects.md')) {
+foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md', 'updating-configured-projects.md', 'extron-compatibility.md')) {
     Copy-Item -LiteralPath (Join-Path $repo "docs/$file") -Destination (Join-Path $stage 'docs')
 }
 Copy-Item -LiteralPath (Join-Path $plugin 'NATIVE_TEXT.md') -Destination (Join-Path $stage 'docs/native-text.md')
@@ -64,9 +66,17 @@ if (!$nrbfPackage) { throw 'Restored System.Formats.Nrbf 10.0.11 package not fou
 Copy-Item -LiteralPath (Join-Path $nrbfPackage 'THIRD-PARTY-NOTICES.TXT') -Destination (Join-Path $stage 'licenses/System.Formats.Nrbf-THIRD-PARTY-NOTICES.txt')
 Copy-Item -LiteralPath (Join-Path $nrbfPackage 'system.formats.nrbf.nuspec') -Destination (Join-Path $stage 'licenses/System.Formats.Nrbf.nuspec')
 Copy-Item -LiteralPath (Join-Path $repo 'scripts/licenses/System.Formats.Nrbf-LICENSE.txt') -Destination (Join-Path $stage 'licenses')
+# Windows PowerShell 5.1 otherwise writes '\' separators into ZIP entry names; archives use '/'.
+[AppContext]::SetSwitch('Switch.System.IO.Compression.ZipFile.UseBackslash', $false)
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-@{ version = $cliVersion; compatiblePluginVersion = $version; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $false } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
+function Assert-ZipEntryNames([string] $Path) {
+    $zip = [IO.Compression.ZipFile]::OpenRead($Path)
+    try { $bad = @($zip.Entries | Where-Object { $_.FullName.Contains('\') }); if ($bad.Count) { throw "$Path has '\' in entry name $($bad[0].FullName)" } } finally { $zip.Dispose() }
+}
+@{ version = $cliVersion; compatiblePluginVersion = $version; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersions = @($compatibility.profiles.guiDesignerVersion); compatibilityFile = 'cli/compatibility/extron.json'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $false } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
 [IO.Compression.ZipFile]::CreateFromDirectory($stage, $cliZip)
+Assert-ZipEntryNames $pluginZip
+Assert-ZipEntryNames $cliZip
 
 if ($IncludeLocalSamples) {
     # Private samples are only copied to ignored output, never to a tracked release directory.
@@ -81,8 +91,9 @@ if ($IncludeLocalSamples) {
     New-Item -ItemType Directory -Path (Join-Path $stage 'figma-plugin') | Out-Null
     [IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, (Join-Path $stage 'figma-plugin'))
     Copy-Item -LiteralPath (Join-Path $repo 'output/home-layout-20261020/home-layout-gui.gdl') -Destination (Join-Path $stage 'examples/home-1025m/home-gui-built.gdl')
-    @{ version = $version; cliVersion = $cliVersion; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersion = '1.28.0.7'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $true } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
+    @{ version = $version; cliVersion = $cliVersion; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersions = @($compatibility.profiles.guiDesignerVersion); compatibilityFile = 'cli/compatibility/extron.json'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $true } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
     [IO.Compression.ZipFile]::CreateFromDirectory($stage, $localZip)
+    Assert-ZipEntryNames $localZip
 }
 Get-FileHash -Algorithm SHA256 -LiteralPath $pluginZip, $cliZip | Format-Table -AutoSize
 if ($IncludeLocalSamples) { Get-FileHash -Algorithm SHA256 -LiteralPath $localZip | Format-Table -AutoSize }
