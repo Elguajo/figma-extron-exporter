@@ -1,0 +1,10 @@
+{
+  "name": "extron-kit-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "preview": "node serve.mjs",
+    "test": "node check.mjs"
+  }
+}

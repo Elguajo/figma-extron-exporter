@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {runInNewContext} from 'node:vm';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
+const dist=path.join(root,'output/sites/extron-kit-docs/dist');
+const catalog=JSON.parse(await readFile(path.join(root,'design/extron-kit/kit.json'),'utf8'));
+const context={window:{}};
+runInNewContext(await readFile(path.join(dist,'kit-data.js'),'utf8'),context);
+const data=context.window.KIT_DATA;
+assert.deepEqual(JSON.parse(JSON.stringify(data.controls)),catalog.controls);
+assert.equal(data.revision,catalog.revision);
+assert.equal(data.formats.length,28);
+assert.equal(new Set(data.formats.map(f=>f.pattern)).size,28);
+const html=await readFile(path.join(dist,'index.html'),'utf8');
+const js=await readFile(path.join(dist,'app.js'),'utf8');
+const css=await readFile(path.join(dist,'styles.css'),'utf8');
+const assets=new Set([...html.matchAll(/(?:src|href)="([^"#]+)"/g)].map(m=>m[1]));
+for(const match of js.matchAll(/(?:assets\/)?[\w-]+\.(?:png|zip|md)/g))assets.add(match[0].startsWith('assets/')?match[0]:'assets/'+match[0]);
+// Panel names are assembled dynamically by the profile tabs.
+assets.add('assets/panel-1025m.png');assets.add('assets/panel-300m.png');
+for(const m of css.matchAll(/url\(([^)]+)\)/g))assets.add(m[1]);
+for(const asset of assets){assert.ok(!asset.includes('..'));assert.ok((await readFile(path.join(dist,asset))).length>0,asset);}
+for(const name of ['Inter-Regular.woff2','Inter-Bold.woff2'])assert.equal((await readFile(path.join(dist,'assets/fonts',name))).subarray(0,4).toString(),'wOF2');
+const zip=await readFile(path.join(dist,'assets/extron-kit-plugin.zip'));
+assert.equal(zip.readUInt32LE(0),0x04034b50);
+const sourceZip=await readFile(path.join(root,'output/apple-kit-2026-10-24/figma-extron-plugin-0.7.3-apple-light-2026-10-24.zip'));
+assert.equal(createHash('sha256').update(zip).digest('hex'),createHash('sha256').update(sourceZip).digest('hex'));
+console.log(`PASS: catalog source parity, 28 formats, ${assets.size} asset links, licensed WOFF2 and exact plugin download`);

@@ -71,6 +71,7 @@ test('Two-state kit button exports only its two Artwork PNGs, including hidden A
   const button=kit.example.children.find(n=>n.name==='feedbackbutton_Hall') as FrameNode;
   for(const node of [...kit.example.children])if(node!==button)node.remove();
   button.children[2].remove();
+  button.children[0].visible=true;button.children[1].visible=false;
   // Artwork slots retain their service names; they remain image resources.
   const plan=recognize(kit.example,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
   const source=designSignature(kit.example),bundle=await exportFrame(kit.example);

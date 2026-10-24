@@ -1,8 +1,11 @@
 {
   "schema": "extron-kit/1",
   "name": "Extron Kit",
-  "revision": "2026-10-24",
-  "colors": { "canvas": "#F5F5F2", "surface": "#FFFFFF", "ink": "#20242A", "muted": "#616A74", "line": "#DADDDC", "track": "#E2E5E5", "accent": "#E65C00", "active": "#FFE6D5", "pressed": "#AB4300" },
+  "revision": "2026-10-24-apple",
+  "style": "Apple-inspired Light",
+  "colors": { "canvas": "#F5F5F7", "surface": "#FFFFFF", "ink": "#1D1D1F", "muted": "#65656B", "line": "#D2D2D7", "track": "#D8D8DE", "control": "#E8E8ED", "accent": "#0066CC", "active": "#0066CC", "pressed": "#004C99", "onAccent": "#FFFFFF", "success": "#247344", "danger": "#B42318" },
+  "geometry": { "controlRadius": 16, "surfaceRadius": 24, "trackHeight": 8, "thumbSize": 28 },
+  "typography": { "family": "Inter", "body": 20, "caption": 14, "title": 36 },
   "controls": [
     { "name": "button_Button", "type": "button", "label": "Button", "states": ["Off", "On"], "section": "Universal" },
     { "name": "feedbackbutton_Feedback", "type": "button", "label": "Feedback", "states": ["Normal", "Active", "Pressed"], "section": "Universal" },
