@@ -20,7 +20,7 @@ int passed = 0, failed = 0;
 void Test(string name, Action action)
 {
     try { action(); passed++; Console.WriteLine($"PASS {name}"); }
-    catch (Exception e) { failed++; Console.WriteLine($"FAIL {name}: {e.Message}"); }
+    catch (Exception e) { failed++; Console.WriteLine($"FAIL {name}: {e}"); }
 }
 void Check(bool valid) { if (!valid) throw new Exception("Assertion failed"); }
 void Reject(byte[] bytes)

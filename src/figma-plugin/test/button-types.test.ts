@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { unzipSync, strFromU8 } from 'fflate';
 import { fakeFigma } from './fake-figma.ts';
 import { namedFixture } from './named-fixture.ts';
@@ -131,7 +131,9 @@ test('Malformed metadata/3 cannot lose buttonMode or downgrade silently',async()
 test('Plugin 0.2.1 refuses new metadata/3 instead of ignoring the type',async()=>{
   const fixture=fakeFigma();const root=await namedFixture('tlp-pro-1025m',true);applyRecognition(recognize(root,'tlp-pro-1025m'));
   fixture.page.selection=[root as any];
-  const zip=unzipSync(new Uint8Array(readFileSync(new URL('../../../releases/figma-plugin/0.2.1/figma-extron-plugin-0.2.1.zip',import.meta.url))));
+  const legacyArchive=new URL('../../../releases/figma-plugin/Legacy/0.2.1/figma-extron-plugin-0.2.1.zip',import.meta.url);
+  const archive=existsSync(legacyArchive)?legacyArchive:new URL('../../../releases/figma-plugin/0.2.1/figma-extron-plugin-0.2.1.zip',import.meta.url);
+  const zip=unzipSync(new Uint8Array(readFileSync(archive)));
   vm.runInNewContext(strFromU8(zip['dist/code.js']),{figma:fixture.api,Uint8Array,console});
   await (fixture.api.ui.onmessage as any)({type:'export'});
   assert.equal(fixture.messages.find(m=>m.type==='error')?.code,'metadata');assert.equal(fixture.messages.some(m=>m.type==='bundle'),false);

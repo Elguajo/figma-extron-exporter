@@ -214,12 +214,12 @@ screen_Home
 | Использовать библиотеку | [Extron Kit](src/figma-plugin/EXTRON_KIT.md) |
 | Обновить настроенный GCP | [Обновление проектов](docs/updating-configured-projects.md) |
 | Разобраться в формате и архитектуре | [EXUI/5](docs/exui-v5.md) · [Формат GDL](docs/extron-format.md) · [Решения](docs/decisions.md) |
-| Проверить результат | [Чек-лист](verification/checklist.md) · [Проверки 0.8.0](verification/results/2026-10-24-release-0.8.0.md) |
+| Проверить результат | [Чек-лист](verification/checklist.md) · [Проверки 0.8.1](verification/results/2026-10-25-release-0.8.1.md) |
 | Посмотреть изменения и планы | [CHANGELOG](CHANGELOG.md) · [ROADMAP](ROADMAP.md) |
 
 ## Сборка и проверки
 
-Этот раздел — для работы с исходниками. При установке из готового архива Node.js и .NET SDK не нужны. Текущие исходники: **плагин 0.8.0 + CLI 0.8.0**, EXUI/5.
+Этот раздел — для работы с исходниками. При установке из готового архива Node.js и .NET SDK не нужны. Текущие исходники: **плагин 0.8.1 + CLI 0.8.1**, EXUI/5.
 
 Для разработки нужны **.NET SDK 10.0.402** и **Node.js ≥ 22.18**. Из корня репозитория:
 

@@ -6,6 +6,10 @@ static class ReconciliationTests
 {
     static void Check(bool ok, string message = "Assertion failed") { if (!ok) throw new Exception(message); }
     static void Reject(Action action) { try { action(); } catch (Exception e) when (e is InvalidDataException or NotSupportedException) { return; } throw new Exception("Expected rejection"); }
+    static string[] ControlIdFields(NrbfNode node) => node.Fields!.Keys
+        .Where(k => k == "userIdField" || k.EndsWith("+userIdField", StringComparison.Ordinal)).ToArray();
+    static ushort ControlId(NrbfNode node) => ControlIdFields(node)
+        .Select(k => (ushort)node.Fields![k]!).Distinct().Single();
     public static void Unit(Action<string, Action> test, Func<string, byte[]> fixture)
     {
         string root = ScreenTests.Root;
@@ -82,11 +86,12 @@ static class ReconciliationTests
             {
                 var container = ExtronContainer.Parse(before); var doc = Read(container.Payload);
                 var pages = Items(Child(doc.Root, "pagesField")); var controls = Items(Child(pages[0], "controlsField"));
-                var music = controls.Single(c => Convert.ToUInt16(Get(c, "userIdField")) == 8101);
-                var mute = controls.Single(c => Convert.ToUInt16(Get(c, "userIdField")) == 8103);
+                var music = controls.Single(c => ControlId(c) == 8101);
+                var mute = controls.Single(c => ControlId(c) == 8103);
                 Set(mute, "statesField", Child(music, "statesField"));
                 // A manual container unknown to Figma must survive the full graph write.
-                var manual = Copy(pages[0]); Set(manual, "idField", (ulong)500); Set(manual, "userIdField", (ushort)500);
+                var manual = Copy(pages[0]); Set(manual, "idField", (ulong)500);
+                foreach (string field in ControlIdFields(manual)) manual.Fields![field] = (ushort)500;
                 Set(manual, "nameField", new NrbfNode { Type = "System.String", Text = "Manual page" });
                 var empty = Copy(Child(manual, "controlsField")); Set(empty, "_size", 0); Set(manual, "controlsField", empty);
                 var list = Child(doc.Root, "pagesField"); var array = Copy(Child(list, "_items")); array.Values = pages.Append(manual).ToArray();
@@ -101,7 +106,7 @@ static class ReconciliationTests
                 foreach (string mode in new[] { "object", "state" })
                 {
                     var container = ExtronContainer.Parse(after); var doc = Read(container.Payload);
-                    var music = Items(Child(Items(Child(doc.Root, "pagesField"))[0], "controlsField")).Single(c => Convert.ToUInt16(Get(c, "userIdField")) == 8101);
+                    var music = Items(Child(Items(Child(doc.Root, "pagesField"))[0], "controlsField")).Single(c => ControlId(c) == 8101);
                     if (mode == "object") Set(music, "idField", (ulong)999);
                     else Set(Items(Child(music, "statesField"))[0], "nameField", new NrbfNode { Type = "System.String", Text = "Different role" });
                     byte[] changed = container.RepackEditablePayload(doc.Write());
