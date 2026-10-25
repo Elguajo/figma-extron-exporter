@@ -1,4 +1,8 @@
+<a id="russian"></a>
+
 # Extron Kit — библиотека для Figma
+
+**Русский** · [English](#english)
 
 **Apple-inspired Light · ревизия 2026-10-24-av-patterns**, входит в плагин **0.8.3**, совместимый CLI **0.8.3**, контракт **EXUI/5**. Архивы 0.7.3 предшествуют этой актуализации. В новой библиотеке стиль и ревизия показаны в заголовке и инструкции на холсте.
 
@@ -99,3 +103,113 @@
 Исторические проверки настоящей Figma Desktop: [первоначальный кит](../../docs/verification/results/2026-10-21-extron-kit.md), [экспорт кита 23 октября](../../docs/verification/results/2026-10-23-figma-live-update-handoff.md). Эти результаты не подтверждают новый ручной прогон ревизии 2026-10-24. GUI Designer Build, GCP и физическая панель требуют отдельного прогона.
 
 Если установленная Figma не предоставляет `createSlot`, генерация завершится ошибкой и удалит только новый комплект. Обновить Figma и повторить. Существующий дизайн не очищается.
+
+---
+
+<a id="english"></a>
+
+# Extron Kit — a library for Figma
+
+[Русский](#russian) · **English**
+
+**Apple-inspired Light · revision 2026-10-24-av-patterns**, part of plugin **0.8.3**, compatible CLI **0.8.3**, contract **EXUI/5**. The 0.7.3 archives predate this update. In the new library, the style and revision are shown in the title and in the instructions on the canvas.
+
+The plugin interface and the generated kit canvas are in Russian; labels are quoted as shown, followed by their English meaning.
+
+The `src/kit.ts` generator uses the catalog `docs/design/extron-kit/kit.json` and creates 29 separate components (15 universal and 14 ready-made), a `datetime_Clock` set with 28 variants, a project template and an example for the selected panel: TLP Pro 1025M (1280×800) or TLP Pro 300M (320×480, portrait). In total that is 57 main components, counting the clock variants. The pen.dev canvas was also updated on 24 Oct: states, instructions and examples of the 28 formats. In pen.dev the formats are shown as linked instances of one component; the Format variant set is created in Figma. The [pen.dev materials](../../docs/design/extron-kit/README.md) (in Russian) keep both revisions. pen.dev and Figma are not synchronized automatically.
+
+## Installation
+
+1. For an up-to-date local build, run `npm ci`, then `npm run verify` in `src/figma-plugin`. Use the `manifest.json` from that folder. For a portable copy, run `npm run package` and unpack the resulting ZIP from `output/figma-plugin` into a permanent folder. The earlier 0.7.3 archive does not contain the new kit.
+2. Open an editable Design file in **Figma Desktop**.
+3. **Plugins → Development → Import plugin from manifest…** → choose `manifest.json`. For an already imported plugin, keep its ID and update the path to the local version.
+4. Run **Figma → Extron Exporter**, check that the title shows **0.8.3**, and choose the panel profile.
+5. Open **«Библиотека компонентов»** (Component library) and click **«Создать Extron Kit»** (Create Extron Kit). The command adds the library, a project with a page/popup/modal popup/zone group and an example screen next to the existing objects. Running it again creates another kit.
+6. If needed, save the Figma document with **File → Save local copy** as `.fig`. Figma itself creates that file.
+
+You need edit access to the file, Inter Regular/Bold and a Figma version with the `createSlot` API. The process runs in the local plugin, without Figma MCP.
+
+## Apple-inspired Light
+
+The whole kit uses a light background, white surfaces, Inter, a blue accent and one geometry. Buttons have a 16 px radius, surfaces 24 px. The Off/On, Normal/Pressed and Normal/Active/Pressed states are shown side by side in a separate library section; the selected state has a blue background and a separate marker. Multilevel error and ready use red and green. In the example, Music is already selected as the source; this is a static preview, not a device command.
+
+The canvas is organized as a library with a cover and seven chapters: **01 Основы и состояния** (Foundations and states), **02 Компоненты и AV-пресеты** (Components and AV presets), **03 Дата и время** (Date and time), **04 Шаблоны Extron** (Extron templates), **05 Готовые экраны** (Ready screens), **06 AV-сценарии** (AV scenarios), **07 Иконки и размеры** (Icons and sizes). The catalog and the working containers are in separate blocks; templates and the screen keep their natural sizes. For export, select the `project_` or `screen_` itself, not a documentation chapter. These are sections of the current canvas, not extra Figma Pages.
+
+The 1025M example groups source, zone and volume; 300M keeps the same main actions in a vertical layout. The popup and the confirmation use the same system. Sliders stay native; buttons export a rounded PNG with transparent corners. The plugin interface, AV commands and ID rules do not change. Visual decisions, Extron limits and official Apple sources: [DESIGN.md](../../docs/design/extron-kit/DESIGN.md) (in Russian).
+
+## AV scenarios, icons and sizes
+
+The addition based on the [research](../../docs/design/extron-kit/RESEARCH-2026-10-24.md) (in Russian) keeps 30 families / 57 main components and adds 18 auxiliary icons without a controlId. Section 06 contains `project_AVPatterns`: five pages Welcome, Presentation, AudioZones, ConnectionHelp, SystemStatus and `modalpopup_Shutdown`. Each profile has its own layout. The existing Home example is kept.
+
+Export the whole `project_AVPatterns` to keep the pages and the modal, or a single `screen_`. Buttons, Slider/Value and Multilevel have separate assignments. The Starting/Ready/Offline states, the commands they run, navigation, timeouts and volume synchronization are connected by the control program. A button name does not create behavior automatically.
+
+Section 07: `Icon / …` from Lucide 1.61.0, a 24 px symbol, button targets from 56 px, spacing 8/16/24/32/48/64. Move icons inside the Artwork; standalone passive artwork needs an `image_` container. The full ISC/MIT notices are included in `licenses/lucide.txt` in the archive. This adds the Figma API requirement `createNodeFromSvg`.
+
+## Updating an existing library
+
+Updating the plugin files does not change components and instances created earlier. **«Создать Extron Kit» (Create Extron Kit) adds a new kit next to the old one** without replacing it. Check **Apple-inspired Light / 2026-10-24-av-patterns** in its title/instructions and take new instances from the right library in Assets. Old Extron assignments, IDs and individual edits are kept. Instances are not moved to the new main components automatically.
+
+Old buttons with `Off / On` remain valid. To change the pair of existing ordinary Frames/Groups, use **«Оформление кнопок» (Button styling) → Normal / Pressed → update existing buttons**; this command skips instances of kit components. For instances, use the new main component or deliberately change the old main component, checking its links and states. Do not delete the old library while its instances are in use.
+
+## Button states
+
+| Components | States | Purpose |
+|---|---|---|
+| `button_Button` | Off / On | Switching on or selecting with feedback |
+| `button_VolumeUp`, `button_VolumeDown` | Normal / Pressed | Pressing and holding for volume |
+| `button_Back`, `button_Home`, `button_Settings` | Normal / Pressed | An action or navigation with a pressed look |
+| `feedbackbutton_*` | Normal / Active / Pressed | Selecting with a separate pressed look |
+
+On momentary buttons, `Pressed` uses a dark background and a white caption; the state is exported even when hidden. In the package, a Normal / Pressed pair has IDs 0 / 1 and the pressed role on the second state. On / Active is set by the Extron control program, Pressed is the look while held. The names do not connect AV commands, volume repeat or navigation automatically. Details: [button styling](BUTTON_STATES.md#english).
+
+## Usage
+
+- Take **fresh instances** from Assets. The main components are in the library; the screen and project template are next to it. Move instances directly into a page or popup.
+- On buttons, change the text of the **Label** layer inside each Artwork state. For your own artwork, several texts, groups, images, effects and gradients, edit the **Artwork / Off**, **Artwork / On** or **Artwork / Normal**, **Artwork / Active**, **Artwork / Pressed** slot. Figma does not allow binding a component text property inside a slot and automatically names the slot layer after the `Artwork / …` property; the exporter takes this into account. Keep the names of the slots, the outer component and the states.
+- Changes to a main component propagate to instances, except for individually overridden properties/slot contents. Make individual edits in the instance.
+- Leave the service `Text` layer above the button Artwork empty, covering the whole area, in a supported font. It provides the native button contract; the visible caption and free artwork inside the Artwork become the state PNG. Keep the state's corner radius and Background; the outer Component/Instance stays without radius, fill and effects.
+- Select a project section or the outer Frame of a screen / project and the profile → **«Скачать .exui»** (Download .exui). Keys and free IDs are filled in automatically. «Проверить макет» (Check layout) does the same preparation; «Распознать по именам» (Recognize by names) lets you review the assignments in advance.
+- Fresh identically named instances get different keys (`home.button`, `home.button-2`) and IDs without renaming the layers. Main components carry no assigned IDs. IDs of already prepared instances are kept when the design changes.
+- Copies of **already assigned** elements get their own keys and IDs on check/download, together with their states and PNGs. The originals and their set properties are kept. You can also take fresh instances from Assets.
+- Page/popup templates are ordinary Frames so that you can place elements freely inside. The project already has places set up for an ordinary popup and the zone group.
+- New `popupref_Name` can find a neighboring `popup_Name` or `popupgroup_Name` by the shared part of the name in the same project; saved links take precedence. A popup's background and stroke are not exported by default; turn them on explicitly in the assignment.
+- For numbering, select **the buttons themselves**, open «Нумерация кнопок» (Button numbering) and check the preview. Counting is separate within each direct parent; updating the text is turned on separately. Selecting a parent does not include its child buttons.
+
+## Date and time
+
+The library section **03 / Дата и время** (Date and time) is the `datetime_Clock` variant set: 24 Pattern presets from GUI Designer 1.28 and 4 extra formats. Each variant is labeled with its Pattern.
+
+1. Drag `datetime_Clock` from Assets onto the screen. The instance is named `datetime_Clock`; rename it if needed, for example `datetime_HeaderClock`.
+2. In the Figma right panel, choose **Format**, for example `Month day time 12h` → `September 28, 12:00 AM` (Pattern `MMMM d, h:mm tt`).
+3. Change the size, font (Arial or Inter), color and text alignment. In all variants the layer is named `Content`, so the styling is kept when Format changes. On the panel, the sample text is replaced by the current date and time.
+4. If your format is not in the list, rename the `Content` Text layer inside the instance to `Pattern: dddd, d MMMM` (the layer name takes precedence over Format) or set the format in the plugin. The sample text can then be anything.
+
+The GDL gets a native PBDateTime with this Pattern, without a PNG. The rules for detecting the format are in the [layout standard](AUTHORING_STANDARD.md#дата-и-время) (in Russian).
+
+## Capabilities and limits
+
+| Element | What is allowed |
+|---|---|
+| Button / Feedback Button | Any Artwork content; an ordinary button with 2 states Off/On, Passive/Active or Normal/Pressed; a feedback button Normal/Active with an optional Pressed. In the GDL — a native button and a PNG for each existing state. |
+| Image / Logo | Any artwork in the Artwork; a single PNG → PBImage. |
+| Slider | Track / Fill / Thumb; supported native colors, sizes, radii, direction and range. Arbitrary track/thumb pictures are not exported yet. |
+| Level / Gauge / Indicator / Volume LED | Supported native PBLevel styling; not a container for arbitrary artwork. |
+| Multilevel | Named states, native text and PNG Artwork. |
+| Text / Value | One inner `Content` covering the whole area; Arial, Inter or Inter Display within the native text rules. Value stays a native updatable element. |
+| DateTime | The `datetime_Clock` variant set; the **Format** property sets the panel Pattern. One `Content` Text covering the whole area with a sample, as in GUI Designer. Font, color, alignment and size are changed in the instance and kept when Format changes. |
+| Shape / Line | Supported native properties, without arbitrary child layers. |
+| Pages / Popup / Modal / Group | Ordinary structural Frames; supported elements go inside. |
+
+Native Slider, dynamic text and other working elements are not replaced by a single picture. So the promise "any design inside absolutely any element" is not met yet for these types. Free styling is fully available in the rasterized Artwork of buttons and images.
+
+**EXUI/5 has no separate limit on the number of PNGs.** Limits: up to 4 MiB and 4096×4096 per PNG, up to 16 MiB for the unpacked package, up to 20 MiB for the ZIP, manifest.json up to 64 KiB, screen.json up to 256 KiB. For the current build use **CLI 0.7.3**. A button Artwork with two states takes 2 PNGs, with three — 3, a picture — 1. A missing third state is neither created nor exported; a hidden existing state is exported. When removing Pressed from your own template, keep the remaining service names of the states and the Artwork. The full library is a catalog; you do not need to export it as a whole. The Slider/Value link, AV commands and feedback are set by the Extron control program.
+
+## Verified
+
+The AV scenarios addition: [report](../../docs/verification/results/2026-10-24-extron-kit-av-patterns.md) (in Russian). In the Figma fixture, SVG import is checked at the API boundary; the visuals are confirmed by pen.dev renders. A new live SVG import in Figma Desktop is not claimed separately.
+
+Checks of the current style and their limits are in the [Apple-inspired Light report](../../docs/verification/results/2026-10-24-extron-kit-apple-light.md) (in Russian). The previous functional update: [report](../../docs/verification/results/2026-10-24-extron-kit-refresh.md) (in Russian). `test/kit.test.ts` checks palette contrast, creation for both panels, every component type, the transparent background of PNG buttons, hidden Pressed, ID stability, keeping the old kit and cleanup on error. `test/kit-integration.ts` checks the screens and the project for both panels, and all 28 formats through the real CLI/Extron writer; the Figma API and rasterization are simulated there.
+
+Historical checks in real Figma Desktop: [the original kit](../../docs/verification/results/2026-10-21-extron-kit.md), [kit export on 23 October](../../docs/verification/results/2026-10-23-figma-live-update-handoff.md) (in Russian). These results do not confirm a new manual run of revision 2026-10-24. GUI Designer Build, GCP and the physical panel need a separate run.
+
+If the installed Figma does not provide `createSlot`, generation fails and removes only the new kit. Update Figma and try again. The existing design is not cleared.

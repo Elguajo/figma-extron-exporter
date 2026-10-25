@@ -1,4 +1,8 @@
+<a id="russian"></a>
+
 # Контракт exui/5: расширенные нативные элементы и проект Figma
+
+**Русский** · [English](#english)
 
 Текущий комплект: **плагин 0.7.0 + CLI 0.7.0**. Контракт не менялся; CLI 0.7.0 пишет пустой Text у пассивных элементов, плагин 0.7.0 передаёт прозрачный `states[].fill` для кнопок с PNG. Рабочий код поддерживает EXUI/5, включая прежние пакеты. Старые EXUI/1–4 отклоняются; для обновления экспортируйте исходный макет текущим плагином. Сохранённые ключи и ID в Figma не меняются. Прежние схемы и примеры в репозитории оставлены как исследовательские материалы.
 
@@ -92,3 +96,104 @@ NRBF-reader не загружает Extron и проверяет класс, nat
 Видео и Dynamic Image для профилей 1025M/300M не входят в контракт: плагин выдаёт явную ошибку вместо растрирования. Новые профили потребуют самостоятельного расширения.
 
 Примеры: [exui-v5](../tests/fixtures/exui-v5/README.md). [Стандарт Figma](../src/figma-plugin/AUTHORING_STANDARD.md), [протокол](verification/results/2026-10-20-expanded-controls.md).
+
+---
+
+<a id="english"></a>
+
+# The exui/5 contract: extended native elements and Figma projects
+
+[Русский](#russian) · **English**
+
+Current kit: **plugin 0.7.0 + CLI 0.7.0**. The contract did not change; CLI 0.7.0 writes an empty Text for passive elements, and plugin 0.7.0 passes a transparent `states[].fill` for buttons with PNGs. The working code supports EXUI/5, including earlier packages. Old EXUI/1–4 packages are refused; to update, export the source layout with the current plugin. Saved keys and IDs in Figma do not change. Earlier schemas and examples are kept in the repository as research material.
+
+## Line transparency (plugin 0.6.7, CLI 0.6.4)
+
+`line.fillColor` accepts `#RRGGBB` or `#AARRGGBB` in both EXUI/5 forms: a single screen and a project with pages/popups. The plugin multiplies the opacity of the SOLID Stroke and the layer Opacity before rounding the alpha channel to 8 bits. Rectangular lines use the Fill instead of the Stroke. For example, `#D2AE6D` at 10% → `#1AD2AE6D`; with Stroke 10% and Opacity 50% → `#0DD2AE6D`. A fully transparent line is kept together with its key and ID. The result is a PBLine without a PNG.
+
+Packages with an alpha line color need CLI 0.6.4+. Old EXUI/5 packages with `#RRGGBB` are accepted without migration. Other type limits are unchanged; this support does not cover the general Opacity of arbitrary groups and other native elements.
+
+## Transparent popups and link styling (CLI 0.6.1)
+
+`popups[].background`, `shape.fillColor`, `shape.native.strokeColor` and `states[].fill` accept `#RRGGBB` or `#AARRGGBB`. `#00000000` is a fully transparent background. Other colors, including the background of an ordinary page, keep the `#RRGGBB` format. The old CLI 0.6.0 refuses such alpha colors; use CLI 0.6.1+ (CLI 0.6.5+ for `states[].fill`). Earlier EXUI/5 packages are accepted without migration.
+
+By default, plugin 0.6.2 ignores the background and stroke of popup/popupref Frames; it always ignores corner radii and the overall Opacity. The Figma metadata uses the optional booleans `exportBackground`/`exportStroke` (absent or false means do not transfer), only for popup and popup-ref. The identity and the metadata version are kept. When a popup background is exported explicitly, the writer uses the native background; popupref styling and the popup stroke are lowered to an ordinary passive rectangular `shape` placed before the link/content. Its key is `popup-appearance.<containerId>.<objectId>`, and its ID is allocated deterministically outside authored/derived IDs; controlId=null, radius=0. The extra shapes count toward the current element limits. The package contains no new types and no executable logic.
+
+For created containers, the CLI clears the donor's internal fill and stroke (`borderFillColorField`, `borderColorField`, `borderField`) and resets `transparencyField` to 0. GUI Designer draws the internal fill on top of `backgroundFillColorField` even without a stroke resource, so a transparent background alone is not enough. The independent verifier checks both layers. The donor's Offline popup is not changed.
+
+## Native Inter and alignment (0.5.0)
+
+`font.family`: Arial, Inter or Inter Display. For Inter, the optional `font.style` accepts Thin, Extra Light, Light, Regular, Medium, Semi Bold, Bold, Extra Bold, Black and their italics (`Italic` for Regular, otherwise the ` Italic` suffix). Without a style, Regular or Bold is used according to the bold field. `bold` stays required and is true only for Bold / Bold Italic; other weights are encoded by the style. Invalid combinations are refused. `size` is still 4..200 pt.
+
+For label/value/datetime, the optional `textAlign` is top/middle/bottom-left/center/right, middle-left by default. The old CLI 0.4.0 refuses the new families/fields; they need 0.5.0. Earlier EXUI/5 packages need no migration.
+
+Inter 4.1 is a pinned, unmodified CLI resource under the SIL OFL. The package contains only the declaration, no font binaries or paths. The x86 writer adds the collection once and assigns the Windows family of the weight, bold/italic and the resource of each label. The independent NRBF reader checks the font, size, styles, links, the SHA-256 of the embedded bytes and FlattenText=false. [Figma rules and Button captions](../src/figma-plugin/NATIVE_TEXT.md#english).
+
+Historical description of how the contract appeared:
+
+20 Oct 2026. Producer: plugin 0.2.0. Formats exui/1–4 do not change. The version is chosen only by `manifest.schema`; there is no automatic fallback. An old CLI may refuse exui/5 and the new donor registry fields.
+
+ZIP/PNG/JSON, size limits, CRC/SHA-256, paths, fonts and profiles stay the same. CLI 0.3.0 preview removed the separate limit of 16 PNGs for exui/5: the number of resources is limited by the actual size of the JSON and the package. The limits of 4 MiB per PNG, 4096 px per side, a 16 MiB unpacked package, a ZIP up to 20 MiB, manifest.json up to 64 KiB and screen.json up to 256 KiB remain. The CLI reads the bounded manifest and checks the number of ZIP entries against its resources before loading PNGs. Earlier EXUI 1–4 keep their limits; an old CLI does not accept extended packages. Schemas: [manifest](../src/screen/schemas/exui-v5/manifest.schema.json), [screen](../src/screen/schemas/exui-v5/screen.schema.json). The package does not set DLLs, the donor path, a native type or executable code.
+
+## Two forms of screen.json
+
+| Form | Fields |
+|---|---|
+| Single screen | schema, project, page, assets, elements |
+| Project | schema, project, pages, popups, groups, assets |
+
+`schema` = `exui-screen/5`; the forms cannot be mixed. The container form uses the rules of [exui/2](exui-v2.md) (in Russian): exactly one start page, shared IDs/names of pages and popups, links and groups, back-references, modal, reachability of navigation. All new types are available on pages and in popups; popup-ref only on pages.
+
+During conversion, the start page (`shownBy: "start"`) is placed first in the GDL regardless of its position in `pages`. Other pages keep the array order; the order of popups and elements does not change. The plugin exports the start page first, and the other pages and popups by name with numeric sorting.
+
+## Elements
+
+Common fields: key, kind, objectId, controlId, name, rect. All properties are listed strictly by the schema; unknown fields and fields that do not belong to the type are refused.
+
+| kind | Native type | Additional fields |
+|---|---|---|
+| button | PBButton | font, states, optional press/navigate/behavior |
+| label | PBLabel | Static text: text, textColor, font; controlId=null |
+| value | PBLabel | text, textColor, font; required controlId; dynamicText=true; optional behavior |
+| level | PBLevel | display=slider/gauge/multistate/volume-led, orientation, min/max, fillColor; optional behavior; multistate requires states and font |
+| slider | PBSlider | orientation, min/max, fillColor, native; required controlId; optional behavior |
+| graphic | PBImage | image: PNG key; controlId=null, exui/4 rules |
+| shape | PBShape | fillColor, native; controlId=null |
+| line | PBLine | fillColor, native; controlId=null |
+| datetime | PBDateTime | font, textColor, native; controlId=null |
+| popup-ref | PBPopupPageReference | popup or group; controlId=null |
+
+Directions: left-to-right, right-to-left, bottom-to-top, top-to-bottom. Range: integers `0 <= min < max <= 2147483647`. A Value is not linked to a Level/Slider automatically; the control program updates and formats it.
+
+| native for the type | Contents |
+|---|---|
+| slider | trackColor, trackWidth, thumbColor, thumbWidth, thumbHeight, thumbType=ellipse/rectangle/none, radius |
+| shape | shape=rectangle/ellipse, radius, strokeColor, thickness |
+| line | thickness; direction by the longer side of rect; Flat ends, through the centers of opposite sides |
+| datetime | pattern, for example dd.MM.yyyy HH:mm |
+
+All fields of the matching native structure are required. Thumb size, thickness and radius must fit the geometry. Solid RGB colors. Native Slider images are not supported yet. In Figma, Track/Fill/Thumb are a geometric description and a preview; the Thumb position does not set the device's initial value.
+
+## States and hints for the program
+
+Button and Multistate Level have 2..8 states. Explicit stateIds are dense 0..N and independent of the array order. The first and only the first state is normal, the next ones are feedback or one pressed; Multistate Level has no pressed. Names are unique, looks are distinct. press, if given, names the pressed state. If there is no pressed state, press is absent too and press feedback=-1. The earlier two-state Normal/Pressed button remains valid.
+
+The exui/5 extension in plugin and CLI 0.2.1 allows `text: ""` for Button states: the visible text may be independent Labels/Values on top of the button. `text` stays required; null, whitespace-only strings and broken Unicode are forbidden. Label/Value and Multistate Level text is non-empty. The earlier exui/1–4 contracts stay strict. A native Button keeps its states and touch target, while overlaid labels are independent objects; their color/behavior and touches are not synchronized automatically. This extension needs plugin and CLI 0.2.1; the 0.2.0 archive remains historical.
+
+`behavior`: optional selectionGroup (a key, Button only), enabled/visible (boolean). These are **hints for the control program** in the id-map, not native actions, disabling/hiding of the object or an automatically created ControlScript program. The control must have a controlId. The Disabled state sets only the look. navigate keeps its earlier meaning as a hint for the programmer.
+
+## Writer and independent verification
+
+PBShape (Offline Page), PBLine (Main) and PBDateTime (Start) are cloned from the previously pinned donors. The hashes of the donor GDLs did not change; only references to objects already present in them were added to the registry. PBSlider is created by the verified parameterless data constructor of 1.28.0.7; the serialized common base is copied from a PBLevel clone and ObjectType is changed to Slider. All actions happen only in the existing separate x86 host.
+
+For Shape/Slider, a dedicated PBBorderResource is created from the pinned `2D Rectangle`, and the shape, radius, thickness and 2D style are set. Existing resources are not changed. A Multistate Level gets a clone of PBStates from the donor button, then exactly the given states.
+
+The NRBF reader does not load Extron and checks the class, native ObjectType, ID, rect, colors, track/thumb sizes, range/direction, border resource, Line/DateTime parameters, dynamicText, all states and container links. A new GDL is published only after a successful check. Verifying a native object does not confirm how it renders or builds on the panel.
+
+## The plugin and saved documents
+
+Old metadata/1 is read without being rewritten. New types/properties use metadata/2 under the same exui key; the old plugin refuses them. The screen registry/1 is kept; a project uses registry/2 with nextContainerId/nextGroupId. A damaged registry is not reset. Historical reservations of included screens are taken into account; active ID conflicts need an explicit decision by the author.
+
+Video and Dynamic Image are not part of the contract for the 1025M/300M profiles: the plugin reports an explicit error instead of rasterizing. New profiles will need their own extension.
+
+Examples: [exui-v5](../tests/fixtures/exui-v5/README.md) (in Russian). [Figma standard](../src/figma-plugin/AUTHORING_STANDARD.md) (in Russian), [report](verification/results/2026-10-20-expanded-controls.md) (in Russian).

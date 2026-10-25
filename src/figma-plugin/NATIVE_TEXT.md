@@ -1,4 +1,8 @@
+<a id="russian"></a>
+
 # Редактируемый Inter — плагин и CLI 0.5.0
+
+**Русский** · [English](#english)
 
 Оставьте обычный Text с именем `txt_Title` / `text_Title`. Выберите Inter или Inter Display, затем «Проверить макет» → «Скачать .exui». Конвертируйте обновлённым CLI 0.5.0. В GUI Designer подпись будет Label с редактируемыми Text, Font, Font Style и Font Size; Use Flattened Text остаётся False.
 
@@ -50,3 +54,64 @@ GUI Designer рисует Inter через GDI: без кернинга, с ок
 Уже созданные GDL/GCP автоматически не изменяются: после настройки экспортируйте новый EXUI, создайте новый GDL и выполните Save and Build в GUI Designer. Обновление настроенного GCP выполняйте с сохранением назначений по [инструкции](../../docs/updating-configured-projects.md).
 
 Обновить **оба компонента** до 0.5.0. EXUI/5, plugin ID, metadata и ключи/ID исходных объектов сохраняются. Новый CLI читает прежние EXUI/5. CLI 0.4.0 отклоняет новые шрифты и поле textAlign; архивы прежних версий остаются неизменными. Ранее экспортированный PNG не превращается обратно в текст — нужно повторно экспортировать исходный Text из Figma.
+
+---
+
+<a id="english"></a>
+
+# Editable Inter — plugin and CLI 0.5.0
+
+[Русский](#russian) · **English**
+
+The plugin interface is in Russian; its labels are quoted as shown, followed by their English meaning.
+
+Keep an ordinary Text named `txt_Title` / `text_Title`. Choose Inter or Inter Display, then «Проверить макет» (Check layout) → «Скачать .exui» (Download .exui). Convert with the updated CLI 0.5.0. In GUI Designer the caption becomes a Label with editable Text, Font, Font Style and Font Size; Use Flattened Text stays False.
+
+The CLI contains the unmodified static Inter 4.1 collection under the SIL OFL. It is added to the GDL once, only when used. You do not need to install Inter separately on the computer with GUI Designer. The plugin does not download font files or pass executable data; the EXUI contains only the names and parameters of the text.
+
+Supported styles are Thin, Extra Light, Light, Regular, Medium, Semi Bold, Bold, Extra Bold, Black and their italics — 18 styles per family. Label, Value and DateTime offer nine combinations of Left/Center/Right and Top/Center/Bottom. Value and DateTime keep their updatable content. Arial Regular/Bold works as before.
+
+In GUI Designer, intermediate weights may appear in the Font field as separate Windows families, for example Inter Medium or Inter SemiBold, with the Regular/Italic style. This keeps the chosen weight; Regular/Bold use the Inter family.
+
+Native text needs one style within the Text, one opaque SOLID fill and 100% layer Opacity, a size of 4..200 pt, zero letter spacing, and no case transformation or decorations. Figma may report a standard style as a variable font: standard weight values 100…900, optical size 14 (Inter) / 32 (Inter Display) and the standard slant are accepted. Intermediate weights, another optical size or arbitrary axes are kept only in PNG. Effects, masks and rotation are checked under the existing limits.
+
+Since 0.7.0, semi-transparent text (fill or layer opacity below 100%) stops the check and names the layer and how to fix it. Before, depending on the case, a generic opacity error was shown or the caption silently became a PNG. GUI Designer can store the alpha of a text color, but how it looks on the panel and in GCP is not verified, so it is not exported. The text color can be any opaque `#RRGGBB`. Captions that stay part of a button PNG for other reasons are not affected.
+
+The size in Figma is converted from px to pt with the same ×0.75 rule. Coordinates and sizes of the native object are integers; the fractional geometry of a static caption is kept in PNG. The Figma layer and its assignments do not change on export. The CLI contains Inter version 4.1: if Figma uses another version, the metrics may differ slightly; check the final layout in GUI Designer.
+
+GUI Designer draws Inter through GDI: without kerning, with rounded glyph widths and a line height of 1.21 em. That is why the frame of an Inter Label (a separate Label and a button caption) is enlarged on export: in width by max(0.75 em, 6%), in height to the number of lines × 1.21 em + 0.25 em. The enlargement starts from the alignment point (Left/Right — to one side, Center — symmetrically) and does not go beyond the button or the canvas. Text with a fixed width and Auto height, which Figma wraps itself, is enlarged by only 0.25 em so that the line breaks stay in place. Arial keeps the previous geometry.
+
+## Button captions
+
+- One direct top-level Text covering the whole button, with Center/Center or Center/Bottom, is kept as the text of the Button states. Its content and color may differ per state; the font is shared.
+- If one direct Inter Text sits in another rectangle and is fully identical in all states — text, color, font, size, position and alignment — the plugin creates one separate Label on top of the button. An icon may sit higher in the layers if its visible bounds do not overlap the caption. Masks and overlapping artwork are kept in PNG. The caption is removed only from the temporary PNG copies. In the GDL you can edit it without changing the background and the icon.
+- Such a Label uses the service key `button-caption.<pageId>.<buttonObjectId>`, a free objectId from the upper range and controlId=null. The assignments of the source button do not change. It is a separate static object: hiding it and other changes by the control program do not follow the button automatically. It counts toward the limit of 64 elements per page.
+- If the captions have different geometry/styling per state, several Texts or complex artwork, the styling is kept in PNG. For an editable variant use a shared Text over the whole button or an identical separate caption in all states. Check touch behavior over a separate caption on the hardware.
+
+Other families and mixed complex styling of static text are still exported to PNG automatically without a manual Frame. Native support for arbitrary fonts is not claimed: each family needs an available resource and its own check. An unsupported Value/DateTime font causes a clear error so that updatable text does not become a frozen picture.
+
+## Compatibility
+
+### Automatic from Figma (plugin 0.8.2)
+
+In the «Текст кнопок для GCP» (Button text for GCP) block, the «Автоматически из Figma» (Automatic from Figma) mode is selected by default. Apply it once to the selected buttons, screen or popup; the position of each caption is then calculated on every export. New buttons are included when you apply the mode to the area again. Earlier saved manual modes stay in effect until the automatic mode is applied.
+
+The geometry of the Text frame relative to the button state is used. Its vertical center is compared with the top, middle and bottom of the button: the nearest middle gives Middle-Center, the nearest bottom gives Bottom-Center. The Text paragraph settings (Left / Center / Right / Justified and Top / Center / Bottom) are deliberately ignored: in the GDL the horizontal alignment is always Center. A horizontally shifted frame is centered on export too. A frame covering the whole button means Middle-Center regardless of the paragraph; to get the bottom automatically, place a short frame at the bottom. An exact arbitrary position and Figma padding are not reproduced.
+
+The frame must be fully inside the button. A top position and an equal distance between anchors cause an error that names the Text layer; choose a manual mode or move the frame. The whole area is checked before the settings are written. Positions allow the usual rounding to whole export pixels. Figma layers are not moved; the text stays part of the Button state, without a Label and without text in the PNG.
+
+The mode is saved as `auto` under the existing `exui-button-native-text` key. It is read by plugin 0.8.2 or newer; an older plugin refuses the unknown mode. To go back to 0.8.1, first apply a manual alignment or «Сохранить расположение Figma» (Keep Figma layout) with the new plugin. EXUI/5 did not change; use CLI 0.8.2 (0.8.1 also works). The automatic mode does not change EXUI/GDL/GCP files that already exist: export again.
+
+### Button text for GCP (0.8.0)
+
+A separate editable Label on top of a button does not belong to the Button. Text Feedback assigned to the button in GCP does not replace this Label: both captions may show at the same time.
+
+Select the buttons, screen or popup and open **«Текст кнопок для GCP»** (Button text for GCP). Choose **«Снизу по центру»** (Bottom center) for a caption below the icon or **«По центру»** (Center), then **«Применить текст для GCP»** (Apply text for GCP). On the next export, the caption is excluded from the temporary PNG and written into the Text of every Button state. No extra Label is created. The background, icons, IDs, names, source Texts and their geometry in Figma are kept; the position of the text in the GDL is set by the chosen mode. Check the layout in GUI Designer before sending it to the panel.
+
+One non-empty visible caption per prepared state is supported, including inside Artwork. The empty Text placeholder of the kit does not count as a second caption. Content and color may differ; the font is shared. Buttons without text are skipped. Several captions, an unsupported font, masks or transformations in the caption's chain stop the operation before the settings are written. If writing fails, the previous settings are restored.
+
+The setting applies only to the selected area, is stored separately from the IDs in the button's plugin data (`exui-button-native-text`) and is taken into account when changes are checked during export. To undo, choose **«Сохранить расположение Figma»** (Keep Figma layout) and apply. Old layouts without the setting are exported as before. The EXUI/5 schema and the CLI do not change; use CLI 0.8.0. An older plugin ignores this setting, so export again with version 0.8.0 or newer.
+
+GDL/GCP files that already exist are not changed automatically: after the setup, export a new EXUI, create a new GDL and run Save and Build in GUI Designer. Update a configured GCP keeping its assignments by following the [guide](../../docs/updating-configured-projects.md#english).
+
+Update **both components** to 0.5.0. EXUI/5, the plugin ID, metadata and the keys/IDs of the source objects are kept. The new CLI reads earlier EXUI/5 packages. CLI 0.4.0 refuses the new fonts and the textAlign field; archives of earlier versions stay unchanged. A previously exported PNG does not turn back into text — export the source Text from Figma again.

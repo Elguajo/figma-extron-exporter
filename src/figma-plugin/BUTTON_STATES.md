@@ -1,4 +1,8 @@
+<a id="russian"></a>
+
 # Оформление и состояния кнопок — 0.8.3 preview
+
+**Русский** · [English](#english)
 
 Координаты и размеры кнопки и её состояний при экспорте округляются до ближайшего целого пикселя: 218.21 → 218, 218.7 → 219, 218.5 → 219. PNG состояний получает тот же размер, что и кнопка. Геометрия исходных слоёв в Figma не меняется; детали внутри PNG сохраняют дробные значения. После округления состояния должны занимать всю кнопку, а кнопка — помещаться в экран.
 
@@ -66,3 +70,79 @@ Off / Normal / Passive используют обычный эталон; On / Ac
 - On/Active переключает программа управления Extron. Создание состояний не создаёт команды устройству или автоматическую обратную связь.
 
 Проверки Figma API в тестах моделируются явно. Автоматические тесты и Chromium не подтверждают реальный рендер Figma Desktop, Verify / Save and Build GUI Designer или работу оборудования.
+
+---
+
+<a id="english"></a>
+
+# Button styling and states — 0.8.3 preview
+
+[Русский](#russian) · **English**
+
+The plugin interface is in Russian; its labels are quoted as shown, followed by their English meaning.
+
+On export, the coordinates and sizes of a button and its states are rounded to the nearest whole pixel: 218.21 → 218, 218.7 → 219, 218.5 → 219. The state PNGs get the same size as the button. The geometry of the source layers in Figma does not change; details inside the PNG keep their fractional values. After rounding, the states must cover the whole button and the button must fit the screen.
+
+## Contrast when styling is applied
+
+The **«Исправлять контраст текста и иконок»** (Fix text and icon contrast) setting is on by default. After the samples are transferred, every changed state, including the hidden On / Active, is checked separately: text needs at least 4.5:1, single-color artwork 3:1 by sRGB relative luminance. Colors with enough contrast are kept; solid fills and strokes without enough contrast become black or white. For example, a white Input 7 caption and a gold icon on a gold background become black. Text, geometry, layer names and IDs do not change. To keep the author's colors, turn the setting off before applying.
+
+The correction applies only to the states that receive a sample. When skipped, existing buttons are kept entirely. When existing buttons are updated, Pressed, which receives the active sample, is checked too. The result shows the number of corrected layers. If contrast cannot be judged reliably (an image, gradient, mixed text fills, masks, effects, blend modes or transparency), that part is kept and counted among those needing a manual check. A semi-transparent single-color fill is evaluated by blending with the background; if black and white with the original transparency do not reach the threshold, a manual check is needed. This is a targeted check of button styling, not a confirmation of the full accessibility of the layout.
+
+## One rule for new layouts
+
+| Purpose | States | Prefix |
+|---|---|---|
+| Switching on or selecting: Power, Mute, zone, source | **Off / On** | `button_` / `btn_` |
+| Pressing and holding: Volume + / −; an action or navigation: Back / Home / Settings | **Normal / Pressed** | `button_` / `btn_` |
+| Selecting with a separate pressed look | **Normal / Active / Pressed** | `feedbackbutton_` / `fbtn_` |
+
+This is the single naming scheme for new designs. The supported synonyms **Passive / Active**, **Normal / Active** without Pressed and other previously allowed sets are kept. The check and export keep existing assignments. An explicit Override in the styling of ordinary buttons converts the pair and updates the names and roles of the states; the IDs of the button itself are kept. Off / Normal / Passive have the normal role, On / Active / Feedback the feedback role; Pressed is a separate pressed role. A role cannot be duplicated within one button.
+
+On / Active is set by the Extron control program, Pressed is the look while held. The names do not create AV commands, switch devices or repeat volume steps.
+
+## Quick process
+
+A selected `popup_`, `modalpopup_` or `popupgroup_` takes precedence for button styling **in every export mode**, including the saved «Выбранные фреймы» (Selected frames) and «Текущая страница» (Current page). Selecting a layer inside a popup refers to that popup. The project content for checking and export stays the same. The result message names the processed container, counts prepared and updated buttons and created states separately, and says so explicitly if nothing changed.
+
+1. Draw the button as an ordinary **Group or Frame** directly inside the screen Frame. Name it `button_AudioControl` / `btn_AudioControl` or `feedbackbutton_Power` / `fbtn_Power`. A background, text and artwork inside are enough; separate states are not needed yet. Names like `Rectangle 11`, `Voice` and `txt_title.place` do not need to change.
+2. Outside the screens, on the same Figma page, create a group or Frame named **Button Styles**. Inside it, put two ordinary **Rectangles**: **Off / On**, with different fills or strokes. They automatically become the normal and active samples; the sample size does not change the button size. The older **Passive / Active** and **Normal / Active** are recognized too. Keep one sample per role; if several are found, choose the ones you need explicitly.
+3. In Figma, select one or more screen Frames, popups, popup groups or the buttons themselves. Styling and Override apply only within the current selection; the saved export content, the whole-page mode and linked popups do not widen the scope. To keep a custom button on the same screen, select only the other buttons. Selecting a text layer or artwork refers to the nearest screen or popup; selecting a section or a project Frame covers its content. Without a selection, styling is unavailable. The **«Оформление кнопок»** (Button styling) section shows the scope, the number of buttons, the samples and the planned changes. Checking and export still need a screen or project.
+4. Choose **«Состояния обычных кнопок»** (States of ordinary buttons): **Off / On** for switching or selecting, or **Normal / Pressed** for pressing and holding. If the layout has existing buttons, choose **«Пропустить готовые кнопки»** (Skip existing buttons) or **«Применить новый стиль и к готовым»** (Apply the new style to existing ones too, i.e. Override). Applying is unavailable until you choose. With Override, existing two-state `button_` / `btn_` are also converted to the chosen pair in either direction. The names and roles of saved states are updated together; the button's own IDs, layers, content, geometry and visibility are kept. Slots 0/1 stay in the EXUI/GDL. When skipped, existing buttons are kept entirely. Then click **«Применить оформление»** (Apply styling). The samples' corner radius is applied only when that setting is on.
+5. In the result message click **«Проверить и скачать .exui»** (Check and download .exui). The separate **«Проверить макет»** (Check layout) and **«Скачать .exui»** (Download .exui) are also available at the bottom. Keys, roles and free IDs are filled in by the usual mechanism. Current CLI **0.7.3**; the **EXUI/5** package, the plugin ID and the metadata schemas are kept.
+
+Manual sample selection is in **«Выбрать образцы и фон вручную»** (Choose samples and background manually): select a Rectangle or an existing state → **«Выбранное — обычный эталон»** (Selection is the normal sample), then likewise **«Выбранное — активный эталон»** (Selection is the active sample). After assigning, go back to the screen. The links are saved on the current page and survive a plugin restart and renaming of the samples. If an explicit sample is deleted, assign a new one; there is no automatic substitute. The color cards show one solid fill and the stroke color; a complex fill is labeled with text, and its styling is transferred in Figma in full.
+
+| Prefix | Pair created |
+|---|---|
+| `button_` / `btn_` | **Off / On** or **Normal / Pressed** — as chosen in the interface |
+| `feedbackbutton_` / `fbtn_` | **Normal / Active** |
+
+Off / Normal / Passive use the normal sample; On / Active / Feedback the active one. The saved button type takes precedence over later renaming. No extra `button_onoff_` prefix is introduced.
+
+For **Normal / Pressed**, choose this pair before applying the styling. The normal sample is applied to Normal, the active one to Pressed. For **Normal / Active / Pressed**, create the pair on a `feedbackbutton_`, then add and style the third Pressed state by hand. Choosing the pair for ordinary buttons does not change the scheme of feedback buttons.
+
+The source content is wrapped into the first **Group**. The second state is its copy with the styling of the other sample. An outer Group stays a Group, a Frame stays a Frame; the source layers keep their IDs, sizes and coordinates. If the background is set on the outer Frame, its styling moves into a Rectangle Background inside the first state, and the outer Frame becomes transparent.
+
+If an ordinary button has exactly one state, it is converted to the chosen pair and the missing state is added. For existing two-state ordinary buttons, Override also changes the pair; when skipped, names, roles and styling are kept. The number of existing states does not change. For feedbackbutton_ / fbtn_, the third Pressed state is added by hand.
+
+## Changing the styling
+
+Fills, strokes, their colors/transparency, weight, position and dashes are transferred. Sizes, text, icons and fonts are not replaced by the sample. Corner radius is transferred only when **«Использовать скругление образцов»** (Use the samples' corner radius) is on. The normal and active samples must look different.
+
+After changing the samples, select the screen and the pair you need, tick **«Применить новый стиль и к готовым»** (Apply the new style to existing ones too) and click **«Применить оформление»** (Apply styling). The normal/feedback/pressed background is updated; with correction on, text and icon colors without enough contrast are fixed. When the pair changes, the names, roles and internal state assignments are updated; the button's keys and objectId/controlId, visibility and layers are kept. The state slots in the package stay 0/1. Applying again does not duplicate states. The operation is a single Undo step; on failure the plugin restores the tree, assignments and styling. If all buttons are ready and skip is chosen, applying is unavailable.
+
+The background is a Rectangle or Frame that matches the button area. For a state Frame, it can be its own fill. If several layers fit, select the one you need inside the button or state, open **«Выбрать образцы и фон вручную»** (Choose samples and background manually) and click **«Выбранный слой — фон»** (Selected layer is the background). The choice is saved on the layer itself and carried into copies. Clicking again removes the mark. An inconsistent structure is blocked before the first button is changed.
+
+## Export and support limits
+
+- Since 0.5.5, «Проверить макет» (Check layout), «Скачать .exui» (Download .exui) and saving recognized assignments automatically leave one visible state. If several are visible, the ordinary Off / Normal / Passive wins if it is visible; otherwise the first visible one stays. If all are hidden, the ordinary one is shown. A single chosen On / Active / Pressed is kept. Recognition without saving only shows the plan. On other check errors the layers do not change; if writing fails, assignments and visibility are restored. Names, styling and IDs are kept; all states are exported.
+- Groups are supported for the button and its states. Pages, popups, Slider and other kinds keep their existing rules.
+- The styling of a composite state is exported to a PNG the size of the button, including fills, strokes, icons and corner radii. The source is not switched or rebuilt during export; temporary copies are removed even on error.
+- One top-level direct Text covering the whole state area, in Arial Regular/Bold or Inter / Inter Display, with a supported CENTER / CENTER or CENTER / BOTTOM, is kept as native editable Button text. Texts with other geometry, complex styling or several captions stay in the PNG so as not to shift the author's design. They remain editable in Figma.
+- Identical Inter captions placed in a separate rectangle in all states are automatically exported as one editable Label on top of the button. Their text, font, color, geometry and alignment must match. Captions that change per state or are complex stay in the PNG. The separate Label gets no controlId and does not follow the button's feedback/visibility automatically. [Rules](NATIVE_TEXT.md#english).
+- Since 0.7.0, the fill of states with a PNG is transparent (`#00000000`): corner radii and transparent PNG areas show what is under the button, including the page background image. Before, the solid color of the page Frame, for example white, showed under the corners. An outer stroke beyond the button edge is clipped by the PNG area; to keep the whole outline, use INSIDE.
+- Each state must match the button area; coordinates/sizes are whole pixels. Turn off Auto layout on an unprepared outer button. Change the number of states of a component instance in its main component; for existing instances, the styling of the existing normal/feedback/pressed states is updated.
+- On/Active is switched by the Extron control program. Creating states does not create device commands or automatic feedback.
+
+Figma API checks are simulated explicitly in the tests. Automated tests and Chromium do not confirm the real Figma Desktop rendering, GUI Designer Verify / Save and Build or hardware behavior.

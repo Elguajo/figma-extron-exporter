@@ -1,4 +1,8 @@
+<a id="russian"></a>
+
 # Figma → Extron Exporter — плагин 0.8.3 preview
+
+**Русский** · [English](#english)
 
 **0.8.2 — автоматическое положение текста кнопок.** Выделите кнопки, экран или popup, откройте «Текст кнопок для GCP» и один раз примените «Автоматически из Figma». При каждом экспорте положение текстовой рамки внутри кнопки определяет центр или низ; по горизонтали текст всегда по центру. Настройки абзаца игнорируются, рамка на всю кнопку означает центр. Подпись хранится в состояниях самого Button и заменяется через Text Feedback; отдельный Label и текст в PNG для неё не создаются. Фон, иконки, ID и исходные слои Figma сохраняются. Ручные Center / Bottom Center и отмена через «Сохранить расположение Figma» остаются доступны. Нужен CLI **0.8.2** (подходит и 0.8.1); EXUI/5 не изменён. [Правила автоматического режима](NATIVE_TEXT.md#автоматически-из-figma-плагин-082).
 
@@ -265,3 +269,279 @@ node src/figma-plugin/test/native-integration.ts output/figma-plugin/new-run
 Версия 0.2.0 проверена автоматически на новых сценариях. [Блок громкости 1025M](../../docs/verification/results/2026-10-20-volume-gui.md) прошёл настоящий GUI Designer/Build/reopen на синтетическом exui/5; исправление бегунка требует обновлённого CLI, архив плагина не менялся. Настоящий блок 1025M позднее прошёл Figma/GUI-цикл; остальные новые GUI-сценарии и оборудование не проверены. [Протокол 0.2.0](../../docs/verification/results/2026-10-20-expanded-controls.md).
 
 Настоящий Figma/GUI-цикл адаптированного блока 1025M: [протокол](../../docs/verification/results/2026-10-20-real-figma-1025m.md), exui/5, Verify 0/0, Build/reopen, 74/74 после Build. В CLI исправлены PBImage и выравнивание Value/Label; полный исходный экран не проверен.
+
+---
+
+<a id="english"></a>
+
+# Figma → Extron Exporter — plugin 0.8.3 preview
+
+[Русский](#russian) · **English**
+
+The plugin interface is in Russian; its labels are quoted as shown, followed by their English meaning.
+
+**0.8.2 — automatic button text position.** Select buttons, a screen or a popup, open «Текст кнопок для GCP» (Button text for GCP) and apply «Автоматически из Figma» (Automatic from Figma) once. On every export, the position of the text frame inside the button decides center or bottom; horizontally the text is always centered. Paragraph settings are ignored; a frame covering the whole button means center. The caption is stored in the states of the Button itself and is replaced through Text Feedback; no separate Label and no text in the PNG are created for it. The background, icons, IDs and source Figma layers are kept. Manual Center / Bottom Center and undo through «Сохранить расположение Figma» (Keep Figma layout) remain available. Requires CLI **0.8.2** (0.8.1 also works); EXUI/5 did not change. [Rules of the automatic mode](NATIVE_TEXT.md#automatic-from-figma-plugin-082).
+
+**Local Extron Kit update of 24 Oct 2026 — Apple-inspired Light:** the whole kit, the states, templates and examples for both panels in one light style with Inter and a blue accent. Volume +/− and Back/Home/Settings use Normal / Pressed. To create a new kit: «Библиотека компонентов» (Component library) → «Создать Extron Kit» (Create Extron Kit); revision **2026-10-24-apple** is shown on the canvas. Existing libraries are not updated automatically. Version number 0.7.3 was kept; the release archive predates this update. [Guide](EXTRON_KIT.md#english).
+
+**0.7.3 — button numbering.** Below «Оформление кнопок» (Button styling) there is a separate collapsible block, **«Нумерация кнопок»** (Button numbering). Select the buttons themselves in Figma; set the name base and the start number, check the list and click **«Пронумеровать»** (Number). The options **«Нумеровать имена слоёв»** (Number layer names) and **«Обновлять текст кнопок»** (Update button text) are independent; updating text is off by default. [Installing 0.7.3](../../releases/figma-plugin/0.7.3/README.md) (in Russian).
+
+- **Renumber by position:** left to right, top to bottom (top edges within 2 px count as one row). Each direct parent has its own count. Only directly selected buttons are processed; selecting a parent group, frame, section or a layer inside a button does not include the button. The prefixes `button_`, `btn_`, `feedbackbutton_`, `fbtn_` are kept. The base applies to the selected buttons, including buttons with other names; check the preview before applying.
+- **Fix duplicates only:** numbers already taken with the chosen base are kept; copies and buttons without such a number get free ones, starting from the given number. A saved original takes precedence over its copies. Unselected neighboring buttons reserve their numbers and do not change. Inner state layers and component definitions are not numbered.
+- **Text update:** one caption in each state, including hidden ones; one caption in a button that is not prepared yet is supported too. With several Text layers, no caption, an unavailable font or mixed styling inside a Text, the plugin suggests fixing the structure or turning off the text update. All fonts are loaded before writing; a changed selection or layout needs a new preview. Changes can be undone in Figma.
+- The command changes only names and the chosen captions, without writing metadata. Object ID, Control ID and state IDs are kept; automatic keys follow the new names at the next check/export. The export mode and the saved project content do not widen the selection. The CLI and EXUI/5 did not change. [Checks and limits](../../docs/verification/results/2026-10-23-button-numbering.md) (in Russian).
+
+**0.7.2 — choosing the state pair:** in «Оформление кнопок» (Button styling), choose **Off / On** or **Normal / Pressed**. Override («Применить новый стиль и к готовым», Apply the new style to existing ones too) converts existing ordinary pairs to the chosen scheme in either direction. Assignment names and roles change together; the button ID and its layers are kept. Skip keeps existing pairs. [Installation](../../releases/figma-plugin/0.7.2/README.md) (in Russian).
+
+Button styling and Override use only the current Figma selection: one or more frames or the buttons themselves. The export mode and the saved project content do not add unselected frames.
+
+**0.7.0 — button contrast:** in «Оформление кнопок» (Button styling), the **«Исправлять контраст текста и иконок»** (Fix text and icon contrast) setting is on. When samples are applied, single colors that blend with the background are replaced with black or white separately in each changed state. Colors with enough contrast are kept; complex fills and images are flagged for a manual check. The setting can be turned off. [Rules and limits](BUTTON_STATES.md#contrast-when-styling-is-applied).
+
+**0.7.0 update — styling of the selected popup:** `popup_`, `modalpopup_`, `popupgroup_` and their child layers set the styling scope in every export mode, including a saved project. Missing states are created inside the selected container. The result message names the scope and shows button preparation, updates of existing ones and created states separately. [Installation](../../releases/figma-plugin/0.7.0/README.md) (in Russian).
+
+**0.7.0 — clean button corners:** button states with a PNG are exported with a transparent fill, so rounded buttons have no white corners on an image background. Released together with CLI 0.7.0, which fixes the empty page preview in GCP. [Installation](../../releases/figma-plugin/0.7.0/README.md) (in Russian).
+
+**0.7.0 — popups and groups by name:** a new `popupref_WallLayouts` is automatically linked to the neighboring `popupgroup_WallLayouts`, and `popupref_Sources` to `popup_Sources`. This also works when only screens are selected in the «Выбранные фреймы» (Selected frames) and «Текущая страница» (Current page) modes. If there are several matches, choose the target in «Содержимое места popup» (Popup place content) and save the link. Saved assignments are not replaced. [Installation and rules](../../releases/figma-plugin/0.7.0/README.md) (in Russian).
+
+**0.6.8 — linked popups when exporting screens:** the «Выбранные фреймы» (Selected frames) and «Текущая страница» (Current page) modes include the saved popupref targets even if only screens are selected after linking. Unlinked groups are not added. Missing-target and size-mismatch errors are separate; the report shows the specific popupref. [Installation](../../releases/figma-plugin/0.6.8/README.md) (in Russian).
+
+**0.6.7 — line transparency:** Pen/Vector and Line Tool support the opacity of a SOLID Stroke and the layer Opacity; rectangular lines support Fill and Opacity. Lines stay native PBLine. Requires CLI **0.6.4**. [Installation](../../releases/figma-plugin/0.6.7/README.md) (in Russian).
+
+Current kit: **plugin 0.8.3 + CLI 0.8.3**; the only package contract is **EXUI/5**. CLI 0.7.0 writes an empty Text for images, shapes, lines and sliders so that GCP does not leave the page blank, and keeps the export comparison from 0.6.6 ([guide](../../docs/updating-configured-projects.md#english)). Since CLI 0.6.5, inherited popup fills are removed; it accepts EXUI/5 from earlier plugins, transparent popup backgrounds/shape colors, and puts the start page first on conversion. The current CLI refuses old EXUI/1–4 packages: export the source layout again. Saved assignments and IDs in Figma stay in place, keys follow the layer names; archives of earlier releases do not change.
+
+**0.6.6 — clipping of a raster background:** turn on Clip content on the screen or popup. An `image_Background` Frame that extends beyond its bounds is exported as only the visible part of the PNG at the original scale. Clipping on `image_Background` itself crops its inner picture; for the Frame itself to extend beyond the screen, clipping must be on the screen. The source sizes and coordinates do not change. [Installation](../../releases/figma-plugin/0.6.6/README.md) (in Russian).
+
+**0.6.5 — links by name:** select a popupref → «Содержимое места popup» (Popup place content) → popup/group → «Сохранить связь popup» (Save popup link). Below, saved links and buttons to jump to them on the canvas are shown; «Без связи» (No link) removes the assignment without deleting the Frame (until linked again, the project may fail the export check). Select buttons of one page/popup → «Группа выбора кнопок» (Button selection group) → create from the selection or choose an existing one → save. The key is assigned automatically; IDs stay the same. The project has a list of start screens; next to a button's navigation there is «Показать цель в Figma» (Show target in Figma). All link changes are saved explicitly and survive a restart. Button selection and feedback are still connected by the Extron control program. [Installation](../../releases/figma-plugin/0.6.5/README.md) (in Russian).
+
+**0.6.4 — popup linking and page memory:** an empty `popupref_…` can be saved without keys and IDs. Select popups together or their existing group → «Размещение popup» (Popup placement) → choose the place by name → «Связать с местом popup» (Link to popup place). The group is created automatically or reused; popup coordinates and sizes are kept. Assignments are written after the «Сохранить назначение» (Save assignment) button and restored after a restart. The profile, the export mode and the chosen project content are saved separately on the Figma page. A new start page automatically replaces the previous one. [Installation and rules](../../releases/figma-plugin/0.6.4/README.md) (in Russian).
+
+**0.6.3 — start page and button styling in popups:** the assigned start page is always first in the GDL; the others follow by name, taking numbers into account. CLI 0.6.3 applies this rule to earlier saved EXUI/5 packages too. For `screen_StartPage`, explicitly choose «Показывается → Стартовая страница» (Shown → Start page), and for the previous start page «Программой управления» (By the control program). Button styling can be applied to a selected popup or popup group without an outer project Frame; selecting one popup does not change its neighbors. [Rules](AUTHORING_STANDARD.md#7-страницы-и-popup) (in Russian).
+
+**0.6.2 — popup styling:** a popup/popupref Frame has a transparent background by default, its stroke is not exported, and the radii and Opacity of the Frame itself are ignored. Colored guides can stay in the layout. Independent checkboxes in the assignment form export the background/stroke; popup content keeps its existing styling. Previously assigned popups also use a transparent background until background export is turned on explicitly. Requires CLI 0.6.1+. [Rules](AUTHORING_STANDARD.md#7-страницы-и-popup) (in Russian).
+
+**0.6.1 — date and time:** the Extron Kit has a `datetime_Clock` set with 28 formats (24 Pattern presets from GUI Designer 1.28 and 4 extra, including `MMMM d, h:mm tt`); the format is chosen with the **Format** property, and the text shows a sample as in GUI Designer (`September 28, 12:00 AM`). The format is read from the layout at every check: the Format property, a `Pattern: …` Text layer, a sample text from the catalog or the format itself, `HH:mm`. The form has a list of formats and a live sample; a typed format is saved. The CLI did not change. [Details](EXTRON_KIT.md#date-and-time)
+
+**0.6.0 — keys from names, Latin letters and page order:** screen and element keys follow the current layer names at every check and download (`page.home` → `page.audiocontrol`, `homeexportready.volume-2` → `audiocontrol.volume`), navigation is updated, IDs do not change. A manually typed key is kept; an empty field restores the automatic one. Cyrillic letters in the names of screens, popups, groups and elements are forbidden; the error suggests a Latin variant. Pages go into the GDL by name, taking numbers into account: `screen_01-MainDashboard`, `screen_02-AudioControl`. Native Inter captions are not cut off. [Installation](../../releases/figma-plugin/0.6.0/README.md) (in Russian).
+
+**0.5.5 — automatic button preview:** on check, download and saving recognized assignments, extra visible states are hidden. If several are visible, Off / Normal / Passive stays when it is among the visible ones; otherwise the first visible state stays. A single visible state, including On / Active / Pressed, is kept. If all are hidden, the ordinary one is shown. Recognition itself only shows the plan. All states are exported, names, styling and IDs are kept; if writing fails, assignments and visibility are rolled back. [Installation](../../releases/figma-plugin/0.5.5/README.md) (in Russian).
+
+**0.5.4 — line rounding:** for Pen/Line Tool, the Stroke thickness and the rectangle of the painted area are rounded. A fractional thickness (1.5 → 2) and fractional coordinates no longer block recognition. The source layer does not change; the line stays a native PBLine without a PNG. The length must be greater than the thickness before and after rounding. [Installation](../../releases/figma-plugin/0.5.4/README.md) (in Russian).
+
+**0.5.3 — button transformations and text components:** rotation and mirroring of state Groups/Frames and of the outer button are kept in the PNG, including inherited transformations. The text of a transformed state stays inside the PNG; the button keeps its states and control ID. The touch area in Extron is the bounding rectangle of the button. States still have to match the button bounds. Text, a Component/Instance with one direct Text and the kit's text Frames are supported for Label/Value/DateTime; Content must fill the whole container for native export. DateTime and Value stay native updatable elements. Arbitrary multi-layer components are not broken down into native shapes automatically. [Installation](../../releases/figma-plugin/0.5.3/README.md) (in Russian).
+
+**0.5.2 — name errors and jumping to the layer:** the report shows the full name, the position of the invalid character and an example fix (`line_Devider 4` → `line_Devider-4`). The naming rules are unchanged. «Показать слой» (Show layer) computes the center from absolute canvas coordinates, takes nested containers and rotation into account, handles lines with zero width/height correctly and limits zoom to 200%. For hidden states, the position is computed without changing visibility. Names, assignments and the source geometry do not change.
+
+**0.5.0:** Inter and Inter Display are exported as native editable text: 18 styles, Label/Value/DateTime and Button captions. The font is embedded in the GDL and ships with the CLI; you do not need to install it in Windows. All nine alignments are available for Label/Value/DateTime. For Inter with a shared identical caption in all button states, a separate native Label is created at the source coordinates. Requires the updated plugin **and CLI 0.5.0**; earlier EXUI/5 packages and assignments are compatible. [Text rules](NATIVE_TEXT.md#english).
+
+**History of 0.4.5:** static txt_/text_ with Inter and other fonts are exported to PNG automatically — no manual Frame needed. Alignment and fractional geometry are kept; in Figma the Text stays editable. Arial Regular/Bold with native styling stays a PBLabel. Value/DateTime need native Arial so that their content keeps updating. Fractional sizes of logo_/img_ are also kept inside a transparent PNG with whole outer bounds.
+
+**0.4.4:** fixed a false refusal for Center lines with a Uniform profile — they are exported as a native PBLine. The stroke error now names the specific cause.
+
+**0.4.3:** the corner radius of the outer screen Frame is ignored on export. In Figma it is kept for the canvas look; in Extron the page is rectangular. Button and shape radii keep the existing rules.
+
+**0.5.2 — geometry rounding:** coordinates and sizes of native elements, buttons and their states are rounded on export to the nearest whole pixel: 218.21 → 218, 218.7 → 219, 218.5 → 219. State PNGs get the button size. Source layers in Figma do not change. Details inside the PNG, separate artwork and static text keep their exact fractional geometry in a transparent container. The remaining limit for Pen/Line Tool lines was removed in 0.5.4.
+
+**Local preview: button styling.** Buttons and states can be a **Group or a Frame**. Draw a button → name it `button_` / `feedbackbutton_` → set the normal and active samples → select the screen → **«Оформление кнопок → Применить оформление»** (Button styling → Apply styling). Before applying you see the samples, the number of buttons and the plan of creation/updates. Before applying you must explicitly choose whether to skip existing buttons or update their styling. One action creates Off / On or Normal / Active where they are missing and, if chosen, updates the background of existing normal/feedback/pressed states. Icons, captions, visibility and IDs are kept; Pressed is added by hand; when existing buttons are updated it gets the active sample. The result offers **«Проверить и скачать .exui»** (Check and download .exui); manual choice of samples and background is in the extra settings. [Full guide and export limits](BUTTON_STATES.md#english).
+
+When a popup, a modal, a group or a popup place is selected, «Подготовить выбранный экран» (Prepare selected screen) and «Распознать по именам» (Recognize by names) are unavailable: the type is determined from the saved assignment or the prefix even before recognition. The form shows the matching type. Check and download are available if the element is within the export scope of a screen or project; button styling can be applied separately to a popup or group.
+
+Since 0.4.0, the manual form and recognition share the same assignment and state rules; the export scope is computed by one module. The description verified after writing is reused on export, with change checks before and after the PNGs.
+
+Version 0.3.6 shows recognition errors before assignments: the name and actual type of the layer, the path from the screen to the problem element, the requirement and how to fix it. **«Показать слой»** (Show layer) selects it in Figma and zooms to it on the canvas while keeping the report. **«Повторить распознавание»** (Recognize again) checks the whole source layout after the fixes. The same report opens on a check or download error. If a structure error is already found, further styling requirements may appear after it is fixed. The layout is not reworked automatically; assignments are not written when there are errors.
+
+Version 0.3.5 makes assignments automatically on **«Проверить макет»** (Check layout) and **«Скачать .exui»** (Download .exui). Select a screen, a section or several screens and the panel profile — separate recognition and manual entry of keys/IDs are no longer needed. Supported prefixes and layout structure are required. On a structure error, assignments are not written; if writing fails, the previous data is restored.
+
+Copies get their own keys/IDs together with their states and PNGs. When separately prepared screens are combined, collisions are fixed, including the earlier `page.home` / `100`; the first unique assignment stays as it was. Identical layer names are allowed. A repeated export uses the saved values. The default Slider/Level range is 0–100; a set range, direction, behavior and navigation are kept. When fixing IDs that already collided, use the new ID map for the control program. «Распознать по именам» (Recognize by names) remains available for a preview.
+
+Version 0.3.4 adds native export of horizontal and vertical Pen Tool (Vector) and Line Tool lines: `line_Divider` / `ln_Divider`. Color and thickness come from one opaque SOLID Stroke CENTER; no PNG is created. Two ends without curves, dashes or arrows are needed. Since 0.5.4, fractional thickness and geometry are rounded on export; snapping the axis to a half pixel is not required. [Preparing lines](AUTHORING_STANDARD.md#линии-pen-tool-и-line-tool-034) (in Russian).
+
+Version 0.3.3 adds export of selected frames and screens of the open page into one project without a section. Navigation buttons pick neighboring pages by name; keys and IDs are assigned together. Compatible CLI: 0.3.0; EXUI and the plugin ID are kept.
+
+0.3.0 added the **«Создать Extron Kit»** (Create Extron Kit) button: 30 components, free button styling in Artwork slots, project templates and an example for the selected panel. Figma MCP is not used; the local plugin and slots are available on the free plan. [Kit guide](EXTRON_KIT.md#english). The historical examples/limits below describe earlier versions; for component instances and slots, the new guide applies.
+
+A local development plugin for Figma Design: a prepared screen or project → `.exui/5` → CLI 0.5.0 → an editable `.gdl`. The UI/UX styling and parts of the export mechanism are adapted from Baolv/figma-export with the permission of the user, who confirmed having a license. [Code origin](THIRD_PARTY_NOTICES.md).
+
+**For designers:** [prefix table with explanations](PREFIXES.md#english), [the full standard v2.3](AUTHORING_STANDARD.md) (in Russian). The table covers pages/popups, the custom Slider, dynamic values, indicators, shapes, lines, date/time, logos and button states. The same reference opens inside the plugin.
+
+## Button states in the current 0.5.0 preview
+
+One rule for new layouts: **Off / On** — switching on or selecting; **Normal / Pressed** — pressing and holding; **Normal / Active / Pressed** — selecting with a separate pressed look. The first two schemes use `button_` / `btn_`, the third `feedbackbutton_` / `fbtn_`. The earlier Passive / Active, Normal / Active without Pressed and other supported synonyms remain compatible. Existing names and IDs do not change. [Preparation and Rectangle samples](BUTTON_STATES.md#english).
+
+The updated exui/5 removed the separate limit on the number of PNGs. A large screen needs **CLI 0.3.0 preview** together with the updated plugin; the earlier CLI 0.2.1 supports only packages with up to 16 PNGs. The remaining limits: 4 MiB per PNG, a 16 MiB unpacked package, manifest.json 64 KiB and screen.json 256 KiB. The earlier EXUI 1–4 did not change.
+
+Dots between non-empty parts are allowed in layer names: `button_side.hall` → key `home.side.hall`. The author's name is kept in the GDL; renaming to SideHall is not needed. Names are strings, the controlId stays numeric; a dot does not define executable code and does not create a selection group automatically.
+
+Only states that exist in the layout are exported. An ordinary `button_` / `btn_` accepts two states: Off / On, Passive / Active or Normal / Pressed. For `feedbackbutton_` / `fbtn_`, Normal / Active is enough (also Passive / Active or Off / On); Pressed is optional. The names Normal / Off / Passive mean normal, On / Active / Feedback mean feedback. A missing Pressed and its PNG are not created. Hidden existing states are kept on export. The ID map contains the selection group, but switching Hall/Terrace is done by the Extron program.
+
+## Selected frames in one project — without a section
+
+The «Открыть страницу или popup» (Open page or popup) list is available even before recognized assignments are saved. Select the screens together or the «Экраны текущей страницы — один проект» (Screens of the current page — one project) mode, then select a button. Keys and IDs are shown in advance; saving the navigation checks and saves the needed assignments in one action. If the target screen is already shown «По кнопке» (By button), you do not need to switch it temporarily to being shown by the program.
+
+1. On the open Figma page, select `screen_Main` and `screen_AudioControl` together. In the «Что экспортировать» (What to export) menu, «Выбранные фреймы — один проект» (Selected frames — one project) turns on automatically; you can also choose it by hand.
+2. Choose the panel profile → «Проверить макет» (Check layout) or straight «Скачать .exui» (Download .exui). Keys, free IDs and the project name are filled in automatically. The first new page in selection order gets the start display; the project name comes from the Figma file name. If needed, first preview the result through «Распознать по именам» (Recognize by names).
+3. Select the Audio Control button in Main → «Назначение выбранного элемента → Открыть страницу или popup» (Assignment of the selected element → Open page or popup) → choose `screen_AudioControl` → «Сохранить назначение» (Save assignment).
+4. «Проверить макет» → «Скачать .exui» (Check layout → Download .exui). The package contains both pages.
+
+The plugin remembers the set of screens until it is closed or the page changes. You can select buttons and individual pages to set properties; the project content is kept. A new selection of several frames replaces the set; after a restart, select them again. Unrelated frames get no assignments and are not exported. Layers are not moved and no wrapper is created. The project registry is stored in the service data of the open page.
+
+«Экраны текущей страницы — один проект» (Screens of the current page — one project) collects `screen_`, `scr_`, `Home` and previously assigned pages of the exact size of the selected panel; sections and known project Frames are searched for screens. Draft frames, text captions, components and screens of another size are excluded. Other pages of the document are not read. For popups and their groups, explicitly select the needed Frames or use the earlier section / project Frame export.
+
+Earlier assignments are kept. If screens were previously prepared independently with identical IDs or several start pages, the check shows a conflict; old IDs are not reassigned automatically. One project uses one panel profile. The navigation link is stored in the id-map; the Extron control program performs the navigation on the panel.
+
+## A project from a section, and navigation
+
+A section is an organizing container; its size and styling are not exported. Screens inside remain Frames of the exact panel size. On first recognition, the first page in layer order gets the start display, the others are shown by the program. Exactly one page must remain the start page; change this in «Назначение выбранного элемента → Показывается» (Assignment of the selected element → Shown).
+
+For a navigation button, select its parent Frame / instance → open «Назначение выбранного элемента» (Assignment of the selected element) → choose the page in «Открыть страницу или popup» (Open page or popup) → «Сохранить назначение» (Save assignment). For the target page, choose «Показывается → По кнопке, указанной в карте ID» (Shown → By the button given in the ID map). The link is exported into the id-map for the Extron program; the control program itself performs the navigation. The current page is not offered in the target list. An unavailable saved target stays in the form and blocks the check until fixed; it is not removed silently.
+
+A `project_Trilliant` Frame keeps working. On new recognition, the section key is `project.section`, and the project name comes from the section title; keys and IDs of its pages/elements are issued by the existing registry. After the section is prepared, check and export are also available when its child element is selected. Recognition needs the section itself or the outer Frame to be selected.
+
+## New in the archived 0.2.2
+
+New buttons are separated explicitly:
+
+| Layer name | States |
+|---|---|
+| `button_` / `btn_` | **Off + On**, exactly two |
+| `feedbackbutton_` / `fbtn_` | **Normal + Active + Pressed**, exactly three |
+
+The manual form got a «Тип кнопки» (Button type) field, and the recognition table shows the chosen type. A wrong set of states blocks export; missing looks are not created automatically. On/Active is feedback from the control program; a separate press feedback is on only for the second type.
+
+Old assignments stay compatible and keep their IDs/states. To convert them explicitly, choose the type in the form and agree the names/roles/IDs of the states; renaming a layer alone does not change the type. New types use metadata/3; the old plugin 0.2.1 refuses them. EXUI stays at version 5; the ready CLI 0.2.1 fits. The new demo uses Normal/Active/Pressed.
+
+## Features of 0.2.1
+
+The ready archive includes empty Button captions in exui/5 for separate native Labels/Values on top of buttons. The compatible CLI includes Slider, PBImage and text alignment fixes verified on Home 1025M. Running the CLI does not need the sources or the SDK; .NET 10 Runtime x64 is required. The plugin ID is kept. Touches and feedback on hardware still need checking.
+
+## Features of 0.2.0 kept in 0.2.1
+
+| Added | Result |
+|---|---|
+| slider_ / sld_ with Track, Fill, Thumb | Native PBSlider; colors, thumb and track shape/size, direction and range |
+| value_ / val_ | PBLabel with dynamicText and a control ID |
+| gauge_/indicator_/volumeled_/multilevel_ and short variants | Native PBLevel modes; up to 8 states for Multistate Level |
+| shape_, line_, datetime_ and short variants | Native PBShape, PBLine, PBDateTime |
+| project_ with screens, popup_, modalpopup_, popupgroup_, popupref_ | One multi-container package; old CLI v2 projects reuse the same writer |
+| state_Ready/state_Error/... | Several feedback states and choosing a specific state for the preview |
+| Navigation, selection group, availability/visibility | Hints in the id-map for the control program; no standalone actions are created in the GDL |
+
+The new features use exui/5 and metadata/2. Update **the plugin, the CLI and samples/donors.json together**. The plugin ID is kept; old assignments and packages are not migrated automatically. The old plugin refuses metadata/2. Video/dynamic images are refused explicitly for our two profiles.
+
+## Installation and first export
+
+1. Unpack the ready `figma-extron-plugin-0.3.3.zip` into a permanent folder, or build from source with the commands below. `manifest.json` and the `dist/` folder must stay next to each other.
+2. In **Figma Desktop**, open your working Design file. Choose **Plugins → Development → Import plugin from manifest…** and select this plugin's `manifest.json`.
+3. Run **Figma → Extron Exporter**. Choose the panel profile and a section with page Frames (`screen_MainDashboard`, `screen_AudioControl`) or one screen Frame. A section may directly contain pages, popups and popup group Frames; nested sections and arbitrary captions outside pages are not exported. The section may have a name in any language and does not need the `project_` prefix.
+4. Click **«Распознать по именам»** (Recognize by names), check the list and click **«Сохранить распознанные назначения»** (Save recognized assignments). Then **«Проверить макет» → «Скачать .exui»** (Check layout → Download .exui). If you need ready elements, open **«Библиотека компонентов» → «Создать Extron Kit»** (Component library → Create Extron Kit). This is an extra action; the current UI has no demo button.
+5. Check the downloaded file and convert it to a new GDL from the repository root:
+
+```powershell
+& $dotnet run --project src/cli --no-build -- validate-package '<downloaded.exui>'
+& $dotnet run --project src/cli --no-build -- convert-package '<downloaded.exui>' 'output/new-from-figma.gdl'
+```
+
+Conversion needs pinned donors and GUI Designer with a matching CLI compatibility profile; the baseline is 1.28.0.7. The plugin exports EXUI regardless of the Extron version. The new local CLI build contains `doctor` and `--compatibility` for diagnostics and adding updates; see [how to check GUI Designer and GCP](../../docs/extron-compatibility.md#english). Build is done by the user inside GUI Designer. A repeated export creates a new project and does not keep manual GDL edits.
+
+The manifest has its own stable development ID. Do not change it after saving assignments: private pluginData is tied to the plugin ID. If Figma requires an ID issued to your account for import/publication, get it through New plugin and set it **before** preparing a permanent working file. There is no migration between plugin IDs. The real export of the 300M demo and of Home 1025M is confirmed by separate reports in docs/verification/results; hardware operation still needs checking.
+
+0.1.1 fixed handling of Figma responses: `event.data.pluginMessage` is accepted even with `event.source=null`, as happens when delivered through the platform bridge. 0.1.2 fixed the PNG export of hidden states: the icon is exported from a temporary visible copy on the page with the full Frame bounds, including transparent margins, at Native 1×. The copy is removed even on error; visibility, parents and assignments of the source elements do not change. The exact PNG size check is kept; the error now shows the actual and expected sizes.
+
+0.1.3 added the **«Подготовить выбранный экран»** (Prepare selected screen) button for your own Frame without an assignment. It checks the size against the selected profile and saves only the screen assignment (`page.home`, objectId 100, project name from the Frame name). Layers, styling and the assignments of child elements do not change. Repeated preparation does not replace existing IDs; copies and elements inside a prepared screen are refused. The export error for an unprepared layout now explains the sequence of actions.
+
+0.1.4 added name recognition with a preliminary report and separate saving of assignments. `btn_` / `button_`, `lvl_` / `level_`, `txt_` / `text_` are equivalent; for icons — `Icon`, `ico_` / `icon_`. The outer Frame can be named `Home`, `scr_Home` or `screen_Home`. The Off/Normal and On/Feedback states are recognized by role; Pressed is optional. Each state needs a Text; recognition does not fix styling or structure.
+
+Existing assignments take precedence; new IDs are issued automatically. Separate ID counters on the screen keep the reserve of deleted automatically issued numbers. If the layout changes after the report, recognition must be repeated. On errors writing does not start; if writing is refused, the source assignments are restored, and an incomplete restore is reported separately.
+
+0.1.5 added `logo_`, `img_` / `image_` for a standalone PBImage and the two-state Normal/Pressed button. For example, `button_VolumeUp` contains an ordinary Normal and a yellow Pressed; a separate On is not needed. Case of the whole name is ignored on first recognition: `btn_volumeup` and `button_VolumeUp` give one new key `home.volumeup`. Existing keys and IDs are kept; names that differ only in case are refused.
+
+After updating the files, restart the plugin; the title must show version 0.5.0. The plugin ID is kept. Use CLI 0.5.0 together with the current samples/donors.json. All screens and projects are exported to EXUI/5; reading old packages was removed from the current CLI.
+
+## Your own layout and volume
+
+1. Create an outer Frame `Home` of 1280×800 or 320×480. Name the direct elements, for example `button_VolumeUp`, `level_Volume`, `text_VolumeValue`, `logo_Company`; short prefixes are allowed. Buttons contain Normal/Pressed, Off/On or Off/On/Pressed.
+2. Select the outer Frame and the profile, click **«Распознать по именам»** (Recognize by names), check the report, then **«Сохранить распознанные назначения»** (Save recognized assignments). If there are errors, fix the layout first. Arbitrary nested blocks are not recognized automatically.
+3. Keys and IDs of new elements appear in the report automatically. The manual form stays available. Do not change assigned IDs when editing the styling. Text and graphics do not use a controlId; Value requires one.
+4. Click **«Проверить макет»** (Check layout), fix the reported incompatibilities, then **«Скачать .exui»** (Download .exui). A page assignment alone does not confirm that its content is compatible.
+
+The volume block consists of separate Slider, three Buttons and a Value. A simple level_ stays an empty Frame; a custom slider_ contains Track/Fill/Thumb. The new scheme supports solid colors and the radii, direction and range described in the standard. Track/thumb images and complex effects are not in the supported subset yet. The initial and current value, the "+"/"−" commands, the hold step, Mute and the link to the dynamic Value are set by the Extron program. The exact look on the panel needs a manual check.
+
+Automatic export of an arbitrary layout with every element editable is not implemented yet. A screenshot shows the look, but not the layer structure and assignments; checking a specific layout needs the source Figma document.
+
+## Layer names and preparation
+
+Standard names are needed for the first automatic recognition. After saving, a layer can be renamed without changing its ID. Manual assignments with free names remain available. Metadata is saved through `node.setPluginData('exui', JSON)` with the `exui-node/1` schema for earlier assignments or `exui-node/2` for new types/properties.
+
+```text
+Screen Frame                page: profile, project name, key, objectId
+├── Button Frame            button: key, objectId, controlId
+│   ├── State Frame         state: role=normal, stateId=0, stateName=Off
+│   │   ├── Text            caption over the whole state area
+│   │   └── Icon Frame      image: key, file, resourceName (optional)
+│   ├── State Frame         state: role=feedback, stateId=1, stateName=On
+│   └── State Frame         state: role=pressed, stateId=2, stateName=Pressed (optional)
+├── Text                    label: key, objectId, controlId=null
+└── Empty Frame with fill   level: key, objectId, controlId
+```
+
+In the current preview, new button_/btn_ accept Off/On, Passive/Active or Normal/Pressed; feedbackbutton_/fbtn_ accept normal and feedback with an optional pressed. Synonyms are described above. Earlier saved assignments and extra feedback states keep being exported without migration. stateName values and roles can be changed in the form; the layer order does not define them. All screens and projects use `.exui/5`; element types and metadata no longer choose the package version.
+
+- States cover the whole button: `[0,0,width,height]`. Exactly one is visible for the preview; all existing ones are exported. Select the outer button Frame and click **«Показать состояние»** (Show state). Feedback is set by the external control program, pressed means holding; without Pressed, press feedback is off. No AV logic is assigned.
+- Each state has one Text over the whole area: CENTER horizontally, CENTER/BOTTOM vertically. The text, text color, fill and icon are read. The font is the same in all states; the looks differ by text, color or image.
+- Native Label: Arial Regular/Bold, Inter and Inter Display (18 styles), nine alignments. Complex styling, other families and fractional geometry of static text are kept in PNG; the source in Figma stays a Text. [Conditions for editable export](NATIVE_TEXT.md#english).
+- Value and DateTime also support Inter / Inter Display and nine alignments, keeping their content updatable. Figma sets the size in px, the contract in points: **pt = px × 72/96**. The demo uses the reverse conversion. Visual match of native text on the device is not confirmed yet.
+- In the earlier native scheme, the icon is a Frame, PNG 1× Native, centered horizontally; at the top or in the middle vertically. In the composite Group/Frame scheme, the styling of the whole state can be exported to PNG while the button stays a native PBButton with a controlId and states. [Rules for keeping text editable](BUTTON_STATES.md#english).
+- Logo / image: a separate Frame directly in the screen, without states and controlId; the content is exported to PNG 1× and a separate native PBImage. Transparent pixels are supported. Vectors inside the PNG are not editable separately in the GDL; the PBImage position and resource stay editable.
+- Level: an empty Frame with a SOLID fill; PBLevel Slider, left to right, 0..100. In Figma this is a simplified color/geometry representation, not a simulation of the GUI Designer slider.
+- The screen is exactly 1280×800 or 320×480, with no automatic scaling. Native elements have whole coordinates and sizes within the screen. Fractional artwork and static text use a transparent whole-pixel PNG container: the source geometry is not rounded or scaled.
+- 0.3.0 supports component instances with the kit's contract structure; component sets and automatic parsing of Figma variants are not supported. Effects, gradients and arbitrary layers are allowed inside the rasterized Artwork; outside it, the native element limits apply. Pages and popups are exported inside a section or an ordinary project_ Frame.
+
+## IDs, copies and errors
+
+`key`, `objectId` and `controlId` are kept after recognition or set by hand. Moving, renaming, styling, ordering and switching the preview do not reassign them. The layer name becomes the name of the Extron object; the name of a state layer does not change its saved stateName.
+
+The metadata has an `ownerNodeId`: when preparing the export, the plugin recognizes copies and gives them new assignments, including the states and icons of buttons. Originals take precedence even if a copy is moved above them in the layers. Duplicate keys, objectIds within a container and controlIds across the project are fixed in a preliminary plan, then saved together. Sharing an image key is allowed only with identical file/resourceName and PNG bytes. The `exui-id-registry/1` registry is stored separately on the screen, `exui-id-registry/2` on the project, under the `exui-id-registry` key; these are reserve counters, not a full history of assignments. A copied registry is used as the lower bound of the ID reserve. IDs are reserved before nodes are written; an interrupted write may leave gaps. Manual historical IDs and intentional reuse between packages remain the author's responsibility. Links inside a copied project are updated together with their targets; an ambiguous link to an earlier duplicated key keeps the remaining target with that key. Identical page names get different names only in the package; Figma layers are not renamed.
+
+A render error of a required icon stops the export. One key with different PNGs is forbidden. Changing the design during an asynchronous export aborts the operation. Network access is off: `networkAccess.allowedDomains=['none']`. The full structural PNG/CRC check is done by the .NET reader after download; the «Проверить макет» (Check layout) button by itself does not check all PNGs.
+
+## Build and checks from the repository root
+
+Node >=22.18, tested on 24.21.0. Dependency versions are pinned by the lock file:
+
+```powershell
+npm ci --prefix src/figma-plugin --ignore-scripts
+npm run verify --prefix src/figma-plugin
+npm run package --prefix src/figma-plugin
+```
+
+The last command creates a **new** `output/figma-plugin/figma-extron-plugin-0.4.0.zip`. For another name after the build:
+
+```powershell
+node src/figma-plugin/package-plugin.mjs output/figma-plugin/another-name.zip
+```
+
+Check of the real Chromium UI with simulated Figma messages:
+
+```powershell
+& ./src/figma-plugin/node_modules/.bin/playwright.cmd install chromium
+npm run test:browser --prefix src/figma-plugin
+```
+
+Integration with the real .NET CLI after building the solution:
+
+```powershell
+$env:DOTNET_EXE = '<full path to dotnet.exe>'
+$env:EXUI_DONOR_REGISTRY = (Resolve-Path samples/donors.json).Path
+node src/figma-plugin/test/native-integration.ts output/figma-plugin/new-run
+```
+
+The result folder must be new. Creating/reading the document is simulated by a fake Figma API; the exporter/ZIP, CLI, donor and x86 Extron writer are real. Two profiles are checked: the earlier demo, 65/65 and keeping IDs after changes; then a layout with prefixes and two states, `.exui/5`, two states in the GDL and press feedback -1. Logos, Normal/Pressed, all native exui/5 types, states, pages, ordinary/modal popups, groups and links are also checked for both panels. The tests do not run GUI Designer or Build.
+
+## Limits of what is confirmed
+
+A real user export of the 300M demo after the PNG fix was checked: `.exui` → CLI → `.gdl`, 65/65. Texts, geometry, fonts, states and IDs matched the demo; both 64×64 icons are non-empty. [Package and reproduction](../../tests/fixtures/figma-plugin/README.md), [report](../../docs/verification/results/2026-10-19-figma-real-export.md) (in Russian).
+
+A real 1025M export and a repeated export after changing the Value width were confirmed by a separate run on 20 Oct; the link is below. Private metadata after a full Figma restart still needs checking. The next manual step for 300M: open the new GUI copy of the GDL, check states/editing, Verify with actual counts, Save and Build, close/open. Historical GUI checks of other files do not confirm this real export. Hardware operation is not checked.
+
+Version 0.2.0 was checked automatically on the new scenarios. The [1025M volume block](../../docs/verification/results/2026-10-20-volume-gui.md) (in Russian) passed a real GUI Designer/Build/reopen on a synthetic exui/5; the thumb fix needs the updated CLI, the plugin archive did not change. The real 1025M block later passed the Figma/GUI cycle; the other new GUI scenarios and hardware are not checked. [0.2.0 report](../../docs/verification/results/2026-10-20-expanded-controls.md) (in Russian).
+
+Real Figma/GUI cycle of the adapted 1025M block: [report](../../docs/verification/results/2026-10-20-real-figma-1025m.md) (in Russian), exui/5, Verify 0/0, Build/reopen, 74/74 after Build. The CLI fixed PBImage and Value/Label alignment; the full source screen is not checked.

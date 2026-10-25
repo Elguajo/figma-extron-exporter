@@ -1,4 +1,8 @@
+<a id="russian"></a>
+
 # Figma → Extron: таблица префиксов
+
+**Русский** · [English](#english)
 
 21.10.2026 · стандарт 2.3 · плагин **0.3.2 preview** · совместимый CLI **0.3.0**.
 
@@ -105,3 +109,119 @@ Passive / Active, Normal / Active без Pressed и другие поддерж�
 Эта таблица относится к **0.3.1 preview**. Архив 0.2.2 ещё требует строгие Off / On для btn_ и Normal / Active / Pressed для fbtn_. Прежние сохранённые назначения сохраняют свои правила и ID; при удалении назначенного состояния с пропуском ID оставшиеся ID нужно явно согласовать через форму. Новый запуск пользовательского макета в Figma, GUI Designer Verify / Build и оборудование для текущей ревизии требуют отдельной проверки.
 
 Основания: [стандарт 2.2](../src/figma-plugin/AUTHORING_STANDARD.md), [правила распознавания](../src/figma-plugin/src/recognize.ts), [контракт состояний](../src/figma-plugin/src/model.ts), [контракт пакета](exui-v5.md), [проверка изменений](verification/results/2026-10-21-flexible-authoring.md), [комплект 0.3.1](../releases/figma-plugin/Legacy/0.3.1/README.md).
+
+---
+
+<a id="english"></a>
+
+# Figma → Extron: prefix table
+
+[Русский](#russian) · **English**
+
+21 Oct 2026 · standard 2.3 · plugin **0.3.2 preview** · compatible CLI **0.3.0**.
+
+[PDF cheat sheet](prefix_map/figma-extron-prefix-cheatsheet.pdf) (in Russian) · [Detailed preparation rules](../src/figma-plugin/AUTHORING_STANDARD.md) (in Russian) · [Full reference](../src/figma-plugin/PREFIXES.md#english).
+
+The plugin interface is in Russian; its labels are quoted as shown, followed by their English meaning.
+
+## What a prefix is and what it is for
+
+A prefix is the part of a layer name before the first `_`. In `btn_Music`, the prefix `btn_` means a button, and `Music` is its purpose. From the name, the plugin suggests a type, a key and an ID; after the assignments are saved, it exports the element into the `.exui`, and the CLI creates the GUI Designer project.
+
+Short and full prefixes are equivalent, and case does not matter. `btn_Music` and `BUTTON_MUSIC` mean the same type. After the prefix there must be a Latin letter; then Latin letters, digits, dots and hyphens between non-empty parts are allowed. Spaces, extra `_`, a leading/trailing dot and empty parts are forbidden. `button_side.hall` keeps its name and gets the new key `home.side.hall`. The visible text may be in any language.
+
+Prefixes help choose the right element and prepare it for export. Links to devices, AV commands, navigation, selection groups and feedback are connected by the Extron program. The name `button_Music` does not turn on music by itself.
+
+## 1. Screens and structure
+
+| Entity and names | What it is and when to use it | How to prepare it |
+|---|---|---|
+| Project: `prj_Trilliant` / `project_Trilliant` | The whole interface in one export: Home, Settings, popups. | An outer Frame of any size; inside are pages, popups and their groups. |
+| Project section: any name | An organizing container for several screens (plugin 0.3.2+). | Select a section with page/popup Frames → recognize and save the assignments. The section's size and styling are not exported; `project_` is not needed for a section. |
+| Page: `Home`, `scr_Home` / `screen_Home` | A standalone screen such as Home, Hall, Terrace or Settings. | A Frame of the exact panel size: 1025M — 1280×800; 300M portrait — 320×480. Exactly one start page per project. |
+| Popup: `pop_Sources` / `popup_Sources` | An extra area over the main page for choosing a source or settings. | A Frame of its own size inside the project or a group; the page needs a popupref of the same size. |
+| Modal popup: `mdl_Confirm` / `modalpopup_Confirm` | A confirmation such as "Turn the system off?" that needs the user's answer. | A full-screen Frame inside the project, without a group. The links are created by the standard Build. Dimming is done with the Frame's own fill with Fill transparency and the «Экспортировать фон Frame» (Export Frame background) checkbox. |
+| Popup group: `pgrp_Zones` / `popupgroup_Zones` | Show Hall or Terrace in turn in one area. The members are mutually exclusive. | An organizing Frame with ordinary popups of the same size; the wrapper's background and geometry are not exported. |
+| Popup place: `pr_Sources` / `popupref_Sources` | Marks the area of the page where a popup or a group appears. | An empty Frame of the target's size. Automatic target `popup.sources`; the group `group.zones` is set in the form, leaving the popup key empty. |
+
+## 2. Controls and indicators
+
+| Entity and names | What it is and when to use it | How to prepare it / behavior |
+|---|---|---|
+| Button: `btn_Music` / `button_Music` | A command, a choice of source or zone, or Mute, when two looks are enough. | Exactly 2 states: normal + feedback or normal + pressed. For example, Off / On, Passive / Active or Normal / Pressed. |
+| Feedback button: `fbtn_Mute` / `feedbackbutton_Mute` | Shows the device state and, if needed, a separate pressed look. | Normal / Active, Passive / Active or Off / On; Pressed is optional. 2 or 3 existing states are exported. |
+| Volume "+"/"−": `btn_VolumeUp`, `btn_VolumeDown` / `button_VolumeUp`, `button_VolumeDown` | Raise or lower the volume with a look while held. | Normal / Pressed; the designer draws the Pressed color. Step, repeat and commands are implemented by the program. |
+| Mute: `btn_Mute` / `button_Mute` | Shows that muting is on. | Off / On; the stable On comes from feedback. For an extra Pressed look use `fbtn_Mute` with Off / On / Pressed. |
+| Custom Slider: `sld_Volume` / `slider_Volume` | Adjust the volume with a slider that has its own supported track and thumb. | A Frame without background, containing exactly Track, Fill, Thumb. Range and direction are set in the form; default 0–100, left to right. |
+| Simple Level: `lvl_Volume` / `level_Volume` | A simple control without its own Track / Fill / Thumb parts. | An empty Frame with a solid fill; PBLevel in Slider mode. |
+| Gauge: `gau_Signal` / `gauge_Signal` | Shows a signal level or a measured value that the user does not adjust. | An empty Frame with a solid fill; PBLevel Gauge. |
+| Indicator: `ind_Status` / `indicator_Status` | Another prefix for the same numeric Gauge. | Does not create a separate lamp, button or switch. |
+| LED scale: `led_Audio` / `volumeled_Audio` | Shows the audio signal level in segments. | An empty Frame with a fill; PBLevel VolumeLED. Check the actual look on the panel. |
+| Multistate Level: `mlvl_Status` / `multilevel_Status` | Shows discrete states such as "No connection", "Ready", "Error". | A Frame without background with 2–8 states; the first is normal, the others feedback; no Pressed. |
+
+## 3. Text and graphics
+
+| Entity and names | What it is and when to use it | How to prepare it / result |
+|---|---|---|
+| Static text: `txt_Title` / `text_Title` | A permanent Hall title, a "Volume" caption or an explanation. | Text in Arial Regular/Bold, LEFT horizontally and CENTER vertically; PBLabel without a control ID. |
+| Updatable label: `val_VolumeValue` / `value_VolumeValue` | Shows the current "42%", the source or the connection state. | Text with initial text → PBLabel with dynamicText and its own controlId. The program sets updates and formatting. |
+| Date/time: `dt_Clock` / `datetime_Clock` | Shows the panel's current time and date. | The `datetime_Clock` component from the Extron Kit (Format property), the Text sample `September 28, 12:00 AM` or a Text with the `HH:mm` format → PBDateTime. Check the time and time zone on the panel. |
+| Logo: `logo_Company` | A standalone static brand picture. | A Frame with artwork → PNG Native 1× → PBImage without touches or controlId. |
+| Picture: `img_Photo` / `image_Photo` | A photo, illustration, cover or complex static background. | A Frame with artwork → one PNG → a separate PBImage. Internal vectors become pixels. |
+| Icon: `Icon`, `ico_Music` / `icon_Music` | A Music or Mute icon inside a button state / Multistate Level. | A nested Frame → the state PNG; it is not a standalone touch element. |
+| Shape: `shp_Card` / `shape_Card` | An editable card background, plate or frame. | An empty Frame / Rectangle / Ellipse → PBShape: solid fill, a single corner radius, at most one SOLID stroke INSIDE. |
+| Line: `ln_Divider` / `line_Divider` | An editable section divider. | Since 0.3.4, a horizontal/vertical Pen (Vector) / Line with a SOLID Stroke CENTER → PBLine without a PNG. Flat ends; since 0.5.4 the thickness and the painted area are rounded on export. The earlier empty Frame / Rectangle without radius or stroke is also supported. |
+
+### Example: volume in percent
+
+```text
+Home
+  button_VolumeDown       Normal / Pressed, Text "-" in each state
+  slider_Volume          Track / Fill / Thumb
+  value_VolumeValue      separate Text "42%"
+  button_VolumeUp         Normal / Pressed, Text "+" in each state
+  button_Mute             Off / On
+```
+
+The digits "42%" need `value_`, adjustment needs `slider_` / `level_`, and a visual indicator without adjustment needs `gauge_`. These are separate elements with different IDs. The programmer links them, sets the initial value and updates the percent text with `%`. The Thumb position in Figma is only a preview.
+
+## 4. States and saved assignments
+
+For new layouts use these uniform schemes:
+
+| Purpose | States | Prefix |
+|---|---|---|
+| Switching on or selecting | **Off / On** | `button_` / `btn_` |
+| Pressing and holding | **Normal / Pressed** | `button_` / `btn_` |
+| Selecting with a separate pressed look | **Normal / Active / Pressed** | `feedbackbutton_` / `fbtn_` |
+
+Passive / Active, Normal / Active without Pressed and other supported synonyms remain compatible. For ordinary buttons, the styling chooses Off / On or Normal / Pressed. Override converts existing pairs and updates the names and roles of the assignments; button IDs and slots 0/1 in the package are kept. Skip keeps existing pairs. Feedback buttons get Normal / Active; Pressed for a triple is added by hand. [Preparation from Rectangle references](../src/figma-plugin/BUTTON_STATES.md#english).
+
+| State names | Role | When to use |
+|---|---|---|
+| Normal / Off / Passive; also `st_` / `state_` | normal | The initial look. ID 0 in the package / GDL. |
+| On / Active / Feedback; also `st_` / `state_` | feedback | A state set by the program: the selected zone, the active source, Mute on. ID 1 in an ordinary pair. |
+| Pressed; also `st_Pressed` / `state_Pressed` | pressed | The look while held. ID 1 in a Normal / Pressed pair, ID 2 in a normal / feedback / pressed triple. |
+| `st_Ready` / `state_Ready`, `state_Error`, `state_Disabled` | feedback | Extra looks for earlier saved buttons without an explicit type and for Multistate Level. Arbitrary names are not allowed for new btn_ / fbtn_. Disabled does not block touches; the program does that. |
+
+A new btn_ needs normal and exactly one feedback or pressed. An fbtn_ needs normal and feedback; pressed is optional. A role cannot be duplicated: for example, Normal and Passive at the same time. Existing states are exported, including hidden ones; a missing state and its PNG are not created. Exactly one state is visible. Colors, captions and artwork are drawn by the designer.
+
+Saved unique assignments take precedence over names. In plugin 0.3.5, the check and the download fill in keys and free IDs automatically and fix copies and collisions. Renaming a layer keeps its type, key and ID; the form is needed for special settings. The default slider range is 0–100; a custom range is kept. New keys are lowercase; CamelCase does not add hyphens. Identical names get the suffixes `-2`, `-3`; clear distinct names such as `slider_Volume` and `value_VolumeValue` make the ID map easier to read.
+
+## 5. Extron Kit and limits
+
+Take fresh instances from Assets and place them directly in a page / popup. The plugin gives different keys and IDs to identically named instances and ordinary layers. In kit buttons, edit the Label and the artwork inside the existing Artwork slots, keeping their service names. Leave the service Text above the Artwork empty, in Arial, covering the whole button. One existing Artwork look gives one PNG; a button with two looks gives 2 PNGs, with three — 3 PNGs. A missing third look is not added. [Kit details](../src/figma-plugin/EXTRON_KIT.md#english).
+
+The updated **exui/5 has no separate limit on the number of PNGs**. Packages with more than 16 PNGs need **plugin 0.3.1 and CLI 0.3.0**. The remaining limits: a PNG up to 4 MiB and 4096×4096, an unpacked package up to 16 MiB, a ZIP up to 20 MiB, manifest.json up to 64 KiB and screen.json up to 256 KiB. The older exui/1–4 formats keep the limit of 16 PNGs; the old CLI 0.2.1 does not accept large resource sets.
+
+A project: 1–16 pages, up to 32 popups, 16 groups, 256 elements in total; 1–64 elements inside one container. Integer coordinates and sizes, no rotation. Free artwork and effects are fine inside rasterized Artwork / images; the native Slider parts and primitives keep their styling limits.
+
+Video `vid_` / `video_` and the URL-updated picture `dimg_` / `dynamicimage_` are reserved, but cause an export error for the 1025M / 300M profiles. Figma Prototype interactions are not exported. Selection groups, availability, visibility and navigation are passed in the id-map for the control program.
+
+## 6. Export and compatibility
+
+Select the outer Frame of the screen / project and the profile → «Распознать по именам» (Recognize by names) → check the table → «Сохранить распознанные назначения» (Save recognized assignments) → «Проверить экран» (Check screen) → «Скачать .exui» (Download .exui). Then the CLI: `validate-package` → `convert-package` → GUI Designer: open → Verify → Save and Build → reopen. Hand the `id-map` to the programmer and check touches, holds and feedback on the panel.
+
+This table refers to **0.3.1 preview**. The 0.2.2 archive still requires strict Off / On for btn_ and Normal / Active / Pressed for fbtn_. Earlier saved assignments keep their rules and IDs; when an assigned state with a skipped ID is deleted, the remaining IDs must be agreed explicitly in the form. A new run of a user layout in Figma, GUI Designer Verify / Build and hardware need a separate check for the current revision.
+
+Sources: [standard 2.2](../src/figma-plugin/AUTHORING_STANDARD.md) (in Russian), [recognition rules](../src/figma-plugin/src/recognize.ts), [state contract](../src/figma-plugin/src/model.ts), [package contract](exui-v5.md#english), [check of the changes](verification/results/2026-10-21-flexible-authoring.md) (in Russian), [kit 0.3.1](../releases/figma-plugin/Legacy/0.3.1/README.md) (in Russian).

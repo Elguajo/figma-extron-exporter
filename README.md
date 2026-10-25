@@ -1,227 +1,235 @@
 <h1 align="center">Figma → Extron Exporter</h1>
 
+<p align="center"><strong>English</strong> · <a href="README.ru.md">Русский</a></p>
+
 <p align="center">
-  <strong>От макета сенсорной панели — к редактируемому проекту Extron.</strong><br>
-  Кнопки, слайдеры и поддержанные подписи остаются редактируемыми в GUI Designer.
+  <strong>From a touch panel mockup to an editable Extron project.</strong><br>
+  Buttons, sliders and supported labels stay editable in GUI Designer.
 </p>
 
 <p align="center">
-  <a href="#статус-проекта"><img src="https://img.shields.io/badge/status-preview-0066CC?style=flat-square" alt="Статус: preview"></a>
-  <a href="#совместимость"><img src="https://img.shields.io/badge/TLP_Pro-1025M_%2F_300M-555555?style=flat-square" alt="Поддержаны панели TLP Pro 1025M и 300M"></a>
-  <a href="#совместимость"><img src="https://img.shields.io/badge/CLI-Windows-555555?style=flat-square" alt="CLI для Windows"></a>
+  <a href="#project-status"><img src="https://img.shields.io/badge/status-preview-0066CC?style=flat-square" alt="Status: preview"></a>
+  <a href="#compatibility"><img src="https://img.shields.io/badge/TLP_Pro-1025M_%2F_300M-555555?style=flat-square" alt="Supports TLP Pro 1025M and 300M panels"></a>
+  <a href="#compatibility"><img src="https://img.shields.io/badge/CLI-Windows-555555?style=flat-square" alt="CLI for Windows"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Elguajo/figma-extron-exporter/releases"><strong>Скачать preview</strong></a> ·
-  <a href="#быстрый-старт">Быстрый старт</a> ·
-  <a href="#документация">Документация</a> ·
-  <a href="docs/development.md">Разработка</a>
+  <a href="https://github.com/Elguajo/figma-extron-exporter/releases"><strong>Download preview</strong></a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#documentation">Documentation</a> ·
+  <a href="docs/development.md#english">Development</a>
 </p>
 
-![Макет Extron Kit для TLP Pro 1025M: выбор источника и зоны, Mute, слайдер и значение громкости](docs/assets/readme/extron-kit-1025m.png)
+![Extron Kit mockup for TLP Pro 1025M: source and zone selection, Mute, volume slider and value](docs/assets/readme/extron-kit-1025m.png)
 
-<p align="center"><sub>Макет из локального Extron Kit · TLP Pro 1025M · Apple-inspired Light, 24.10.2026.<br>В скачиваемом комплекте — предыдущая версия оформления.</sub></p>
+<p align="center"><sub>Mockup from the local Extron Kit · TLP Pro 1025M · Apple-inspired Light, 24 Oct 2026.<br>The downloadable kit contains the previous design revision.</sub></p>
 
 ---
 
-## Как это работает
+## How it works
 
-Подготовьте экран в Figma, выгрузите пакет `.exui` и преобразуйте его локальным CLI в `.gdl`. Результат открывается в **Extron GUI Designer**: контролы, состояния и поддержанный текст можно редактировать дальше.
+Prepare a screen in Figma, export an `.exui` package and convert it to `.gdl` with the local CLI. The result opens in **Extron GUI Designer**: controls, states and supported text remain editable.
 
 ```text
-Figma  →  плагин  →  .exui  →  CLI  →  .gdl  →  GUI Designer
+Figma  →  plugin  →  .exui  →  CLI  →  .gdl  →  GUI Designer
                                                Verify → Save and Build
 ```
 
-| В Figma | В проекте Extron |
+| In Figma | In the Extron project |
 |---|---|
-| Экран и всплывающие окна (popup) | Страницы, popup и связи между ними |
-| Кнопки и их состояния | Нативные контролы с отдельным оформлением состояний |
-| Слайдеры, значения и подписи | Редактируемые элементы; текст — в пределах [контракта шрифтов](src/figma-plugin/NATIVE_TEXT.md) |
-| Иконки и сложная графика | Ресурсы PNG |
-| Сохранённые назначения | Идентификаторы элементов (ID) и карта для программиста; ID сохраняются при редактировании существующих слоёв |
+| Screen and popups | Pages, popups and the links between them |
+| Buttons and their states | Native controls with separate artwork per state |
+| Sliders, values and labels | Editable elements; text within the [font contract](src/figma-plugin/NATIVE_TEXT.md#english) |
+| Icons and complex artwork | PNG resources |
+| Saved assignments | Element IDs and a map for the programmer; IDs are kept when existing layers are edited |
 
-Макет готовится по правилам имён и структуры. Например, `button_Mute` становится кнопкой, а команду отключения звука и её обратную связь от оборудования (feedback) подключает программист Extron. Взаимодействия из Figma Prototype автоматически не переносятся.
+The mockup follows naming and structure rules. For example, `button_Mute` becomes a button, and the Extron programmer connects the mute command and its feedback from the hardware. Figma Prototype interactions are not transferred automatically.
 
 <details>
-<summary><strong>Посмотреть результат реального экспорта в GUI Designer</strong></summary>
+<summary><strong>See a real export opened in GUI Designer</strong></summary>
 
-![Экран Home с выбором источников и громкостью открыт в GUI Designer после сохранения, сборки и повторного открытия](docs/verification/results/2026-10-21-home-layout-1025m/gui-home-reopened.jpg)
+![The Home screen with source selection and volume opened in GUI Designer after saving, building and reopening](docs/verification/results/2026-10-21-home-layout-1025m/gui-home-reopened.jpg)
 
-Проверка **21.10.2026**, TLP Pro 1025M: 47 элементов, 15 PNG, **Verify: 0 ошибок / 0 предупреждений**, Save and Build и повторное открытие. Это отдельный рабочий макет; [протокол и границы проверки](docs/verification/results/2026-10-21-home-layout-1025m.md).
+Checked on **21 Oct 2026**, TLP Pro 1025M: 47 elements, 15 PNGs, **Verify: 0 errors / 0 warnings**, Save and Build and reopening. This is a separate working mockup; see the [report and limits of the check](docs/verification/results/2026-10-21-home-layout-1025m.md) (in Russian).
 
 </details>
 
-## Совместимость
+## Compatibility
 
-| Что понадобится | Для чего |
+| What you need | What for |
 |---|---|
-| **Figma Desktop** и права редактирования Design-файла | Подготовить и выгрузить свой макет |
-| **TLP Pro 1025M** — 1280 × 800 или **TLP Pro 300M** — портрет 320 × 480 | Выбрать размер экрана и профиль экспорта |
-| **Windows**, [.NET 10 Runtime x64](https://dotnet.microsoft.com/download/dotnet/10.0), **GUI Designer 1.28.0.7** | Преобразовать выгрузку в GDL и открыть результат |
+| **Figma Desktop** and edit access to the Design file | Prepare and export your mockup |
+| **TLP Pro 1025M** — 1280 × 800 or **TLP Pro 300M** — portrait 320 × 480 | Choose the screen size and the export profile |
+| **Windows**, [.NET 10 Runtime x64](https://dotnet.microsoft.com/download/dotnet/10.0), **GUI Designer 1.28.0.7** | Convert the export to GDL and open the result |
 
-Плагин создаёт `.exui` — пакет с описанием элементов и графикой. Отдельный конвертер **CLI** превращает этот пакет в проект `.gdl` для GUI Designer. Подготовку конвертера выполняют один раз по [инструкции настройки CLI](docs/cli-setup.md).
+The plugin creates an `.exui` file — a package that describes the elements and their artwork. A separate **CLI** converter turns this package into a `.gdl` project for GUI Designer. The converter is set up once by following the [CLI setup guide](docs/cli-setup.md#english).
 
-## Быстрый старт
+## Quick start
 
-**Ваш экран в Figma → проверка → скачивание EXUI → конвертация → открытие GDL.**
+**Your screen in Figma → check → download EXUI → convert → open the GDL.**
 
-### 1. Установите и запустите плагин
+### 1. Install and run the plugin
 
-1. Откройте [GitHub Releases](https://github.com/Elguajo/figma-extron-exporter/releases). В разделе **Assets** выбранного выпуска скачайте два архива: `figma-extron-plugin-<версия>.zip` и указанный в этом выпуске совместимый `figma-extron-cli-<версия>-windows.zip`.
-2. Распакуйте каждый архив в отдельную постоянную папку. ZIP-файлы открывать в Figma не нужно.
-3. Откройте свой макет в **Figma Desktop**. Нужен Design-файл, который вы можете редактировать.
-4. В меню Figma выберите **Plugins → Development → Import plugin from manifest…** и укажите `manifest.json` из распакованной папки плагина.
-5. В том же меню выберите **Plugins → Development → «Figma → Extron Exporter»** — последнее название целиком относится к нашему плагину. Появится его окно с выбором профиля панели и кнопками **«Проверить макет» / «Скачать .exui»**.
+1. Open [GitHub Releases](https://github.com/Elguajo/figma-extron-exporter/releases). Under **Assets** of the chosen release, download two archives: `figma-extron-plugin-<version>.zip` and the compatible `figma-extron-cli-<version>-windows.zip` named in that release.
+2. Unpack each archive into its own permanent folder. You do not need to open the ZIP files in Figma.
+3. Open your mockup in **Figma Desktop**. You need a Design file that you can edit.
+4. In the Figma menu choose **Plugins → Development → Import plugin from manifest…** and select `manifest.json` from the unpacked plugin folder.
+5. In the same menu choose **Plugins → Development → "Figma → Extron Exporter"** — the whole last name refers to our plugin. Its window opens with the panel profile selector and the **Проверить макет** (Check layout) / **Скачать .exui** (Download .exui) buttons.
 
-На 24.10.2026 опубликован комплект **0.7.2**. Версия в заголовке окна должна совпадать с версией скачанного плагина. При обновлении сохраняйте `id` в `manifest.json`: к нему привязаны назначения элементов в вашем файле Figma.
+The plugin interface is in Russian. This guide shows each label exactly as it appears, followed by its English meaning.
 
-### 2. Подготовьте один экран своего дизайна
+As of 24 Oct 2026, kit **0.7.2** is published. The version in the window title must match the version of the plugin you downloaded. When updating, keep the `id` in `manifest.json`: element assignments in your Figma file are tied to it.
 
-Начните с одного экрана. В панели **Layers** выберите его внешний **Frame**, задайте размер выбранной панели и назовите `screen_Home`. Экспорт не подгоняет размер автоматически: для 1025M нужны **1280 × 800**, для 300M — **320 × 480**.
+### 2. Prepare one screen of your design
 
-Назовите элементы внутри экрана так, чтобы плагин понимал их назначение:
+Start with one screen. In the **Layers** panel select its outer **Frame**, set the size of your panel and name it `screen_Home`. Export does not resize anything: 1025M needs **1280 × 800**, 300M needs **320 × 480**.
 
-| Элемент вашего дизайна | Имя слоя в Figma | Что получится |
+Name the elements inside the screen so that the plugin understands their purpose:
+
+| Element of your design | Layer name in Figma | Result |
 |---|---|---|
-| Кнопка Mute | `button_Mute` | Кнопка Extron с двумя состояниями |
-| Обычная подпись | `text_Title` | Статичная подпись |
-| Изменяемое значение громкости | `value_Volume` | Подпись со своим ID для обновления программой |
-| Картинка или логотип в отдельном Frame | `image_Background` / `logo_Company` | Изображение PNG |
+| Mute button | `button_Mute` | Extron button with two states |
+| Plain label | `text_Title` | Static label |
+| Changing volume value | `value_Volume` | Label with its own ID that the program updates |
+| Picture or logo in its own Frame | `image_Background` / `logo_Company` | PNG image |
 
-Размещайте эти элементы **непосредственно внутри Frame экрана**. После префикса (`button_`, `text_` и т. п.) начинайте имя с латинской буквы; дальше допустимы латиница, цифры, точки и дефисы между непустыми частями. Пробелы и дополнительные `_` не допускаются; видимый текст может быть русским.
+Place these elements **directly inside the screen Frame**. After the prefix (`button_`, `text_` and so on), start the name with a Latin letter; then Latin letters, digits, dots and hyphens between non-empty parts are allowed. Spaces and extra `_` are not allowed; the visible text may be in any language.
 
-Для редактируемых надписей используйте **Inter / Inter Display** или **Arial Regular / Bold**. Другие шрифты и сложное оформление статичного текста могут стать картинкой; для обновляемых значений действуют [правила нативного текста](src/figma-plugin/NATIVE_TEXT.md).
+For editable labels use **Inter / Inter Display** or **Arial Regular / Bold**. Other fonts and complex styling of static text may become a picture; values that change follow the [native text rules](src/figma-plugin/NATIVE_TEXT.md#english).
 
-**Для кнопки нужны два вида.** Внутри Group или Frame `button_Mute` разместите две Group или Frame одинакового размера, на всю кнопку: `Off` — обычный вид, `On` — включённый. Внутри каждого состояния оставьте его фон, иконку и текст; расположите состояния друг над другом, одно скройте. У внешнего Frame `button_Mute` уберите заливку: оформление находится внутри состояний. Для кнопок удержания, например «+» и «−», используйте имена `Normal` / `Pressed`.
+**A button needs two looks.** Inside the Group or Frame `button_Mute`, place two Groups or Frames of the same size covering the whole button: `Off` — the normal look, `On` — the active look. Keep the background, icon and text of each state inside it; stack the states on top of each other and hide one. Remove the fill from the outer `button_Mute` Frame: the artwork lives inside the states. For hold buttons such as "+" and "−", use the names `Normal` / `Pressed`.
 
-Готовую кнопку или слайдер можно взять из **«Библиотека компонентов» → «Создать Extron Kit»** в окне плагина. Перенесите экземпляр из **Assets** в свой экран и измените оформление, сохраняя структуру. Собственные слайдеры и более сложные кнопки подготовьте по [правилам компонентов](src/figma-plugin/AUTHORING_STANDARD.md) и [инструкции состояний](src/figma-plugin/BUTTON_STATES.md).
+You can take a ready-made button or slider from **Библиотека компонентов → Создать Extron Kit** (Component library → Create Extron Kit) in the plugin window. Drag an instance from **Assets** into your screen and change the artwork while keeping the structure. Prepare your own sliders and more complex buttons by the [component rules](src/figma-plugin/AUTHORING_STANDARD.md) (in Russian) and the [button states guide](src/figma-plugin/BUTTON_STATES.md#english).
 
 <details>
-<summary>Пример структуры готовой кнопки в Layers</summary>
+<summary>Example layer structure of a finished button</summary>
 
 ```text
 screen_Home
 ├── button_Mute
-│   ├── Off                     обычный вид: фон + иконка + текст
-│   └── On                      включённый вид: фон + иконка + текст
+│   ├── Off                     normal look: background + icon + text
+│   └── On                      active look: background + icon + text
 ├── text_Title
 └── value_Volume
 ```
 
-Полная таблица имён: [справочник префиксов](src/figma-plugin/PREFIXES.md). Несколько экранов, popup и переходы: [стандарт макета](src/figma-plugin/AUTHORING_STANDARD.md).
+Full list of names: [prefix reference](src/figma-plugin/PREFIXES.md#english). Several screens, popups and navigation: [layout standard](src/figma-plugin/AUTHORING_STANDARD.md) (in Russian).
 
 </details>
 
-### 3. Проверьте экран и скачайте EXUI
+### 3. Check the screen and download the EXUI
 
-1. В **Layers** выделите именно внешний Frame `screen_Home`, чтобы в экспорт вошёл весь экран.
-2. В окне плагина установите **«Что экспортировать» → «Выбранный экран или секция»**.
-3. В **«Профиль панели»** выберите свою модель: TLP Pro 1025M или TLP Pro 300M.
-4. Внизу окна нажмите **«Проверить макет»**. При успехе появится сообщение о проверенном макете и числе элементов. ID назначаются автоматически; вручную заполнять их для первого экспорта не нужно.
-5. Если показана ошибка, нажмите **«Показать слой»** в отчёте, исправьте указанную причину и повторите проверку.
-6. Нажмите **«Скачать .exui»**. Найдите скачанный файл, обычно в папке **«Загрузки»**. Его имя зависит от профиля, например `interface-tlp-pro-1025m.exui`.
+1. In **Layers**, select the outer `screen_Home` Frame itself so that the whole screen is exported.
+2. In the plugin window set **Что экспортировать → Выбранный экран или секция** (What to export → Selected screen or section).
+3. In **Профиль панели** (Panel profile), choose your model: TLP Pro 1025M or TLP Pro 300M.
+4. At the bottom of the window click **Проверить макет** (Check layout). On success, a message reports the checked layout and the number of elements. IDs are assigned automatically; you do not need to fill them in for the first export.
+5. If an error is shown, click **Показать слой** (Show layer) in the report, fix the reported cause and check again.
+6. Click **Скачать .exui** (Download .exui). Find the downloaded file, usually in your **Downloads** folder. Its name depends on the profile, for example `interface-tlp-pro-1025m.exui`.
 
 <details>
-<summary><strong>Где находятся профиль панели, проверка и скачивание</strong></summary>
+<summary><strong>Where to find the panel profile, the check and the download</strong></summary>
 
-<img src="docs/assets/readme/plugin-export.png" width="420" alt="Окно плагина 0.7.3: выбор области и профиля панели сверху, кнопки Проверить макет и Скачать .exui внизу, сообщение Пакет готов после экспорта">
+<img src="docs/assets/readme/plugin-export.png" width="420" alt="Plugin 0.7.3 window: scope and panel profile at the top, Проверить макет (Check layout) and Скачать .exui (Download .exui) buttons at the bottom, a Package ready message after export">
 
-Верхняя часть окна задаёт область и модель панели, нижняя — проверяет и скачивает пакет. На снимке показан интерфейс 0.7.3; имя макета и число элементов у вас будут другими.
+The top of the window sets the scope and the panel model, the bottom checks and downloads the package. The screenshot shows the 0.7.3 interface in Russian; your layout name and element count will differ.
 
 </details>
 
-**Теперь у вас есть EXUI вашего дизайна.** Это промежуточный пакет; следующий шаг создаст файл, который открывается в GUI Designer.
+**You now have an EXUI of your design.** It is an intermediate package; the next step creates a file that opens in GUI Designer.
 
-### 4. Преобразуйте свой EXUI в GDL
+### 4. Convert your EXUI to GDL
 
-Для первого запуска выполните [разовую настройку конвертера](docs/cli-setup.md), включая необходимые файлы Extron. В дальнейшем достаточно выгрузить новый EXUI и повторить команды ниже.
+For the first run, complete the [one-time converter setup](docs/cli-setup.md#english), including the required Extron files. After that, export a new EXUI and repeat the commands below.
 
-1. Откройте распакованную папку CLI — в ней находится `ExtronExporter.ps1`.
-2. Скопируйте в эту папку скачанный `.exui`. Для команд ниже назовите эту копию **`interface.exui`**.
-3. В адресной строке **Проводника** введите `powershell` и нажмите Enter. PowerShell откроется в папке CLI.
-4. Сначала проверьте пакет, затем создайте новый GDL:
+1. Open the unpacked CLI folder — it contains `ExtronExporter.ps1`.
+2. Copy the downloaded `.exui` into this folder. For the commands below, name the copy **`interface.exui`**.
+3. Type `powershell` in the **File Explorer** address bar and press Enter. PowerShell opens in the CLI folder.
+4. First validate the package, then create a new GDL:
 
 ```powershell
 .\ExtronExporter.ps1 validate-package .\interface.exui
 .\ExtronExporter.ps1 convert-package .\interface.exui .\interface-v1.gdl
 ```
 
-Первая команда выведет сведения о вашем макете; число элементов зависит от дизайна. После второй команды в той же папке появятся **`interface-v1.gdl`** и **`interface-v1.gdl.report.json`** — проект и отчёт его независимой проверки.
+The first command prints information about your layout; the number of elements depends on the design. After the second command, **`interface-v1.gdl`** and **`interface-v1.gdl.report.json`** appear in the same folder — the project and the report of its independent check.
 
-### 5. Откройте и проверьте результат
+### 5. Open and check the result
 
-В **GUI Designer** выберите **File → Open** и откройте `interface-v1.gdl`. Проверьте профиль панели, расположение элементов, подписи и состояния кнопок. Выполните **Verify → Save and Build**, затем закройте и снова откройте проект.
+In **GUI Designer**, choose **File → Open** and open `interface-v1.gdl`. Check the panel profile, element positions, labels and button states. Run **Verify → Save and Build**, then close and reopen the project.
 
-Для передачи программисту создайте карту ID из того же EXUI:
+To hand over to the programmer, create an ID map from the same EXUI:
 
 ```powershell
 .\ExtronExporter.ps1 id-map .\interface.exui | Out-File -Encoding utf8 id-map.md
 ```
 
-Передайте **GDL и `id-map.md`** — карту страниц, popup, ID и состояний. Команды оборудования и feedback программист подключает в программе управления Extron.
+Hand over the **GDL and `id-map.md`** — the map of pages, popups, IDs and states. The programmer connects hardware commands and feedback in the Extron control program.
 
 ## Extron Kit
 
-Готовые компоненты, состояния кнопок, шаблоны страниц и popup, примеры для обеих панелей. Оформление можно менять в Figma, сохраняя служебные имена и структуру.
+Ready-made components, button states, page and popup templates, and examples for both panels. You can change the artwork in Figma while keeping the service names and structure.
 
-<img src="docs/assets/readme/extron-kit-300m.png" width="240" alt="Портретный макет Extron Kit для TLP Pro 300M: источник Music, Mute и управление громкостью">
+<img src="docs/assets/readme/extron-kit-300m.png" width="240" alt="Portrait Extron Kit mockup for TLP Pro 300M: Music source, Mute and volume control">
 
-**Apple-inspired Light · 24.10.2026** — оформление библиотеки в текущих исходниках. Скачиваемый комплект 0.7.2 содержит предыдущую версию оформления; показанные здесь светлые примеры доступны при [сборке из исходников](#сборка-и-проверки). Новый комплект создаётся рядом с существующим; готовые библиотеки автоматически не обновляются.
+**Apple-inspired Light · 24 Oct 2026** — the library design in the current sources. The downloadable kit 0.7.2 contains the previous design revision; the light examples shown here are available when [building from source](#build-and-checks). A new kit is created next to the existing one; existing libraries are not updated automatically.
 
-[Работа с Extron Kit](src/figma-plugin/EXTRON_KIT.md) · [Исходники и превью](docs/design/extron-kit/README.md)
+[Working with Extron Kit](src/figma-plugin/EXTRON_KIT.md#english) · [Sources and previews](docs/design/extron-kit/README.md) (in Russian)
 
-## Повторный экспорт
+## Exporting again
 
-После первого успешного экспорта сохраните копию `interface.exui` как **`interface-v1.exui`**. Отредактируйте свой экран в Figma, снова выберите его внешний Frame, нажмите **«Проверить макет» → «Скачать .exui»**. Скопируйте новую выгрузку в папку CLI под именем **`interface-v2.exui`**.
+After the first successful export, save a copy of `interface.exui` as **`interface-v1.exui`**. Edit your screen in Figma, select its outer Frame again and click **Проверить макет → Скачать .exui** (Check layout → Download .exui). Copy the new export into the CLI folder as **`interface-v2.exui`**.
 
-Сравните версии и создайте новый GDL:
+Compare the versions and create a new GDL:
 
 ```powershell
 .\ExtronExporter.ps1 compare-packages .\interface-v1.exui .\interface-v2.exui
 .\ExtronExporter.ps1 convert-package .\interface-v2.exui .\interface-v2.gdl
 ```
 
-Сравнение покажет новые и удалённые элементы, изменения ID, типов, состояний и связей. ID существующих редактируемых слоёв сохраняются; новые и скопированные элементы получают собственные ID.
+The comparison shows new and removed elements and changes of IDs, types, states and links. Existing editable layers keep their IDs; new and copied elements get their own IDs.
 
-**Каждая конвертация создаёт новый GDL.** Существующий файл не перезаписывается, а ручные правки прежнего GDL в новый не переносятся. Откройте новый `interface-v2.gdl` и повторите проверку в GUI Designer.
+**Every conversion creates a new GDL.** An existing file is never overwritten, and manual edits of the previous GDL are not carried into the new one. Open the new `interface-v2.gdl` and check it again in GUI Designer.
 
-Если логика управления уже настроена в **Global Configurator (GCP)**, обновляйте копию рабочего проекта через **Layout Reconciliation** — сопоставление изменённого интерфейса с прежней конфигурацией. Для тестовой пары 1025M подтверждены сохранение действия/feedback и повторное открытие; [инструкция и границы проверки](docs/updating-configured-projects.md).
+If the control logic is already configured in **Global Configurator (GCP)**, update a copy of the working project with **Layout Reconciliation** — matching the changed interface against the existing configuration. For the 1025M test pair, keeping actions/feedback and reopening are confirmed; see the [guide and limits of the check](docs/updating-configured-projects.md#english).
 
-## Если что-то пошло не так
+## Troubleshooting
 
-| Сообщение | Что делать |
+| Message | What to do |
 |---|---|
-| `donor-missing` / `donor-hash` | Завершить [разовую настройку конвертера](docs/cli-setup.md#необходимые-файлы-extron) |
-| `extron-version` | Нужен GUI Designer 1.28.0.7; другой путь установки задаётся через `--extron-dir <папка>` |
-| `output-exists` | Указать новое имя выходного GDL |
-| Скачан EXUI, но GUI Designer его не открывает | Сначала [преобразовать пакет в GDL](#4-преобразуйте-свой-exui-в-gdl); в GUI Designer открыть полученный `.gdl` |
-| CLI не находит `interface.exui` | Скопировать свой скачанный EXUI в папку с `ExtronExporter.ps1`, назвать копию `interface.exui` и открыть PowerShell именно в этой папке |
-| Пакет EXUI/1–4 отклонён | Повторно экспортировать макет текущим плагином; сохранённые назначения и ID используются снова |
-| Ошибка имени или структуры слоя | Исправить указанный слой через отчёт плагина и повторить проверку |
+| `donor-missing` / `donor-hash` | Complete the [one-time converter setup](docs/cli-setup.md#required-extron-files) |
+| `extron-version` | GUI Designer 1.28.0.7 is required; set another install path with `--extron-dir <folder>` |
+| `output-exists` | Choose a new name for the output GDL |
+| The EXUI downloaded, but GUI Designer does not open it | First [convert the package to GDL](#4-convert-your-exui-to-gdl); open the resulting `.gdl` in GUI Designer |
+| The CLI cannot find `interface.exui` | Copy your downloaded EXUI into the folder with `ExtronExporter.ps1`, name the copy `interface.exui` and open PowerShell in exactly that folder |
+| An EXUI/1–4 package is refused | Export the layout again with the current plugin; saved assignments and IDs are reused |
+| A layer name or structure error | Fix the reported layer from the plugin report and check again |
 
-Коды выхода CLI: **0** — успех, **1** — ошибка обработки, **2** — неверные аргументы. [Все команды и опции](docs/development.md#команды-cli).
+CLI exit codes: **0** — success, **1** — processing error, **2** — invalid arguments. [All commands and options](docs/development.md#cli-commands).
 
-## Документация
+## Documentation
 
-| Задача | Руководство |
+Each guide is one file with the Russian text first and the English text below; the links here open the English part. Design notes, research, reports and release notes are in Russian.
+
+| Task | Guide |
 |---|---|
-| Настроить конвертер или проверить комплектный пример | [Настройка CLI](docs/cli-setup.md) |
-| Подготовить макет | [Стандарт авторинга](src/figma-plugin/AUTHORING_STANDARD.md) |
-| Назвать элементы | [Справочник префиксов](src/figma-plugin/PREFIXES.md) · [PDF-шпаргалка](docs/prefix_map/figma-extron-prefix-cheatsheet.pdf) |
-| Оформить кнопки и состояния | [Button States](src/figma-plugin/BUTTON_STATES.md) |
-| Сохранить редактируемый текст | [Шрифты и нативный текст](src/figma-plugin/NATIVE_TEXT.md) |
-| Использовать библиотеку | [Extron Kit](src/figma-plugin/EXTRON_KIT.md) |
-| Обновить настроенный GCP | [Обновление проектов](docs/updating-configured-projects.md) |
-| Разобраться в формате и архитектуре | [EXUI/5](docs/exui-v5.md) · [Формат GDL](docs/extron-format.md) · [Решения](docs/decisions.md) |
-| Проверить результат | [Чек-лист](docs/verification/checklist.md) · [Проверки 0.8.3](docs/verification/results/2026-10-25-release-0.8.3.md) |
-| Посмотреть изменения и планы | [CHANGELOG](CHANGELOG.md) · [ROADMAP](ROADMAP.md) |
+| Set up the converter or check the bundled example | [CLI setup](docs/cli-setup.md#english) |
+| Prepare a layout | [Authoring standard](src/figma-plugin/AUTHORING_STANDARD.md) (in Russian) |
+| Name elements | [Prefix reference](src/figma-plugin/PREFIXES.md#english) · [Prefix rules in detail](docs/figma-prefix-reference.md#english) · [PDF cheat sheet](docs/prefix_map/figma-extron-prefix-cheatsheet.pdf) |
+| Design buttons and states | [Button states](src/figma-plugin/BUTTON_STATES.md#english) |
+| Keep text editable | [Fonts and native text](src/figma-plugin/NATIVE_TEXT.md#english) |
+| Use the library | [Extron Kit](src/figma-plugin/EXTRON_KIT.md#english) |
+| Plugin reference | [Plugin guide](src/figma-plugin/README.md#english) |
+| Update a configured GCP project | [Updating projects](docs/updating-configured-projects.md#english) |
+| Support new Extron versions | [Extron compatibility](docs/extron-compatibility.md#english) |
+| Understand the format and architecture | [EXUI/5](docs/exui-v5.md#english) · [GDL format](docs/extron-format.md) (in Russian) · [Decisions](docs/decisions.md) (in Russian) |
+| Check the result | [Checklist](docs/verification/checklist.md#english) · [0.8.3 checks](docs/verification/results/2026-10-25-release-0.8.3.md) (in Russian) |
+| See changes and plans | [CHANGELOG](CHANGELOG.md) · [ROADMAP](ROADMAP.md) (in Russian) |
 
-## Сборка и проверки
+## Build and checks
 
-Этот раздел — для работы с исходниками. При установке из готового архива Node.js и .NET SDK не нужны. Текущие исходники: **плагин 0.8.3 + CLI 0.8.3**, EXUI/5.
+This section is for working with the sources. Installing from the ready archives does not need Node.js or the .NET SDK. Current sources: **plugin 0.8.3 + CLI 0.8.3**, EXUI/5.
 
-Для разработки нужны **.NET SDK 10.0.402** и **Node.js ≥ 22.18**. Из корня репозитория:
+Development needs **.NET SDK 10.0.402** and **Node.js ≥ 22.18**. From the repository root:
 
 ```powershell
 dotnet build ExtronExporter.slnx
@@ -229,14 +237,18 @@ npm ci --prefix src/figma-plugin --ignore-scripts
 npm run verify --prefix src/figma-plugin
 ```
 
-`verify` проверяет типы, запускает тесты плагина и собирает `src/figma-plugin/dist/`. Импортируйте `src/figma-plugin/manifest.json` в Figma Desktop.
+`verify` type-checks, runs the plugin tests and builds `src/figma-plugin/dist/`. Import `src/figma-plugin/manifest.json` into Figma Desktop.
 
-[Архитектура, тесты .NET, команды CLI и выпуск](docs/development.md)
+[Architecture, .NET tests, CLI commands and releases](docs/development.md#english)
 
-## Статус проекта
+## Project status
 
-**Preview.** Подтверждён реальный цикл Figma → EXUI → GDL → GUI Designer Verify → Save and Build → повторное открытие для [Home 1025M](docs/verification/results/2026-10-21-home-layout-1025m.md). Для обеих панелей есть автоматические сценарии; [выпуск 0.7.3](docs/verification/results/2026-10-23-release-0.7.3.md) проверен из итоговых архивов с реальной конвертацией и независимым чтением GDL. Новый ручной Desktop-прогон для этого выпуска не выполнялся.
+**Preview.** The full Figma → EXUI → GDL → GUI Designer Verify → Save and Build → reopen cycle is confirmed for [Home 1025M](docs/verification/results/2026-10-21-home-layout-1025m.md). Both panels have automated scenarios; [release 0.7.3](docs/verification/results/2026-10-23-release-0.7.3.md) was checked from the final archives with a real conversion and an independent GDL reader. A new manual Desktop run was not done for this release.
 
-Работа на физической панели, касания, удержания и аппаратный feedback пока не проверены. Каждый новый проект требует своей проверки в GUI Designer и на оборудовании.
+Work on a physical panel, touches, holds and hardware feedback are not verified yet. Every new project needs its own check in GUI Designer and on the hardware.
 
-Оформление и части экспорта плагина адаптированы из **Baolv/figma-export** по разрешению; сведения о происхождении кода и лицензиях зависимостей — в [THIRD_PARTY_NOTICES.md](src/figma-plugin/THIRD_PARTY_NOTICES.md).
+The plugin's styling and parts of its export are adapted from **Baolv/figma-export** with permission; code origin and dependency licenses are in [THIRD_PARTY_NOTICES.md](src/figma-plugin/THIRD_PARTY_NOTICES.md).
+
+## License
+
+© 2026 Khusan Turaev, all rights reserved. The code is open for reading, and unmodified releases may be used freely. Changing, copying or distributing the code requires the author's written permission — ask for it through an issue in this repository. See [LICENSE](LICENSE) for details.

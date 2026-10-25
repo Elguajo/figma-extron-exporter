@@ -1,6 +1,10 @@
+<a id="russian"></a>
+
 # Настройка конвертера EXUI → GDL
 
-Эта подготовка нужна один раз на компьютере, где вы создаёте GDL. Подготовка своего дизайна и экспорт из Figma описаны в [быстром старте](../README.md#быстрый-старт).
+**Русский** · [English](#english)
+
+Эта подготовка нужна один раз на компьютере, где вы создаёте GDL. Подготовка своего дизайна и экспорт из Figma описаны в [быстром старте](../README.ru.md#быстрый-старт).
 
 ## Установка
 
@@ -54,4 +58,68 @@ CLI сверяет SHA-256 исходного и подготовленного 
 
 Появятся `home.gdl` и `home.gdl.report.json`. Проверьте результат в GUI Designer: **Verify → Save and Build → закрыть и открыть снова**.
 
-[Вернуться к конвертации своего дизайна](../README.md#4-преобразуйте-свой-exui-в-gdl)
+[Вернуться к конвертации своего дизайна](../README.ru.md#4-преобразуйте-свой-exui-в-gdl)
+
+---
+
+<a id="english"></a>
+
+# EXUI → GDL converter setup
+
+[Русский](#russian) · **English**
+
+You do this once on the computer where you create GDL files. Preparing your design and exporting from Figma are covered in the [quick start](../README.md#quick-start).
+
+## Installation
+
+1. Download the `figma-extron-cli-<version>-windows.zip` archive that matches your plugin from the chosen [release](https://github.com/Elguajo/figma-extron-exporter/releases).
+2. Unpack it into its own permanent folder. Its root must contain `ExtronExporter.ps1`, next to the `cli`, `samples` and `examples` folders.
+3. Install the [.NET 10 Runtime x64](https://dotnet.microsoft.com/download/dotnet/10.0). The ready-made CLI does not need the SDK.
+4. To create GDL files, install **Extron GUI Designer 1.28.0.7** and prepare the required files below. The Extron DLLs are loaded from the installed GUI Designer; they are not included in the CLI archive.
+
+## Required Extron files
+
+The converter creates objects from a reference project, the **donor GDL**. It provides the internal structure of Extron objects; the artwork and positions of elements come from your EXUI. Converting your own design still needs this technical file.
+
+Donors are **not part of the public archive**. If you already have a verified donor, put the file for your panel into the CLI folder:
+
+| Panel | Path relative to the CLI folder |
+|---|---|
+| TLP Pro 1025M | `samples/donors/tlp-pro-1025m.gdl` |
+| TLP Pro 300M, portrait | `samples/donors/tlp-pro-300m-portrait.gdl` |
+
+If you have no ready donor but have the source **`Full-Test-Project.gdl`** that matches the [registry](../samples/donors.json), put it into `samples/original/`. Open this CLI folder in File Explorer, type `powershell` in the address bar and press Enter. Run **one** command for your panel:
+
+```powershell
+.\ExtronExporter.ps1 prepare-donor tlp-pro-1025m
+```
+
+For TLP Pro 300M:
+
+```powershell
+.\ExtronExporter.ps1 prepare-donor tlp-pro-300m-portrait
+```
+
+The CLI checks the SHA-256 of the source and of the prepared GDL against `samples/donors.json`. An arbitrary file created in GUI Designer does not replace a pinned donor. If you have neither of these files, the converter setup is not finished yet: EXUI validation, the ID map and package comparison work, but creating a GDL needs a suitable donor. The project does not provide a public link to obtain one.
+
+For another GUI Designer location use `--extron-dir <folder>`, for your own registry `--registry <donors.json>`. [All commands and options](development.md#cli-commands).
+
+## Optional check with the bundled example
+
+This step checks the installed CLI and does not need a Figma layout, GUI Designer or a donor. In PowerShell in the CLI folder, run:
+
+```powershell
+.\ExtronExporter.ps1 validate-package .\examples\home-1025m\home.exui
+```
+
+Expected JSON: `contract: "exui/5"`, profile **TLP Pro 1025M**, **47 elements**, **15 resources**.
+
+With GUI Designer and a donor set up, you can also create the example GDL:
+
+```powershell
+.\ExtronExporter.ps1 convert-package .\examples\home-1025m\home.exui .\home.gdl
+```
+
+`home.gdl` and `home.gdl.report.json` appear. Check the result in GUI Designer: **Verify → Save and Build → close and open again**.
+
+[Back to converting your design](../README.md#4-convert-your-exui-to-gdl)
