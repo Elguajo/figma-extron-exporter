@@ -4,11 +4,15 @@
 
 **Русский** · [English](#english)
 
-Версия справочника 2.4, плагин 0.5.2 preview. Регистр букв не важен: `btn_volumeup`, `btn_VolumeUp` и `BUTTON_VOLUMEUP` равнозначны. Короткий и полный префиксы дают один и тот же тип элемента. Сохранённые назначения имеют приоритет над новым именем. Старый архив 0.2.2 ещё требует Off / On либо Normal / Active / Pressed.
+Актуализация 25.10.2026: плагин 0.8.4 preview, CLI 0.8.3, EXUI/5. Регистр букв не важен: `btn_volumeup`, `btn_VolumeUp` и `BUTTON_VOLUMEUP` равнозначны. Короткий и полный префиксы дают один и тот же тип элемента. Сохранённые назначения имеют приоритет над новым именем. Старый архив 0.2.2 ещё требует Off / On либо Normal / Active / Pressed.
 
-Кнопки и состояния могут быть Group или Frame. Для готового дизайна: задать обычный/активный образцы → выбрать экран → «Оформление кнопок → Применить оформление». button_/btn_ создаёт Off/On, feedbackbutton_/fbtn_ — Normal/Active; фон готовых состояний обновляется тем же действием только после явного выбора обновления вместо пропуска. Третье состояние добавляется вручную. [Полная инструкция](BUTTON_STATES.md). Описанная ниже строгая схема Text + Frame-иконка остаётся вариантом нативного текста; составное оформление групп поддерживает произвольную графику через PNG.
+Кнопки и состояния могут быть Group или Frame. Для готового дизайна: задать обычный/активный образцы → выбрать экран → «Оформление кнопок → Применить оформление». Для button_/btn_ выберите Off/On либо Normal/Pressed, feedbackbutton_/fbtn_ создаёт Normal/Active; фон готовых состояний обновляется тем же действием только после явного выбора обновления вместо пропуска. Третье состояние добавляется вручную. [Полная инструкция](BUTTON_STATES.md). Описанная ниже строгая схема Text + Frame-иконка остаётся вариантом нативного текста; составное оформление групп поддерживает произвольную графику через PNG.
 
 [Таблица «что это и для чего использовать»](../../docs/figma-prefix-reference.md) · [Шпаргалка в PDF](../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf).
+
+## Текст с иконкой
+
+Для новых кнопок: **нативный текст по центру всей кнопки, иконка слева или справа в Artwork**. Примените «Текст кнопок для GCP» > «По центру». Оставьте симметричный резерв с обеих сторон под самое длинное значение Text Feedback. icon_ входит в PNG состояния и не получает controlId. Текущий плагин экспортирует для текста Button центр / низ по центру; GUI Designer имеет девять сочетаний. [Подробности и ограничения](NATIVE_TEXT.md).
 
 ## Элементы экрана
 
@@ -16,7 +20,7 @@
 |---|---|---|---|
 | Проект целиком | `prj_Trilliant` | `project_Trilliant` | Секция с любым именем либо внешний Frame с этим префиксом. Внутри — Frame страниц, popup и групп popup. Размер контейнера произвольный. |
 | Экран | `Home` или `scr_Home` | `screen_Home` | Внешний Frame 1280×800 или 320×480. Отдельный экран либо страница внутри проекта. |
-| Обычная кнопка | `btn_Music` | `button_Music` | Group или Frame → PBButton. Для нового макета: **Off / On** — включение или выбор, **Normal / Pressed** — нажатие и удержание. Команда создания по эталонам добавляет Off / On. Passive / Active также поддерживается. |
+| Обычная кнопка | `btn_Music` | `button_Music` | Group или Frame → PBButton. Для нового макета: **Off / On** — включение или выбор, **Normal / Pressed** — нажатие и удержание. В оформлении выбирается Off / On либо Normal / Pressed. Passive / Active также поддерживается. |
 | Кнопка с feedback | `fbtn_Music` | `feedbackbutton_Music` | Для нового макета: **Normal / Active / Pressed** — выбор с отдельным видом нажатия. По эталонам создаётся Normal / Active, Pressed добавить вручную. Normal / Active без Pressed и прежние синонимы остаются совместимыми. |
 | Увеличить громкость | `btn_VolumeUp` | `button_VolumeUp` | Кнопка «+»: Normal / Pressed. Для трёх состояний — `fbtn_VolumeUp`. |
 | Уменьшить громкость | `btn_VolumeDown` | `button_VolumeDown` | Кнопка «−»: Normal / Pressed. Для трёх состояний — `fbtn_VolumeDown`. |
@@ -91,7 +95,7 @@ Home
 
 Новые ключи формируются из контекста экрана и имени в нижнем регистре: `Home` + `button_VolumeUp` → `home.volumeup`. CamelCase не добавляет дефисы. В 0.3.5 `btn_volumeup` рядом с `button_VolumeUp` получает отдельный свободный ключ и ID. Старые уникальные ключи, в том числе `home.volume-up`, и ID не заменяются.
 
-Простое переименование уже назначенного слоя не меняет его сохранённый смысл. Для смены назначения использовать ручную форму. Копии уже назначенных узлов и совпадения получают свободные назначения автоматически при проверке/экспорте. Одинаковые имена слоёв разрешены, если сохранены поддержанные префиксы и структура.
+Переименование обновляет автоматический смысловой ключ, сохраняя числовые ID. Для смены типа или поведения используйте ручную форму и сверку с AV-программой. Копии уже назначенных узлов и совпадения получают свободные назначения автоматически при проверке/экспорте. Одинаковые имена слоёв разрешены, если сохранены поддержанные префиксы и структура.
 
 ## Логотипы и картинки
 
@@ -173,13 +177,17 @@ project_Trilliant
 
 [Русский](#russian) · **English**
 
-Reference version 2.4, plugin 0.5.2 preview. Case does not matter: `btn_volumeup`, `btn_VolumeUp` and `BUTTON_VOLUMEUP` are equivalent. The short and the full prefix give the same element type. Saved assignments take precedence over a new name. The old 0.2.2 archive still requires Off / On or Normal / Active / Pressed.
+Updated 25 Oct 2026: plugin 0.8.4 preview, CLI 0.8.3, EXUI/5. Case does not matter: `btn_volumeup`, `btn_VolumeUp` and `BUTTON_VOLUMEUP` are equivalent. The short and the full prefix give the same element type. Saved assignments take precedence over a new name. The old 0.2.2 archive still requires Off / On or Normal / Active / Pressed.
 
 The plugin interface is in Russian; its labels are quoted as shown, followed by their English meaning.
 
-Buttons and states can be a Group or a Frame. For a finished design: set the normal/active samples → select the screen → «Оформление кнопок → Применить оформление» (Button styling → Apply styling). button_/btn_ creates Off/On, feedbackbutton_/fbtn_ creates Normal/Active; the background of existing states is updated by the same action only after you explicitly choose updating instead of skipping. The third state is added by hand. [Full guide](BUTTON_STATES.md#english). The strict Text + Frame icon scheme described below remains the native text option; composite group styling supports arbitrary artwork through PNG.
+Buttons and states can be a Group or a Frame. For a finished design: set the normal/active samples → select the screen → «Оформление кнопок → Применить оформление» (Button styling → Apply styling). Choose Off/On or Normal/Pressed for button_/btn_; feedbackbutton_/fbtn_ creates Normal/Active; the background of existing states is updated by the same action only after you explicitly choose updating instead of skipping. The third state is added by hand. [Full guide](BUTTON_STATES.md#english). The strict Text + Frame icon scheme described below remains the native text option; composite group styling supports arbitrary artwork through PNG.
 
 [Table "what it is and when to use it"](../../docs/figma-prefix-reference.md#english) · [PDF cheat sheet](../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf) (in Russian).
+
+## Text with an icon
+
+For new buttons: **native text centered on the whole button, with an icon to the left or right inside Artwork**. Apply «Текст кнопок для GCP» > «По центру». Reserve equal space on both sides for the longest Text Feedback value. An icon is part of the state PNG without its own controlId. The current plugin exports Button text at middle-center or bottom-center; GUI Designer has nine combinations. [Details and limits](NATIVE_TEXT.md#english).
 
 ## Screen elements
 
@@ -261,7 +269,7 @@ For several zones: `button_HallVolumeUp`, `button_HallVolumeDown`, `level_HallVo
 
 New keys are built from the screen context and the name in lowercase: `Home` + `button_VolumeUp` → `home.volumeup`. CamelCase does not add hyphens. In 0.3.5, `btn_volumeup` next to `button_VolumeUp` gets its own free key and ID. Old unique keys, including `home.volume-up`, and IDs are not replaced.
 
-Simply renaming an already assigned layer does not change its saved meaning. To change the assignment, use the manual form. Copies of already assigned nodes and collisions get free assignments automatically on check/export. Identical layer names are allowed as long as supported prefixes and the structure are kept.
+Renaming updates the automatic semantic key while preserving numeric IDs. To change the type or behavior, use the manual form and check it against the AV program. Copies of already assigned nodes and collisions get free assignments automatically on check/export. Identical layer names are allowed as long as supported prefixes and the structure are kept.
 
 ## Logos and pictures
 

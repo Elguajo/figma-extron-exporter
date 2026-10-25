@@ -29,6 +29,16 @@ GUI Designer рисует Inter через GDI: без кернинга, с ок
 
 Другие семейства и смешанное сложное оформление статического текста продолжают автоматически экспортироваться в PNG без ручного Frame. Нативная поддержка произвольных шрифтов не объявляется: каждому семейству нужен доступный ресурс и отдельная проверка. Неподдержанный шрифт Value/DateTime вызывает понятную ошибку, чтобы обновляемый текст не стал неподвижной картинкой.
 
+## Текст по центру и иконка сбоку
+
+Для новых кнопок с нативной подписью принят основной вариант: **текст по центру всей кнопки (Middle-Center), иконка слева или справа внутри Artwork каждого состояния**. Выделите нужные кнопки / экран > «Текст кнопок для GCP» > **«По центру»** > «Применить текст для GCP». Это рекомендация авторинга: плагин не передвигает слои, не меняет старые настройки и не переключает автоматически все кнопки на центр.
+
+Оставляйте симметричные боковые резервные зоны, даже если иконка только с одной стороны. Текст центрируется по всей ширине Button, а не по свободному месту возле иконки. Иконка входит в PNG состояния и не имеет отдельного controlId; автоматического сдвига иконки или проверки её пересечения с текстом нет. Для Text Feedback проверяйте самое длинное реальное значение и все состояния. Например, для W=240 px, отступа 16, иконки 24 и зазора 12 симметричный резерв оставляет под центрированный текст 136 px. Это пример компоновки, не лимит экспортёра.
+
+**Граница продукта:** GUI Designer 1.28.0.7 имеет девять сочетаний Text Alignment (верх / середина / низ x лево / центр / право). Текущий плагин использует для нативного текста Button только Middle-Center и Bottom-Center; Label / Value / DateTime поддерживают девять. Bottom-Center под иконкой остаётся допустимой альтернативой. Верхнее положение Button не поддержано текущим режимом экспорта, хотя есть в GUI Designer.
+
+[Схемы и префиксы PDF](../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf) · [Подробные сценарии PDF](../../docs/prefix_map/figma-extron-use-cases.pdf) · [Проверка](../../docs/verification/results/2026-10-25-product-guides.md).
+
 ## Совместимость
 
 ### Автоматически из Figma (плагин 0.8.2)
@@ -89,6 +99,16 @@ GUI Designer draws Inter through GDI: without kerning, with rounded glyph widths
 - If the captions have different geometry/styling per state, several Texts or complex artwork, the styling is kept in PNG. For an editable variant use a shared Text over the whole button or an identical separate caption in all states. Check touch behavior over a separate caption on the hardware.
 
 Other families and mixed complex styling of static text are still exported to PNG automatically without a manual Frame. Native support for arbitrary fonts is not claimed: each family needs an available resource and its own check. An unsupported Value/DateTime font causes a clear error so that updatable text does not become a frozen picture.
+
+## Centered text with an icon at the side
+
+For new buttons, the recommended composition is **native text centered on the whole Button (Middle-Center), with an icon on the left or right inside each state's Artwork**. Select the buttons or screen > «Текст кнопок для GCP» > «По центру» > «Применить текст для GCP». This is an authoring guideline; it does not reposition layers or automatically change existing settings.
+
+Reserve equal side areas even with only one icon. The caption is centered on the entire button, not on the remaining space next to the icon. The icon is part of the state PNG, has no separate controlId, and is not moved to avoid long captions. The exporter does not check icon/text collisions. Test the longest actual Text Feedback value and every state. Example: W=240 px, padding=16, icon=24 and gap=12 leave 136 px for centered text with symmetric side reserves; this is a layout example, not an exporter limit.
+
+GUI Designer 1.28.0.7 has all nine Text Alignment combinations (top/middle/bottom x left/center/right). The current plugin's native Button mode exports Middle-Center or Bottom-Center; Label / Value / DateTime support all nine. Bottom-Center below an icon remains an alternative; top-aligned Button text is not supported by the current plugin mode.
+
+[Prefix/layout PDF](../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf) · [Detailed use cases PDF](../../docs/prefix_map/figma-extron-use-cases.pdf).
 
 ## Compatibility
 

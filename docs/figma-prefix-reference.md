@@ -4,9 +4,9 @@
 
 **Русский** · [English](#english)
 
-21.10.2026 · стандарт 2.3 · плагин **0.3.2 preview** · совместимый CLI **0.3.0**.
+25.10.2026 · плагин **0.8.4 preview** · совместимый CLI **0.8.3** · EXUI/5.
 
-[Шпаргалка в PDF](prefix_map/figma-extron-prefix-cheatsheet.pdf) · [Подробные правила подготовки](../src/figma-plugin/AUTHORING_STANDARD.md) · [Полный справочник](../src/figma-plugin/PREFIXES.md).
+[Шпаргалка в PDF](prefix_map/figma-extron-prefix-cheatsheet.pdf) · [Пять сценариев PDF](prefix_map/figma-extron-use-cases.pdf) · [Локальный сайт](web/index.html) · [Подробные правила подготовки](../src/figma-plugin/AUTHORING_STANDARD.md) · [Полный справочник](../src/figma-plugin/PREFIXES.md).
 
 ## Что такое префикс и для чего его использовать
 
@@ -47,12 +47,12 @@
 
 | Сущность и имена | Что это и для чего использовать | Как подготовить / результат |
 |---|---|---|
-| Статичный текст: `txt_Title` / `text_Title` | Постоянный заголовок Hall, подпись «Громкость» или пояснение. | Text Arial Regular/Bold, LEFT по горизонтали и CENTER по вертикали; PBLabel без управляющего ID. |
+| Статичный текст: `txt_Title` / `text_Title` | Постоянный заголовок Hall, подпись «Громкость» или пояснение. | Text Arial Regular/Bold, Inter / Inter Display; девять сочетаний выравнивания при поддержанном оформлении; PBLabel без управляющего ID, иначе PNG. |
 | Обновляемая подпись: `val_VolumeValue` / `value_VolumeValue` | Показывать актуальные «42%», источник или состояние соединения. | Text с начальным текстом → PBLabel с dynamicText и собственным controlId. Обновление и форматирование задаёт программа. |
 | Дата/время: `dt_Clock` / `datetime_Clock` | Показывать текущие часы и дату панели. | Компонент `datetime_Clock` из Extron Kit (свойство Format), Text-пример `September 28, 12:00 AM` или Text с форматом `HH:mm` → PBDateTime. Время и часовой пояс проверить на панели. |
 | Логотип: `logo_Company` | Самостоятельная статичная картинка бренда. | Frame с графикой → PNG Native 1× → PBImage без нажатий и controlId. |
 | Картинка: `img_Photo` / `image_Photo` | Фото, иллюстрация, обложка или сложный статичный фон. | Frame с графикой → один PNG → отдельный PBImage. Внутренние векторы становятся пикселями. |
-| Иконка: `Icon`, `ico_Music` / `icon_Music` | Значок Music или Mute внутри состояния кнопки / Multistate Level. | Вложенный Frame → PNG состояния; самостоятельным нажимаемым элементом не является. |
+| Иконка: `Icon`, `ico_Music` / `icon_Music` | Значок Music или Mute внутри состояния кнопки / Multistate Level. | Вложенный Frame / Artwork → PNG состояния, без отдельного controlId. Для центрированного текста размещайте иконку слева или справа с симметричным резервом. |
 | Фигура: `shp_Card` / `shape_Card` | Редактируемый фон карточки, плашка или рамка. | Пустой Frame / Rectangle / Ellipse → PBShape: сплошная заливка, единое скругление, максимум одна SOLID-обводка INSIDE. |
 | Линия: `ln_Divider` / `line_Divider` | Редактируемый разделитель секций. | С 0.3.4 горизонтальная/вертикальная Pen (Vector) / Line с SOLID Stroke CENTER → PBLine без PNG. Плоские окончания; с 0.5.4 толщина и окрашенная область округляются при экспорте. Прежний пустой Frame / Rectangle без скругления и обводки также поддержан. |
 
@@ -90,7 +90,7 @@ Passive / Active, Normal / Active без Pressed и другие поддерж�
 
 Для нового btn_ нужны normal и ровно один feedback либо pressed. Для fbtn_ нужны normal и feedback; pressed необязателен. Нельзя дублировать одну роль: например, одновременно Normal и Passive. Экспортируются существующие состояния, включая скрытые; отсутствующее состояние и его PNG не создаются. Видимо ровно одно состояние. Цвета, подписи и графику рисует дизайнер.
 
-Сохранённые уникальные назначения приоритетнее имён. В плагине 0.3.5 проверка и скачивание автоматически заполняют ключи и свободные ID, исправляют копии и совпадения. Переименование слоя сохраняет тип, ключ и ID; форма нужна для особых настроек. Диапазон регуляторов по умолчанию — 0–100, свой диапазон сохраняется. Новые ключи используют нижний регистр; CamelCase не добавляет дефисы. Одинаковые имена получают суффиксы `-2`, `-3`; понятные разные имена, например `slider_Volume` и `value_VolumeValue`, упрощают карту ID.
+Сохранённые уникальные назначения приоритетнее имён. В плагине 0.3.5 проверка и скачивание автоматически заполняют ключи и свободные ID, исправляют копии и совпадения. Переименование обновляет автоматический ключ, сохраняя тип и числовые ID; форма нужна для особых настроек. Диапазон регуляторов по умолчанию — 0–100, свой диапазон сохраняется. Новые ключи используют нижний регистр; CamelCase не добавляет дефисы. Одинаковые имена получают суффиксы `-2`, `-3`; понятные разные имена, например `slider_Volume` и `value_VolumeValue`, упрощают карту ID.
 
 ## 5. Extron Kit и ограничения
 
@@ -102,13 +102,19 @@ Passive / Active, Normal / Active без Pressed и другие поддерж�
 
 Видео `vid_` / `video_` и обновляемая по URL картинка `dimg_` / `dynamicimage_` зарезервированы, но для профилей 1025M / 300M вызывают ошибку экспорта. Prototype interactions Figma не экспортируются. Группа выбора, доступность, видимость и переходы передаются в id-map для программы управления.
 
+## Текст и иконки в новых кнопках
+
+Основной вариант: **текст Middle-Center по центру всей кнопки, иконка слева или справа внутри Artwork**. В блоке «Текст кнопок для GCP» явно примените «По центру». Оставьте симметричный резерв с обеих сторон и проверьте самую длинную подпись Text Feedback. Экспортёр не сдвигает иконку и не проверяет пересечения.
+
+GUI Designer имеет сетку 3x3. Текущий экспорт нативного текста Button поддерживает центр и низ по центру; это ограничение плагина. Label / Value / DateTime поддерживают девять сочетаний. Иконка входит в PNG состояния и не получает своего controlId. Для Text Feedback подпись должна храниться в Button, а не в отдельном Label или PNG. [Подробности](../src/figma-plugin/NATIVE_TEXT.md).
+
 ## 6. Экспорт и совместимость
 
-Выбрать внешний Frame экрана / проекта и профиль → «Распознать по именам» → проверить таблицу → «Сохранить распознанные назначения» → «Проверить экран» → «Скачать .exui». Затем CLI: `validate-package` → `convert-package` → GUI Designer: открыть → Verify → Save and Build → повторно открыть. Передать программисту `id-map`, проверить касания, удержание и feedback на панели.
+Выбрать внешний Frame экрана / проекта и профиль → «Проверить макет» → исправить ошибки → «Скачать .exui». Ключи и свободные ID назначаются автоматически. Затем CLI: `validate-package` → `convert-package` → GUI Designer: открыть → Verify → Save and Build → повторно открыть. Передать программисту `id-map`, проверить касания, удержание и feedback на панели.
 
-Эта таблица относится к **0.3.1 preview**. Архив 0.2.2 ещё требует строгие Off / On для btn_ и Normal / Active / Pressed для fbtn_. Прежние сохранённые назначения сохраняют свои правила и ID; при удалении назначенного состояния с пропуском ID оставшиеся ID нужно явно согласовать через форму. Новый запуск пользовательского макета в Figma, GUI Designer Verify / Build и оборудование для текущей ревизии требуют отдельной проверки.
+Таблица актуализирована для **плагина 0.8.4 + CLI 0.8.3, EXUI/5**. Архив 0.2.2 ещё требует строгие Off / On для btn_ и Normal / Active / Pressed для fbtn_. Прежние сохранённые назначения сохраняют свои правила и ID; при удалении назначенного состояния с пропуском ID оставшиеся ID нужно явно согласовать через форму. Новый запуск пользовательского макета в Figma, GUI Designer Verify / Build и оборудование для текущей ревизии требуют отдельной проверки.
 
-Основания: [стандарт 2.2](../src/figma-plugin/AUTHORING_STANDARD.md), [правила распознавания](../src/figma-plugin/src/recognize.ts), [контракт состояний](../src/figma-plugin/src/model.ts), [контракт пакета](exui-v5.md), [проверка изменений](verification/results/2026-10-21-flexible-authoring.md), [комплект 0.3.1](../releases/figma-plugin/Legacy/0.3.1/README.md).
+Основания: [стандарт авторинга](../src/figma-plugin/AUTHORING_STANDARD.md), [правила распознавания](../src/figma-plugin/src/recognize.ts), [контракт состояний](../src/figma-plugin/src/model.ts), [контракт пакета](exui-v5.md), [проверка изменений](verification/results/2026-10-21-flexible-authoring.md), [комплект 0.3.1](../releases/figma-plugin/Legacy/0.3.1/README.md).
 
 ---
 
@@ -118,9 +124,9 @@ Passive / Active, Normal / Active без Pressed и другие поддерж�
 
 [Русский](#russian) · **English**
 
-21 Oct 2026 · standard 2.3 · plugin **0.3.2 preview** · compatible CLI **0.3.0**.
+25 Oct 2026 · plugin **0.8.4 preview** · compatible CLI **0.8.3** · EXUI/5.
 
-[PDF cheat sheet](prefix_map/figma-extron-prefix-cheatsheet.pdf) (in Russian) · [Detailed preparation rules](../src/figma-plugin/AUTHORING_STANDARD.md) (in Russian) · [Full reference](../src/figma-plugin/PREFIXES.md#english).
+[PDF cheat sheet](prefix_map/figma-extron-prefix-cheatsheet.pdf) · [Five use cases PDF](prefix_map/figma-extron-use-cases.pdf) · [Offline website](web/index.html) (in Russian) · [Detailed preparation rules](../src/figma-plugin/AUTHORING_STANDARD.md) (in Russian) · [Full reference](../src/figma-plugin/PREFIXES.md#english).
 
 The plugin interface is in Russian; its labels are quoted as shown, followed by their English meaning.
 
@@ -163,7 +169,7 @@ Prefixes help choose the right element and prepare it for export. Links to devic
 
 | Entity and names | What it is and when to use it | How to prepare it / result |
 |---|---|---|
-| Static text: `txt_Title` / `text_Title` | A permanent Hall title, a "Volume" caption or an explanation. | Text in Arial Regular/Bold, LEFT horizontally and CENTER vertically; PBLabel without a control ID. |
+| Static text: `txt_Title` / `text_Title` | A permanent Hall title, a "Volume" caption or an explanation. | Text in Arial Regular/Bold, Inter / Inter Display; all nine alignment combinations for supported styling; PBLabel without a control ID, otherwise PNG. |
 | Updatable label: `val_VolumeValue` / `value_VolumeValue` | Shows the current "42%", the source or the connection state. | Text with initial text → PBLabel with dynamicText and its own controlId. The program sets updates and formatting. |
 | Date/time: `dt_Clock` / `datetime_Clock` | Shows the panel's current time and date. | The `datetime_Clock` component from the Extron Kit (Format property), the Text sample `September 28, 12:00 AM` or a Text with the `HH:mm` format → PBDateTime. Check the time and time zone on the panel. |
 | Logo: `logo_Company` | A standalone static brand picture. | A Frame with artwork → PNG Native 1× → PBImage without touches or controlId. |
@@ -206,7 +212,7 @@ Passive / Active, Normal / Active without Pressed and other supported synonyms r
 
 A new btn_ needs normal and exactly one feedback or pressed. An fbtn_ needs normal and feedback; pressed is optional. A role cannot be duplicated: for example, Normal and Passive at the same time. Existing states are exported, including hidden ones; a missing state and its PNG are not created. Exactly one state is visible. Colors, captions and artwork are drawn by the designer.
 
-Saved unique assignments take precedence over names. In plugin 0.3.5, the check and the download fill in keys and free IDs automatically and fix copies and collisions. Renaming a layer keeps its type, key and ID; the form is needed for special settings. The default slider range is 0–100; a custom range is kept. New keys are lowercase; CamelCase does not add hyphens. Identical names get the suffixes `-2`, `-3`; clear distinct names such as `slider_Volume` and `value_VolumeValue` make the ID map easier to read.
+Saved unique assignments take precedence over names. In plugin 0.3.5, the check and the download fill in keys and free IDs automatically and fix copies and collisions. Renaming updates the automatic key and keeps the type and numeric IDs; the form is needed for special settings. The default slider range is 0–100; a custom range is kept. New keys are lowercase; CamelCase does not add hyphens. Identical names get the suffixes `-2`, `-3`; clear distinct names such as `slider_Volume` and `value_VolumeValue` make the ID map easier to read.
 
 ## 5. Extron Kit and limits
 
@@ -218,10 +224,16 @@ A project: 1–16 pages, up to 32 popups, 16 groups, 256 elements in total; 1–
 
 Video `vid_` / `video_` and the URL-updated picture `dimg_` / `dynamicimage_` are reserved, but cause an export error for the 1025M / 300M profiles. Figma Prototype interactions are not exported. Selection groups, availability, visibility and navigation are passed in the id-map for the control program.
 
+## Text and icons in new buttons
+
+Recommended: **native text at Middle-Center on the whole button, with an icon on the left or right inside Artwork**. Explicitly apply «По центру» (Center) in the Button text for GCP block. Reserve equal space on both sides and test the longest Text Feedback value. The exporter neither moves icons nor checks collisions.
+
+GUI Designer has a 3x3 alignment grid. The plugin's native Button export supports middle-center and bottom-center; Label / Value / DateTime support all nine. Icons are part of a state PNG without their own controlId. Text Feedback needs the caption in Button itself, rather than a separate Label or PNG. [Details](../src/figma-plugin/NATIVE_TEXT.md#english).
+
 ## 6. Export and compatibility
 
-Select the outer Frame of the screen / project and the profile → «Распознать по именам» (Recognize by names) → check the table → «Сохранить распознанные назначения» (Save recognized assignments) → «Проверить экран» (Check screen) → «Скачать .exui» (Download .exui). Then the CLI: `validate-package` → `convert-package` → GUI Designer: open → Verify → Save and Build → reopen. Hand the `id-map` to the programmer and check touches, holds and feedback on the panel.
+Select the outer screen / project Frame and profile → «Проверить макет» (Check layout) → fix errors → «Скачать .exui» (Download .exui). Keys and free IDs are assigned automatically. Then the CLI: `validate-package` → `convert-package` → GUI Designer: open → Verify → Save and Build → reopen. Hand the `id-map` to the programmer and check touches, holds and feedback on the panel.
 
-This table refers to **0.3.1 preview**. The 0.2.2 archive still requires strict Off / On for btn_ and Normal / Active / Pressed for fbtn_. Earlier saved assignments keep their rules and IDs; when an assigned state with a skipped ID is deleted, the remaining IDs must be agreed explicitly in the form. A new run of a user layout in Figma, GUI Designer Verify / Build and hardware need a separate check for the current revision.
+This table is updated for **plugin 0.8.4 + CLI 0.8.3, EXUI/5**. The 0.2.2 archive still requires strict Off / On for btn_ and Normal / Active / Pressed for fbtn_. Earlier saved assignments keep their rules and IDs; when an assigned state with a skipped ID is deleted, the remaining IDs must be agreed explicitly in the form. A new run of a user layout in Figma, GUI Designer Verify / Build and hardware need a separate check for the current revision.
 
-Sources: [standard 2.2](../src/figma-plugin/AUTHORING_STANDARD.md) (in Russian), [recognition rules](../src/figma-plugin/src/recognize.ts), [state contract](../src/figma-plugin/src/model.ts), [package contract](exui-v5.md#english), [check of the changes](verification/results/2026-10-21-flexible-authoring.md) (in Russian), [kit 0.3.1](../releases/figma-plugin/Legacy/0.3.1/README.md) (in Russian).
+Sources: [authoring standard](../src/figma-plugin/AUTHORING_STANDARD.md) (in Russian), [recognition rules](../src/figma-plugin/src/recognize.ts), [state contract](../src/figma-plugin/src/model.ts), [package contract](exui-v5.md#english), [check of the changes](verification/results/2026-10-21-flexible-authoring.md) (in Russian), [kit 0.3.1](../releases/figma-plugin/Legacy/0.3.1/README.md) (in Russian).
