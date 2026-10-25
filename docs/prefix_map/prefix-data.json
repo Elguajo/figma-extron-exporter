@@ -1,0 +1,171 @@
+[
+  {
+    "title": "Структура",
+    "rows": [
+      {
+        "entity": "Проект",
+        "prefix": "`prj_` / `project_`",
+        "example": "project_Trilliant",
+        "usage": "Весь AV-интерфейс с экранами залов.",
+        "rule": "внешний Frame; внутри экраны и popup. Секция проекта может иметь любое имя."
+      },
+      {
+        "entity": "Экран",
+        "prefix": "`scr_` / `screen_`\nили `Home`",
+        "example": "screen_Main",
+        "usage": "Главный экран выбора Hall / Terrace.",
+        "rule": "Frame 1280x800 (1025M) или 320x480 (300M portrait)."
+      },
+      {
+        "entity": "Popup",
+        "prefix": "`pop_` / `popup_`",
+        "example": "popup_Sources",
+        "usage": "Меню источников HDMI / Bluetooth.",
+        "rule": "Frame своего размера с элементами. На странице нужен popupref такого же размера."
+      },
+      {
+        "entity": "Модальный popup",
+        "prefix": "`mdl_` / `modalpopup_`",
+        "example": "modalpopup_Confirm",
+        "usage": "Подтверждение «Выключить систему?»",
+        "rule": "Frame размером с панель, вне группы popup."
+      },
+      {
+        "entity": "Группа popup",
+        "prefix": "`pgrp_` / `popupgroup_`",
+        "example": "popupgroup_Zones",
+        "usage": "Панели Hall / Terrace в одной области.",
+        "rule": "Frame с обычными popup одинакового размера."
+      },
+      {
+        "entity": "Место popup",
+        "prefix": "`pr_` / `popupref_`",
+        "example": "popupref_Sources",
+        "usage": "Область показа меню источников.",
+        "rule": "пустой Frame внутри экрана; цель popup или группы выбирается по имени и сохраняется явно."
+      }
+    ]
+  },
+  {
+    "title": "Управление",
+    "rows": [
+      {
+        "entity": "Кнопка",
+        "prefix": "`btn_` / `button_`",
+        "example": "button_Power",
+        "usage": "Включить / выключить питание.",
+        "rule": "**Off / On**. Для нажатия и удержания: **Normal / Pressed**."
+      },
+      {
+        "entity": "Кнопка с feedback",
+        "prefix": "`fbtn_` / `feedbackbutton_`",
+        "example": "feedbackbutton_Mute",
+        "usage": "Mute с отдельным видом нажатия.",
+        "rule": "**Normal / Active / Pressed**. Group или Frame."
+      },
+      {
+        "entity": "Кастомный Slider",
+        "prefix": "`sld_` / `slider_`",
+        "example": "slider_Volume",
+        "usage": "Менять громкость бегунком.",
+        "rule": "Frame без фона; внутри **Track, Fill, Thumb**."
+      },
+      {
+        "entity": "Простой регулятор",
+        "prefix": "`lvl_` / `level_`",
+        "example": "level_Volume",
+        "usage": "Простой регулятор громкости.",
+        "rule": "пустой Frame с SOLID-заливкой; PBLevel Slider."
+      },
+      {
+        "entity": "Уровень сигнала",
+        "prefix": "`gau_` / `gauge_`",
+        "example": "gauge_Signal",
+        "usage": "Показывать уровень аудиосигнала.",
+        "rule": "пустой Frame с SOLID-заливкой; PBLevel Gauge."
+      },
+      {
+        "entity": "Индикатор",
+        "prefix": "`ind_` / `indicator_`",
+        "example": "indicator_Status",
+        "usage": "Показ числового уровня без ввода.",
+        "rule": "тот же числовой Gauge; отдельную лампу не создаёт."
+      },
+      {
+        "entity": "LED-шкала",
+        "prefix": "`led_` / `volumeled_`",
+        "example": "volumeled_Audio",
+        "usage": "Сегментная шкала аудиоуровня.",
+        "rule": "пустой Frame с заливкой; PBLevel VolumeLED."
+      },
+      {
+        "entity": "Несколько видов",
+        "prefix": "`mlvl_` / `multilevel_`",
+        "example": "multilevel_Status",
+        "usage": "Виды «Нет связи» / «Готов» / «Ошибка».",
+        "rule": "Frame без фона, внутри 2-8 состояний; normal первым, без Pressed."
+      }
+    ]
+  },
+  {
+    "title": "Текст и графика",
+    "rows": [
+      {
+        "entity": "Статичный текст",
+        "prefix": "`txt_` / `text_`",
+        "example": "text_Title",
+        "usage": "Заголовок «Hall», подпись «Громкость».",
+        "rule": "Text Arial Regular/Bold, Inter / Inter Display; Label или PNG."
+      },
+      {
+        "entity": "Обновляемый текст",
+        "prefix": "`val_` / `value_`",
+        "example": "value_VolumeValue",
+        "usage": "Обновлять текущие «42%» громкости.",
+        "rule": "Text с начальным «42%»; собственный controlId, обновляет программа."
+      },
+      {
+        "entity": "Дата / время",
+        "prefix": "`dt_` / `datetime_`",
+        "example": "datetime_Clock",
+        "usage": "Часы в шапке главного экрана.",
+        "rule": "компонент из Extron Kit, формат - свойство **Format** (28 форматов GUI Designer). Или Text-пример **September 28, 12:00 AM**, или Text с форматом `HH:mm`. Свой формат: Text-слой `Pattern: dddd, d MMMM`."
+      },
+      {
+        "entity": "Логотип",
+        "prefix": "`logo_`",
+        "example": "logo_Company",
+        "usage": "Логотип Trilliant в шапке экрана.",
+        "rule": "Frame с графикой; PNG / PBImage, без controlId и нажатий."
+      },
+      {
+        "entity": "Картинка",
+        "prefix": "`img_` / `image_`",
+        "example": "image_Photo",
+        "usage": "Фото зала или статичная обложка.",
+        "rule": "Frame с графикой; PNG / PBImage. Фон `image_Background`: Clip content у экрана обрезает выступы."
+      },
+      {
+        "entity": "Иконка состояния",
+        "prefix": "`Icon`, `ico_` / `icon_`",
+        "example": "icon_Music",
+        "usage": "Нота внутри кнопки выбора Music.",
+        "rule": "Frame внутри состояния / Artwork; PNG состояния, без controlId. Для текста по центру размещать слева или справа."
+      },
+      {
+        "entity": "Фигура",
+        "prefix": "`shp_` / `shape_`",
+        "example": "shape_Card",
+        "usage": "Фоновая плашка аудиоблока.",
+        "rule": "пустой Frame, Rectangle или Ellipse; SOLID, единое скругление, Stroke INSIDE."
+      },
+      {
+        "entity": "Линия",
+        "prefix": "`ln_` / `line_`",
+        "example": "line_Divider",
+        "usage": "Разделитель блоков Hall / Terrace.",
+        "rule": "Line / Vector: горизонталь/вертикаль, SOLID Stroke CENTER, Uniform."
+      }
+    ]
+  }
+]

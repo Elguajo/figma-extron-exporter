@@ -1,4 +1,4 @@
-"""Build the four-page Russian prefix map with practical usage examples.
+"""Build the five-page Russian prefix map with practical usage examples.
 
 Run with Python + ReportLab. Optional first argument: output PDF.
 Reviewed against PREFIXES.md, BUTTON_STATES.md, NATIVE_TEXT.md, AUTHORING_STANDARD.md, recognize.ts.
@@ -14,16 +14,18 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, PageBreak
+from GuideVisuals import ButtonComposition
 
-ROOT = Path(__file__).resolve().parents[1]
-TARGET = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'output/pdf/figma-extron-prefix-cheatsheet.pdf'
+ROOT = Path(__file__).resolve().parents[2]
+TARGET = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'docs/prefix_map/figma-extron-prefix-cheatsheet.pdf'
 PACKAGE = json.loads((ROOT / 'src/figma-plugin/package.json').read_text(encoding='utf-8'))
-VERSION, CLI_VERSION, DATE = PACKAGE['version'], PACKAGE['compatibleCliVersion'], '22.10.2026'
+GUIDES = json.loads((ROOT / 'docs/prefix_map/guide-data.json').read_text(encoding='utf-8'))
+VERSION, CLI_VERSION, DATE = PACKAGE['version'], PACKAGE['compatibleCliVersion'], GUIDES['updated']
 PAGE_W, PAGE_H = landscape(A4)
 MARGIN = 32
 WIDTH = PAGE_W - 2 * MARGIN
 INK, MUTED = colors.HexColor('#182025'), colors.HexColor('#566169')
-ACCENT, PALE, LINE = colors.HexColor('#D65A08'), colors.HexColor('#F3F5F6'), colors.HexColor('#DCE1E4')
+ACCENT, PALE, LINE = colors.HexColor('#0071E3'), colors.HexColor('#F3F5F6'), colors.HexColor('#DCE1E4')
 for name, filename in [('Guide', 'arial.ttf'), ('GuideBold', 'arialbd.ttf'), ('GuideCode', 'consola.ttf')]:
     pdfmetrics.registerFont(TTFont(name, str(Path('C:/Windows/Fonts') / filename)))
 pdfmetrics.registerFontFamily('Guide', normal='Guide', bold='GuideBold')
@@ -80,7 +82,7 @@ GRAPHICS = [
     ('Дата / время', '`dt_` / `datetime_`', '`datetime_Clock`: компонент из Extron Kit, формат - свойство **Format** (28 форматов GUI Designer). Или Text-пример **September 28, 12:00 AM**, или Text с форматом `HH:mm`. Свой формат: Text-слой `Pattern: dddd, d MMMM`.'),
     ('Логотип', '`logo_`', '`logo_Company`: Frame с графикой; PNG / PBImage, без controlId и нажатий.'),
     ('Картинка', '`img_` / `image_`', '`image_Photo`: Frame с графикой; PNG / PBImage. Фон `image_Background`: Clip content у экрана обрезает выступы.'),
-    ('Иконка состояния', '`Icon`, `ico_` / `icon_`', '`icon_Music`: Frame внутри состояния; часть его PNG, а не отдельная кнопка.'),
+    ('Иконка состояния', '`Icon`, `ico_` / `icon_`', '`icon_Music`: Frame внутри состояния / Artwork; PNG состояния, без controlId. Для текста по центру размещать слева или справа.'),
     ('Фигура', '`shp_` / `shape_`', '`shape_Card`: пустой Frame, Rectangle или Ellipse; SOLID, единое скругление, Stroke INSIDE.'),
     ('Линия', '`ln_` / `line_`', '`line_Divider`: Line / Vector: горизонталь/вертикаль, SOLID Stroke CENTER, Uniform.'),
 ]
@@ -130,7 +132,7 @@ def chrome(canvas, doc):
     canvas.line(MARGIN, 30, PAGE_W - MARGIN, 30)
     canvas.setFont('Guide', 7.5)
     canvas.drawString(MARGIN, 18, 'TRILLIANT  /  Короткие и полные префиксы равнозначны. Регистр букв не важен.')
-    canvas.drawRightString(PAGE_W - MARGIN, 18, f'{doc.page} / 4')
+    canvas.drawRightString(PAGE_W - MARGIN, 18, f'{doc.page} / 5')
     canvas.restoreState()
 
 story = []
@@ -164,7 +166,7 @@ cards = [
     '**Button Styles / подготовка**\n'
     '1. Вне экранов: Group или Frame **Button Styles**, внутри Rectangle **Off** и **On** с разным оформлением.\n'
     '2. Дизайн кнопки: Group / Frame `button_Power`. Выберите экран > «Применить оформление». Для готовых кнопок явно выберите пропуск или обновление.\n'
-    '3. `button_` > Off / On; `feedbackbutton_` > Normal / Active. **Pressed добавьте вручную**; Normal / Pressed подготовьте вручную.\n'
+    '3. Для `button_` выберите **Off / On** либо **Normal / Pressed** перед применением. У `feedbackbutton_` создаётся Normal / Active; третье Pressed добавьте вручную.\n'
     'Переносятся заливка и обводка фона; скругление - по настройке. Иконки, подписи, Pressed и ID сохраняются.',
     '**Имена / экспорт**\n'
     'После префикса: латинская буква, затем латиница, цифры, точки и дефисы между непустыми частями. Без пробелов и второго `_`. Пример: `button_side.hall`. **Русские буквы в именах слоёв - ошибка**; видимый текст может быть русским.\n'
@@ -200,7 +202,7 @@ story.append(table(['СЛОЙ ВНУТРИ ЭКРАНА', 'ЧТО ВИДИТ П�
 story.append(PageBreak())
 story.append(p('07 / Подготовка кнопок и правила экспорта', 'section'))
 story.append(card_table)
-story.append(p('08 / Назначения по именам в плагине 0.6.5', 'section'))
+story.append(p('08 / Назначения по именам', 'section'))
 story.append(table(['ЗАДАЧА', 'ДЕЙСТВИЯ В ПЛАГИНЕ', 'РЕЗУЛЬТАТ'], [
     ('Стартовый экран', 'Выберите проект / экран > «Запуск проекта» > «При запуске открыть» > экран по имени > «Сохранить стартовую страницу».', 'Одна стартовая страница; прежняя становится обычной. В GDL стартовая всегда первая.'),
     ('Группа выбора источников', 'Выделите 2+ кнопки одного экрана или popup > «Группа выбора кнопок» > «Создать группу из выделенных кнопок» > «Сохранить группу выбора».', 'Группа - указание в карте ID для программы Extron; ключ создаётся сам. Выберите готовую группу для добавления, «Без группы» - для снятия назначения.'),
@@ -211,8 +213,34 @@ story.append(p('**Выбор в списке сам по себе ничего �
 story.append(p('09 / Перед передачей', 'section'))
 story.append(p('Профиль и размеры > состояния кнопок > связи popup > одна стартовая страница > «Проверить макет» > «Скачать .exui» > CLI: `validate-package`, `convert-package`, `id-map` > проверка нового GDL в GUI Designer и на панели.', 'card'))
 story.append(Spacer(1, 6))
-story.append(p('Основа: AUTHORING_STANDARD.md, PREFIXES.md, BUTTON_STATES.md, NATIVE_TEXT.md; правила распознавания - recognize.ts. Актуальные связи - выпуск плагина 0.6.5. Справочники находятся в src/figma-plugin/ репозитория.', 'note'))
+story.append(p('Основа: AUTHORING_STANDARD.md, PREFIXES.md, BUTTON_STATES.md, NATIVE_TEXT.md; правила распознавания - recognize.ts. Подробные сценарии - figma-extron-use-cases.pdf рядом с этой шпаргалкой. Локальный сайт - docs/web/index.html.', 'note'))
+story.append(PageBreak())
+story.append(p('10 / Текст по центру, иконка слева или справа', 'section'))
+story.append(ButtonComposition(WIDTH))
+story.append(table(['ЧТО ПРОВЕРЕНО', 'ПРАВИЛО ДЛЯ НОВОГО МАКЕТА'], [
+    ('GUI Designer: сетка 3x3', 'Верх / середина / низ x лево / центр / право. Ограничение двумя позициями относится к экспорту Button в плагине, а не к GUI Designer.'),
+    ('Текущий нативный Button', 'Поддержаны Middle-Center и Bottom-Center. Основной вариант: «Текст кнопок для GCP» > «По центру» > «Применить текст для GCP».'),
+    ('Иконка в Artwork', 'Слева или справа от центра, одинаковое место во всех состояниях. Часть PNG кнопки; отдельного controlId и отдельной команды нет.'),
+    ('Резерв под Text Feedback', 'Текст центрируется по всей кнопке, не по свободному месту рядом с иконкой. Оставьте симметричный резерв с обеих сторон; проверьте самую длинную подпись.'),
+    ('Режим Auto', 'Игнорирует выравнивание абзаца Figma. По положению рамки Text выбирает центр / низ. Верх и неоднозначная позиция дают ошибку. Для постоянного центра используйте ручной режим.'),
+], [190, WIDTH - 190]))
+story.append(p(GUIDES['layout']['example'], 'note'))
+story.append(p('11 / Проверка текста перед передачей', 'section'))
+story.append(p('Одна непустая подпись на состояние > общий шрифт > иконка не пересекает самый длинный текст > новый EXUI / GDL > Text в свойствах Button, без Label-дубля и текста в PNG > Text Feedback в копии GCP > проверка на системе.', 'card'))
+story.append(p('Точные свободные отступы текста Figma не переносятся в Button. Плагин не измеряет будущий Text Feedback и не сдвигает иконку автоматически. Bottom-Center под иконкой остаётся допустимой альтернативой; существующие настройки не меняются.', 'note'))
+story.append(p('Подтверждение: AlignmentEnum и Appearance > Button установленного GUI Designer 1.28.0.7; button-native-text.ts; 21 целевой тест и 8 сценариев с настоящим генератором / независимым reader. Figma API/PNG в сценариях моделируются; новый ручной GUI/GCP/аппаратный прогон не выполнялся.', 'note'))
 TARGET.parent.mkdir(parents=True, exist_ok=True)
+
+# The offline website uses the same prefix rows as this printable guide.
+prefix_data = []
+for group, rows in [('Структура', STRUCTURE), ('Управление', CONTROLS), ('Текст и графика', GRAPHICS)]:
+    entries = []
+    for entity, prefix, description in rows:
+        example, rule = description.split(': ', 1)
+        entries.append({'entity': entity, 'prefix': prefix, 'example': example.strip('`'),
+                        'usage': USAGE[example.strip('`')], 'rule': rule})
+    prefix_data.append({'title': group, 'rows': entries})
+(ROOT / 'docs/prefix_map/prefix-data.json').write_text(json.dumps(prefix_data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 doc = SimpleDocTemplate(str(TARGET), pagesize=(PAGE_W, PAGE_H), leftMargin=MARGIN,
                         rightMargin=MARGIN, topMargin=70, bottomMargin=39,
                         title=f'Figma > Extron / Prefix Map Cheat Sheet {VERSION}',
