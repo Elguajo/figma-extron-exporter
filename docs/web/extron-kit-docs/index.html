@@ -8,13 +8,14 @@
   <title>Extron Kit — документация</title>
   <link rel="stylesheet" href="styles.css">
   <script src="kit-data.js" defer></script>
+  <script src="guides.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">К содержимому</a>
   <header class="topbar">
     <a class="brand" href="#/overview" aria-label="Extron Kit — главная"><span class="brand-mark" aria-hidden="true">E</span><strong>Extron Kit</strong><span class="brand-separator"></span><span class="brand-docs">Документация</span></a>
-    <div class="top-actions"><span class="version">0.7.3 <span>preview</span></span><button class="search-trigger" aria-label="Поиск по документации" data-search><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><span>Поиск по документации</span><kbd>Ctrl K</kbd></button><button class="icon-button menu-button" id="menuOpen" aria-label="Открыть навигацию"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div>
+    <div class="top-actions"><span class="version">__PLUGIN_VERSION__ <span>preview</span></span><button class="search-trigger" aria-label="Поиск по документации" data-search><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><span>Поиск по документации</span><kbd>Ctrl K</kbd></button><button class="icon-button menu-button" id="menuOpen" aria-label="Открыть навигацию"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div>
   </header>
   <div class="layout"><aside class="sidebar" id="sidebar" aria-label="Навигация документации"></aside><main id="main" tabindex="-1"></main><aside class="toc" id="toc" aria-label="На этой странице"></aside></div>
   <dialog id="searchDialog" class="search-dialog" aria-labelledby="searchTitle"><div class="dialog-head"><h2 id="searchTitle">Поиск по документации</h2><button class="icon-button" data-close-search aria-label="Закрыть поиск">×</button></div><label class="sr-only" for="searchInput">Название компонента или вопрос</label><input id="searchInput" placeholder="Например: Mute, Pressed, popup…" autocomplete="off"><p id="searchCount" class="search-count" role="status"></p><ul id="searchResults" class="search-results"></ul><div class="search-footer">Ищем по всем компонентам и руководствам <kbd>Esc — закрыть</kbd></div></dialog>
