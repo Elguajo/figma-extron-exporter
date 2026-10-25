@@ -53,13 +53,16 @@ CLI **0.8.2**, плагин **0.8.2**, EXUI/5. Сравнение пакетов
 
 Основной путь, если в проекте есть страницы, popup или кнопки, созданные в GUI Designer вручную. Полный GDL из Figma их не содержит: при импорте они пропадут вместе с логикой, а команды, ссылающиеся на них, останутся без цели.
 
-**Рабочий GDL** — тот, что сейчас импортирован в проект GCP, включая ручные правки программиста. Храните его рядом с проектом; после каждого обновления рабочим становится новый файл.
+**Рабочий GDL** — тот, что сейчас импортирован в проект GCP, включая ручные правки программиста, в виде файла, **сохранённого GUI Designer** (Save and Build). Храните его рядом с проектом; после каждого обновления рабочим становится новый файл. Если CLI сообщает `Missing KP end record or invalid archive comment length`, файл записан не GUI Designer (у GDL из GUI Designer переставлена сигнатура архива: `KP` вместо обычной `PK`): возьмите исходный GDL программиста.
+
+Команды ниже выполняются в PowerShell из папки распакованного CLI. Строки `if ($LASTEXITCODE) { throw … }` останавливают выполнение при ошибке CLI: без них PowerShell продолжит со следующей команды.
 
 1. Экспортируйте `.exui` из Figma и создайте из него GDL обычным `convert-package`, например `figma-new.gdl`.
 2. Постройте план. В нём перечислены все кнопки рабочего GDL; `canUpdate: true` — кнопка с тем же ID найдена в новом экспорте и её оформление можно перенести без смены ID, имени и поведения. Для остальных в `reason` указана причина.
 
    ```powershell
    .\ExtronExporter.ps1 plan-layout-update .\working.gdl .\figma-new.gdl | Out-File -Encoding utf8 .\plan.json
+   if ($LASTEXITCODE) { throw 'plan-layout-update failed, see ERROR above' }
    $plan = Get-Content -Raw .\plan.json | ConvertFrom-Json
    $plan.items | Where-Object canUpdate | Format-Table controlId, page, name, beforeCaption, afterCaption
    ```
@@ -81,6 +84,7 @@ CLI **0.8.2**, плагин **0.8.2**, EXUI/5. Сравнение пакетов
 
    ```powershell
    .\ExtronExporter.ps1 update-layout .\working.gdl .\figma-new.gdl .\selection.json .\working-v2.gdl
+   if ($LASTEXITCODE) { throw 'update-layout failed, see ERROR above' }
    ```
 
    Команда проверяет, что все невыбранные элементы, страницы и popup остались без изменений, и останавливается при несовпадении хеша рабочего GDL или экспорта с планом.
