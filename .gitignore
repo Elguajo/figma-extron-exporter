@@ -15,3 +15,5 @@ releases/figma-plugin/**/figma-extron-plugin-*/
 verification/results/**/*.gdl
 # Stable release archives live next to their release notes but stay out of git; checksums are tracked.
 /releases/**/*.zip
+# Local archive of old scratch outputs, extracted release copies and generated GDLs.
+/archive/
