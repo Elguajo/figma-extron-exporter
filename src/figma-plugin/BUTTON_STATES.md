@@ -1,6 +1,6 @@
 <a id="russian"></a>
 
-# Оформление и состояния кнопок — 0.8.3 preview
+# Оформление и состояния кнопок — 0.8.4 preview
 
 **Русский** · [English](#english)
 
@@ -75,7 +75,7 @@ Off / Normal / Passive используют обычный эталон; On / Ac
 
 <a id="english"></a>
 
-# Button styling and states — 0.8.3 preview
+# Button styling and states — 0.8.4 preview
 
 [Русский](#russian) · **English**
 

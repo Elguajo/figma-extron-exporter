@@ -4,7 +4,7 @@
 
 **Русский** · [English](#english)
 
-**Apple-inspired Light · ревизия 2026-10-24-av-patterns**, входит в плагин **0.8.3**, совместимый CLI **0.8.3**, контракт **EXUI/5**. Архивы 0.7.3 предшествуют этой актуализации. В новой библиотеке стиль и ревизия показаны в заголовке и инструкции на холсте.
+**Apple-inspired Light · ревизия 2026-10-24-av-patterns**, входит в плагин **0.8.4**, совместимый CLI **0.8.3**, контракт **EXUI/5**. Архивы 0.7.3 предшествуют этой актуализации. В новой библиотеке стиль и ревизия показаны в заголовке и инструкции на холсте.
 
 Генератор `src/kit.ts` использует каталог `docs/design/extron-kit/kit.json` и создаёт 29 отдельных компонентов (15 универсальных и 14 готовых), набор `datetime_Clock` с 28 вариантами, шаблон проекта и пример для выбранной панели: TLP Pro 1025M (1280×800) или TLP Pro 300M (320×480, портрет). Всего 57 основных компонентов с учётом вариантов часов. Холст pen.dev также актуализирован 24.10: обновлены состояния, инструкция и примеры 28 форматов. В pen.dev форматы показаны связанными экземплярами одного компонента; набор вариантов Format создаётся в Figma. [Материалы pen.dev](../../docs/design/extron-kit/README.md) сохраняют обе ревизии. Автоматической синхронизации pen.dev и Figma нет.
 
@@ -13,7 +13,7 @@
 1. Для актуальной локальной сборки выполнить `npm ci`, затем `npm run verify` в `src/figma-plugin`. Использовать `manifest.json` из этой папки. Для переносимой копии выполнить `npm run package` и распаковать полученный ZIP из `output/figma-plugin` в постоянную папку. Ранее созданный архив 0.7.3 новый кит не содержит.
 2. Открыть редактируемый Design-файл в **Figma Desktop**.
 3. **Plugins → Development → Import plugin from manifest…** → выбрать `manifest.json`. Для уже импортированного плагина сохранить его прежний ID и обновить путь к локальной версии.
-4. Запустить **Figma → Extron Exporter**, проверить заголовок **0.8.3**, выбрать профиль панели.
+4. Запустить **Figma → Extron Exporter**, проверить заголовок **0.8.4**, выбрать профиль панели.
 5. Раскрыть **«Библиотека компонентов»** и нажать **«Создать Extron Kit»**. Команда добавит библиотеку, проект со страницей/popup/модальным popup/группой зон и пример экрана рядом с существующими объектами. Повторный запуск создаёт ещё один комплект.
 6. При необходимости сохранить Figma-документ через **File → Save local copy** как `.fig`. Такой файл уже создаёт сама Figma.
 
@@ -112,7 +112,7 @@
 
 [Русский](#russian) · **English**
 
-**Apple-inspired Light · revision 2026-10-24-av-patterns**, part of plugin **0.8.3**, compatible CLI **0.8.3**, contract **EXUI/5**. The 0.7.3 archives predate this update. In the new library, the style and revision are shown in the title and in the instructions on the canvas.
+**Apple-inspired Light · revision 2026-10-24-av-patterns**, part of plugin **0.8.4**, compatible CLI **0.8.3**, contract **EXUI/5**. The 0.7.3 archives predate this update. In the new library, the style and revision are shown in the title and in the instructions on the canvas.
 
 The plugin interface and the generated kit canvas are in Russian; labels are quoted as shown, followed by their English meaning.
 
@@ -123,7 +123,7 @@ The `src/kit.ts` generator uses the catalog `docs/design/extron-kit/kit.json` an
 1. For an up-to-date local build, run `npm ci`, then `npm run verify` in `src/figma-plugin`. Use the `manifest.json` from that folder. For a portable copy, run `npm run package` and unpack the resulting ZIP from `output/figma-plugin` into a permanent folder. The earlier 0.7.3 archive does not contain the new kit.
 2. Open an editable Design file in **Figma Desktop**.
 3. **Plugins → Development → Import plugin from manifest…** → choose `manifest.json`. For an already imported plugin, keep its ID and update the path to the local version.
-4. Run **Figma → Extron Exporter**, check that the title shows **0.8.3**, and choose the panel profile.
+4. Run **Figma → Extron Exporter**, check that the title shows **0.8.4**, and choose the panel profile.
 5. Open **«Библиотека компонентов»** (Component library) and click **«Создать Extron Kit»** (Create Extron Kit). The command adds the library, a project with a page/popup/modal popup/zone group and an example screen next to the existing objects. Running it again creates another kit.
 6. If needed, save the Figma document with **File → Save local copy** as `.fig`. Figma itself creates that file.
 

@@ -1,6 +1,6 @@
 <a id="russian"></a>
 
-# Figma → Extron Exporter — плагин 0.8.3 preview
+# Figma → Extron Exporter — плагин 0.8.4 preview
 
 **Русский** · [English](#english)
 
@@ -31,7 +31,7 @@
 
 **0.6.7 — прозрачность линий:** Pen/Vector и Line Tool поддерживают непрозрачность SOLID Stroke и общую Opacity слоя; прямоугольные линии — Fill и Opacity. Линии остаются нативными PBLine. Нужен CLI **0.6.4**. [Установка](../../releases/figma-plugin/0.6.7/README.md).
 
-Текущий комплект: **плагин 0.8.3 + CLI 0.8.3**, единственный контракт пакетов — **EXUI/5**. CLI 0.7.0 пишет пустой Text у картинок, фигур, линий и регуляторов, чтобы GCP не оставлял страницу пустой, и сохраняет сравнение экспортов из 0.6.6 ([инструкция](../../docs/updating-configured-projects.md)). Начиная с CLI 0.6.5 устранены унаследованные заливки popup, принимает EXUI/5 прежних плагинов, прозрачные фоны popup/цвета фигур и ставит стартовую страницу первой при конвертации. Старые пакеты EXUI/1–4 актуальный CLI отклоняет: экспортируйте исходный макет заново. Сохранённые назначения и ID в Figma остаются на месте, ключи следуют именам слоёв; архивы прежних выпусков не меняются.
+Текущий комплект: **плагин 0.8.4 + CLI 0.8.3**, единственный контракт пакетов — **EXUI/5**. CLI 0.7.0 пишет пустой Text у картинок, фигур, линий и регуляторов, чтобы GCP не оставлял страницу пустой, и сохраняет сравнение экспортов из 0.6.6 ([инструкция](../../docs/updating-configured-projects.md)). Начиная с CLI 0.6.5 устранены унаследованные заливки popup, принимает EXUI/5 прежних плагинов, прозрачные фоны popup/цвета фигур и ставит стартовую страницу первой при конвертации. Старые пакеты EXUI/1–4 актуальный CLI отклоняет: экспортируйте исходный макет заново. Сохранённые назначения и ID в Figma остаются на месте, ключи следуют именам слоёв; архивы прежних выпусков не меняются.
 
 **0.6.6 — клиппинг растрового фона:** включите Clip content у экрана или popup. Выступающий за его границы Frame `image_Background` экспортируется только видимой частью PNG с прежним масштабом. Клиппинг самого `image_Background` обрезает его внутренний рисунок; для выхода самого Frame за экран нужен клиппинг у экрана. Исходные размеры и координаты не меняются. [Установка](../../releases/figma-plugin/0.6.6/README.md).
 
@@ -274,7 +274,7 @@ node src/figma-plugin/test/native-integration.ts output/figma-plugin/new-run
 
 <a id="english"></a>
 
-# Figma → Extron Exporter — plugin 0.8.3 preview
+# Figma → Extron Exporter — plugin 0.8.4 preview
 
 [Русский](#russian) · **English**
 
@@ -307,7 +307,7 @@ Button styling and Override use only the current Figma selection: one or more fr
 
 **0.6.7 — line transparency:** Pen/Vector and Line Tool support the opacity of a SOLID Stroke and the layer Opacity; rectangular lines support Fill and Opacity. Lines stay native PBLine. Requires CLI **0.6.4**. [Installation](../../releases/figma-plugin/0.6.7/README.md) (in Russian).
 
-Current kit: **plugin 0.8.3 + CLI 0.8.3**; the only package contract is **EXUI/5**. CLI 0.7.0 writes an empty Text for images, shapes, lines and sliders so that GCP does not leave the page blank, and keeps the export comparison from 0.6.6 ([guide](../../docs/updating-configured-projects.md#english)). Since CLI 0.6.5, inherited popup fills are removed; it accepts EXUI/5 from earlier plugins, transparent popup backgrounds/shape colors, and puts the start page first on conversion. The current CLI refuses old EXUI/1–4 packages: export the source layout again. Saved assignments and IDs in Figma stay in place, keys follow the layer names; archives of earlier releases do not change.
+Current kit: **plugin 0.8.4 + CLI 0.8.3**; the only package contract is **EXUI/5**. CLI 0.7.0 writes an empty Text for images, shapes, lines and sliders so that GCP does not leave the page blank, and keeps the export comparison from 0.6.6 ([guide](../../docs/updating-configured-projects.md#english)). Since CLI 0.6.5, inherited popup fills are removed; it accepts EXUI/5 from earlier plugins, transparent popup backgrounds/shape colors, and puts the start page first on conversion. The current CLI refuses old EXUI/1–4 packages: export the source layout again. Saved assignments and IDs in Figma stay in place, keys follow the layer names; archives of earlier releases do not change.
 
 **0.6.6 — clipping of a raster background:** turn on Clip content on the screen or popup. An `image_Background` Frame that extends beyond its bounds is exported as only the visible part of the PNG at the original scale. Clipping on `image_Background` itself crops its inner picture; for the Frame itself to extend beyond the screen, clipping must be on the screen. The source sizes and coordinates do not change. [Installation](../../releases/figma-plugin/0.6.6/README.md) (in Russian).
 

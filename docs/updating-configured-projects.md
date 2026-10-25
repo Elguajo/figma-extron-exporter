@@ -4,7 +4,7 @@
 
 **Русский** · [English](#english)
 
-CLI **0.8.3**, плагин **0.8.3**, EXUI/5. Сравнение пакетов и выборочное обновление GDL работают без Figma и доноров.
+CLI **0.8.3**, плагин **0.8.4**, EXUI/5. Сравнение пакетов и выборочное обновление GDL работают без Figma и доноров.
 
 Главное правило: настройки кнопок GCP (Press, Release, Visual и Text Feedback) привязаны к **ID кнопки**. Они сохраняются, пока кнопка в новом GDL имеет тот же ID, а импорт выполняется с сохранением конфигурации. Если программист добавлял страницы или кнопки прямо в GUI Designer, импортируйте не GDL из Figma, а **рабочий GDL с перенесённым оформлением** — см. [выборочное обновление](#выборочное-обновление-рабочего-gdl).
 
@@ -129,7 +129,7 @@ CLI **0.8.3**, плагин **0.8.3**, EXUI/5. Сравнение пакетов
 
 [Русский](#russian) · **English**
 
-CLI **0.8.3**, plugin **0.8.3**, EXUI/5. Package comparison and the selective GDL update work without Figma and without donors.
+CLI **0.8.3**, plugin **0.8.4**, EXUI/5. Package comparison and the selective GDL update work without Figma and without donors.
 
 The main rule: GCP button settings (Press, Release, Visual and Text Feedback) are tied to the **button ID**. They are kept as long as the button in the new GDL has the same ID and the import keeps the existing configuration. If the programmer added pages or buttons directly in GUI Designer, do not import the GDL from Figma; import the **working GDL with the new artwork transferred** — see the [selective update](#selective-update-of-the-working-gdl).
 

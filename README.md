@@ -222,12 +222,12 @@ Each guide is one file with the Russian text first and the English text below; t
 | Update a configured GCP project | [Updating projects](docs/updating-configured-projects.md#english) |
 | Support new Extron versions | [Extron compatibility](docs/extron-compatibility.md#english) |
 | Understand the format and architecture | [EXUI/5](docs/exui-v5.md#english) · [GDL format](docs/extron-format.md) (in Russian) · [Decisions](docs/decisions.md) (in Russian) |
-| Check the result | [Checklist](docs/verification/checklist.md#english) · [0.8.3 checks](docs/verification/results/2026-10-25-release-0.8.3.md) (in Russian) |
+| Check the result | [Checklist](docs/verification/checklist.md#english) · [0.8.4 checks](docs/verification/results/2026-10-25-release-0.8.4.md) (in Russian) |
 | See changes and plans | [CHANGELOG](CHANGELOG.md) · [ROADMAP](ROADMAP.md) (in Russian) |
 
 ## Build and checks
 
-This section is for working with the sources. Installing from the ready archives does not need Node.js or the .NET SDK. Current sources: **plugin 0.8.3 + CLI 0.8.3**, EXUI/5.
+This section is for working with the sources. Installing from the ready archives does not need Node.js or the .NET SDK. Current sources: **plugin 0.8.4 + CLI 0.8.3**, EXUI/5.
 
 Development needs **.NET SDK 10.0.402** and **Node.js ≥ 22.18**. From the repository root:
 
