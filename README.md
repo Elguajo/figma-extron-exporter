@@ -20,9 +20,9 @@
   <a href="docs/development.md#english">Development</a>
 </p>
 
-![Extron Kit mockup for TLP Pro 1025M: source and zone selection, Mute, volume slider and value](docs/assets/readme/extron-kit-1025m.png)
+![Real JAMOA AV control project in Figma: screens and popup groups on the canvas, with the Extron Exporter 0.8.4 window on the right showing project scope, the TLP Pro 1025M profile and check/download actions](docs/assets/readme/figma-project-export.png)
 
-<p align="center"><sub>Mockup from the local Extron Kit · TLP Pro 1025M · Apple-inspired Light, 24 Oct 2026.<br>The downloadable kit contains the previous design revision.</sub></p>
+<p align="center"><sub>A real use case: JAMOA AV control · TLP Pro 1025M · plugin 0.8.4.<br>Figma screens and popup groups on the left; project export settings on the right.</sub></p>
 
 ---
 
@@ -30,9 +30,13 @@
 
 Prepare a screen in Figma, export an `.exui` package and convert it to `.gdl` with the local CLI. The result opens in **Extron GUI Designer**: controls, states and supported text remain editable.
 
-```text
-Figma  →  plugin  →  .exui  →  CLI  →  .gdl  →  GUI Designer
-                                               Verify → Save and Build
+```mermaid
+flowchart LR
+    accTitle: From Figma to an editable Extron project
+    accDescr: Check and export the Figma layout as EXUI, convert it to GDL with the Windows CLI, then verify, save and build in GUI Designer.
+    F["Figma layout"] --> P["Plugin: check and export"]
+    P -->|.exui| C["Windows CLI: convert"]
+    C -->|.gdl| D["GUI Designer: Verify, Save and Build"]
 ```
 
 | In Figma | In the Extron project |
@@ -44,6 +48,15 @@ Figma  →  plugin  →  .exui  →  CLI  →  .gdl  →  GUI Designer
 | Saved assignments | Element IDs and a map for the programmer; IDs are kept when existing layers are edited |
 
 The mockup follows naming and structure rules. For example, `button_Mute` becomes a button, and the Extron programmer connects the mute command and its feedback from the hardware. Figma Prototype interactions are not transferred automatically.
+
+<details>
+<summary><strong>Explore the real Figma project without the plugin window</strong></summary>
+
+![JAMOA project overview in Figma: start page, main dashboard, audio and video screens, Hall and Terrace popup groups, video wall layouts and a source selection modal](docs/assets/readme/figma-project-overview.png)
+
+The same project as in the opening screenshot. Screens, popup groups and a source selection modal are prepared separately on the canvas; the plugin is set to export the current page as one project. This screenshot shows layout preparation, not a verified GDL export.
+
+</details>
 
 <details>
 <summary><strong>See a real export opened in GUI Designer</strong></summary>
@@ -126,14 +139,7 @@ Full list of names: [prefix reference](src/figma-plugin/PREFIXES.md#english). Se
 5. If an error is shown, click **Показать слой** (Show layer) in the report, fix the reported cause and check again.
 6. Click **Скачать .exui** (Download .exui). Find the downloaded file, usually in your **Downloads** folder. Its name depends on the profile, for example `interface-tlp-pro-1025m.exui`.
 
-<details>
-<summary><strong>Where to find the panel profile, the check and the download</strong></summary>
-
-<img src="docs/assets/readme/plugin-export.png" width="420" alt="Plugin 0.7.3 window: scope and panel profile at the top, Проверить макет (Check layout) and Скачать .exui (Download .exui) buttons at the bottom, a Package ready message after export">
-
-The top of the window sets the scope and the panel model, the bottom checks and downloads the package. The screenshot shows the 0.7.3 interface in Russian; your layout name and element count will differ.
-
-</details>
+In the [plugin screenshot above](docs/assets/readme/figma-project-export.png), scope and panel profile are at the top; **Проверить макет** (Check layout) and **Скачать .exui** (Download .exui) stay at the bottom. That example exports the whole current page; for this first run choose the selected screen scope described in step 2.
 
 **You now have an EXUI of your design.** It is an intermediate package; the next step creates a file that opens in GUI Designer.
 
@@ -177,6 +183,17 @@ Ready-made components, button states, page and popup templates, and examples for
 
 ## Exporting again
 
+```mermaid
+flowchart TD
+    accTitle: Export an updated layout
+    accDescr: Compare the previous EXUI with the new export, review the changes, generate a new GDL and check it in GUI Designer. Use Layout Reconciliation in a project copy if GCP is already configured.
+    B["Edit, check and export interface-v2.exui"] --> C["CLI: compare-packages and review changes"]
+    V["Keep interface-v1.exui"] --> C
+    C --> N["CLI: convert-package to a new interface-v2.gdl"]
+    N --> D["GUI Designer: Verify, Save and Build, reopen"]
+    D --> G["If GCP is configured: Layout Reconciliation in a project copy"]
+```
+
 After the first successful export, save a copy of `interface.exui` as **`interface-v1.exui`**. Edit your screen in Figma, select its outer Frame again and click **Проверить макет → Скачать .exui** (Check layout → Download .exui). Copy the new export into the CLI folder as **`interface-v2.exui`**.
 
 Compare the versions and create a new GDL:
@@ -213,6 +230,7 @@ Each guide is one file with the Russian text first and the English text below; t
 | Task | Guide |
 |---|---|
 | Set up the converter or check the bundled example | [CLI setup](docs/cli-setup.md#english) |
+| Follow a practical workflow | [Five use cases PDF](docs/prefix_map/figma-extron-use-cases.pdf) · [Offline documentation](docs/web/index.html) (Russian) |
 | Prepare a layout | [Authoring standard](src/figma-plugin/AUTHORING_STANDARD.md) (in Russian) |
 | Name elements | [Prefix reference](src/figma-plugin/PREFIXES.md#english) · [Prefix rules in detail](docs/figma-prefix-reference.md#english) · [PDF cheat sheet](docs/prefix_map/figma-extron-prefix-cheatsheet.pdf) |
 | Design buttons and states | [Button states](src/figma-plugin/BUTTON_STATES.md#english) |
