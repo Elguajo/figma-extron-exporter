@@ -13,7 +13,7 @@ pages-popups-1025m.exui
 └── assets/…png
 ```
 
-Схемы JSON 2020-12: [manifest](../schemas/exui-v2/manifest.schema.json), [screen](../schemas/exui-v2/screen.schema.json). Определения элементов взяты из v1.
+Схемы JSON 2020-12: [manifest](../src/screen/schemas/exui-v2/manifest.schema.json), [screen](../src/screen/schemas/exui-v2/screen.schema.json). Определения элементов взяты из v1.
 
 ## screen.json
 
@@ -72,9 +72,9 @@ pages-popups-1025m.exui
 ## CLI
 
 ```powershell
-& $dotnet run --project src/cli --no-build -- validate-package examples/exui-v2/pages-popups-1025m.exui
-& $dotnet run --project src/cli --no-build -- id-map examples/exui-v2/pages-popups-1025m.exui
-& $dotnet run --project src/cli --no-build -- convert-package examples/exui-v2/pages-popups-1025m.exui output/new-1025m.gdl
+& $dotnet run --project src/cli --no-build -- validate-package tests/fixtures/exui-v2/pages-popups-1025m.exui
+& $dotnet run --project src/cli --no-build -- id-map tests/fixtures/exui-v2/pages-popups-1025m.exui
+& $dotnet run --project src/cli --no-build -- convert-package tests/fixtures/exui-v2/pages-popups-1025m.exui output/new-1025m.gdl
 ```
 
 `id-map` выводит Markdown для программиста:
@@ -90,4 +90,4 @@ pages-popups-1025m.exui
 - Включение Offline-страницы не управляется; динамическая видимость не описывается.
 - `referenceCount` группы — наше значение (число ссылок); Build может его пересчитать.
 - Состав и поведение — только GUI Designer 1.28.0.7 и два профиля.
-- GUI-проверка сгенерированных файлов `exui/2` выполняется вручную: протокол [2026-10-19-pages-popups](../verification/results/2026-10-19-pages-popups.md).
+- GUI-проверка сгенерированных файлов `exui/2` выполняется вручную: протокол [2026-10-19-pages-popups](verification/results/2026-10-19-pages-popups.md).

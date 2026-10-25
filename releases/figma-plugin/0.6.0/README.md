@@ -15,4 +15,4 @@
 
 Распаковать [архив плагина](../../../output/releases/0.6.0/figma-extron-plugin-0.6.0.zip) и [CLI](../../../output/releases/0.6.0/figma-extron-cli-0.6.0-windows.zip) в постоянные папки. В Figma: Plugins → Development → Import plugin from manifest… → manifest.json. В заголовке должна быть версия 0.6.0. Выбрать экраны и нажать «Проверить макет»: ключи обновятся, русские имена будут показаны как ошибки.
 
-Проверки и их границы: [протокол](../../../verification/results/2026-10-22-release-0.6.0.md).
+Проверки и их границы: [протокол](../../../docs/verification/results/2026-10-22-release-0.6.0.md).

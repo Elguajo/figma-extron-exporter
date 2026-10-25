@@ -19,4 +19,4 @@
 
 [Архив плагина](../../../output/releases/0.6.4/figma-extron-plugin-0.6.4.zip). Распакуйте в постоянную папку и импортируйте `manifest.json` через Figma → Plugins → Development → Import plugin from manifest. Заголовок должен показывать **0.6.4**. Plugin ID сохранён. Для версии из исходников перезапустите плагин после сборки.
 
-[Проверки и ограничения](../../../verification/results/2026-10-22-popup-binding-memory.md). Переключение Hall / Terrace на панели по-прежнему задаётся программой управления Extron.
+[Проверки и ограничения](../../../docs/verification/results/2026-10-22-popup-binding-memory.md). Переключение Hall / Terrace на панели по-прежнему задаётся программой управления Extron.

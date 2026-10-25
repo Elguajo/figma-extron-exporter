@@ -2,6 +2,6 @@
   <PropertyGroup><RootNamespace>ExtronExporter.Screen</RootNamespace></PropertyGroup>
   <ItemGroup><ProjectReference Include="../extron/Extron.Format.csproj" /></ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="../../schemas/exui-v5/*.schema.json" Link="Schemas/exui-v5/%(Filename)%(Extension)" LogicalName="exui-v5/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="schemas/exui-v5/*.schema.json" Link="Schemas/exui-v5/%(Filename)%(Extension)" LogicalName="exui-v5/%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

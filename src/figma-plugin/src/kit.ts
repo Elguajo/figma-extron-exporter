@@ -1,4 +1,4 @@
-import catalog from '../../../design/extron-kit/kit.json' with {type:'json'};
+import catalog from '../../../docs/design/extron-kit/kit.json' with {type:'json'};
 import { PROFILES,fail,type Profile } from './model.ts';
 import { KIT_KEY,KIT_VERSION,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 import {createKitExtensions} from './kit-patterns.ts';

@@ -10,7 +10,7 @@ From repository root: `npm ci --prefix src/figma-plugin --ignore-scripts`, `npm 
 
 ## Readiness / Doctor
 
-`manifest.json` points to existing `dist/code.js` and `dist/ui.html`. Panel title: Figma → Extron Exporter; profile options 1280×800 and 320×480. Confirm this build against recorded SHA in `verification/results/2026-10-19-figma-plugin/file-hashes.json`. Run typecheck/unit/build before the real surface. Native integration additionally needs a built .NET CLI, pinned donors, x86 PowerShell and installed GUI Designer 1.28.0.7.
+`manifest.json` points to existing `dist/code.js` and `dist/ui.html`. Panel title: Figma → Extron Exporter; profile options 1280×800 and 320×480. Confirm this build against recorded SHA in `docs/verification/results/2026-10-19-figma-plugin/file-hashes.json`. Run typecheck/unit/build before the real surface. Native integration additionally needs a built .NET CLI, pinned donors, x86 PowerShell and installed GUI Designer 1.28.0.7.
 
 ## Drive
 
@@ -36,12 +36,12 @@ Work directly in main under AGENTS.md by user instruction. Implementation histor
 
 ## Known limitations
 
-Current work is directly on main by user instruction; do not create another branch/worktree without a new request. Plugin 0.1.1 additionally tests platform-style messages with a null Window source: run the same Chromium harness, which covers both transports. Historical fix evidence: `verification/results/2026-10-19-figma-ui-messages.md`.
+Current work is directly on main by user instruction; do not create another branch/worktree without a new request. Plugin 0.1.1 additionally tests platform-style messages with a null Window source: run the same Chromium harness, which covers both transports. Historical fix evidence: `docs/verification/results/2026-10-19-figma-ui-messages.md`.
 
-Plugin 0.1.2 isolates PNG rendering from hidden State ancestors through temporary visible clones, with Native bounds and cleanup. Unit fixtures check hidden-ancestor failures, transparent margins, source/selection preservation and cleanup. Fix evidence: `verification/results/2026-10-19-figma-png-export.md`.
+Plugin 0.1.2 isolates PNG rendering from hidden State ancestors through temporary visible clones, with Native bounds and cleanup. Unit fixtures check hidden-ancestor failures, transparent margins, source/selection preservation and cleanup. Fix evidence: `docs/verification/results/2026-10-19-figma-png-export.md`.
 
-The user supplied a real 300M export after 0.1.2: `examples/figma-plugin/figma-demo-300m.exui`. Actual CLI conversion passed 65/65; full screen semantics match the demo and both decoded 64×64 PNGs are nonempty, with at most one channel-value difference from the original icon pixels. See `verification/results/2026-10-19-figma-real-export.md`. Real 1025M export, private metadata after a full Figma restart, edits/re-export and GUI Designer verification of this new GDL remain pending. Figma MCP was not substituted for classic-plugin verification. Component instances/sets, history-based ID allocation, merge of manual GDL edits, navigation and hardware are unsupported/unverified; text layout on device is unverified.
+The user supplied a real 300M export after 0.1.2: `tests/fixtures/figma-plugin/figma-demo-300m.exui`. Actual CLI conversion passed 65/65; full screen semantics match the demo and both decoded 64×64 PNGs are nonempty, with at most one channel-value difference from the original icon pixels. See `docs/verification/results/2026-10-19-figma-real-export.md`. Real 1025M export, private metadata after a full Figma restart, edits/re-export and GUI Designer verification of this new GDL remain pending. Figma MCP was not substituted for classic-plugin verification. Component instances/sets, history-based ID allocation, merge of manual GDL edits, navigation and hardware are unsupported/unverified; text layout on device is unverified.
 
 ## Feature map
 
-See [features/README.md](features/README.md). Result evidence: `verification/results/2026-10-19-figma-plugin.md`.
+See [features/README.md](features/README.md). Result evidence: `docs/verification/results/2026-10-19-figma-plugin.md`.

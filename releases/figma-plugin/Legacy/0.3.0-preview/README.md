@@ -4,7 +4,7 @@
 
 Исправленный после проверки Figma Desktop архив: `output/extron-kit-0.3.0-desktop-fix/figma-extron-plugin-0.3.0.zip`. Распакованный плагин: `output/extron-kit-0.3.0-desktop-fix/plugin/manifest.json`. Для разработки можно импортировать напрямую `src/figma-plugin/manifest.json` после сборки. Более ранние промежуточные архивы не использовать.
 
-[Установка и работа с китом](../../../../src/figma-plugin/EXTRON_KIT.md) · [исходный дизайн pen.dev](../../../../design/extron-kit/README.md) · [проверки и ограничения](../../../../verification/results/2026-10-21-extron-kit.md).
+[Установка и работа с китом](../../../../src/figma-plugin/EXTRON_KIT.md) · [исходный дизайн pen.dev](../../../../docs/design/extron-kit/README.md) · [проверки и ограничения](../../../../docs/verification/results/2026-10-21-extron-kit.md).
 
 Проверены 106 автоматических тестов, Chromium UI и настоящая конвертация GDL обеих панелей на моделируемом Figma API/PNG. В настоящей Figma Desktop создано 30 компонентов; пример 1025M экспортирован с 14 настоящими PNG, полученный GDL прошёл 129/129 проверок. Цикл GUI Designer/Global Configurator Pro ещё требует проверки. Схемы/CLI не менялись; совместимый CLI — 0.2.1.
 

@@ -9,8 +9,8 @@ using ExtronExporter.Screen;
 static class PackageTests
 {
     static void Check(bool ok, string why = "Assertion failed") { if (!ok) throw new Exception(why); }
-    static string Example(string p) => Path.Combine(ScreenTests.Root, "examples", "exui-v1", p);
-    static string RealHome => Path.Combine(ScreenTests.Root, "verification", "results", "2026-10-20-full-home-1025m", "actual-home-1025m.exui");
+    static string Example(string p) => Path.Combine(ScreenTests.Root, "tests", "fixtures", "exui-v1", p);
+    static string RealHome => Path.Combine(ScreenTests.Root, "docs", "verification", "results", "2026-10-20-full-home-1025m", "actual-home-1025m.exui");
     static Dictionary<string, byte[]> Files(string p = "1025m") => CurrentPackageFixture.Read(Example(p));
     static void Edit(Dictionary<string, byte[]> files, string name, Action<JsonNode> edit)
     {
@@ -44,7 +44,7 @@ static class PackageTests
     {
         test("Real Figma Home layout v5: separate native overlays retain original positions", () =>
         {
-            using var p = ExuiPackage.Load(Path.Combine(ScreenTests.Root, "verification", "results", "2026-10-21-home-layout-1025m", "actual-home-layout.exui"));
+            using var p = ExuiPackage.Load(Path.Combine(ScreenTests.Root, "docs", "verification", "results", "2026-10-21-home-layout-1025m", "actual-home-layout.exui"));
             Check(p.Contract == "exui/5" && p.Plan.Elements.Count == 47 && p.Plan.Images.Count == 15);
             Check(p.Plan.Elements.Count(e => e.Kind == "label") == 25 && p.Plan.Elements.Count(e => e.Kind == "value") == 3);
             var blank = p.Plan.Elements.Where(e => e.Kind == "button" && e.Name is not "button_VolumeUp" and not "button_VolumeDown").ToArray();
@@ -106,7 +106,7 @@ static class PackageTests
                     string resource;
                     using (var package = ExuiPackage.Load(Zip(work, Files(profile))))
                     {
-                        var specPath = Path.Combine(ScreenTests.Root, "examples", "first-screen", $"screen-{profile}.json");
+                        var specPath = Path.Combine(ScreenTests.Root, "tests", "fixtures", "first-screen", $"screen-{profile}.json");
                         var plan = ScreenSpecReader.Normalize(ScreenSpecReader.Load(specPath), package.Profile.Panel, package.Profile.Width, package.Profile.Height, Path.GetDirectoryName(specPath)!);
                         Check(Signature(plan) == Signature(package.Plan));
                         resource = package.Plan.Images[0].File; Check(File.Exists(resource));
@@ -438,7 +438,7 @@ static class PackageTests
                     var a=PackageGenerator.Generate(registry,package,output,adapter);
                     var b=PackageGenerator.Generate(registry,package,Path.Combine(work,profile+"-repeat.gdl"),adapter);
                     string donor=profile=="1025m"?"tlp-pro-1025m":"tlp-pro-300m-portrait";
-                    var experiment=ScreenGenerator.Generate(registry,donor,Path.Combine(ScreenTests.Root,"examples","first-screen",$"screen-{profile}.json"),Path.Combine(work,profile+"-experiment.gdl"),adapter);
+                    var experiment=ScreenGenerator.Generate(registry,donor,Path.Combine(ScreenTests.Root,"tests","fixtures","first-screen",$"screen-{profile}.json"),Path.Combine(work,profile+"-experiment.gdl"),adapter);
                     Check(a.Generation.Checks.All(c=>c.Passed) && a.Generation.Checks.Count>=61);
                     Check(a.Generation.OutputSha256==b.Generation.OutputSha256 && a.Generation.OutputSha256==experiment.OutputSha256,"payload/container differ from existing generator");
                     Check(!a.GuiDesignerVerified && !a.HardwareVerified && File.Exists(output+".report.json"));

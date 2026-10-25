@@ -10,7 +10,7 @@ using ExtronExporter.Screen;
 static class PagesTests
 {
     static void Check(bool ok, string why = "Assertion failed") { if (!ok) throw new Exception(why); }
-    static string Example(string p) => Path.Combine(ScreenTests.Root, "examples", "exui-v2", p);
+    static string Example(string p) => Path.Combine(ScreenTests.Root, "tests", "fixtures", "exui-v2", p);
     static Dictionary<string, byte[]> Files(string p = "1025m") => CurrentPackageFixture.Read(Example(p));
     static void Edit(Dictionary<string, byte[]> files, string name, Action<JsonNode> edit)
     {
@@ -227,7 +227,7 @@ static class PagesTests
                 test("exui/5 refuses " + c.Name, () => { var f = Files(); c.Edit(f); Reject(c.Code, () => { using var p = ExuiPackage.Load(Zip(work, f)); }, c.Fragment); });
             test("exui/1 package still refuses navigate (no silent upgrade)", () =>
             {
-                string dir = Path.Combine(ScreenTests.Root, "examples", "exui-v1", "1025m");
+                string dir = Path.Combine(ScreenTests.Root, "tests", "fixtures", "exui-v1", "1025m");
                 var f = Directory.GetFiles(dir, "*", SearchOption.AllDirectories).ToDictionary(x => Path.GetRelativePath(dir, x).Replace('\\', '/'), File.ReadAllBytes);
                 Edit(f, "screen.json", n => n["elements"]![0]!["navigate"] = "page.home");
                 Reject("package-schema", () => { using var p = ExuiPackage.Load(Zip(work, f)); });
@@ -264,7 +264,7 @@ static class PagesTests
         var adapter = new ExtronAdapter(AdapterOptions.Default());
         string work = Directory.CreateTempSubdirectory("exui2-integration-").FullName;
         var protectedFiles = registry.Data.Donors.SelectMany(d => new[] { registry.Resolve(d.File), registry.Resolve(d.Preparation.Source) })
-            .Concat(Directory.GetFiles(Path.Combine(ScreenTests.Root, "examples", "exui-v2"), "*", SearchOption.AllDirectories))
+            .Concat(Directory.GetFiles(Path.Combine(ScreenTests.Root, "tests", "fixtures", "exui-v2"), "*", SearchOption.AllDirectories))
             .Distinct().ToDictionary(f => f, f => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(f))));
         try
         {

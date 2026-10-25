@@ -20,7 +20,7 @@ static class ComparisonTests
         {
             string Write(string profile = "1025m", Action<JsonNode>? edit = null, Action<Dictionary<string, byte[]>>? filesEdit = null)
             {
-                var files = CurrentPackageFixture.Read(Path.Combine(ScreenTests.Root, "examples", "exui-v2", profile));
+                var files = CurrentPackageFixture.Read(Path.Combine(ScreenTests.Root, "tests", "fixtures", "exui-v2", profile));
                 var screen = JsonNode.Parse(files["screen.json"])!; edit?.Invoke(screen);
                 files["screen.json"] = Encoding.UTF8.GetBytes(screen.ToJsonString()); filesEdit?.Invoke(files);
                 string path = Path.Combine(work, Guid.NewGuid().ToString("N") + ".exui");

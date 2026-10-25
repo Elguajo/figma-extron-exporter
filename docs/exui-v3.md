@@ -4,7 +4,7 @@
 
 Принят 19.10.2026 для кнопок Off/On из Figma-плагина 0.1.4. Контракт основан на одностраничном [`.exui/1`](exui-v1.md); возможности нескольких страниц и popup из `.exui/2` в него не входят. Версии 1 и 2 сохраняют прежние строгие требования.
 
-Состав ZIP, профили, limits, поля страницы/элементов/ресурсов и проверки целостности совпадают с версией 1. Маркеры обязательны: manifest `schema: "exui/3"`, screen `schema: "exui-screen/3"`. Схемы: [manifest](../schemas/exui-v3/manifest.schema.json), [screen](../schemas/exui-v3/screen.schema.json). Пакет с несовпадающими версиями отклоняется.
+Состав ZIP, профили, limits, поля страницы/элементов/ресурсов и проверки целостности совпадают с версией 1. Маркеры обязательны: manifest `schema: "exui/3"`, screen `schema: "exui-screen/3"`. Схемы: [manifest](../src/screen/schemas/exui-v3/manifest.schema.json), [screen](../src/screen/schemas/exui-v3/screen.schema.json). Пакет с несовпадающими версиями отклоняется.
 
 Единственное смысловое расширение — кнопка может содержать два или три состояния:
 

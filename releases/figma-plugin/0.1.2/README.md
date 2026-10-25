@@ -1,6 +1,6 @@
 # Figma → Extron Exporter 0.1.2
 
-[ZIP плагина](figma-extron-plugin-0.1.2.zip) · [Установка](../../../src/figma-plugin/README.md) · [Протокол](../../../verification/results/2026-10-19-figma-png-export.md).
+[ZIP плагина](figma-extron-plugin-0.1.2.zip) · [Установка](../../../src/figma-plugin/README.md) · [Протокол](../../../docs/verification/results/2026-10-19-figma-png-export.md).
 
 Исправлен PNG-экспорт иконок скрытых состояний: временная видимая копия вне исходного экрана экспортируется в Native 1× с полными границами Frame, включая прозрачные поля. Копия удаляется при успехе и ошибке. Видимость, родители и назначения исходных слоёв не меняются. Проверка точного размера PNG сохранена.
 

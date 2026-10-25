@@ -35,4 +35,4 @@ jobs:
           global-json-file: global.json
       - run: dotnet build ExtronExporter.slnx --configuration Release
       - run: dotnet run --no-build --configuration Release --project tests/format
-      - run: dotnet run --no-build --configuration Release --project src/cli -- validate-package examples/exui-v5/project-1025m.exui
+      - run: dotnet run --no-build --configuration Release --project src/cli -- validate-package tests/fixtures/exui-v5/project-1025m.exui

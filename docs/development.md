@@ -19,28 +19,28 @@ src/cli  (.NET 10, точка входа Program.cs)
 - **DLL Extron не входят в поставку** и загружаются только в отдельном 32-битном процессе `adapter/host` из установленного GUI Designer. Основной процесс читает NRBF через `System.Formats.Nrbf`, не создавая объектов Extron.
 - **Новые объекты клонируются из доноров** — закреплённых по SHA-256 эталонных GDL, а не создаются с нуля.
 - **Результат проверяется независимо**: после генерации `src/extron` перечитывает GDL и сверяет его с пакетом (`.gdl.report.json`).
-- **Версии Extron задаются профилями** в `compatibility/extron.json`; `doctor` проверяет установленную среду и общий контракт адаптера. Порядок подключения обновлений GUI Designer и проверки GCP — [совместимость](extron-compatibility.md).
+- **Версии Extron задаются профилями** в `src/adapter/compatibility/extron.json`; `doctor` проверяет установленную среду и общий контракт адаптера. Порядок подключения обновлений GUI Designer и проверки GCP — [совместимость](extron-compatibility.md).
 
 Обоснования — [docs/decisions.md](decisions.md), формат GDL — [docs/extron-format.md](extron-format.md), контракт пакета — [docs/exui-v5.md](exui-v5.md).
 
 ## Структура репозитория
 
 ```text
-src/figma-plugin/   плагин: src/ — код, test/ — тесты, ui.html — интерфейс, *.md — инструкции дизайнеру
-src/cli/            консольные команды
-src/screen/         модель и валидация пакета .exui
-src/adapter/        генерация GDL через Extron; host/ — x86 PowerShell-хост
-src/extron/         формат GDL: контейнер, NRBF, модель проекта
-tests/format/       .NET-тесты (исполняемый проект)
-schemas/            JSON Schema пакета .exui
-examples/           эталонные .exui и id-map для тестов и демонстрации
-samples/            donors.json (реестр доноров); original/ и donors/ — локально, вне Git
-design/extron-kit/  исходники библиотеки компонентов
-docs/               контракты, формат Extron, решения
-verification/       чек-лист и протоколы ручных проверок
-releases/           заметки к выпускам плагина и CLI
-scripts/            лаунчер CLI и упаковка выпуска
-output/             локальные сборки и результаты, вне Git
+src/figma-plugin/        плагин: src/ — код, test/ — тесты, ui.html — интерфейс, *.md — инструкции дизайнеру
+src/cli/                 консольные команды
+src/screen/              модель и валидация пакета .exui; schemas/ — JSON Schema
+src/adapter/             генерация GDL через Extron; host/ — x86 PowerShell-хост, compatibility/ — профили версий
+src/extron/              формат GDL: контейнер, NRBF, модель проекта
+src/updater/             Windows-утилита выборочного обновления GDL
+tests/format/            .NET-тесты (исполняемый проект)
+tests/fixtures/          эталонные .exui и id-map для тестов и демонстрации
+samples/                 donors.json и manifest.json; donors/, original/, fixtures/ — закрытые GDL, локально, вне Git
+docs/                    контракты, формат Extron, решения
+docs/verification/       чек-лист и протоколы проверок
+docs/design/, docs/web/  исходники Extron Kit и сайт его документации
+releases/                заметки к выпускам плагина и CLI
+scripts/                 лаунчер CLI и упаковка выпуска
+output/                  временные сборки и результаты, вне Git; можно очищать целиком
 ```
 
 Модули плагина: `recognize.ts` — распознавание имён, `assignment-rules.ts` — ключи и ID, `button-preparation.ts` / `button-artwork.ts` — состояния кнопок, `export.ts` и `package.ts` — сборка `.exui`, `kit.ts` — Extron Kit, `ui.ts` — логика интерфейса, `code.ts` — точка входа.
@@ -70,10 +70,10 @@ npm run verify --prefix src/figma-plugin
 Запуск CLI из исходников без Extron:
 
 ```powershell
-dotnet run --project src/cli -- validate-package examples/exui-v5/expanded-1025m.exui
+dotnet run --project src/cli -- validate-package tests/fixtures/exui-v5/expanded-1025m.exui
 ```
 
-Доноры хранятся в проекте в одном месте — `samples/donors/` и `samples/original/` рядом с реестром [samples/donors.json](../samples/donors.json). Эти GDL не входят в Git (репозиторий публичный): новый разработчик получает их у владельца проекта и кладёт туда же. Проверки распакованного архива CLI запускают с `EXUI_DONOR_REGISTRY=<проект>\samples\donors.json`, поэтому копировать доноров в папку каждой версии не нужно.
+Доноры хранятся в проекте в одном месте — `samples/donors/` и `samples/original/` рядом с реестром [samples/donors.json](../samples/donors.json); закрытые GDL для отдельных тестов и упаковки — в `samples/fixtures/`. Эти GDL не входят в Git (репозиторий публичный): новый разработчик получает их у владельца проекта и кладёт туда же. Проверки распакованного архива CLI запускают с `EXUI_DONOR_REGISTRY=<проект>\samples\donors.json`, поэтому копировать доноров в папку каждой версии не нужно.
 
 Интеграционные тесты (нужны GUI Designer и доноры в `samples/donors/`):
 
@@ -89,7 +89,7 @@ dotnet run --project tests/format -- --registry samples/donors.json --golden
 
 CI ([.github/workflows/ci.yml](../.github/workflows/ci.yml)) на каждом push в `main` проверяет чистый checkout без Extron: `npm run verify`, сборку .NET, unit-тесты и `validate-package`. Тест `performance-budget.test.ts` ограничивает число полных обходов дерева дизайна на событие плагина.
 
-Автотесты не заменяют проверку в GUI Designer и на панели — порядок ручной проверки в [verification/checklist.md](../verification/checklist.md).
+Автотесты не заменяют проверку в GUI Designer и на панели — порядок ручной проверки в [docs/verification/checklist.md](verification/checklist.md).
 
 ## Выпуск
 

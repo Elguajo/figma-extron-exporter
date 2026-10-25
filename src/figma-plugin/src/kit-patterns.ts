@@ -1,6 +1,6 @@
-import catalog from '../../../design/extron-kit/kit.json' with {type:'json'};
-import registry from '../../../design/extron-kit/patterns.json' with {type:'json'};
-import symbols from '../../../design/extron-kit/icons/icons.json' with {type:'json'};
+import catalog from '../../../docs/design/extron-kit/kit.json' with {type:'json'};
+import registry from '../../../docs/design/extron-kit/patterns.json' with {type:'json'};
+import symbols from '../../../docs/design/extron-kit/icons/icons.json' with {type:'json'};
 import {PROFILES,type Profile} from './model.ts';
 import {KIT_KEY,KIT_VERSION} from './kit-contract.ts';
 

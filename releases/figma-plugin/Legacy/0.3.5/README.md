@@ -4,7 +4,7 @@
 
 - [Плагин 0.3.5](../../../../output/releases/0.3.5/figma-extron-plugin-0.3.5.zip).
 - [Полный комплект с CLI 0.3.0](../../../../output/releases/0.3.5/figma-extron-complete-0.3.5-local.zip).
-- [Протокол проверки](../../../../verification/results/2026-10-21-auto-assignments.md).
+- [Протокол проверки](../../../../docs/verification/results/2026-10-21-auto-assignments.md).
 
 Распакуйте архив в постоянную папку и импортируйте `manifest.json` через Figma → Plugins → Development → Import plugin from manifest…; в полном комплекте он находится в `figma-plugin/`. Сохраните прежний plugin ID. Перезапустите плагин: в заголовке должно быть **0.3.5**.
 

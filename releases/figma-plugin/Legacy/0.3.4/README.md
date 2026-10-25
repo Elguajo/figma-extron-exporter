@@ -5,7 +5,7 @@ Pen Tool (Vector) и Line Tool поддерживаются как редакт�
 - [Плагин 0.3.4](../../../../output/releases/0.3.4/figma-extron-plugin-0.3.4.zip).
 - [Полный локальный комплект с CLI 0.3.0](../../../../output/releases/0.3.4/figma-extron-complete-0.3.4-local.zip).
 - [Правила подготовки линий](../../../../src/figma-plugin/AUTHORING_STANDARD.md#линии-pen-tool-и-line-tool-034).
-- [Протокол проверки](../../../../verification/results/2026-10-21-pen-lines.md).
+- [Протокол проверки](../../../../docs/verification/results/2026-10-21-pen-lines.md).
 
 Распаковать архив в постоянную папку и импортировать `manifest.json` через Figma → Plugins → Development → Import plugin from manifest… (в полном комплекте — `figma-plugin/manifest.json`). Перезапустить плагин; заголовок должен показывать **0.3.4**.
 

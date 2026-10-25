@@ -27,9 +27,9 @@
 
 Проверено: 81 тест плагина, typecheck/build, 149 проверок .NET, Chromium UI, 60 независимых проверок JSON Schema. Нативная конвертация обеих панелей: расширенные элементы 101/101, вертикальный вариант 101/101, проект с popup 200/200; прежние сценарии также проходят. Figma API/PNG в тестах моделируются. Исходный автоматический прогон не проверял Figma/GUI/оборудование; последующие ручные прогоны описаны ниже.
 
-[Подробная установка](../../../src/figma-plugin/README.md) · [Протокол](../../../verification/results/2026-10-20-expanded-controls.md)
+[Подробная установка](../../../src/figma-plugin/README.md) · [Протокол](../../../docs/verification/results/2026-10-20-expanded-controls.md)
 
-Дополнительная практическая проверка: [блок громкости 1025M](../../../verification/results/2026-10-20-volume-gui.md) прошёл редактирование, Verify 0/0, Save and Build и reopen в GUI Designer на синтетическом exui/5. В CLI исправлены видимость бегунка и пропорции при resize; использовать текущий CLI. Архив Figma-плагина и его SHA не менялись. Последующий настоящий Figma/GUI-цикл адаптированного блока 1025M: [протокол](../../../verification/results/2026-10-20-real-figma-1025m.md). Исправлены PBImage и выравнивание Value/Label в CLI; остальные GUI-сценарии и оборудование не проверены.
+Дополнительная практическая проверка: [блок громкости 1025M](../../../docs/verification/results/2026-10-20-volume-gui.md) прошёл редактирование, Verify 0/0, Save and Build и reopen в GUI Designer на синтетическом exui/5. В CLI исправлены видимость бегунка и пропорции при resize; использовать текущий CLI. Архив Figma-плагина и его SHA не менялись. Последующий настоящий Figma/GUI-цикл адаптированного блока 1025M: [протокол](../../../docs/verification/results/2026-10-20-real-figma-1025m.md). Исправлены PBImage и выравнивание Value/Label в CLI; остальные GUI-сценарии и оборудование не проверены.
 
 figma-extron-plugin-0.2.0.zip: 84527 bytes, SHA-256 `6EF3D351FD2173248967FCBEE062B929B54F54F6ECF41DA98C883BB25D430E1E`.
 

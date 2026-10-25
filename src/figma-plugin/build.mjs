@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 const root=path.dirname(fileURLToPath(import.meta.url));
 const icons={};
-for(const tone of ['light','dark'])icons[`icon.note-${tone}`]=[...await readFile(path.join(root,`../../examples/first-screen/assets/note-${tone}.png`))];
+for(const tone of ['light','dark'])icons[`icon.note-${tone}`]=[...await readFile(path.join(root,`../../tests/fixtures/first-screen/assets/note-${tone}.png`))];
 const common={bundle:true,target:'es2017',logLevel:'info'};
 async function build(){
   const ui=await esbuild.build({...common,entryPoints:[path.join(root,'src/ui.ts')],write:false,minify:true});

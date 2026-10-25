@@ -14,4 +14,4 @@
 
 Распаковать [архив плагина](../../../output/releases/0.6.1/figma-extron-plugin-0.6.1.zip) в постоянную папку. В Figma: Plugins → Development → Import plugin from manifest… → manifest.json. В заголовке должна быть версия 0.6.1. CLI — прежний [0.6.0](../../cli/0.6.0/README.md). Затем «Библиотека компонентов → Создать Extron Kit» — раздел «03 / Дата и время».
 
-Правила формата: [стандарт макета](../../../src/figma-plugin/AUTHORING_STANDARD.md#дата-и-время) · [Extron Kit](../../../src/figma-plugin/EXTRON_KIT.md#дата-и-время). Проверки и их границы: [протокол](../../../verification/results/2026-10-22-release-0.6.1.md).
+Правила формата: [стандарт макета](../../../src/figma-plugin/AUTHORING_STANDARD.md#дата-и-время) · [Extron Kit](../../../src/figma-plugin/EXTRON_KIT.md#дата-и-время). Проверки и их границы: [протокол](../../../docs/verification/results/2026-10-22-release-0.6.1.md).

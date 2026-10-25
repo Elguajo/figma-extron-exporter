@@ -52,4 +52,4 @@ export function fakeFigma() {
   (globalThis as unknown as {figma:unknown}).figma=api;
   return {api,page,messages,FakeNode,setRenderHook:(hook:typeof renderHook)=>renderHook=hook,emit:(name:string)=>listeners.get(name)?.forEach(fn=>fn())};
 }
-export function icons(){return Object.fromEntries(['light','dark'].map(tone=>[`icon.note-${tone}`,new Uint8Array(readFileSync(new URL(`../../../examples/first-screen/assets/note-${tone}.png`,import.meta.url)))]));}
+export function icons(){return Object.fromEntries(['light','dark'].map(tone=>[`icon.note-${tone}`,new Uint8Array(readFileSync(new URL(`../../../tests/fixtures/first-screen/assets/note-${tone}.png`,import.meta.url)))]));}

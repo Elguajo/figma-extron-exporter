@@ -46,9 +46,9 @@ Figma  →  плагин  →  .exui  →  CLI  →  .gdl  →  GUI Designer
 <details>
 <summary><strong>Посмотреть результат реального экспорта в GUI Designer</strong></summary>
 
-![Экран Home с выбором источников и громкостью открыт в GUI Designer после сохранения, сборки и повторного открытия](verification/results/2026-10-21-home-layout-1025m/gui-home-reopened.jpg)
+![Экран Home с выбором источников и громкостью открыт в GUI Designer после сохранения, сборки и повторного открытия](docs/verification/results/2026-10-21-home-layout-1025m/gui-home-reopened.jpg)
 
-Проверка **21.10.2026**, TLP Pro 1025M: 47 элементов, 15 PNG, **Verify: 0 ошибок / 0 предупреждений**, Save and Build и повторное открытие. Это отдельный рабочий макет; [протокол и границы проверки](verification/results/2026-10-21-home-layout-1025m.md).
+Проверка **21.10.2026**, TLP Pro 1025M: 47 элементов, 15 PNG, **Verify: 0 ошибок / 0 предупреждений**, Save and Build и повторное открытие. Это отдельный рабочий макет; [протокол и границы проверки](docs/verification/results/2026-10-21-home-layout-1025m.md).
 
 </details>
 
@@ -169,7 +169,7 @@ screen_Home
 
 **Apple-inspired Light · 24.10.2026** — оформление библиотеки в текущих исходниках. Скачиваемый комплект 0.7.2 содержит предыдущую версию оформления; показанные здесь светлые примеры доступны при [сборке из исходников](#сборка-и-проверки). Новый комплект создаётся рядом с существующим; готовые библиотеки автоматически не обновляются.
 
-[Работа с Extron Kit](src/figma-plugin/EXTRON_KIT.md) · [Исходники и превью](design/extron-kit/README.md)
+[Работа с Extron Kit](src/figma-plugin/EXTRON_KIT.md) · [Исходники и превью](docs/design/extron-kit/README.md)
 
 ## Повторный экспорт
 
@@ -214,7 +214,7 @@ screen_Home
 | Использовать библиотеку | [Extron Kit](src/figma-plugin/EXTRON_KIT.md) |
 | Обновить настроенный GCP | [Обновление проектов](docs/updating-configured-projects.md) |
 | Разобраться в формате и архитектуре | [EXUI/5](docs/exui-v5.md) · [Формат GDL](docs/extron-format.md) · [Решения](docs/decisions.md) |
-| Проверить результат | [Чек-лист](verification/checklist.md) · [Проверки 0.8.3](verification/results/2026-10-25-release-0.8.3.md) |
+| Проверить результат | [Чек-лист](docs/verification/checklist.md) · [Проверки 0.8.3](docs/verification/results/2026-10-25-release-0.8.3.md) |
 | Посмотреть изменения и планы | [CHANGELOG](CHANGELOG.md) · [ROADMAP](ROADMAP.md) |
 
 ## Сборка и проверки
@@ -235,7 +235,7 @@ npm run verify --prefix src/figma-plugin
 
 ## Статус проекта
 
-**Preview.** Подтверждён реальный цикл Figma → EXUI → GDL → GUI Designer Verify → Save and Build → повторное открытие для [Home 1025M](verification/results/2026-10-21-home-layout-1025m.md). Для обеих панелей есть автоматические сценарии; [выпуск 0.7.3](verification/results/2026-10-23-release-0.7.3.md) проверен из итоговых архивов с реальной конвертацией и независимым чтением GDL. Новый ручной Desktop-прогон для этого выпуска не выполнялся.
+**Preview.** Подтверждён реальный цикл Figma → EXUI → GDL → GUI Designer Verify → Save and Build → повторное открытие для [Home 1025M](docs/verification/results/2026-10-21-home-layout-1025m.md). Для обеих панелей есть автоматические сценарии; [выпуск 0.7.3](docs/verification/results/2026-10-23-release-0.7.3.md) проверен из итоговых архивов с реальной конвертацией и независимым чтением GDL. Новый ручной Desktop-прогон для этого выпуска не выполнялся.
 
 Работа на физической панели, касания, удержания и аппаратный feedback пока не проверены. Каждый новый проект требует своей проверки в GUI Designer и на оборудовании.
 

@@ -1,6 +1,6 @@
 # Figma → Extron Exporter 0.1.1
 
-[Скачать ZIP](figma-extron-plugin-0.1.1.zip) · [Инструкция](../../../../src/figma-plugin/README.md) · [Протокол исправления](../../../../verification/results/2026-10-19-figma-ui-messages.md).
+[Скачать ZIP](figma-extron-plugin-0.1.1.zip) · [Инструкция](../../../../src/figma-plugin/README.md) · [Протокол исправления](../../../../docs/verification/results/2026-10-19-figma-ui-messages.md).
 
 Исправлена доставка ответов Figma в UI: `pluginMessage` больше не отбрасывается из-за `MessageEvent.source`, который у платформенного моста может быть `null`. Раньше после создания демо интерфейс мог не увидеть выбранный Frame и оставить кнопки заблокированными. В заголовке новой панели указана версия 0.1.1.
 

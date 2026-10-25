@@ -10,4 +10,4 @@
 
 Распаковать [архив плагина](../../../output/releases/0.5.4/figma-extron-plugin-0.5.4.zip) в постоянную папку. В Figma: Plugins → Development → Import plugin from manifest… → выбрать manifest.json. Для manifest из src/figma-plugin достаточно закрыть и заново открыть плагин после сборки. В заголовке должна быть версия 0.5.4. Выбрать исходный экран и нажать «Повторить распознавание».
 
-Проверки и границы проверки: [протокол](../../../verification/results/2026-10-22-fractional-line-rounding.md).
+Проверки и границы проверки: [протокол](../../../docs/verification/results/2026-10-22-fractional-line-rounding.md).

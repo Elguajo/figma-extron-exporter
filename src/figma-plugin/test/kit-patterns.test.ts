@@ -7,8 +7,8 @@ import {exportFrame} from '../src/export.ts';
 import {packageExui} from '../src/package.ts';
 import {designSignature} from '../src/export.ts';
 import {DATA_KEY,PROFILES} from '../src/model.ts';
-import registry from '../../../design/extron-kit/patterns.json' with {type:'json'};
-import symbols from '../../../design/extron-kit/icons/icons.json' with {type:'json'};
+import registry from '../../../docs/design/extron-kit/patterns.json' with {type:'json'};
+import symbols from '../../../docs/design/extron-kit/icons/icons.json' with {type:'json'};
 
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)test(`AV patterns ${profile}: all scenarios fit and export together with unique IDs`,async()=>{
   kitFixture();const kit=await createKit(profile),masters=designSignature(kit.library);

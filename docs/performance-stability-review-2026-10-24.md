@@ -8,7 +8,7 @@
 > - **Отклонён:** P3 — менял порядок полей BinaryFormatter и тем самым байты `.gdl`.
 > - **Не реализованы:** пункты раздела «Что не рекомендуется» (дебаунс, мемоизация `readMetadata`, параллельный PNG, замена `Copy-Graph`) и быстрый путь через `documentchange`.
 >
-> Результаты — в [протоколе выпуска](../verification/results/2026-10-24-release-0.8.0.md).
+> Результаты — в [протоколе выпуска](verification/results/2026-10-24-release-0.8.0.md).
 
 Критерий отбора рекомендаций — **не менять результат**: тот же `.exui`, тот же `.gdl` байт в байт, те же тексты ошибок и тот же порядок проверок. Всё, что меняет поведение или сроки сообщений UI, вынесено в отдельный раздел с пометкой о риске.
 
@@ -89,7 +89,7 @@
 
 **Эффект:** оценочно 1,5–2,5 с из 10,7 с на большом проекте.
 
-**Риск:** низкий. Критерий приёмки — SHA-256 `.gdl` совпадает на `examples/exui-v5/*.exui` и на большом пакете.
+**Риск:** низкий. Критерий приёмки — SHA-256 `.gdl` совпадает на `tests/fixtures/exui-v5/*.exui` и на большом пакете.
 
 ### P4. Не перебирать ресурсы донора для каждого состояния — `Set-Font`
 
@@ -149,9 +149,9 @@
 
 | Изменённый файл | Требует неотслеживаемый |
 |---|---|
-| `src/adapter/Extron.Adapter.csproj`, `ExtronAdapter.cs`, `Program.cs` | `src/adapter/Compatibility.cs`, `compatibility/extron.json` |
-| `scripts/Package-Release.ps1` | `docs/extron-compatibility.md`, `compatibility/extron.json` |
-| `src/figma-plugin/package-plugin.mjs` | `design/extron-kit/icons/LICENSE` |
+| `src/adapter/Extron.Adapter.csproj`, `ExtronAdapter.cs`, `Program.cs` | `src/adapter/Compatibility.cs`, `src/adapter/compatibility/extron.json` |
+| `scripts/Package-Release.ps1` | `docs/extron-compatibility.md`, `src/adapter/compatibility/extron.json` |
+| `src/figma-plugin/package-plugin.mjs` | `docs/design/extron-kit/icons/LICENSE` |
 | `src/figma-plugin/src/kit.ts` | `src/figma-plugin/src/kit-patterns.ts` |
 | `tests/format/Program.cs` | `tests/format/CompatibilityTests.cs` |
 
@@ -176,6 +176,6 @@
 ## Порядок внедрения
 
 1. **S1, S2, S3** — исправления стабильности: несколько строк каждое, поведение при корректных данных не меняется.
-2. **P1, P3, P4** — оптимизации с объективным критерием: совпадение бандла (`startup-benchmark.ts`) и SHA-256 `.gdl` на `examples/exui-v5/*.exui`.
+2. **P1, P3, P4** — оптимизации с объективным критерием: совпадение бандла (`startup-benchmark.ts`) и SHA-256 `.gdl` на `tests/fixtures/exui-v5/*.exui`.
 3. **P2, S4** — после добавления тестов на сообщение `selection`.
 4. **S5** — при ближайшем коммите текущих изменений.

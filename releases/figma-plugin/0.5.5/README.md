@@ -13,4 +13,4 @@
 
 Распаковать [архив плагина](../../../output/releases/0.5.5/figma-extron-plugin-0.5.5.zip) в постоянную папку. В Figma: Plugins → Development → Import plugin from manifest… → выбрать manifest.json. Для manifest из src/figma-plugin достаточно перезапустить плагин после сборки. В заголовке должна быть версия 0.5.5. Выбрать исходный экран и нажать «Проверить макет».
 
-Проверки и их границы: [протокол](../../../verification/results/2026-10-22-button-preview-visibility.md).
+Проверки и их границы: [протокол](../../../docs/verification/results/2026-10-22-button-preview-visibility.md).

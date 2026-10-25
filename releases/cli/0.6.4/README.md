@@ -13,4 +13,4 @@ CLI для плагина **0.6.7**. Поддерживает `line.fillColor` �
 
 Каждой конвертации нужно новое имя результата. После независимой проверки откройте GDL в GUI Designer: Verify → Save and Build → закрыть и открыть снова.
 
-[Протокол проверок](../../../verification/results/2026-10-22-line-opacity.md).
+[Протокол проверок](../../../docs/verification/results/2026-10-22-line-opacity.md).

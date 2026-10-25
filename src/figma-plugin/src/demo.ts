@@ -1,5 +1,5 @@
-import large from '../../../examples/exui-v1/1025m/screen.json' with { type:'json' };
-import small from '../../../examples/exui-v1/300m/screen.json' with { type:'json' };
+import large from '../../../tests/fixtures/exui-v1/1025m/screen.json' with { type:'json' };
+import small from '../../../tests/fixtures/exui-v1/300m/screen.json' with { type:'json' };
 import { MANUAL_KEY } from './key-sync.ts';
 import { DATA_KEY, integer, isControlKind, metadataSchema, type MetadataInput, type Metadata, type Profile, type SingleScreen } from './model.ts';
 export function tag(node:BaseNode, data:MetadataInput):void {
@@ -9,7 +9,7 @@ function paint(hex:string):SolidPaint {
   const rgb=hex.slice(-6),alpha=hex.length===9?parseInt(hex.slice(1,3),16)/255:1;
   return {type:'SOLID',color:{r:parseInt(rgb.slice(0,2),16)/255,g:parseInt(rgb.slice(2,4),16)/255,b:parseInt(rgb.slice(4,6),16)/255},...(alpha!==1?{opacity:alpha}:{})};
 }
-// Legacy reproduces examples/exui-v1 exactly, including its Russian layer names.
+// Legacy reproduces tests/fixtures/exui-v1 exactly, including its Russian layer names.
 // The plugin demo uses Latin layer names and keeps the curated keys as manual.
 const pascal=(value:string)=>value.split(/[.-]/).map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join('');
 const DEMO_PREFIX:Record<string,string>={button:'button_',label:'text_',level:'level_'};

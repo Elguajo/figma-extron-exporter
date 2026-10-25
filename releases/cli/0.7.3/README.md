@@ -8,4 +8,4 @@ CLI для плагина **0.7.3**, контракт **EXUI/5**. Парный �
 
 Для `convert-package` нужны .NET 10 Runtime x64, GUI Designer 1.28.0.7 и собственные закреплённые доноры. Доноры и DLL Extron в архив не входят. `validate-package`, `id-map` и `compare-packages` работают без Extron.
 
-[Обновление настроенного проекта GCP](../../../docs/updating-configured-projects.md) · [Проверки выпуска](../../../verification/results/2026-10-23-release-0.7.3.md).
+[Обновление настроенного проекта GCP](../../../docs/updating-configured-projects.md) · [Проверки выпуска](../../../docs/verification/results/2026-10-23-release-0.7.3.md).

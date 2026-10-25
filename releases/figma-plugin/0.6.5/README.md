@@ -18,4 +18,4 @@
 
 ## Проверка
 
-Результаты и ограничения: [протокол](../../../verification/results/2026-10-22-named-links.md). API Figma проверяется на явной модели; UI запускается в настоящем Chromium. Ручной запуск в Figma Desktop и GUI Designer Verify/Build остаётся отдельной проверкой.
+Результаты и ограничения: [протокол](../../../docs/verification/results/2026-10-22-named-links.md). API Figma проверяется на явной модели; UI запускается в настоящем Chromium. Ручной запуск в Figma Desktop и GUI Designer Verify/Build остаётся отдельной проверкой.

@@ -13,9 +13,9 @@ import { packageExui } from '../src/package.ts';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 const out=path.resolve(process.argv[2]??path.join(root,'output/figma-plugin/transformed-cli-'+Date.now()));
-const plugin=unzipSync(new Uint8Array(await readFile(path.join(root,'output/releases/0.5.3/figma-extron-plugin-0.5.3.zip'))));
-const cliArchive=unzipSync(new Uint8Array(await readFile(path.join(root,'output/releases/0.5.2/figma-extron-cli-0.5.2-windows.zip'))));
-const cliDll=path.join(root,'output/releases/0.5.2/complete-unpacked/cli/Extron.Cli.dll');
+const plugin=unzipSync(new Uint8Array(await readFile(path.join(root,'samples/fixtures/release-0.5/figma-extron-plugin-0.5.3.zip'))));
+const cliArchive=unzipSync(new Uint8Array(await readFile(path.join(root,'samples/fixtures/release-0.5/figma-extron-cli-0.5.2-windows.zip'))));
+const cliDll=path.join(root,'samples/fixtures/release-0.5/cli/Extron.Cli.dll');
 assert.equal(JSON.parse(strFromU8(plugin['version.json'])).version,'0.5.3');
 assert.equal(JSON.parse(strFromU8(cliArchive['version.json'])).version,'0.5.2');
 assert.deepEqual(new Uint8Array(await readFile(cliDll)),cliArchive['cli/Extron.Cli.dll']);

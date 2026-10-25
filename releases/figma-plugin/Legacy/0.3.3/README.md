@@ -5,7 +5,7 @@
 - [Плагин 0.3.3](../../../../output/releases/0.3.3/figma-extron-plugin-0.3.3.zip).
 - [Полный локальный комплект 0.3.3 с CLI 0.3.0](../../../../output/releases/0.3.3/figma-extron-complete-0.3.3-local.zip).
 - [Инструкция](../../../../src/figma-plugin/README.md).
-- [Протокол проверки](../../../../verification/results/2026-10-21-selected-frame-projects.md).
+- [Протокол проверки](../../../../docs/verification/results/2026-10-21-selected-frame-projects.md).
 
 Распаковать архив в постоянную папку, обновить путь development-плагина к `manifest.json` (в полном комплекте — `figma-plugin/manifest.json`) и перезапустить. Заголовок — **0.3.3**, plugin ID прежний.
 

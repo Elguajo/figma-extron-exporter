@@ -9,7 +9,7 @@ import { packageExui } from '../src/package.ts';
 import { unzipSync } from 'fflate';
 import { DATETIME_FORMATS } from '../src/datetime-format.ts';
 import { contrastRatio } from '../src/button-contrast.ts';
-import catalog from '../../../design/extron-kit/kit.json' with {type:'json'};
+import catalog from '../../../docs/design/extron-kit/kit.json' with {type:'json'};
 
 const momentaryNames=['button_VolumeUp','button_VolumeDown','button_Back','button_Home','button_Settings'];
 

@@ -8,4 +8,4 @@ CLI для плагина **0.7.2**, контракт **EXUI/5**. Это пар�
 
 Распакуйте `figma-extron-cli-0.7.2-windows.zip`. Комплект для плагина 0.7.2: заголовок плагина должен показывать **0.7.2**.
 
-[Обновление настроенного проекта GCP](../../../docs/updating-configured-projects.md) · [Проверки выпуска](../../../verification/results/2026-10-23-release-0.7.2.md).
+[Обновление настроенного проекта GCP](../../../docs/updating-configured-projects.md) · [Проверки выпуска](../../../docs/verification/results/2026-10-23-release-0.7.2.md).

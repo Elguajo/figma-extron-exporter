@@ -15,4 +15,4 @@
 
 Каждой конвертации нужно новое имя результата. После конвертации: GUI Designer → Verify → Save and Build → закрыть и открыть снова.
 
-[Протокол выпуска](../../../verification/results/2026-10-22-release-0.6.8.md).
+[Протокол выпуска](../../../docs/verification/results/2026-10-22-release-0.6.8.md).

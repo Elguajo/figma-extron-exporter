@@ -8,6 +8,8 @@ samples/original/*
 *.user
 samples/donors/*
 !samples/donors/.gitkeep
+# Private GDL fixtures for tests and packaging (derived from donors).
+samples/fixtures/
 **/node_modules/
 src/figma-plugin/dist/
 releases/figma-plugin/**/unpacked/

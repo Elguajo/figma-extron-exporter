@@ -71,7 +71,7 @@ for(const [width,expected] of [[218.21,218],[218.7,219]])test(`Native button and
 for(const [profile,suffix] of [['tlp-pro-1025m','1025m'],['tlp-pro-300m-portrait','300m']])
   test(`Demo ${suffix}: Figma adapter → exact known screen semantics → deterministic ZIP with SHA-256`,async()=>{
     const {root}=await fixture(profile);const bundle=await exportFrame(root);
-    const expected=JSON.parse(readFileSync(new URL(`../../../examples/exui-v1/${suffix}/screen.json`,import.meta.url),'utf8'));
+    const expected=JSON.parse(readFileSync(new URL(`../../../tests/fixtures/exui-v1/${suffix}/screen.json`,import.meta.url),'utf8'));
     assert.equal(expected.schema,'exui-screen/1');
     expected.schema='exui-screen/5';
     assert.deepEqual(semantic(bundle.screen),semantic(expected));

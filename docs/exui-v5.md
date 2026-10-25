@@ -28,7 +28,7 @@ Inter 4.1 — закреплённый неизменённый ресурс CLI
 
 20.10.2026. Producer: плагин 0.2.0. Форматы exui/1–4 не меняются. Версия выбирается только по `manifest.schema`; автоматического fallback нет. Старый CLI может отклонить exui/5 и новые поля реестра доноров.
 
-ZIP/PNG/JSON, ограничения размера, CRC/SHA-256, пути, шрифты и профили остаются прежними. В CLI 0.3.0 preview убран отдельный предел 16 PNG для exui/5: количество ресурсов ограничивается фактическим размером JSON и пакета. Сохраняются 4 MiB на PNG, 4096 px на сторону, 16 MiB распакованный пакет, ZIP до 20 MiB, manifest.json до 64 KiB и screen.json до 256 KiB. CLI читает ограниченный manifest и сверяет число ZIP-записей с его ресурсами до загрузки PNG. Прежние EXUI 1–4 сохраняют свои ограничения; старый CLI не принимает расширенные пакеты. Схемы: [manifest](../schemas/exui-v5/manifest.schema.json), [screen](../schemas/exui-v5/screen.schema.json). Пакет не задаёт DLL, путь доноров, нативный тип или исполняемый код.
+ZIP/PNG/JSON, ограничения размера, CRC/SHA-256, пути, шрифты и профили остаются прежними. В CLI 0.3.0 preview убран отдельный предел 16 PNG для exui/5: количество ресурсов ограничивается фактическим размером JSON и пакета. Сохраняются 4 MiB на PNG, 4096 px на сторону, 16 MiB распакованный пакет, ZIP до 20 MiB, manifest.json до 64 KiB и screen.json до 256 KiB. CLI читает ограниченный manifest и сверяет число ZIP-записей с его ресурсами до загрузки PNG. Прежние EXUI 1–4 сохраняют свои ограничения; старый CLI не принимает расширенные пакеты. Схемы: [manifest](../src/screen/schemas/exui-v5/manifest.schema.json), [screen](../src/screen/schemas/exui-v5/screen.schema.json). Пакет не задаёт DLL, путь доноров, нативный тип или исполняемый код.
 
 ## Две формы screen.json
 
@@ -91,4 +91,4 @@ NRBF-reader не загружает Extron и проверяет класс, nat
 
 Видео и Dynamic Image для профилей 1025M/300M не входят в контракт: плагин выдаёт явную ошибку вместо растрирования. Новые профили потребуют самостоятельного расширения.
 
-Примеры: [exui-v5](../examples/exui-v5/README.md). [Стандарт Figma](../src/figma-plugin/AUTHORING_STANDARD.md), [протокол](../verification/results/2026-10-20-expanded-controls.md).
+Примеры: [exui-v5](../tests/fixtures/exui-v5/README.md). [Стандарт Figma](../src/figma-plugin/AUTHORING_STANDARD.md), [протокол](verification/results/2026-10-20-expanded-controls.md).

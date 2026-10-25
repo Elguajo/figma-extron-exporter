@@ -2,7 +2,7 @@
 
 Принят 19.10.2026 для плагина 0.1.5. Основа — одностраничный [exui/3](exui-v3.md). Старые v1/v2/v3 не меняются. Несколько страниц и popup из v2 в этот контракт не входят.
 
-Маркеры: manifest `exui/4`, screen `exui-screen/4`; [manifest schema](../schemas/exui-v4/manifest.schema.json), [screen schema](../schemas/exui-v4/screen.schema.json). ZIP, профили, целостность, limits, текст, геометрия и общие поля соответствуют v1/v3.
+Маркеры: manifest `exui/4`, screen `exui-screen/4`; [manifest schema](../src/screen/schemas/exui-v4/manifest.schema.json), [screen schema](../src/screen/schemas/exui-v4/screen.schema.json). ZIP, профили, целостность, limits, текст, геометрия и общие поля соответствуют v1/v3.
 
 ## Статичное изображение
 

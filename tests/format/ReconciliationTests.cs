@@ -50,7 +50,7 @@ static class ReconciliationTests
         }
         foreach (string name in new[] { "tlp-pro-1025m", "tlp-pro-300m-portrait" })
         {
-            string folder = Path.Combine(root, "output", "update-workflow", "cli-0.6.6-archive");
+            string folder = Path.Combine(root, "samples", "fixtures", "update-workflow-0.6.6");
             string oldFile = Path.Combine(folder, name + "-v1.gdl"), newFile = Path.Combine(folder, name + "-v2.gdl");
             if (!File.Exists(oldFile) || !File.Exists(newFile)) continue;
             byte[] before = File.ReadAllBytes(oldFile), after = File.ReadAllBytes(newFile);

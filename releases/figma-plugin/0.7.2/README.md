@@ -15,4 +15,4 @@ Override также преобразует готовые двухсостоян
 
 Распакуйте `figma-extron-plugin-0.7.2.zip` в постоянную папку. В Figma Desktop: **Plugins → Development → Import plugin from manifest…** → `manifest.json`. Для обновления существующей установки замените файлы и перезапустите плагин. Заголовок должен показывать **0.7.2**. Plugin ID не меняется.
 
-[Проверки выпуска](../../../verification/results/2026-10-23-release-0.7.2.md). Автоматические сценарии моделируют Figma API; новый прогон в Figma Desktop, GUI Designer/GCP и на физической панели не заявляется.
+[Проверки выпуска](../../../docs/verification/results/2026-10-23-release-0.7.2.md). Автоматические сценарии моделируют Figma API; новый прогон в Figma Desktop, GUI Designer/GCP и на физической панели не заявляется.

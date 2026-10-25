@@ -1,11 +1,11 @@
 {
   "note": "SHA-256 of the decoded ProjectGCP payload (independent of ZIP/Deflate bytes). Recorded 2026-10-24 with GUI Designer 1.28.0.7 and the local donors in samples/donors.json. Any change here must be a deliberate change of the generated project.",
   "payloads": {
-    "examples/exui-v5/expanded-1025m.exui": "A537C1F5E4FC96435A20C4B74ABA334DA231157A0D8113C255D44F421F0D3111",
-    "examples/exui-v5/expanded-300m.exui": "56FAEAD239CE2869FBAF4517974D65E64AA8D201E1BACAD4E77E92F7D1DED7F9",
-    "examples/exui-v5/project-1025m.exui": "EC568B645B7249CC7A3491000A5FEDA6F198EE815AD38BE4813078EA3409EE5A",
-    "examples/exui-v5/project-300m.exui": "2E536ECB786F52A2D3DFC22EEBF1A36E3A9F0448A43D93EFF616E1AD9A00E02C",
-    "verification/results/2026-10-21-home-layout-1025m/actual-home-layout.exui": "E4D3D7E2D4AAA8B9337C6FB029E943A3ED28CF05196E417546D1EA5DA11F4CA4",
+    "tests/fixtures/exui-v5/expanded-1025m.exui": "A537C1F5E4FC96435A20C4B74ABA334DA231157A0D8113C255D44F421F0D3111",
+    "tests/fixtures/exui-v5/expanded-300m.exui": "56FAEAD239CE2869FBAF4517974D65E64AA8D201E1BACAD4E77E92F7D1DED7F9",
+    "tests/fixtures/exui-v5/project-1025m.exui": "EC568B645B7249CC7A3491000A5FEDA6F198EE815AD38BE4813078EA3409EE5A",
+    "tests/fixtures/exui-v5/project-300m.exui": "2E536ECB786F52A2D3DFC22EEBF1A36E3A9F0448A43D93EFF616E1AD9A00E02C",
+    "docs/verification/results/2026-10-21-home-layout-1025m/actual-home-layout.exui": "E4D3D7E2D4AAA8B9337C6FB029E943A3ED28CF05196E417546D1EA5DA11F4CA4",
     "tests/format/fixtures/large-8x30-1025m.exui": "8A2B1B9D4701B53847B9F976187A1F3F8FFE75DC2E7A22E0CEC2B2CC81A29D30"
   }
 }

@@ -6,7 +6,7 @@ using ExtronExporter.Screen;
 // refused with an error the CLI reports as "ERROR ...", never an unexpected exception type.
 static class FuzzTests
 {
-    static readonly string Seed = Path.Combine(ScreenTests.Root, "examples", "exui-v5", "project-1025m.exui");
+    static readonly string Seed = Path.Combine(ScreenTests.Root, "tests", "fixtures", "exui-v5", "project-1025m.exui");
 
     public static void Unit(Action<string, Action> test)
     {

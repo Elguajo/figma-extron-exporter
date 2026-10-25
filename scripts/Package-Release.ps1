@@ -50,8 +50,8 @@ $packagedReadme = Join-Path $stage 'README.md'
 foreach ($file in @('donors.json', 'manifest.json')) {
     Copy-Item -LiteralPath (Join-Path $repo "samples/$file") -Destination (Join-Path $stage 'samples')
 }
-Copy-Item -LiteralPath (Join-Path $repo 'verification/results/2026-10-21-home-layout-1025m/actual-home-layout.exui') -Destination (Join-Path $stage 'examples/home-1025m/home.exui')
-Copy-Item -LiteralPath (Join-Path $repo 'verification/results/2026-10-21-home-layout-1025m/id-map.md') -Destination (Join-Path $stage 'examples/home-1025m/id-map.md')
+Copy-Item -LiteralPath (Join-Path $repo 'docs/verification/results/2026-10-21-home-layout-1025m/actual-home-layout.exui') -Destination (Join-Path $stage 'examples/home-1025m/home.exui')
+Copy-Item -LiteralPath (Join-Path $repo 'docs/verification/results/2026-10-21-home-layout-1025m/id-map.md') -Destination (Join-Path $stage 'examples/home-1025m/id-map.md')
 foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md', 'updating-configured-projects.md', 'extron-compatibility.md')) {
     Copy-Item -LiteralPath (Join-Path $repo "docs/$file") -Destination (Join-Path $stage 'docs')
 }
@@ -90,7 +90,7 @@ if ($IncludeLocalSamples) {
     }
     New-Item -ItemType Directory -Path (Join-Path $stage 'figma-plugin') | Out-Null
     [IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, (Join-Path $stage 'figma-plugin'))
-    Copy-Item -LiteralPath (Join-Path $repo 'output/home-layout-20261020/home-layout-gui.gdl') -Destination (Join-Path $stage 'examples/home-1025m/home-gui-built.gdl')
+    Copy-Item -LiteralPath (Join-Path $repo 'samples/fixtures/home-layout-gui.gdl') -Destination (Join-Path $stage 'examples/home-1025m/home-gui-built.gdl')
     @{ version = $version; cliVersion = $cliVersion; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersions = @($compatibility.profiles.guiDesignerVersion); compatibilityFile = 'cli/compatibility/extron.json'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $true } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
     [IO.Compression.ZipFile]::CreateFromDirectory($stage, $localZip)
     Assert-ZipEntryNames $localZip

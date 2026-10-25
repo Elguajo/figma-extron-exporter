@@ -7,7 +7,7 @@
 - [Архив плагина 0.3.2](../../../../output/releases/0.3.2/figma-extron-plugin-0.3.2.zip).
 - [Полный локальный комплект: плагин 0.3.2 + CLI 0.3.0 + доноры](../../../../output/releases/0.3.2/figma-extron-complete-0.3.2-local.zip).
 - [Инструкция плагина](../../../../src/figma-plugin/README.md).
-- [Протокол проверок](../../../../verification/results/2026-10-21-sections-plugin-ui.md).
+- [Протокол проверок](../../../../docs/verification/results/2026-10-21-sections-plugin-ui.md).
 
 Распаковать в постоянную папку и обновить путь development-плагина к `manifest.json` (в полном комплекте — `figma-plugin/manifest.json`). Перезапустить плагин; заголовок должен показывать **0.3.2**. Plugin ID сохранён, назначения переустанавливать не нужно.
 

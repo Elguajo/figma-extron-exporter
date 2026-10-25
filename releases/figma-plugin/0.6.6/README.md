@@ -16,4 +16,4 @@ Clip content самой картинки обрезает её внутренн�
 
 ## Проверка
 
-[Протокол](../../../verification/results/2026-10-22-clipped-graphics.md). Figma API и вызов рендера покрыты явной тестовой моделью; реальный Figma Desktop и GUI Designer Verify/Build требуют отдельной проверки.
+[Протокол](../../../docs/verification/results/2026-10-22-clipped-graphics.md). Figma API и вызов рендера покрыты явной тестовой моделью; реальный Figma Desktop и GUI Designer Verify/Build требуют отдельной проверки.

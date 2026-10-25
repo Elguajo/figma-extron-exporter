@@ -2,7 +2,7 @@
 
 Нарисуйте кнопки обычными **Group или Frame**, задайте префиксы и два эталона оформления. Плагин создаст вложенные Group состояний: `button_` / `btn_` → **Off / On**, `feedbackbutton_` / `fbtn_` → **Normal / Active**. Ручной Pressed, существующие состояния и ID сохраняются. Отдельная команда обновляет заливку/обводку из эталонов.
 
-[Архив плагина](../../../../output/releases/0.4.1/figma-extron-plugin-0.4.1.zip) · [Инструкция](../../../../src/figma-plugin/BUTTON_STATES.md) · [Проверки](../../../../verification/results/2026-10-21-button-state-preparation.md).
+[Архив плагина](../../../../output/releases/0.4.1/figma-extron-plugin-0.4.1.zip) · [Инструкция](../../../../src/figma-plugin/BUTTON_STATES.md) · [Проверки](../../../../docs/verification/results/2026-10-21-button-state-preparation.md).
 
 Распакуйте архив в постоянную папку, импортируйте или обновите development-плагин через `manifest.json` с сохранением plugin ID. После перезапуска заголовок должен показывать **0.4.1**. CLI остаётся **0.4.0**, формат **EXUI/5** не меняется.
 

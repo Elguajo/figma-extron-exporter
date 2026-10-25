@@ -21,7 +21,7 @@ first-screen-1025m.exui
 
 `manifest.json`: `schema: "exui/1"`, `profile`, `screen: "screen.json"`, `resources: [{path, sha256}]`. `screen.json`: `schema: "exui-screen/1"`, `project`, `page`, `assets`, `elements`. Оба маркера обязательны. Неизвестные версии и поля отклоняются, автоматического downgrade нет. Любое расширение принимаемого контракта требует новой согласованной версии и доказательств; исправление reader не должно менять смысл версии 1. Схемы не загружаются из пакета или сети.
 
-Машиночитаемые JSON Schema 2020-12: [manifest](../schemas/exui-v1/manifest.schema.json), [screen](../schemas/exui-v1/screen.schema.json). Ключевые слова сверены с [официальной спецификацией JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation). В CLI встроены эти же файлы и ограниченный evaluator только используемых ими keywords; это не универсальная библиотека JSON Schema. Схемы проверяют форму; межобъектные ограничения ниже проверяет reader и существующий `ScreenSpecReader`.
+Машиночитаемые JSON Schema 2020-12: [manifest](../src/screen/schemas/exui-v1/manifest.schema.json), [screen](../src/screen/schemas/exui-v1/screen.schema.json). Ключевые слова сверены с [официальной спецификацией JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation). В CLI встроены эти же файлы и ограниченный evaluator только используемых ими keywords; это не универсальная библиотека JSON Schema. Схемы проверяют форму; межобъектные ограничения ниже проверяет reader и существующий `ScreenSpecReader`.
 
 JSON — UTF-8 без BOM, comments, trailing commas и повторных свойств; глубина до 32. Обязательные поля нельзя заменять `null`, кроме `label.controlId`. ZIP до 20 MiB, до 18 файлов, сумма распакованных файлов до 16 MiB; manifest до 64 KiB, screen до 256 KiB, до 16 ресурсов по 4 MiB. Проверяются фактические длины, ZIP CRC и SHA-256 ресурсов. SHA обеспечивает целостность, а не подлинность/доверие к автору.
 
@@ -76,8 +76,8 @@ Producer ведёт соответствие `key → objectId, controlId` в р
 ## CLI и результат
 
 ```powershell
-& $dotnet run --project src/cli --no-build -- validate-package examples/exui-v1/first-screen-1025m.exui
-& $dotnet run --project src/cli --no-build -- convert-package examples/exui-v1/first-screen-1025m.exui output/new-1025m.gdl
+& $dotnet run --project src/cli --no-build -- validate-package tests/fixtures/exui-v1/first-screen-1025m.exui
+& $dotnet run --project src/cli --no-build -- convert-package tests/fixtures/exui-v1/first-screen-1025m.exui output/new-1025m.gdl
 ```
 
 Первая команда проверяет пакет без Extron и доноров. Вторая требует локальные доноры из `samples/donors.json`, x86 PowerShell 5.1 и GUI Designer 1.28.0.7. Возможны `--registry` и `--extron-dir` как локальные CLI options. Папка назначения должна существовать. Существующий GDL или соседний report приводит к отказу. Выход публикуется после независимой проверки; штатные ошибки проверки/адаптера оставляют оба конечных файла отсутствующими. Два файла не составляют атомарную транзакцию при аварийном завершении процесса/ОС.
@@ -86,4 +86,4 @@ Producer ведёт соответствие `key → objectId, controlId` в р
 
 Коды отказа: `package-zip`, `package-size`, `package-entry`, `package-entries`, `package-json`, `package-schema`, `package-profile`, `package-resource`, `package-integrity`, `package-image`, `package-state`; семантические ошибки экспериментальной модели — `spec`, ошибки адаптера остаются прежними. Выходные коды CLI: 0 — успех, 1 — отказ, 2 — неверные аргументы.
 
-Примеры и воспроизведение: [examples/exui-v1](../examples/exui-v1/README.md). Доказательства: [протокол этапа 5](../verification/results/2026-10-19-exui-v1.md).
+Примеры и воспроизведение: [tests/fixtures/exui-v1](../tests/fixtures/exui-v1/README.md). Доказательства: [протокол этапа 5](verification/results/2026-10-19-exui-v1.md).

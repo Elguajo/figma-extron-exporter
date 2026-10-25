@@ -26,4 +26,4 @@ Their complete license texts are included in the installable archive under `lice
 
 ## AV icons
 
-18 SVG icons from `lucide-static` 1.61.0 are embedded in Extron Kit. Source, integrity and original SVGs: `design/extron-kit/icons/`. ISC and applicable Feather MIT notices are preserved in `licenses/lucide.txt` in the plugin archive. Icons have no Extron control IDs and are intended for button Artwork or passive graphics.
+18 SVG icons from `lucide-static` 1.61.0 are embedded in Extron Kit. Source, integrity and original SVGs: `docs/design/extron-kit/icons/`. ISC and applicable Feather MIT notices are preserved in `licenses/lucide.txt` in the plugin archive. Icons have no Extron control IDs and are intended for button Artwork or passive graphics.

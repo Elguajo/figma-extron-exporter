@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><RootNamespace>ExtronExporter.Adapter</RootNamespace></PropertyGroup>
   <ItemGroup>
-    <None Include="../../compatibility/extron.json" Link="compatibility/extron.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="compatibility/extron.json" Link="compatibility/extron.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <EmbeddedResource Include="fonts/Inter/Inter.ttc" LogicalName="fonts/Inter.ttc" />
     <None Include="fonts/Inter/LICENSE.txt" Link="licenses/Inter-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="../extron/Extron.Format.csproj" />

@@ -10,4 +10,4 @@
 
 Распакуйте плагин в постоянную папку и импортируйте `manifest.json` через Figma → Plugins → Development → Import plugin from manifest. Для исходников используйте `src/figma-plugin/manifest.json`; после сборки перезапустите плагин. Его заголовок должен показывать **0.6.2**. Plugin ID сохранён, повторно назначать ID элементов не нужно.
 
-[Проверки и ограничения](../../../verification/results/2026-10-22-popup-appearance.md). На реальном макете нужен отдельный цикл GUI Designer Verify → Save and Build → повторное открытие.
+[Проверки и ограничения](../../../docs/verification/results/2026-10-22-popup-appearance.md). На реальном макете нужен отдельный цикл GUI Designer Verify → Save and Build → повторное открытие.

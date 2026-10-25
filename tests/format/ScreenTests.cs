@@ -159,7 +159,7 @@ static class ScreenTests
     // ---- screen description ----------------------------------------------------------------
 
     static JsonObject Spec(string example) => JsonNode.Parse(File.ReadAllText(Path.Combine(ExampleDir(example), $"screen-{example}.json")))!.AsObject();
-    static string ExampleDir(string _) => Path.Combine(Root, "examples", "first-screen");
+    static string ExampleDir(string _) => Path.Combine(Root, "tests", "fixtures", "first-screen");
     public static string Root = Directory.GetCurrentDirectory();
 
     static GeneratePlan Plan(JsonObject spec, string panel = "TLP Pro 1025M", int w = 1280, int h = 800, string? dir = null)

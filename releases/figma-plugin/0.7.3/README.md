@@ -18,4 +18,4 @@
 
 Распакуйте `figma-extron-plugin-0.7.3.zip` в постоянную папку. В Figma Desktop: **Plugins → Development → Import plugin from manifest…** → `manifest.json`. Для обновления существующей установки замените файлы и перезапустите плагин. Заголовок должен показывать **0.7.3**. Plugin ID не меняется.
 
-[Проверки выпуска](../../../verification/results/2026-10-23-release-0.7.3.md) · [Правила оформления](../../../src/figma-plugin/BUTTON_STATES.md). Figma API в автоматических проверках моделируется; новый ручной прогон Figma Desktop, GUI Designer/GCP и панели не заявляется.
+[Проверки выпуска](../../../docs/verification/results/2026-10-23-release-0.7.3.md) · [Правила оформления](../../../src/figma-plugin/BUTTON_STATES.md). Figma API в автоматических проверках моделируется; новый ручной прогон Figma Desktop, GUI Designer/GCP и панели не заявляется.
