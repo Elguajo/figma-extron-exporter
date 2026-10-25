@@ -173,13 +173,18 @@ Hand over the **GDL and `id-map.md`** — the map of pages, popups, IDs and stat
 
 ## Extron Kit
 
-Ready-made components, button states, page and popup templates, and examples for both panels. You can change the artwork in Figma while keeping the service names and structure.
+The plugin includes **Extron Kit**, an editable Figma library. Choose your panel profile, then **«Библиотека компонентов» → «Создать Extron Kit»** (Component library → Create Extron Kit).
 
-<img src="docs/assets/readme/extron-kit-300m.png" width="240" alt="Portrait Extron Kit mockup for TLP Pro 300M: Music source, Mute and volume control">
+| Included | What you can use |
+|---|---|
+| Components and states | Buttons, source selection, Mute, volume controls, text, indicators, shapes and images. |
+| Project templates | Pages, popups, modal dialogs and popup groups. |
+| Ready-made screen examples | Home, system start, presentation, audio zones, connection help, system status and shutdown confirmation. |
+| Supporting assets | 18 AV icons and 28 date/time formats. |
 
-**Apple-inspired Light · 24 Oct 2026** — the library design in the current sources. The downloadable kit 0.7.2 contains the previous design revision; the light examples shown here are available when [building from source](#build-and-checks). A new kit is created next to the existing one; existing libraries are not updated automatically.
+The kit has separate layouts for **TLP Pro 1025M (1280×800)** and **TLP Pro 300M (320×480, portrait)**. Change the artwork and captions while keeping the service names and structure. A new kit is created next to existing objects; existing libraries are not updated automatically. Hardware commands and feedback are connected by the Extron programmer.
 
-[Working with Extron Kit](src/figma-plugin/EXTRON_KIT.md#english) · [Sources and previews](docs/design/extron-kit/README.md) (in Russian)
+[Working with Extron Kit](src/figma-plugin/EXTRON_KIT.md#english) · [Offline catalog and examples](docs/web/index.html) (in Russian)
 
 ## Exporting again
 
