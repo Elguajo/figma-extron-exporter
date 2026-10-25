@@ -1,0 +1,119 @@
+Figma Extron Exporter — Permission-Required License, version 1.0
+
+Copyright (c) 2026 Khusan Turaev (GitHub: @Elguajo). All rights reserved.
+
+This license covers the Figma plugin, the CLI and all other source code,
+documentation, design files and release archives in the repository
+https://github.com/Elguajo/figma-extron-exporter (the "Software"), except
+the third-party parts listed under "Third-party components" below.
+
+1. What you may do without asking
+
+   a. View and read the source code, including on GitHub.
+   b. Download, install and use unmodified official releases of the
+      Software, for personal or commercial work, to convert your own
+      designs. The files the Software produces from your designs belong
+      to you.
+   c. Fork the repository on GitHub only to the extent required by the
+      GitHub Terms of Service, and open issues or pull requests that
+      propose changes to the copyright holder.
+
+2. What requires written permission first
+
+   You may NOT do any of the following until the copyright holder has
+   given you written permission:
+
+   a. modify the Software or create derivative works from it;
+   b. copy the source code, or any substantial part of it, into another
+      project, repository or product;
+   c. distribute, publish, sublicense, sell or host the Software or a
+      modified version of it, including on the Figma Community or any
+      other plugin marketplace.
+
+   Submitting a pull request is a request for permission, not a grant
+   of it.
+
+3. How to get permission
+
+   Ask the copyright holder through a GitHub issue in the repository
+   above or by contacting @Elguajo on GitHub. Describe what you want to
+   change or copy and how you plan to use it. Permission counts only
+   when it is given in writing (for example, an issue comment, an email
+   or a signed agreement) by the copyright holder.
+
+   Once permission is granted, you may copy and modify the Software
+   within the scope stated in that permission. Unless the permission
+   says otherwise:
+   - you must keep this LICENSE file and all copyright notices;
+   - you must mark modified files as changed;
+   - the permission is personal to you and cannot be transferred.
+
+4. Contributions
+
+   By submitting a contribution (for example, a pull request), you
+   agree that the copyright holder may use, modify and distribute it as
+   part of the Software under this license or any later license.
+
+5. Termination
+
+   Any use outside these terms ends your rights under this license
+   automatically. A permission may be withdrawn for future versions,
+   but not retroactively for work already done within its scope.
+
+6. Third-party components
+
+   Third-party code, fonts, icons and dependencies keep their own
+   licenses and are not covered by this license. See
+   src/figma-plugin/THIRD_PARTY_NOTICES.md and the license files in the
+   repository and release archives (for example, Inter, Lucide, fflate,
+   @noble/hashes and System.Formats.Nrbf). Parts adapted from
+   Baolv/figma-export are used under the permission described in
+   THIRD_PARTY_NOTICES.md.
+
+   Extron, GUI Designer and Figma are trademarks of their respective
+   owners. This project is not affiliated with or endorsed by them.
+
+7. No warranty
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR
+   ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN
+   CONNECTION WITH THE SOFTWARE OR ITS USE, INCLUDING DAMAGE TO PROJECTS
+   OR EQUIPMENT.
+
+---------------------------------------------------------------------
+
+Перевод на русский язык (для удобства; при расхождении действует
+английский текст выше)
+
+Авторские права (c) 2026 Хусан Тураев (GitHub: @Elguajo). Все права
+защищены.
+
+1. Без разрешения можно: читать исходный код; скачивать, устанавливать
+   и использовать неизменённые официальные выпуски, в том числе в
+   коммерческой работе (файлы, созданные из ваших дизайнов, принадлежат
+   вам); делать форк на GitHub в объёме, требуемом правилами GitHub, и
+   предлагать изменения через issue или pull request.
+
+2. Только после письменного разрешения автора можно: изменять код или
+   создавать производные работы; копировать код или его существенную
+   часть в другой проект; распространять, публиковать, продавать или
+   размещать программу или её изменённую версию, в том числе в Figma
+   Community. Pull request — это просьба о разрешении, а не само
+   разрешение.
+
+3. Разрешение запрашивается через issue в репозитории или у @Elguajo на
+   GitHub и действует только в письменной форме. После разрешения код
+   можно копировать и менять в его пределах, сохраняя этот файл и
+   уведомления об авторских правах и отмечая изменённые файлы.
+
+4. Отправляя вклад (pull request), вы разрешаете автору использовать,
+   менять и распространять его в составе программы.
+
+5. Сторонние компоненты (шрифты, иконки, зависимости, части
+   Baolv/figma-export) остаются под своими лицензиями — см.
+   THIRD_PARTY_NOTICES.md.
+
+6. Программа предоставляется «как есть», без каких-либо гарантий.

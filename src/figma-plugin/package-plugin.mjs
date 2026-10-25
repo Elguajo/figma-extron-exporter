@@ -7,6 +7,7 @@ const {version,compatibleCliVersion}=JSON.parse(await readFile(path.join(dir,'pa
 const output=path.resolve(process.argv[2]??path.join(dir,`../../output/figma-plugin/figma-extron-plugin-${version}.zip`));
 const files={};
 for(const name of ['manifest.json','dist/code.js','dist/ui.html','README.md','EXTRON_KIT.md','AUTHORING_STANDARD.md','PREFIXES.md','BUTTON_STATES.md','NATIVE_TEXT.md','THIRD_PARTY_NOTICES.md'])files[name]=new Uint8Array(await readFile(path.join(dir,name)));
+files['LICENSE']=new Uint8Array(await readFile(path.join(dir,'../../LICENSE')));
 files['docs/figma-extron-prefix-cheatsheet.pdf']=new Uint8Array(await readFile(path.join(dir,'../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf')));
 files['docs/figma-prefix-reference.md']=new Uint8Array(await readFile(path.join(dir,'../../docs/figma-prefix-reference.md')));
 files['PREFIXES.md']=new TextEncoder().encode(new TextDecoder().decode(files['PREFIXES.md']).replaceAll('../../docs/figma-prefix-reference.md','docs/figma-prefix-reference.md').replaceAll('../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf','docs/figma-extron-prefix-cheatsheet.pdf'));

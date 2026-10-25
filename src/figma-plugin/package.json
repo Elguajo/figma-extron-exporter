@@ -3,6 +3,7 @@
   "version": "0.8.3",
   "compatibleCliVersion": "0.8.3",
   "private": true,
+  "license": "SEE LICENSE IN ../../LICENSE",
   "type": "module",
   "engines": {
     "node": ">=22.18"
