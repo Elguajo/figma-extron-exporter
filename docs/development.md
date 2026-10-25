@@ -73,7 +73,9 @@ npm run verify --prefix src/figma-plugin
 dotnet run --project src/cli -- validate-package examples/exui-v5/expanded-1025m.exui
 ```
 
-Интеграционные тесты (нужны GUI Designer и доноры в библиотеке доноров — `Документы\Figma Extron Exporter\donors\`, либо `EXUI_DONOR_DIR` / `--donor-dir <папка>`):
+Доноры хранятся в проекте в одном месте — `samples/donors/` и `samples/original/` рядом с реестром [samples/donors.json](../samples/donors.json). Эти GDL не входят в Git (репозиторий публичный): новый разработчик получает их у владельца проекта и кладёт туда же. Проверки распакованного архива CLI запускают с `EXUI_DONOR_REGISTRY=<проект>\samples\donors.json`, поэтому копировать доноров в папку каждой версии не нужно.
+
+Интеграционные тесты (нужны GUI Designer и доноры в `samples/donors/`):
 
 ```powershell
 dotnet run --project tests/format -- --registry samples/donors.json --integration

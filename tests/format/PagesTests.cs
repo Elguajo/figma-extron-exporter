@@ -260,7 +260,7 @@ static class PagesTests
 
     public static void Integration(Action<string, Action> test, string registryPath)
     {
-        var registry = ScreenTests.LoadRegistry(registryPath);
+        var registry = DonorRegistry.Load(registryPath);
         var adapter = new ExtronAdapter(AdapterOptions.Default());
         string work = Directory.CreateTempSubdirectory("exui2-integration-").FullName;
         var protectedFiles = registry.Data.Donors.SelectMany(d => new[] { registry.Resolve(d.File), registry.Resolve(d.Preparation.Source) })
@@ -342,7 +342,7 @@ static class PagesTests
     /// <summary>pages-popups-*.gdl after the user's Save and Build in GUI Designer.</summary>
     public static void GuiBuilt(Action<string, Action> test, string folder, string registryPath)
     {
-        var registry = ScreenTests.LoadRegistry(registryPath);
+        var registry = DonorRegistry.Load(registryPath);
         foreach (string profile in new[] { "1025m", "300m" })
         {
             string file = Path.Combine(folder, $"pages-popups-{profile}.gdl");

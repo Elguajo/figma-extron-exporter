@@ -412,7 +412,7 @@ static class PackageTests
 
     public static void Integration(Action<string, Action> test, string registryPath)
     {
-        var registry=ScreenTests.LoadRegistry(registryPath); var adapter=new ExtronAdapter(AdapterOptions.Default());
+        var registry=DonorRegistry.Load(registryPath); var adapter=new ExtronAdapter(AdapterOptions.Default());
         string work=Directory.CreateTempSubdirectory("exui-integration-").FullName;
         var protectedFiles=registry.Data.Donors.SelectMany(d=>new[]{registry.Resolve(d.File),registry.Resolve(d.Preparation.Source)})
             .Concat(Directory.GetFiles(Example("1025m"),"*",SearchOption.AllDirectories)).Concat(Directory.GetFiles(Example("300m"),"*",SearchOption.AllDirectories))

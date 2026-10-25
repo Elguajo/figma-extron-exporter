@@ -13,35 +13,32 @@ Usage:
   compare-graph <a.gdl> <b.gdl>
   repack <input> <new-output>
   set-button-text <input> <new-output> <button-id> <expected-text> <new-text>
-  prepare-donor <donor-id> [--registry samples/donors.json] [--donor-dir <dir>] [--extron-dir <dir>]
-  generate-screen <screen.json> <donor-id> <new-output.gdl> [--registry samples/donors.json] [--donor-dir <dir>] [--extron-dir <dir>]
+  prepare-donor <donor-id> [--registry samples/donors.json] [--extron-dir <dir>]
+  generate-screen <screen.json> <donor-id> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
   validate-package <input.exui>
   id-map <input.exui>
   compare-packages <previous.exui> <new.exui> [--json]
   plan-layout-update <existing.gdl> <incoming.gdl>
   update-layout <existing.gdl> <incoming.gdl> <selection.json> <new-output.gdl>
-  convert-package <input.exui> <new-output.gdl> [--registry samples/donors.json] [--donor-dir <dir>] [--extron-dir <dir>]
+  convert-package <input.exui> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
 
 Adapter commands also accept --compatibility <file> (exact-version profiles).
-Donor and reference GDL files are read from the donor library: --donor-dir, else EXUI_DONOR_DIR,
-else Documents\Figma Extron Exporter (donors\*.gdl, original\*.gdl); files next to the registry are a fallback.
 """;
 
 // Adapter options are extracted here; compare-packages accepts a final --json below.
 var positional = new List<string>();
 string registryPath = Path.Combine("samples", "donors.json");
-string? extronDir = null, donorDir = null;
+string? extronDir = null;
 string? compatibilityPath = null, gcpDir = null;
 var seenOptions = new HashSet<string>();
 for (int i = 0; i < args.Length; i++)
 {
-    if (args[i] is "--registry" or "--extron-dir" or "--compatibility" or "--gcp-dir" or "--donor-dir")
+    if (args[i] is "--registry" or "--extron-dir" or "--compatibility" or "--gcp-dir")
     {
         if (!seenOptions.Add(args[i]) || i + 1 >= args.Length || args[i + 1].StartsWith("--", StringComparison.Ordinal)) { Console.Error.Write(Usage); return 2; }
         switch (args[i])
         {
             case "--registry": registryPath = args[++i]; break;
-            case "--donor-dir": donorDir = args[++i]; break;
             case "--extron-dir": extronDir = args[++i]; break;
             case "--compatibility": compatibilityPath = args[++i]; break;
             case "--gcp-dir": gcpDir = args[++i]; break;
@@ -51,7 +48,6 @@ for (int i = 0; i < args.Length; i++)
 }
 string command = positional.Count > 0 ? positional[0] : "";
 bool adapterCommand = command is "prepare-donor" or "generate-screen" or "convert-package" or "doctor";
-DonorRegistry LoadRegistry() => DonorRegistry.Load(registryPath, DonorLibrary.Locate(donorDir));
 ExtronAdapter CreateAdapter() => new(AdapterOptions.Default(extronDir) with { CompatibilityPath = compatibilityPath });
 bool comparisonJson = command == "compare-packages" && positional.Count == 4 && positional[3] == "--json";
 int expected = command switch
@@ -63,7 +59,7 @@ int expected = command switch
     "inspect" or "list-controls" or "prepare-donor" or "validate-package" or "id-map" => 2, "repack" or "convert-package" or "compare-graph" => 3, "generate-screen" => 4, "set-button-text" => 6, _ => -1
 };
 if (expected < 0 || positional.Count != expected || (!adapterCommand && args.Length != positional.Count) ||
-    (gcpDir != null && command != "doctor") || (command == "doctor" && (seenOptions.Contains("--registry") || donorDir != null)) ||
+    (gcpDir != null && command != "doctor") || (command == "doctor" && seenOptions.Contains("--registry")) ||
     (command == "set-button-text" && !int.TryParse(positional[3], out _)))
 {
     Console.Error.Write(Usage);
@@ -128,7 +124,7 @@ try
         }
         case "convert-package":
         {
-            var report = PackageGenerator.Generate(LoadRegistry(), positional[1], positional[2], CreateAdapter());
+            var report = PackageGenerator.Generate(DonorRegistry.Load(registryPath), positional[1], positional[2], CreateAdapter());
             Console.WriteLine(JsonSerializer.Serialize(new
             {
                 report.Contract, report.Profile, report.PackageSha256, report.Generation.Output, report.Generation.OutputSha256,
@@ -210,7 +206,7 @@ try
         }
         case "prepare-donor":
         {
-            var registry = LoadRegistry();
+            var registry = DonorRegistry.Load(registryPath);
             var report = ScreenGenerator.PrepareDonor(registry, positional[1], CreateAdapter());
             Console.WriteLine(JsonSerializer.Serialize(new
             {
@@ -223,7 +219,7 @@ try
         }
         case "generate-screen":
         {
-            var registry = LoadRegistry();
+            var registry = DonorRegistry.Load(registryPath);
             var report = ScreenGenerator.Generate(registry, positional[2], positional[1], positional[3], CreateAdapter());
             string text = JsonSerializer.Serialize(report, json);
             // Report next to the output; never overwrite one.

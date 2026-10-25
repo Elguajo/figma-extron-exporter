@@ -97,7 +97,7 @@ internal sealed class LayoutUpdateForm : Form
                         string package = Path.Combine(work, "source.exui"), generated = Path.Combine(work, "incoming.gdl"); File.WriteAllBytes(package, sourceData);
                         string registry = registryPath ?? new[] { Path.Combine(AppContext.BaseDirectory, "..", "samples", "donors.json"), Path.Combine(Environment.CurrentDirectory, "samples", "donors.json") }.FirstOrDefault(File.Exists)
                             ?? throw new FileNotFoundException("Для EXUI нужен samples/donors.json. Можно выбрать уже созданный новый GDL.");
-                        PackageGenerator.Generate(DonorRegistry.Load(registry, DonorLibrary.Locate(null)), package, generated, new ExtronAdapter(AdapterOptions.Default()));
+                        PackageGenerator.Generate(DonorRegistry.Load(registry), package, generated, new ExtronAdapter(AdapterOptions.Default()));
                         newData = ReadBounded(generated);
                     }
                     finally { try { Directory.Delete(work, true); } catch (IOException) { } catch (UnauthorizedAccessException) { } }

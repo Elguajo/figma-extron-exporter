@@ -2,9 +2,7 @@
 param(
     [string] $OutputDirectory,
     [string] $DotnetExe = 'dotnet',
-    [switch] $IncludeLocalSamples,
-    # Same lookup as the CLI: -DonorDir, then EXUI_DONOR_DIR, then Documents\Figma Extron Exporter.
-    [string] $DonorDir
+    [switch] $IncludeLocalSamples
 )
 $ErrorActionPreference = 'Stop'
 # Windows PowerShell 5.1 adds a BOM for -Encoding utf8; Node's JSON.parse rejects it.
@@ -85,10 +83,8 @@ if ($IncludeLocalSamples) {
     $ignoredRoot = [IO.Path]::GetFullPath((Join-Path $repo 'output')) + [IO.Path]::DirectorySeparatorChar
     if (!$OutputDirectory.StartsWith($ignoredRoot, [StringComparison]::OrdinalIgnoreCase)) { throw 'Local samples may only be packaged under the ignored output directory' }
     $registry = Get-Content -Raw -LiteralPath (Join-Path $repo 'samples/donors.json') | ConvertFrom-Json
-    if (!$DonorDir) { $DonorDir = if ($env:EXUI_DONOR_DIR) { $env:EXUI_DONOR_DIR } else { Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Figma Extron Exporter' } }
     foreach ($donor in $registry.donors) {
-        $source = Join-Path $DonorDir $donor.file
-        if (!(Test-Path -LiteralPath $source)) { $source = Join-Path $repo "samples/$($donor.file)" }
+        $source = Join-Path $repo "samples/$($donor.file)"
         if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -ne $donor.sha256) { throw "Donor hash mismatch: $($donor.id)" }
         Copy-Item -LiteralPath $source -Destination (Join-Path $stage "samples/$($donor.file)")
     }
