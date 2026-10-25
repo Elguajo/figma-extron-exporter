@@ -31,6 +31,6 @@ Figma API и PNG в тестах моделируются явно; браузе
 
 - [Плагин 0.3.3](../../output/releases/0.3.3/figma-extron-plugin-0.3.3.zip), SHA-256 `6C513D5971BEA2FA8E7C5F54A7B735FFEB7529AD53EEBC832D837762BD708D4F`.
 - [Полный локальный комплект с CLI 0.3.0](../../output/releases/0.3.3/figma-extron-complete-0.3.3-local.zip), SHA-256 `1CDB1D366E2CB0B5E0AB8004E634FF70FA729775F48773ACC46A0C8B4455B20D`.
-- [Инструкция обновления](../../releases/figma-plugin/0.3.3/README.md).
+- [Инструкция обновления](../../releases/figma-plugin/Legacy/0.3.3/README.md).
 
 Решение финальной проверки: **SHIP WITH KNOWN RISKS** как локальный preview. Следующий реальный этап — запуск на пользовательских выбранных фреймах в Figma Desktop и GUI Designer Verify → Save and Build → повторное открытие.

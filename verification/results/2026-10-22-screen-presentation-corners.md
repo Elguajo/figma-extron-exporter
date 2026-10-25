@@ -19,7 +19,7 @@ captureSingleContent() после определения metadata разреша
 
 - [Плагин 0.4.3](../../output/releases/0.4.3/figma-extron-plugin-0.4.3.zip).
 - [Native evidence](../../output/releases/0.4.3/native-check/integration.json).
-- [Инструкция обновления](../../releases/figma-plugin/0.4.3/README.md).
+- [Инструкция обновления](../../releases/figma-plugin/Legacy/0.4.3/README.md).
 - SHA-256: `53F59FA4FBC7CFEAB9A18D015846D2CAAADCD8F94E33B626C1281E6FD0CF7345`.
 
 Предыдущие локальные изменения 0.4.2 сохранены и включены в эту сборку. Ветка main, новые branch/worktree не создавались. CLI, EXUI/5, plugin ID и назначения не менялись.

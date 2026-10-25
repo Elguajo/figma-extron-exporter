@@ -23,7 +23,7 @@
 ## Артефакты и ограничения
 
 - [Плагин 0.3.6](../../output/releases/0.3.6/figma-extron-plugin-0.3.6.zip).
-- [Установка](../../releases/figma-plugin/0.3.6/README.md).
+- [Установка](../../releases/figma-plugin/Legacy/0.3.6/README.md).
 - [Светлая тема](2026-10-21-recognition-errors/final-browser/recognition-errors-light.png).
 - [Узкая тёмная тема](2026-10-21-recognition-errors/final-browser/recognition-errors-dark-narrow.png).
 - [Native fresh](2026-10-21-recognition-errors/final-native-fresh/archive-smoke.json).

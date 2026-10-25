@@ -30,7 +30,7 @@ Figma API и PNG в тестах моделируются явно; browser proo
 
 - [Плагин 0.3.2](../../output/releases/0.3.2/figma-extron-plugin-0.3.2.zip).
 - [Полный локальный комплект 0.3.2 с CLI 0.3.0](../../output/releases/0.3.2/figma-extron-complete-0.3.2-local.zip). Доноры остаются только в игнорируемом `output/`.
-- [Инструкция выпуска](../../releases/figma-plugin/0.3.2/README.md).
+- [Инструкция выпуска](../../releases/figma-plugin/Legacy/0.3.2/README.md).
 
 SHA-256 плагина: `2D2788164DA2C8BF3C62DF84EA0409B745CF0FC788F65AE148EC7E0EB804BCB2`.
 

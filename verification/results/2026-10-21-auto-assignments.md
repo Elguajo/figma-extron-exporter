@@ -36,6 +36,6 @@
 
 - [Плагин 0.3.5](../../output/releases/0.3.5/figma-extron-plugin-0.3.5.zip).
 - [Полный локальный комплект](../../output/releases/0.3.5/figma-extron-complete-0.3.5-local.zip).
-- [Установка и рабочий процесс](../../releases/figma-plugin/0.3.5/README.md).
+- [Установка и рабочий процесс](../../releases/figma-plugin/Legacy/0.3.5/README.md).
 
 Плагин SHA-256: `78519e500b5a5757a85d0c9abb04e6216b50ee91e72bc60e11bdc247127e5d4b`.

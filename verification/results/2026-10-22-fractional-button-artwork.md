@@ -21,7 +21,7 @@ background() вызывал строгий rect() для каждого Rectangl
 
 - [Плагин 0.4.2](../../output/releases/0.4.2/figma-extron-plugin-0.4.2.zip).
 - [Native evidence](../../output/releases/0.4.2/native-check/integration.json).
-- [Инструкция обновления](../../releases/figma-plugin/0.4.2/README.md).
+- [Инструкция обновления](../../releases/figma-plugin/Legacy/0.4.2/README.md).
 - SHA-256: `06D137962246D138291B5D7E8465A939327B8935BCCDE4779ACDA158ABB9C516`.
 
 CLI, EXUI/5, plugin ID и назначения не менялись. Для плагина, импортированного из src/figma-plugin/manifest.json, закрыть и снова запустить плагин; заголовок должен показывать 0.4.2. Затем повторить проверку Frame экрана. Внутреннюю графику вручную округлять не требуется.
