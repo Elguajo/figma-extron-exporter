@@ -73,7 +73,7 @@ npm run verify --prefix src/figma-plugin
 dotnet run --project src/cli -- validate-package examples/exui-v5/expanded-1025m.exui
 ```
 
-Интеграционные тесты (нужны GUI Designer и доноры в `samples/donors/`):
+Интеграционные тесты (нужны GUI Designer и доноры в библиотеке доноров — `Документы\Figma Extron Exporter\donors\`, либо `EXUI_DONOR_DIR` / `--donor-dir <папка>`):
 
 ```powershell
 dotnet run --project tests/format -- --registry samples/donors.json --integration
