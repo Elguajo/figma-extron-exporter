@@ -36,8 +36,8 @@ static class ReconciliationTests
         });
         foreach (string name in new[] { "tlp-pro-1025m", "tlp-pro-300m-portrait" })
         {
-            string file = Path.Combine(root, "samples", "donors", name + ".gdl");
-            if (!File.Exists(file)) continue;
+            string? file = new[] { Path.Combine(ScreenTests.DonorLibraryDir, "donors", name + ".gdl"), Path.Combine(root, "samples", "donors", name + ".gdl") }.FirstOrDefault(File.Exists);
+            if (file == null) continue;
             test($"Reconciliation writer: {name} preserves the complete decoded donor graph", () =>
             {
                 var before = ExtronContainer.ReadFile(file).Payload;

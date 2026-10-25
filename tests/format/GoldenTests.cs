@@ -9,7 +9,7 @@ static class GoldenTests
 {
     public static void Integration(Action<string, Action> test, string registryPath)
     {
-        var registry = DonorRegistry.Load(registryPath); var adapter = new ExtronAdapter(AdapterOptions.Default());
+        var registry = ScreenTests.LoadRegistry(registryPath); var adapter = new ExtronAdapter(AdapterOptions.Default());
         using var golden = JsonDocument.Parse(File.ReadAllText(Path.Combine(ScreenTests.Root, "tests", "format", "golden-gdl.json")));
         string work = Directory.CreateTempSubdirectory("exui-golden-").FullName;
         try

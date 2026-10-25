@@ -3,7 +3,7 @@ using System.IO.Compression;
 using System.Text;
 using ExtronExporter.Format;
 
-// Positional: [real-gdl] [templates-dir]. Options: --built <gui-saved.gdl> --registry <donors.json>
+// Positional: [real-gdl] [templates-dir]. Options: --built <gui-saved.gdl> --registry <donors.json> --donor-dir <donor library>
 // --gui-built-screens <folder with GUI-built first-screen-*.gdl> --gui-built-pages <folder with GUI-built pages-popups-*.gdl>
 // --integration, --golden (needs --registry; only the golden GDL payload checks)
 var flags = new Dictionary<string, string?>();
@@ -11,11 +11,12 @@ var positional = new List<string>();
 for (int i = 0; i < args.Length; i++)
 {
     if (args[i] is "--integration" or "--golden") flags[args[i]] = null;
-    else if (args[i] is "--built" or "--registry" or "--gui-built-screens" or "--gui-built-pages" && i + 1 < args.Length) flags[args[i]] = args[++i];
+    else if (args[i] is "--built" or "--registry" or "--donor-dir" or "--gui-built-screens" or "--gui-built-pages" && i + 1 < args.Length) flags[args[i]] = args[++i];
     else if (args[i].StartsWith("--", StringComparison.Ordinal)) { Console.Error.WriteLine($"Unknown option {args[i]}"); return 2; }
     else positional.Add(args[i]);
 }
 args = positional.ToArray();
+if (flags.TryGetValue("--donor-dir", out var donorDir)) ScreenTests.DonorLibraryDir = donorDir!;
 int passed = 0, failed = 0;
 void Test(string name, Action action)
 {
@@ -199,6 +200,7 @@ if (args.Length > 1)
 ScreenTests.Container(Test);
 ScreenTests.Spec(Test);
 ScreenTests.Boundary(Test);
+ScreenTests.DonorLibraryUnit(Test);
 CompatibilityTests.Unit(Test);
 PackageTests.Unit(Test);
 PagesTests.Unit(Test);
