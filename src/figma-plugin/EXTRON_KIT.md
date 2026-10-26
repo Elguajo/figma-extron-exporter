@@ -4,7 +4,7 @@
 
 **Русский** · [English](#english)
 
-**Apple-inspired Light · ревизия 2026-10-24-av-patterns**, входит в плагин **0.8.4**, совместимый CLI **0.8.3**, контракт **EXUI/5**. Архивы 0.7.3 предшествуют этой актуализации. В новой библиотеке стиль и ревизия показаны в заголовке и инструкции на холсте.
+**Apple-inspired Light · ревизия 2026-10-26-control-feedback**, входит в локальную сборку плагина **0.8.4**, совместимый CLI **0.8.3**, контракт **EXUI/5**. Архивы 0.7.3 предшествуют этой актуализации. В новой библиотеке стиль и ревизия показаны в заголовке и инструкции на холсте.
 
 Генератор `src/kit.ts` использует каталог `docs/design/extron-kit/kit.json` и создаёт 29 отдельных компонентов (15 универсальных и 14 готовых), набор `datetime_Clock` с 28 вариантами, шаблон проекта и пример для выбранной панели: TLP Pro 1025M (1280×800) или TLP Pro 300M (320×480, портрет). Всего 57 основных компонентов с учётом вариантов часов. Холст pen.dev также актуализирован 24.10: обновлены состояния, инструкция и примеры 28 форматов. В pen.dev форматы показаны связанными экземплярами одного компонента; набор вариантов Format создаётся в Figma. [Материалы pen.dev](../../docs/design/extron-kit/README.md) сохраняют обе ревизии. Автоматической синхронизации pen.dev и Figma нет.
 
@@ -23,9 +23,11 @@
 
 Весь кит использует светлый фон, белые поверхности, Inter, синий акцент и единую геометрию. Кнопки округлены на 16 px, поверхности — на 24 px. Состояния Off/On, Normal/Pressed и Normal/Active/Pressed показаны рядом в отдельном разделе библиотеки; выбранное состояние отличается синим фоном и отдельным маркером. Ошибка и готовность Multilevel используют красный и зелёный. На примере Music уже выбран как источник; это статический preview, не команда устройству.
 
-Холст организован как библиотека с обложкой и семью главами: **01 Основы и состояния**, **02 Компоненты и AV-пресеты**, **03 Дата и время**, **04 Шаблоны Extron**, **05 Готовые экраны**, **06 AV-сценарии**, **07 Иконки и размеры**. Каталог и рабочие контейнеры находятся в отдельных блоках; шаблоны и экран сохраняют натуральные размеры. Выбирайте для экспорта сам `project_` или `screen_`, а не главу документации. Это разделы текущего холста, не дополнительные Figma Pages.
+Холст организован как библиотека с обложкой и восемью главами: **01 Основы и состояния**, **02 Компоненты и AV-пресеты**, **03 Дата и время**, **04 Шаблоны Extron**, **05 Готовые экраны**, **06 AV-сценарии**, **07 Иконки и размеры**, **08 Ожидание, доступность и компактный экран**. Каталог и рабочие контейнеры находятся в отдельных блоках; шаблоны и экран сохраняют натуральные размеры. Выбирайте для экспорта сам `project_` или `screen_`, а не главу документации. Это разделы текущего холста, не дополнительные Figma Pages.
 
 Пример 1025M группирует источник, зону и громкость; 300M сохраняет те же основные действия в вертикальной композиции. Popup и подтверждение используют ту же систему. Регуляторы остаются нативными; кнопки экспортируют округлённый PNG с прозрачными углами. Интерфейс плагина, AV-команды и правила ID не меняются. Визуальные решения, ограничения Extron и официальные источники Apple: [DESIGN.md](../../docs/design/extron-kit/DESIGN.md).
+
+Локальное исправление от 26.10.2026: размеры кнопок и текста в примерах задаются через constraints основных компонентов. Ползунки в Home и AV-сценариях создаются как редактируемые Frame с частями Track/Fill/Thumb, чтобы менять их геометрию без запрещённых overrides экземпляра. Основные компоненты Slider сохраняются в библиотеке; кнопки, текст и часы в примерах сохраняют связи с компонентами. Экспорт ползунков остаётся нативным.
 
 ## AV-сценарии, иконки и размеры
 
@@ -37,7 +39,18 @@
 
 ## Обновление существующей библиотеки
 
-Обновление файлов плагина не меняет созданные ранее компоненты и экземпляры. **«Создать Extron Kit» добавляет новый комплект рядом**, без замены старого. Проверьте **Apple-inspired Light / 2026-10-24-av-patterns** в его заголовке/инструкции и берите новые экземпляры из нужной библиотеки в Assets. Старые назначения Extron, ID и индивидуальные правки сохраняются. Автоматического переноса экземпляров на новые основные компоненты нет.
+### Дополнение содержимого от 26.10.2026
+
+Раздел **08 / Ожидание, доступность и компактный экран** добавляется при обычном «Создать Extron Kit». Генератор по-прежнему использует Apple-inspired Light; переключателя стилей нет. Каталог [content.json](../../docs/design/extron-kit/content.json) хранит тексты и отдельные компоновки обеих панелей.
+
+- `project_ControlStates` содержит три экрана выбранного профиля: `screen_SystemWaiting`, `screen_SourceUnavailable`, `screen_ConnectionLost`. На них показаны статус, причина, следующий шаг и доступная помощь; при потере связи есть `button_Retry` с Normal / Pressed.
+- `image_UnavailableAction` — пассивная картинка без controlId. В ожидании и при недоступном источнике она заменяет основное действие: нет ложного обещания, что серый вид кнопки блокирует нажатия. Программа выбирает нужный экран и управляет повторными запросами.
+- `multilevel_Connection` содержит три готовых состояния, `value_Reason` остаётся нативным обновляемым текстом. Их значения, команды Help/Retry и переходы подключаются программой Extron.
+- `screen_CompactAudio` — отдельный готовый экран **320×480**: Music/HDMI, Mute, Slider/Value, Volume −/+. Он создаётся для наглядности при обоих профилях, но экспортируется отдельно с **TLP Pro 300M · портрет**. В `project_ControlStates` его нет: проект не смешивает размеры панелей.
+
+Состав основных компонентов и контракт EXUI/5 сохранены. Живой файл Figma дополнен через Figwright на страницах Apple Style, Material 3 Inspired и Industrial HMI в их текущем оформлении. Обновление файлов плагина не дополняет старые экземпляры автоматически. Проверки: [протокол](../../docs/verification/results/2026-10-26-kit-content.md).
+
+Обновление файлов плагина не меняет созданные ранее компоненты и экземпляры. **«Создать Extron Kit» добавляет новый комплект рядом**, без замены старого. Проверьте **Apple-inspired Light / 2026-10-26-control-feedback** в его заголовке/инструкции и берите новые экземпляры из нужной библиотеки в Assets. Старые назначения Extron, ID и индивидуальные правки сохраняются. Автоматического переноса экземпляров на новые основные компоненты нет.
 
 Старые кнопки с `Off / On` остаются допустимыми. Для изменения пары у готовых обычных Frame/Group предусмотрены **«Оформление кнопок» → Normal / Pressed → обновление готовых кнопок**; экземпляры компонентов кита эта команда пропускает. Для экземпляров используйте новый основной компонент либо осознанно изменяйте старый основной компонент с проверкой его связей и состояний. Не удаляйте старую библиотеку, пока её экземпляры используются.
 
@@ -112,7 +125,7 @@
 
 [Русский](#russian) · **English**
 
-**Apple-inspired Light · revision 2026-10-24-av-patterns**, part of plugin **0.8.4**, compatible CLI **0.8.3**, contract **EXUI/5**. The 0.7.3 archives predate this update. In the new library, the style and revision are shown in the title and in the instructions on the canvas.
+**Apple-inspired Light · revision 2026-10-26-control-feedback**, part of the local plugin **0.8.4** build, compatible CLI **0.8.3**, contract **EXUI/5**. The 0.7.3 archives predate this update. In the new library, the style and revision are shown in the title and in the instructions on the canvas.
 
 The plugin interface and the generated kit canvas are in Russian; labels are quoted as shown, followed by their English meaning.
 
@@ -133,9 +146,11 @@ You need edit access to the file, Inter Regular/Bold and a Figma version with th
 
 The whole kit uses a light background, white surfaces, Inter, a blue accent and one geometry. Buttons have a 16 px radius, surfaces 24 px. The Off/On, Normal/Pressed and Normal/Active/Pressed states are shown side by side in a separate library section; the selected state has a blue background and a separate marker. Multilevel error and ready use red and green. In the example, Music is already selected as the source; this is a static preview, not a device command.
 
-The canvas is organized as a library with a cover and seven chapters: **01 Основы и состояния** (Foundations and states), **02 Компоненты и AV-пресеты** (Components and AV presets), **03 Дата и время** (Date and time), **04 Шаблоны Extron** (Extron templates), **05 Готовые экраны** (Ready screens), **06 AV-сценарии** (AV scenarios), **07 Иконки и размеры** (Icons and sizes). The catalog and the working containers are in separate blocks; templates and the screen keep their natural sizes. For export, select the `project_` or `screen_` itself, not a documentation chapter. These are sections of the current canvas, not extra Figma Pages.
+The canvas is organized as a library with a cover and eight chapters: **01 Основы и состояния** (Foundations and states), **02 Компоненты и AV-пресеты** (Components and AV presets), **03 Дата и время** (Date and time), **04 Шаблоны Extron** (Extron templates), **05 Готовые экраны** (Ready screens), **06 AV-сценарии** (AV scenarios), **07 Иконки и размеры** (Icons and sizes), **08 Ожидание, доступность и компактный экран** (Waiting, availability and compact screen). The catalog and the working containers are in separate blocks; templates and the screen keep their natural sizes. For export, select the `project_` or `screen_` itself, not a documentation chapter. These are sections of the current canvas, not extra Figma Pages.
 
 The 1025M example groups source, zone and volume; 300M keeps the same main actions in a vertical layout. The popup and the confirmation use the same system. Sliders stay native; buttons export a rounded PNG with transparent corners. The plugin interface, AV commands and ID rules do not change. Visual decisions, Extron limits and official Apple sources: [DESIGN.md](../../docs/design/extron-kit/DESIGN.md) (in Russian).
+
+Local fix, 26 Oct 2026: example buttons and text resize through their main components' constraints. Sliders in Home and AV scenarios are editable Frames with Track/Fill/Thumb children, allowing independent geometry without forbidden instance overrides. Slider main components remain in the library; example buttons, text and clocks retain their component links. Sliders still export as native controls.
 
 ## AV scenarios, icons and sizes
 
@@ -147,7 +162,15 @@ Section 07: `Icon / …` from Lucide 1.61.0, a 24 px symbol, button targets from
 
 ## Updating an existing library
 
-Updating the plugin files does not change components and instances created earlier. **«Создать Extron Kit» (Create Extron Kit) adds a new kit next to the old one** without replacing it. Check **Apple-inspired Light / 2026-10-24-av-patterns** in its title/instructions and take new instances from the right library in Assets. Old Extron assignments, IDs and individual edits are kept. Instances are not moved to the new main components automatically.
+### Content addition, 26 Oct 2026
+
+Section **08 / Ожидание, доступность и компактный экран** (Waiting, availability and compact screen) is included in Create Extron Kit. The generator keeps Apple-inspired Light and has no style selector. [content.json](../../docs/design/extron-kit/content.json) contains the copy and separate layouts for both panel profiles.
+
+`project_ControlStates` contains SystemWaiting, SourceUnavailable and ConnectionLost pages for the selected panel: a status, a reason, a next step, Help and, on connection loss, Retry with Normal / Pressed. The unavailable primary action is `image_UnavailableAction`, a passive graphic with no controlId. A gray button appearance does not block presses. The control program selects pages, prevents duplicate commands, updates `multilevel_Connection` and `value_Reason`, and implements Help/Retry.
+
+The separate **320×480** `screen_CompactAudio` provides Music/HDMI, Mute, Slider/Value and Volume −/+. It is generated for reference with either profile; export it separately using **TLP Pro 300M · portrait**. It is outside `project_ControlStates` so that project never mixes panel sizes. The component inventory and EXUI/5 contract are unchanged. The existing Figma file was also extended through Figwright on Apple Style, Material 3 Inspired and Industrial HMI pages in their respective styles. See the [verification report](../../docs/verification/results/2026-10-26-kit-content.md).
+
+Updating the plugin files does not change components and instances created earlier. **«Создать Extron Kit» (Create Extron Kit) adds a new kit next to the old one** without replacing it. Check **Apple-inspired Light / 2026-10-26-control-feedback** in its title/instructions and take new instances from the right library in Assets. Old Extron assignments, IDs and individual edits are kept. Instances are not moved to the new main components automatically.
 
 Old buttons with `Off / On` remain valid. To change the pair of existing ordinary Frames/Groups, use **«Оформление кнопок» (Button styling) → Normal / Pressed → update existing buttons**; this command skips instances of kit components. For instances, use the new main component or deliberately change the old main component, checking its links and states. Do not delete the old library while its instances are in use.
 

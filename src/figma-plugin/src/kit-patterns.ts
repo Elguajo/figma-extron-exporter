@@ -1,5 +1,6 @@
 import catalog from '../../../docs/design/extron-kit/kit.json' with {type:'json'};
 import registry from '../../../docs/design/extron-kit/patterns.json' with {type:'json'};
+import content from '../../../docs/design/extron-kit/content.json' with {type:'json'};
 import symbols from '../../../docs/design/extron-kit/icons/icons.json' with {type:'json'};
 import {PROFILES,type Profile} from './model.ts';
 import {KIT_KEY,KIT_VERSION} from './kit-contract.ts';
@@ -13,6 +14,7 @@ interface Tools {
   frame:(parent:FrameNode|undefined,name:string,w:number,h:number,fill?:string)=>FrameNode;
   label:(parent:FrameNode,name:string,copy:string,w:number,h:number,size?:number,fill?:string,bold?:boolean)=>TextNode;
   sizeButton:(node:InstanceNode,w:number,h:number)=>void;
+  sizeSlider:(node:InstanceNode,w:number,h:number,value?:number)=>FrameNode;
   buttonLabel:(node:InstanceNode,copy:string)=>void;
 }
 const c=catalog.colors,g=catalog.geometry;
@@ -25,7 +27,7 @@ function symbol(name:string,fill:string,size:number):FrameNode {
 }
 
 export function createKitExtensions(profile:Profile,masters:ComponentNode[],origin:number,y:number,created:SceneNode[],tools:Tools){
-  const {frame,label,sizeButton,buttonLabel}=tools;
+  const {frame,label,sizeButton,sizeSlider,buttonLabel}=tools;
   function board(name:string,title:string,subtitle:string,x:number,top:number,w:number,h:number){
     const root=frame(undefined,name,w,h,c.canvas);created.push(root);root.x=x;root.y=top;
     const heading=label(root,'Title',title,w-96,64,40,c.ink,true);heading.x=48;heading.y=32;
@@ -35,9 +37,9 @@ export function createKitExtensions(profile:Profile,masters:ComponentNode[],orig
   const patternsBoard=board('Extron Kit / 06 — AV-сценарии','06 / Готовые AV-сценарии','6 сценариев. Экспортируйте project_AVPatterns или отдельный screen_. Команды и переходы подключает программа управления.',origin,y,Math.max(1560,projectWidth+96),projectHeight+272);
   const project=frame(patternsBoard,'project_AVPatterns',projectWidth,projectHeight);project.x=48;project.y=208;
   const patterns:FrameNode[]=[];
-  for(const [index,spec]of (registry.patterns as Pattern[]).entries()){
-    const screen=frame(project,spec.container,size.width,size.height,c.canvas);screen.x=(index%columns)*(size.width+gap);screen.y=Math.floor(index/columns)*(size.height+gap);patterns.push(screen);
-    for(const item of spec.layouts[profile]){
+  function renderScreen(parent:FrameNode,name:string,width:number,height:number,items:Element[],x:number,y:number){
+    const screen=frame(parent,name,width,height,c.canvas);screen.x=x;screen.y=y;
+    for(const item of items){
       const [x,top,w,h]=item.bounds;let node:SceneNode;
       if(item.kind==='shape'){
         const surface=frame(screen,item.name,w,h,color(item.color));surface.cornerRadius=g.surfaceRadius;node=surface;
@@ -46,11 +48,14 @@ export function createKitExtensions(profile:Profile,masters:ComponentNode[],orig
       }else{
         const masterName=item.kind==='text'?(item.name.startsWith('value_')?'value_Value':'text_Label'):item.kind==='slider'?'slider_Slider':item.kind==='status'?'multilevel_Multilevel':item.master!;
         const master=masters.find(m=>m.name===masterName);if(!master)throw new Error('Missing kit master: '+masterName);
-        const instance=master.createInstance();screen.appendChild(instance);instance.name=item.name;
+        const instance=master.createInstance();screen.appendChild(instance);instance.name=item.name;let control:SceneNode=instance;
         if(item.kind==='text'){
-          instance.resize(w,h);const text=instance.children[0] as TextNode;text.resize(w,h);text.characters=item.text!;text.fontSize=item.fontSize!;text.fills=[paint(color(item.color))];text.fontName={family:catalog.typography.family,style:item.bold?'Bold':'Regular'};text.textAlignHorizontal=(item.align??'left').toUpperCase() as TextNode['textAlignHorizontal'];
+          instance.resize(w,h);const text=instance.children[0] as TextNode;text.characters=item.text!;text.fontSize=item.fontSize!;text.fills=[paint(color(item.color))];text.fontName={family:catalog.typography.family,style:item.bold?'Bold':'Regular'};text.textAlignHorizontal=(item.align??'left').toUpperCase() as TextNode['textAlignHorizontal'];
         }else if(item.kind==='slider'){
-          instance.resize(w,h);const [track,fill,thumb]=instance.children as FrameNode[];track.resize(w,g.trackHeight);track.y=(h-g.trackHeight)/2;fill.resize(Math.round(w*(item.value??42)/100),g.trackHeight);fill.y=track.y;thumb.x=fill.width-g.thumbSize/2;thumb.y=(h-g.thumbSize)/2;
+          control=sizeSlider(instance,w,h,item.value??42);
+        }else if(item.kind==='graphic'){
+          instance.resize(w,h);
+          for(const art of instance.children)if('children'in art)for(const child of art.children)if(child.type==='TEXT')child.characters=item.label!;
         }else{
           sizeButton(instance,w,h);if(item.label)buttonLabel(instance,item.label);
           for(const [i,state]of (instance.children as FrameNode[]).entries()){
@@ -71,10 +76,14 @@ export function createKitExtensions(profile:Profile,masters:ComponentNode[],orig
             }
           }
         }
-        node=instance;
+        node=control;
       }
       node.x=x;node.y=top;
     }
+    return screen;
+  }
+  for(const [index,spec]of (registry.patterns as Pattern[]).entries()){
+    patterns.push(renderScreen(project,spec.container,size.width,size.height,spec.layouts[profile],(index%columns)*(size.width+gap),Math.floor(index/columns)*(size.height+gap)));
   }
   const iconsBoard=board('Extron Kit / 07 — Иконки и размеры','07 / Иконки и размеры','Lucide 1.61.0 · 18 SVG / 24 px. Переносите внутрь Artwork. Кнопка сохраняет видимую подпись.',origin+patternsBoard.width+240,y,1560,1536);
   const icons:ComponentNode[]=[];
@@ -94,5 +103,16 @@ export function createKitExtensions(profile:Profile,masters:ComponentNode[],orig
     const copy=label(sample,'Size',h+' px',220,h,20,c.ink,true);copy.textAlignHorizontal='CENTER';
   }
   const note=label(iconsBoard,'Target note','Проектные размеры для этих двух профилей. Иконка — 24 px внутри кнопки; цель нажатия — вся кнопка.\nНе используйте серый цвет как единственное объяснение недоступного действия: покажите причину отдельным текстом.',1480,112,20,c.muted);note.x=40;note.y=1216;
-  return{patterns,patternProject:project,icons};
+  const supportWidth=columns*size.width+(columns-1)*gap;
+  const contentBoard=board('Extron Kit / 08 — Состояния и компактный экран',content.title,content.intro,origin,y+patternsBoard.height+240,Math.max(1560,supportWidth+96),size.height+960);
+  const supportProject=frame(contentBoard,'project_ControlStates',supportWidth,size.height);supportProject.x=48;supportProject.y=272;
+  const supportScreens=(content.patterns as Pattern[]).map((spec,index)=>{
+    const caption=label(contentBoard,'Scenario / '+spec.id,spec.title,size.width,40,24,c.ink,true);caption.x=48+index*(size.width+gap);caption.y=208;
+    return renderScreen(supportProject,spec.container,size.width,size.height,spec.layouts[profile],index*(size.width+gap),0);
+  });
+  const compactTitle=label(contentBoard,'Compact title','TLP Pro 300M · 320 × 480',1000,48,28,c.ink,true);compactTitle.x=48;compactTitle.y=size.height+352;
+  // Kept outside supportProject: a project must not mix the two panel sizes.
+  const compactExample=renderScreen(contentBoard,content.compact.container,320,480,content.compact.elements,48,size.height+416);
+  const guide=label(contentBoard,'Program contract',content.guidance.join('\n\n'),contentBoard.width-544,480,20,c.muted);guide.x=448;guide.y=size.height+416;
+  return{patterns,patternProject:project,icons,contentBoard,supportProject,supportScreens,compactExample};
 }

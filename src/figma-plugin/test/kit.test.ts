@@ -26,6 +26,21 @@ test('Figma rejects component property bindings inside slot content',()=>{
   assert.throws(()=>{text.componentPropertyReferences={characters:'Label#1'};},/slot sublayer/);
 });
 
+test('Instance geometry is constrained; slot content remains freely editable',()=>{
+  const fake=kitFixture(),master=(fake.api as any).createComponent();master.resize(220,64);
+  const state=fake.api.createFrame() as any;master.appendChild(state);state.resize(220,64);state.constraints={horizontal:'STRETCH',vertical:'STRETCH'};
+  const slot=master.createSlot();state.appendChild(slot);slot.resize(220,64);slot.constraints={horizontal:'STRETCH',vertical:'STRETCH'};
+  const marker=fake.api.createEllipse() as any;slot.appendChild(marker);marker.resize(6,6);marker.x=194;marker.y=29;marker.constraints={horizontal:'MAX',vertical:'CENTER'};
+  const instance=master.createInstance(),child=instance.children[0];
+  assert.throws(()=>{child.x=0;},/in set_x:.*relative-transform/);
+  assert.throws(()=>{child.y=0;},/in set_y:.*relative-transform/);
+  assert.throws(()=>child.resize(100,40),/cannot be overridden.*size/);
+  assert.throws(()=>{child.children[0].x=0;},/relative-transform/,'the slot itself is constrained');
+  const content=child.children[0].children[0];content.x=190;content.x=194;
+  instance.resize(272,56);
+  assert.deepEqual([child.width,child.height,content.x,content.y],[272,56,246,25]);
+});
+
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)
 test(`Kit ${profile}: components, slots, native controls → recognition → valid package, source masters unchanged`,async()=>{
   const fake=kitFixture(),kit=await createKit(profile);
@@ -57,6 +72,23 @@ test(`Kit ${profile}: components, slots, native controls → recognition → val
   const music=kit.example.children.find(n=>n.name==='feedbackbutton_Music') as FrameNode;
   assert.deepEqual(music.children.map(n=>[n.name,n.visible]),[['Normal',false],['Active',true],['Pressed',false]]);
   assert.ok((music.children[1] as FrameNode).children.some(n=>'children'in n&&n.children.some(c=>c.name==='Selection mark')));
+  for(const control of kit.example.children){
+    if(control.name.startsWith('button_')||control.name.startsWith('feedbackbutton_')){
+      assert.equal(control.type,'INSTANCE');
+      for(const state of (control as InstanceNode).children as FrameNode[]){
+        assert.deepEqual([state.x,state.y,state.width,state.height],[0,0,control.width,control.height]);
+        const art=state.children[0] as SlotNode;
+        assert.deepEqual([art.width,art.height],[control.width,control.height]);
+        const marker=art.children.find(n=>n.name==='Selection mark');
+        if(marker)assert.deepEqual([marker.x,marker.y,marker.width,marker.height],[control.width-26,control.height/2-3,6,6]);
+      }
+    }
+    if(control.name.startsWith('slider_')){
+      assert.equal(control.type,'FRAME');
+      const [track,fill,thumb]=(control as FrameNode).children;
+      assert.deepEqual([track.width,fill.width,thumb.x,thumb.width,thumb.height],[control.width,Math.round(control.width*.42),fill.width-14,28,28]);
+    }
+  }
   for(const button of bundle.screen.elements.filter(e=>e.kind==='button'))assert.ok(button.states!.every(s=>s.fill==='#00000000'));
   if(profile==='tlp-pro-1025m')assert.deepEqual(bundle.screen.elements.filter(e=>e.kind==='shape').map(e=>e.native!.radius),[24,24,24]);
 });
@@ -82,7 +114,8 @@ test('Custom slot layers are rasterized; native text wrappers and invalid extern
   const art=(button.children[0] as FrameNode).children[0] as FrameNode,design=fake.api.createFrame();design.name='My arbitrary design';design.cornerRadius=12;design.effects=[{type:'DROP_SHADOW'}];design.resize(220,64);art.appendChild(design as never);
   let plan=recognize(kit.example,'tlp-pro-300m-portrait');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
   const before=designSignature(kit.example);await exportFrame(kit.example);assert.equal(designSignature(kit.example),before);
-  const value=kit.example.children.find(n=>n.name==='value_VolumeValue') as FrameNode;
+  const value=(kit.example.children.find(n=>n.name==='value_VolumeValue') as InstanceNode).detachInstance();
+  applyRecognition(recognize(kit.example,'tlp-pro-300m-portrait'));
   (value.children[0] as TextNode).x=1;assert.throws(()=>capture(kit.example),/Content/);
   (value.children[0] as TextNode).x=0;button.cornerRadius=8;assert.throws(()=>capture(kit.example),/скругление/);
 });
@@ -119,7 +152,7 @@ test('Every generated control has an exportable contract, including multilevel a
   for(const child of [...kit.example.children])child.remove();
   const instance=master.createInstance();kit.example.appendChild(instance);instance.x=0;instance.y=0;
   // Variants are 440 px wide; the 300M canvas is 320 px.
-  if(instance.width>320){instance.resize(320,instance.height);for(const child of instance.children)(child as TextNode).resize(320,child.height);}
+  if(instance.width>320)instance.resize(320,instance.height);
   const plan=recognize(kit.example,'tlp-pro-300m-portrait');assert.deepEqual(plan.errors,[],master.name);applyRecognition(plan);
   const bundle=await exportFrame(kit.example);assert.ok(packageExui(bundle).length>0,master.name);
   if(momentaryNames.includes(master.name)){

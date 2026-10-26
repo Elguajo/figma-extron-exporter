@@ -11,6 +11,50 @@ export function png(width:number,height:number):Uint8Array {
 }
 export function kitFixture(){
   const fake=fakeFigma(),api=fake.api as any;let propertyId=0;
+  // Geometry on ordinary instance descendants is read-only. Slot contents are
+  // editable, but the slot itself still follows its component's constraints.
+  const protectedNodes=new WeakSet<object>();let layoutDepth=0;
+  const insideInstance=(node:any)=>{
+    for(let parent=node.parent;parent;parent=parent.parent){
+      if(parent.type==='SLOT')return false;
+      if(parent.type==='INSTANCE')return true;
+    }
+    return false;
+  };
+  const protect=(node:any)=>{
+    if(protectedNodes.has(node))return node;protectedNodes.add(node);
+    node.constraints??={horizontal:'MIN',vertical:'MIN'};
+    for(const key of ['x','y']){
+      let value=node[key];
+      Object.defineProperty(node,key,{enumerable:true,configurable:true,get:()=>value,set:(next:number)=>{
+        if(!layoutDepth&&insideInstance(node))throw new Error(`in set_${key}: This property cannot be overridden in an instance: relative-transform`);
+        value=next;
+      }});
+    }
+    const resize=node.resize.bind(node);
+    node.resize=(w:number,h:number)=>{
+      if(!layoutDepth&&insideInstance(node))throw new Error('This property cannot be overridden in an instance: size');
+      const dw=w-node.width,dh=h-node.height,oldWidth=node.width,oldHeight=node.height;
+      resize(w,h);layoutDepth++;
+      try{for(const child of node.children){
+        const axis=(mode:string|undefined,position:number,length:number,delta:number,oldLength:number):[number,number]=>{
+          if(mode==='STRETCH')return[position,length+delta];
+          if(mode==='MAX')return[position+delta,length];
+          if(mode==='CENTER')return[position+delta/2,length];
+          if(mode==='SCALE')return[position*(oldLength+delta)/oldLength,length*(oldLength+delta)/oldLength];
+          return[position,length];
+        };
+        const [x,cw]=axis(child.constraints?.horizontal,child.x,child.width,dw,oldWidth);
+        const [y,ch]=axis(child.constraints?.vertical,child.y,child.height,dh,oldHeight);
+        child.x=x;child.y=y;child.resize(cw,ch);
+      }}finally{layoutDepth--;}
+    };
+    return node;
+  };
+  const protectTree=(node:any)=>{protect(node);for(const child of node.children)protectTree(child);};
+  for(const key of ['createFrame','createText','createEllipse','createRectangle']){
+    const create=api[key];api[key]=()=>protect(create());
+  }
   const references=new WeakMap<object,unknown>();
   Object.defineProperty(fake.FakeNode.prototype,'componentPropertyReferences',{
     configurable:true,
@@ -27,12 +71,21 @@ export function kitFixture(){
   const visit=(node:any,fn:(n:any)=>void)=>{fn(node);for(const child of node.children)visit(child,fn);};
   api.createNodeFromSvg=(svg:string)=>{if(!svg.includes('<svg')||!svg.includes('viewBox="0 0 24 24"'))throw new Error('Invalid fixture SVG');const n=new fake.FakeNode('FRAME') as any;n.resize(Number(/width="(\d+)"/.exec(svg)?.[1]??24),Number(/height="(\d+)"/.exec(svg)?.[1]??24));n.svgSource=svg;fake.page.appendChild(n);return n;};
   api.createComponent=()=>{
-    const n=new fake.FakeNode('COMPONENT') as any;fake.page.appendChild(n);n.componentPropertyDefinitions={};
+    const n=protect(new fake.FakeNode('COMPONENT')) as any;fake.page.appendChild(n);n.componentPropertyDefinitions={};
     n.addComponentProperty=(name:string,type:string,defaultValue:string)=>{const key=name+'#'+(++propertyId);n.componentPropertyDefinitions[key]={type,defaultValue};return key;};
     n.editComponentProperty=(key:string,options:any)=>{const value={...n.componentPropertyDefinitions[key],...options};delete n.componentPropertyDefinitions[key];const next=options.name?options.name+'#'+(++propertyId):key;n.componentPropertyDefinitions[next]=value;visit(n,c=>{if(c.componentPropertyReferences?.slotContentId===key){c.componentPropertyReferences.slotContentId=next;if(options.name)c.name=options.name;}});return next;};
-    n.createSlot=()=>{const slot=new fake.FakeNode('SLOT') as any;n.appendChild(slot);slot.componentPropertyReferences={slotContentId:n.addComponentProperty('Slot','SLOT','')};return slot;};
+    n.createSlot=()=>{const slot=protect(new fake.FakeNode('SLOT')) as any;n.appendChild(slot);slot.componentPropertyReferences={slotContentId:n.addComponentProperty('Slot','SLOT','')};return slot;};
     // Figma names a variant's instance after its component set.
-    n.createInstance=()=>{const instance=n.clone() as any;instance.type='INSTANCE';if(n.parent?.type==='COMPONENT_SET'){instance.name=n.parent.name;instance.componentProperties=Object.fromEntries(String(n.name).split(', ').map((pair:string)=>{const [k,v]=pair.split('=');return [k,{type:'VARIANT',value:v}];}));fake.page.appendChild(instance);}instance.setProperties=(props:Record<string,string>)=>visit(instance,c=>{const property=c.componentPropertyReferences?.characters;if(property&&property in props)c.characters=props[property];});return instance;};
+    n.createInstance=()=>{
+      const instance=n.clone() as any;instance.type='INSTANCE';
+      if(n.parent?.type==='COMPONENT_SET'){instance.name=n.parent.name;instance.componentProperties=Object.fromEntries(String(n.name).split(', ').map((pair:string)=>{const [k,v]=pair.split('=');return [k,{type:'VARIANT',value:v}];}));fake.page.appendChild(instance);}
+      instance.setProperties=(props:Record<string,string>)=>visit(instance,c=>{const property=c.componentPropertyReferences?.characters;if(property&&property in props)c.characters=props[property];});
+      instance.detachInstance=()=>{
+        const parent=instance.parent,index=parent.children.indexOf(instance),detached=instance.clone();
+        detached.type='FRAME';parent.insertChild(index,detached);instance.remove();return detached;
+      };
+      return instance;
+    };
     return n;
   };
   api.combineAsVariants=(nodes:any[],parent:any)=>{
@@ -40,7 +93,7 @@ export function kitFixture(){
     const set=new fake.FakeNode('COMPONENT_SET') as any;parent.appendChild(set);for(const n of nodes)set.appendChild(n);return set;
   };
   const originalClone=fake.FakeNode.prototype.clone;
-  fake.FakeNode.prototype.clone=function(){const copy=originalClone.call(this);if(copy.type==='SLOT')copy.type='FRAME';return copy;};
+  fake.FakeNode.prototype.clone=function(){const copy=originalClone.call(this);if(copy.type==='SLOT')copy.type='FRAME';protectTree(copy);return copy;};
   fake.setRenderHook(node=>{const bytes=png(Math.round(node.width),Math.round(node.height)),hash=api.createImage(bytes).hash;node.fills=[{type:'IMAGE',imageHash:hash,scaleMode:'FILL'}];});
   return fake;
 }

@@ -19,6 +19,12 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)test(`AV
     for(const node of screen.children){
       assert.ok(node.x>=0&&node.y>=0&&node.x+node.width<=screen.width&&node.y+node.height<=screen.height,screen.name+'/'+node.name);
       if(node.name.startsWith('button_')||node.name.startsWith('feedbackbutton_'))assert.ok(node.width>=56&&node.height>=56);
+      const item=registry.patterns.find(p=>p.container===screen.name)!.layouts[profile].find(item=>item.name===node.name)!;
+      if(item.kind==='slider'){
+        assert.equal(node.type,'FRAME');
+        const [track,fill,thumb]=(node as FrameNode).children;
+        assert.deepEqual([track.width,track.y,fill.width,fill.y,thumb.x,thumb.y,thumb.width,thumb.height],[node.width,(node.height-8)/2,Math.round(node.width*.42),(node.height-8)/2,fill.width-14,(node.height-28)/2,28,28]);
+      }
     }
   }
   const plan=recognize(kit.patternProject,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);

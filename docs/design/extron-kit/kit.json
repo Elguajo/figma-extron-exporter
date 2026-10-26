@@ -1,7 +1,7 @@
 {
   "schema": "extron-kit/1",
   "name": "Extron Kit",
-  "revision": "2026-10-24-av-patterns",
+  "revision": "2026-10-26-control-feedback",
   "style": "Apple-inspired Light",
   "colors": {
     "canvas": "#F5F5F7",

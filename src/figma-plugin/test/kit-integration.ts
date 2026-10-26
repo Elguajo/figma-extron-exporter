@@ -17,8 +17,9 @@ function cli(args:string[]){const r=spawnSync(dotnet,[process.env.EXTRON_CLI_DLL
 const evidence:unknown[]=[];
 for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
  kitFixture();const kit=await createKit(profile);
- for(const [name,node]of [['screen',kit.example],['project',kit.templates[0]],['patterns',kit.patternProject]] as const){
-  const plan=recognize(node,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);const bundle=await exportFrame(node);
+ for(const [name,node]of [['screen',kit.example],['project',kit.templates[0]],['patterns',kit.patternProject],['support',kit.supportProject],['compact',kit.compactExample]] as const){
+  const targetProfile=name==='compact'?'tlp-pro-300m-portrait':profile;
+  const plan=recognize(node,targetProfile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);const bundle=await exportFrame(node);
   const input=path.join(out,`${name}-${profile}.exui`),output=path.join(out,`${name}-${profile}.gdl`);await writeFile(input,packageExui(bundle),{flag:'wx'});
   const validation=cli(['validate-package',input]),generation=cli(['convert-package',input,output,'--registry',path.join(root,'samples/donors.json')]);
   const report=JSON.parse(await readFile(output+'.report.json','utf8'));assert.ok(report.Generation.Checks.every((c:any)=>c.Passed));
@@ -35,7 +36,14 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
    }
    const clock=model.Pages[0].Controls.find((n:any)=>n.Type==='PBDateTime');assert.equal(clock.Native.Pattern,'MMMM d, h:mm tt');
   }else if(name==='project'){assert.equal(model.Pages.length,1);assert.equal(model.Groups.length,1);assert.ok(model.Popups.length>=4);}
-  else{assert.equal(model.Pages.length,5);const popups=model.Popups.filter((p:any)=>p.Comments.startsWith('exui-key='));assert.equal(popups.length,1);assert.equal(popups[0].Popup.Modal,true);const controls=[...model.Pages,...model.Popups].flatMap((p:any)=>p.Controls);assert.ok(controls.some((c:any)=>c.Type==='PBLevel'&&c.States.map((s:any)=>s.Text).join('/')==='Starting/Ready/Offline'));}
+  else if(name==='patterns'){assert.equal(model.Pages.length,5);const popups=model.Popups.filter((p:any)=>p.Comments.startsWith('exui-key='));assert.equal(popups.length,1);assert.equal(popups[0].Popup.Modal,true);const controls=[...model.Pages,...model.Popups].flatMap((p:any)=>p.Controls);assert.ok(controls.some((c:any)=>c.Type==='PBLevel'&&c.States.map((s:any)=>s.Text).join('/')==='Starting/Ready/Offline'));}
+  else if(name==='support'){
+   assert.equal(model.Pages.length,3);
+   const controls=model.Pages.flatMap((p:any)=>p.Controls);
+   assert.equal(controls.filter((c:any)=>c.Type==='PBImage').length,2);
+   assert.equal(controls.filter((c:any)=>c.Type==='PBLevel').length,3);
+   assert.equal(controls.filter((c:any)=>c.Comments?.endsWith('.retry')).length,1);
+  }else{assert.equal(model.Pages.length,1);assert.ok(model.Pages[0].Controls.some((c:any)=>c.Type==='PBSlider'));}
   evidence.push({profile,name,validation,generation,boundary:'Figma API and PNG rendering simulated; real CLI, donor, x86 writer and independent NRBF checks. No GUI Build/device claim.'});
   console.log(`PASS kit ${profile} / ${name}: ${generation.checks}`);
  }

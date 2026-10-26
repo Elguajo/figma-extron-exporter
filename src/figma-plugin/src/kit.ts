@@ -18,17 +18,19 @@ function label(parent:Parent,name:string,copy:string,w:number,h:number,size=20,f
 }
 function stretch(node:SceneNode){if('constraints'in node)node.constraints={horizontal:'STRETCH',vertical:'STRETCH'};}
 function sizeButton(node:InstanceNode,w:number,h:number):void {
+  // The master's constraints resize states, slots, labels and selection marks.
+  // Writing geometry on ordinary instance descendants is forbidden by Figma.
   node.resize(w,h);
-  for(const state of node.children as FrameNode[]){
-    state.resize(w,h);
-    for(const part of state.children){
-      if('resize'in part)part.resize(w,h);
-      if('children'in part)for(const child of part.children){
-        if(child.name==='Selection mark'){child.x=w-26;child.y=h/2-3;}
-        else if('resize'in child)child.resize(w,h);
-      }
-    }
-  }
+}
+function sizeSlider(node:InstanceNode,w:number,h:number,value=42):FrameNode {
+  // Track / Fill / Thumb need independent geometry for each example. Keep the
+  // reusable master; detach only the placed slider to allow these edits.
+  const slider=node.detachInstance();slider.resize(w,h);
+  const [track,fill,thumb]=slider.children as (FrameNode|EllipseNode)[];
+  track.resize(w,g.trackHeight);track.y=(h-g.trackHeight)/2;
+  fill.resize(Math.round(w*value/100),g.trackHeight);fill.y=track.y;
+  thumb.x=fill.width-g.thumbSize/2;thumb.y=(h-g.thumbSize)/2;
+  return slider;
 }
 function buttonLabel(node:InstanceNode,copy:string):void {
   for(const state of node.children as FrameNode[])for(const part of state.children)if('children'in part)for(const child of part.children)if(child.type==='TEXT'&&child.name==='Label')child.characters=copy;
@@ -99,7 +101,7 @@ function dateTimeSet(spec:Spec,library:FrameNode,top:number):{set:ComponentSetNo
   return {set,variants,height:rows*CLOCK.cell};
 }
 
-export interface KitResult {library:FrameNode;components:ComponentNode[];dateTime:ComponentSetNode;templates:FrameNode[];example:FrameNode;patterns:FrameNode[];patternProject:FrameNode;icons:ComponentNode[]}
+export interface KitResult {library:FrameNode;components:ComponentNode[];dateTime:ComponentSetNode;templates:FrameNode[];example:FrameNode;patterns:FrameNode[];patternProject:FrameNode;icons:ComponentNode[];contentBoard:FrameNode;supportProject:FrameNode;supportScreens:FrameNode[];compactExample:FrameNode}
 export async function createKit(profile:Profile):Promise<KitResult> {
   if(!Object.prototype.hasOwnProperty.call(PROFILES,profile))fail('profile','Выберите профиль панели.');
   await figma.loadFontAsync({family:t.family,style:'Regular'});await figma.loadFontAsync({family:t.family,style:'Bold'});
@@ -167,7 +169,7 @@ export async function createKit(profile:Profile):Promise<KitResult> {
       const cell=frame(cover,'Contents / '+(index+1),992,112,c.control);cell.x=48+index*1008;cell.y=400;cell.cornerRadius=g.controlRadius;
       const text=label(cell,'Chapter',copy,944,64,24,c.ink,true);text.x=24;text.y=24;
     }
-    const more=label(cover,'Extension contents','06 / Готовые AV-сценарии · 07 / Иконки и размеры — ниже основных шаблонов',5064,40,22,c.muted);more.x=48;more.y=536;
+    const more=label(cover,'Extension contents','06 / Готовые AV-сценарии · 07 / Иконки и размеры · 08 / Ожидание, доступность и компактный экран',5064,40,22,c.muted);more.x=48;more.y=536;
     const basics=chapter(library,'01 / Основы и состояния','01 / Основы','Цвет, типографика и состояния. С них начинается работа с китом.',0,840,1560,1760);
     for(const [index,node]of swatches.entries()){basics.appendChild(node);node.x=40+(index%3)*500;node.y=208+Math.floor(index/3)*128;}
     const typeCard=frame(basics,'Typography',1480,448,c.surface);typeCard.x=40;typeCard.y=520;typeCard.cornerRadius=g.surfaceRadius;
@@ -219,13 +221,12 @@ export async function createKit(profile:Profile):Promise<KitResult> {
     const add=(name:string,x:number,y:number)=>{const n=find(name).createInstance();example.appendChild(n);n.x=x;n.y=y;return n;};
     const addText=(name:string,copy:string,x:number,y:number,w:number,h:number,fontSize:number,fill=c.ink,bold=false)=>{
       const n=add(name.startsWith('value_')?'value_VolumeValue':'text_Label',x,y);n.name=name;n.resize(w,h);
-      const text=n.children[0] as TextNode;text.resize(w,h);text.characters=copy;text.fontSize=fontSize;text.fontName={family:t.family,style:bold?'Bold':'Regular'};text.fills=[paint(fill)];return n;
+      const text=n.children[0] as TextNode;text.characters=copy;text.fontSize=fontSize;text.fontName={family:t.family,style:bold?'Bold':'Regular'};text.fills=[paint(fill)];return n;
     };
     const addButton=(name:string,x:number,y:number,w=220,h=64)=>{const n=add(name,x,y);sizeButton(n,w,h);return n;};
     const selectButton=(n:InstanceNode)=>{for(const state of n.children)state.visible=state.name==='Active';return n;};
     const addSlider=(x:number,y:number,w:number)=>{
-      const n=add('slider_Volume',x,y);n.resize(w,40);
-      const [track,fill,thumb]=n.children as FrameNode[];track.resize(w,g.trackHeight);fill.resize(Math.round(w*.42),g.trackHeight);thumb.x=fill.width-g.thumbSize/2;return n;
+      return sizeSlider(add('slider_Volume',x,y),w,40);
     };
     const surface=(name:string,x:number,y:number,w:number,h:number)=>{const n=frame(example,name,w,h,c.surface);n.x=x;n.y=y;n.cornerRadius=g.surfaceRadius;};
     if(profile==='tlp-pro-1025m'){
@@ -249,8 +250,7 @@ export async function createKit(profile:Profile):Promise<KitResult> {
     const clockText=clock.children[0] as TextNode;clockText.fills=[paint(c.muted)];clockText.fontSize=18;
     if(profile==='tlp-pro-1025m'){clock.x=792;clock.y=40;clockText.textAlignHorizontal='RIGHT';}
     else{
-      // Constraints stretch the Text in Figma; set it explicitly for hosts without layout.
-      clock.resize(272,32);clockText.resize(272,32);clockText.fontSize=16;clock.x=24;clock.y=64;
+      clock.resize(272,32);clockText.fontSize=16;clock.x=24;clock.y=64;
     }
     const boardsY=library.y+library.height+240;
     const templatesBoard=chapter(figma.currentPage,'Extron Kit / 04 — Шаблоны','04 / Шаблоны Extron','Рабочие фреймы в натуральном размере. Для экспорта выбирайте сам project_ или screen_.',origin,boardsY,3360,project.height+272);created.push(templatesBoard);
@@ -259,7 +259,7 @@ export async function createKit(profile:Profile):Promise<KitResult> {
     examplesBoard.appendChild(example);example.x=48;example.y=208;
     // No Extron IDs on masters: each placed instance receives its own IDs on recognition.
     figma.currentPage.selection=[example];figma.viewport.scrollAndZoomIntoView([example]);
-    const extensions=createKitExtensions(profile,components,origin,boardsY+Math.max(templatesBoard.height,examplesBoard.height)+240,created,{frame,label,sizeButton,buttonLabel});
+    const extensions=createKitExtensions(profile,components,origin,boardsY+Math.max(templatesBoard.height,examplesBoard.height)+240,created,{frame,label,sizeButton,sizeSlider,buttonLabel});
     return{library,components,dateTime:clocks.set,templates,example,...extensions};
   }catch(error){for(const node of created.reverse())if(!node.removed)node.remove();figma.currentPage.selection=previousSelection.filter(n=>!n.removed);throw error;}
 }

@@ -1,0 +1,749 @@
+{
+  "schema": "extron-kit-content/1",
+  "revision": "2026-10-26-control-feedback",
+  "title": "08 / Ожидание, доступность и компактный экран",
+  "intro": "Три готовых сценария для выбранной панели + независимый экран 320 × 480. Для экспорта выбирайте project_ или screen_.",
+  "guidance": [
+    "Waiting: повторный запуск недоступен; Help остаётся доступным.",
+    "Unavailable: рядом с действием показана причина и следующий шаг.",
+    "Connection lost: Retry запускает одну новую попытку; результат возвращает процессор.",
+    "image_UnavailableAction — пассивный PNG без controlId, нажатий и состояний кнопки.",
+    "Multilevel / Value и переходы обновляет программа Extron; демонстрация не создаёт логику.",
+    "screen_CompactAudio экспортируйте отдельно с профилем TLP Pro 300M · портрет.",
+    "Slider и Value независимы: синхронизацию, Mute и повтор +/− подключает программа."
+  ],
+  "patterns": [
+    {
+      "id": "waiting",
+      "title": "Ожидание",
+      "container": "screen_SystemWaiting",
+      "layouts": {
+        "tlp-pro-1025m": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              48,
+              32,
+              800,
+              56
+            ],
+            "text": "Room control",
+            "fontSize": 36,
+            "bold": true
+          },
+          {
+            "kind": "shape",
+            "name": "shape_StatusSurface",
+            "bounds": [
+              256,
+              160,
+              768,
+              480
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "status",
+            "name": "multilevel_Connection",
+            "bounds": [
+              304,
+              192,
+              672,
+              48
+            ],
+            "selected": 0,
+            "labels": [
+              "Starting",
+              "Ready",
+              "Offline"
+            ]
+          },
+          {
+            "kind": "text",
+            "name": "text_StateTitle",
+            "bounds": [
+              304,
+              264,
+              672,
+              64
+            ],
+            "text": "Starting system",
+            "fontSize": 36,
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_Reason",
+            "bounds": [
+              304,
+              344,
+              672,
+              96
+            ],
+            "text": "Wait until the room is ready.\nHelp is available below.",
+            "fontSize": 24,
+            "color": "muted"
+          },
+          {
+            "kind": "graphic",
+            "name": "image_UnavailableAction",
+            "bounds": [
+              304,
+              504,
+              672,
+              64
+            ],
+            "master": "image_Image",
+            "label": "Starting…"
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              530,
+              696,
+              220,
+              56
+            ],
+            "master": "button_Back",
+            "label": "Help"
+          }
+        ],
+        "tlp-pro-300m-portrait": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              24,
+              16,
+              272,
+              40
+            ],
+            "text": "Room control",
+            "fontSize": 28,
+            "bold": true
+          },
+          {
+            "kind": "shape",
+            "name": "shape_StatusSurface",
+            "bounds": [
+              16,
+              80,
+              288,
+              320
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "status",
+            "name": "multilevel_Connection",
+            "bounds": [
+              32,
+              96,
+              256,
+              48
+            ],
+            "selected": 0,
+            "labels": [
+              "Starting",
+              "Ready",
+              "Offline"
+            ]
+          },
+          {
+            "kind": "text",
+            "name": "text_StateTitle",
+            "bounds": [
+              32,
+              160,
+              256,
+              64
+            ],
+            "text": "Starting system",
+            "fontSize": 24,
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_Reason",
+            "bounds": [
+              32,
+              236,
+              256,
+              72
+            ],
+            "text": "Wait until the room is ready.\nHelp is available below.",
+            "fontSize": 18,
+            "color": "muted"
+          },
+          {
+            "kind": "graphic",
+            "name": "image_UnavailableAction",
+            "bounds": [
+              32,
+              328,
+              256,
+              56
+            ],
+            "master": "image_Image",
+            "label": "Starting…"
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              32,
+              416,
+              256,
+              56
+            ],
+            "master": "button_Back",
+            "label": "Help"
+          }
+        ]
+      }
+    },
+    {
+      "id": "unavailable",
+      "title": "Недоступное действие",
+      "container": "screen_SourceUnavailable",
+      "layouts": {
+        "tlp-pro-1025m": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              48,
+              32,
+              800,
+              56
+            ],
+            "text": "Room control",
+            "fontSize": 36,
+            "bold": true
+          },
+          {
+            "kind": "shape",
+            "name": "shape_StatusSurface",
+            "bounds": [
+              256,
+              160,
+              768,
+              480
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "status",
+            "name": "multilevel_Connection",
+            "bounds": [
+              304,
+              192,
+              672,
+              48
+            ],
+            "selected": 2,
+            "labels": [
+              "Checking",
+              "Available",
+              "Unavailable"
+            ]
+          },
+          {
+            "kind": "text",
+            "name": "text_StateTitle",
+            "bounds": [
+              304,
+              264,
+              672,
+              64
+            ],
+            "text": "Source unavailable",
+            "fontSize": 36,
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_Reason",
+            "bounds": [
+              304,
+              344,
+              672,
+              96
+            ],
+            "text": "The source is not connected.\nConnect a cable to continue.",
+            "fontSize": 24,
+            "color": "muted"
+          },
+          {
+            "kind": "graphic",
+            "name": "image_UnavailableAction",
+            "bounds": [
+              304,
+              504,
+              672,
+              64
+            ],
+            "master": "image_Image",
+            "label": "Source unavailable"
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              530,
+              696,
+              220,
+              56
+            ],
+            "master": "button_Back",
+            "label": "Help"
+          }
+        ],
+        "tlp-pro-300m-portrait": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              24,
+              16,
+              272,
+              40
+            ],
+            "text": "Room control",
+            "fontSize": 28,
+            "bold": true
+          },
+          {
+            "kind": "shape",
+            "name": "shape_StatusSurface",
+            "bounds": [
+              16,
+              80,
+              288,
+              320
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "status",
+            "name": "multilevel_Connection",
+            "bounds": [
+              32,
+              96,
+              256,
+              48
+            ],
+            "selected": 2,
+            "labels": [
+              "Checking",
+              "Available",
+              "Unavailable"
+            ]
+          },
+          {
+            "kind": "text",
+            "name": "text_StateTitle",
+            "bounds": [
+              32,
+              160,
+              256,
+              64
+            ],
+            "text": "Source unavailable",
+            "fontSize": 24,
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_Reason",
+            "bounds": [
+              32,
+              236,
+              256,
+              72
+            ],
+            "text": "The source is not connected.\nConnect a cable to continue.",
+            "fontSize": 18,
+            "color": "muted"
+          },
+          {
+            "kind": "graphic",
+            "name": "image_UnavailableAction",
+            "bounds": [
+              32,
+              328,
+              256,
+              56
+            ],
+            "master": "image_Image",
+            "label": "Source unavailable"
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              32,
+              416,
+              256,
+              56
+            ],
+            "master": "button_Back",
+            "label": "Help"
+          }
+        ]
+      }
+    },
+    {
+      "id": "recovery",
+      "title": "Восстановление связи",
+      "container": "screen_ConnectionLost",
+      "layouts": {
+        "tlp-pro-1025m": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              48,
+              32,
+              800,
+              56
+            ],
+            "text": "Room control",
+            "fontSize": 36,
+            "bold": true
+          },
+          {
+            "kind": "shape",
+            "name": "shape_StatusSurface",
+            "bounds": [
+              256,
+              160,
+              768,
+              480
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "status",
+            "name": "multilevel_Connection",
+            "bounds": [
+              304,
+              192,
+              672,
+              48
+            ],
+            "selected": 2,
+            "labels": [
+              "Checking",
+              "Connected",
+              "Offline"
+            ]
+          },
+          {
+            "kind": "text",
+            "name": "text_StateTitle",
+            "bounds": [
+              304,
+              264,
+              672,
+              64
+            ],
+            "text": "Connection lost",
+            "fontSize": 36,
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_Reason",
+            "bounds": [
+              304,
+              344,
+              672,
+              96
+            ],
+            "text": "The control processor is offline.\nCheck power and the network.",
+            "fontSize": 24,
+            "color": "muted"
+          },
+          {
+            "kind": "button",
+            "name": "button_Retry",
+            "bounds": [
+              304,
+              504,
+              672,
+              64
+            ],
+            "master": "button_Back",
+            "label": "Try again",
+            "tone": "primary"
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              530,
+              696,
+              220,
+              56
+            ],
+            "master": "button_Back",
+            "label": "Help"
+          }
+        ],
+        "tlp-pro-300m-portrait": [
+          {
+            "kind": "text",
+            "name": "text_Title",
+            "bounds": [
+              24,
+              16,
+              272,
+              40
+            ],
+            "text": "Room control",
+            "fontSize": 28,
+            "bold": true
+          },
+          {
+            "kind": "shape",
+            "name": "shape_StatusSurface",
+            "bounds": [
+              16,
+              80,
+              288,
+              320
+            ],
+            "color": "surface"
+          },
+          {
+            "kind": "status",
+            "name": "multilevel_Connection",
+            "bounds": [
+              32,
+              96,
+              256,
+              48
+            ],
+            "selected": 2,
+            "labels": [
+              "Checking",
+              "Connected",
+              "Offline"
+            ]
+          },
+          {
+            "kind": "text",
+            "name": "text_StateTitle",
+            "bounds": [
+              32,
+              160,
+              256,
+              64
+            ],
+            "text": "Connection lost",
+            "fontSize": 24,
+            "bold": true
+          },
+          {
+            "kind": "text",
+            "name": "value_Reason",
+            "bounds": [
+              32,
+              236,
+              256,
+              72
+            ],
+            "text": "The control processor is offline.\nCheck power and the network.",
+            "fontSize": 18,
+            "color": "muted"
+          },
+          {
+            "kind": "button",
+            "name": "button_Retry",
+            "bounds": [
+              32,
+              328,
+              256,
+              56
+            ],
+            "master": "button_Back",
+            "label": "Try again",
+            "tone": "primary"
+          },
+          {
+            "kind": "button",
+            "name": "button_Help",
+            "bounds": [
+              32,
+              416,
+              256,
+              56
+            ],
+            "master": "button_Back",
+            "label": "Help"
+          }
+        ]
+      }
+    }
+  ],
+  "compact": {
+    "container": "screen_CompactAudio",
+    "profile": "tlp-pro-300m-portrait",
+    "elements": [
+      {
+        "kind": "text",
+        "name": "text_Title",
+        "bounds": [
+          24,
+          16,
+          272,
+          40
+        ],
+        "text": "Room audio",
+        "fontSize": 28,
+        "bold": true
+      },
+      {
+        "kind": "text",
+        "name": "text_Context",
+        "bounds": [
+          24,
+          60,
+          272,
+          28
+        ],
+        "text": "Hall / compact control",
+        "fontSize": 16,
+        "color": "muted"
+      },
+      {
+        "kind": "text",
+        "name": "text_SourceTitle",
+        "bounds": [
+          24,
+          104,
+          272,
+          24
+        ],
+        "text": "Source",
+        "fontSize": 16,
+        "color": "muted"
+      },
+      {
+        "kind": "button",
+        "name": "feedbackbutton_Music",
+        "bounds": [
+          24,
+          144,
+          128,
+          56
+        ],
+        "master": "feedbackbutton_Music",
+        "label": "Music",
+        "selected": true
+      },
+      {
+        "kind": "button",
+        "name": "feedbackbutton_HDMI",
+        "bounds": [
+          168,
+          144,
+          128,
+          56
+        ],
+        "master": "feedbackbutton_HDMI",
+        "label": "HDMI"
+      },
+      {
+        "kind": "button",
+        "name": "feedbackbutton_Mute",
+        "bounds": [
+          24,
+          224,
+          272,
+          56
+        ],
+        "master": "feedbackbutton_Mute",
+        "label": "Mute"
+      },
+      {
+        "kind": "text",
+        "name": "text_VolumeTitle",
+        "bounds": [
+          24,
+          304,
+          160,
+          40
+        ],
+        "text": "Volume",
+        "fontSize": 20,
+        "bold": true
+      },
+      {
+        "kind": "text",
+        "name": "value_MasterVolume",
+        "bounds": [
+          200,
+          304,
+          96,
+          40
+        ],
+        "text": "42%",
+        "fontSize": 28,
+        "align": "right"
+      },
+      {
+        "kind": "slider",
+        "name": "slider_MasterVolume",
+        "bounds": [
+          24,
+          352,
+          272,
+          32
+        ],
+        "value": 42
+      },
+      {
+        "kind": "button",
+        "name": "button_VolumeDown",
+        "bounds": [
+          24,
+          400,
+          56,
+          56
+        ],
+        "master": "button_VolumeDown",
+        "label": "−"
+      },
+      {
+        "kind": "text",
+        "name": "text_HoldHint",
+        "bounds": [
+          96,
+          400,
+          128,
+          56
+        ],
+        "text": "Hold to adjust",
+        "fontSize": 14,
+        "align": "center",
+        "color": "muted"
+      },
+      {
+        "kind": "button",
+        "name": "button_VolumeUp",
+        "bounds": [
+          240,
+          400,
+          56,
+          56
+        ],
+        "master": "button_VolumeUp",
+        "label": "+"
+      }
+    ]
+  }
+}
