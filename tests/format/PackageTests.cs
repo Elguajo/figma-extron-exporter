@@ -84,6 +84,17 @@ static class PackageTests
         string work = Directory.CreateTempSubdirectory("exui-tests-").FullName;
         try
         {
+            test("Figma provenance is optional, bounded, hashed and tied to exported buttons",()=>{
+                var files=Files();var screen=JsonNode.Parse(files["screen.json"])!;
+                var nodes=screen["elements"]!.AsArray().Where(e=>(string?)e!["kind"]=="button").Select((e,i)=>new FigmaOriginNode("10:"+i,(string)e!["key"]!,(int)e["controlId"]!,(string)e["name"]!)).ToArray();
+                var origin=new FigmaOrigin("exui-figma-origin/1","1:1","origin-test-0000001","Test",nodes);
+                void WriteOrigin(){files["figma.json"]=System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(origin,ScreenSpecReader.Json);Edit(files,"manifest.json",m=>m["figma"]=new JsonObject{["path"]="figma.json",["sha256"]=Convert.ToHexString(SHA256.HashData(files["figma.json"]))});}
+                WriteOrigin();using(var package=ExuiPackage.Load(Zip(work,files)))Check(package.Origin?.Nodes.Length==nodes.Length);
+                files["figma.json"]=[1,2,3];Reject("package-integrity",()=>ExuiPackage.Load(Zip(work,files)));
+                origin=origin with {Nodes=[nodes[0] with {ControlId=65535}]};WriteOrigin();Reject("package-origin",()=>ExuiPackage.Load(Zip(work,files)));
+                files.Remove("figma.json");Reject("package-resource",()=>ExuiPackage.Load(Zip(work,files)));
+                Edit(files,"manifest.json",m=>m.AsObject().Remove("figma"));using var legacy=ExuiPackage.Load(Zip(work,files));Check(legacy.Origin==null);
+            });
             test("Native Inter: static weights, italics and label alignment survive package normalization",()=>{
                 foreach(var style in new[]{"Regular","Medium","Semi Bold","Bold","Italic","Extra Bold Italic"}){
                     var files=Files();

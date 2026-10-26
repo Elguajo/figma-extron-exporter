@@ -1,11 +1,11 @@
-import { PROFILES, ROLE_ID, CONTROL_KINDS, ELEMENT_KINDS, isControlKind, elementCount, fail, integer, key, readMetadata, text, type MetadataInput, type Metadata, type Profile, type Role } from './model.ts';
+import { PROFILES, ROLE_ID, CONTROL_KINDS, ELEMENT_KINDS, isControlKind, elementCount, fail, integer, key, readMetadata, metadataSchema, text, type MetadataInput, type Metadata, type Profile, type Role } from './model.ts';
 import { exportCaptured, type Capture } from './export.ts';
 import { createDemo, tag } from './demo.ts';
 import { recognize, applyRecognition, type RecognitionPlan } from './recognize.ts';
 import { createKit } from './kit.ts';
 import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
 import { sweepExportLeftovers } from './read-node.ts';
-import { projectMembers, type ProjectNode,type ProjectOptions } from './project.ts';
+import { pageScreens,projectMembers, type ProjectNode,type ProjectOptions } from './project.ts';
 import { ExportScope, selected, pageOf, selectionKind, type ScopeMode } from './scope.ts';
 import { requireNodeForKind } from './assignment-rules.ts';
 import { containerSuffix,freeKey } from './assignment-repair.ts';
@@ -20,8 +20,9 @@ import { requireLatinName } from './latin-name.ts';
 import { setButtonTextMode, type ButtonTextMode } from './button-native-text.ts';
 import { controlText,formatVariant } from './kit-contract.ts';
 import { MANUAL_PATTERN,hasManualPattern,patternProblem,resolvePattern } from './datetime-format.ts';
-import { bindPopups,popupBindingInfo,savePopupPlace,saveContainerSettings,popupContext } from './popup-binding.ts';
+import { bindPopups,popupBindingInfo,savePopupPlace,saveContainerSettings,saveDraft,popupContext } from './popup-binding.ts';
 import { authoringLinks,setReferenceTarget,setSelectionGroup,setStartPage,linkedNode,type LinkContext,type AuthoringLinks } from './authoring-links.ts';
+import { createOrigin,planIdMap,applyIdMap,type IdMapPlan } from './id-map.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
@@ -30,6 +31,7 @@ try{sweepExportLeftovers(figma.currentPage);}catch{ /* A leftover copy is harmle
 const scopeContext = new ExportScope();
 let recognitionMode:ScopeMode='selection';
 let busy=false;
+let idMapPlan:IdMapPlan|undefined,idMapToken=0;
 let recognition:RecognitionPlan|undefined, recognitionToken=0;
 let diagnosticSelectionId:string|undefined;
 let numberingOptions={...DEFAULT_NUMBERING},numberingPlan:NumberingPlan|undefined,numberingToken=0,numberingEnabled=false;
@@ -45,6 +47,21 @@ function postRecognition(plan:RecognitionPlan):void {
   figma.ui.postMessage({type:'recognition',token:++recognitionToken,rows:plan.rows,errors:plan.errors,issues:plan.issues,warnings:plan.warnings});
 }
 const stored=(node:BaseNode)=>readMetadata(node,{allowCopied:true});
+// Offer sibling screens without changing an explicitly selected export subset.
+// Only choosing and saving a target adds that screen to the remembered project.
+function extraNavigationScreens(resolved:ReturnType<ExportScope['resolve']>):FrameNode[] {
+  const {root,options,profile}=resolved;
+  if(root.type!=='PAGE'&&!(root.type==='FRAME'&&root.parent?.type==='PAGE'&&resolved.scope.kind==='page'))return [];
+  const members=root.type==='PAGE'?options.members??[]:[root],included=new Set(members.map(n=>n.id));
+  const parents=new Set(members.map(n=>n.parent?.id));
+  return pageScreens(figma.currentPage,profile).filter(n=>parents.has(n.parent?.id)&&!included.has(n.id));
+}
+function navigationContext(targetId:string):{resolved:ReturnType<ExportScope['resolve']>;target:FrameNode} {
+  const current=scopeContext.resolve(),target=extraNavigationScreens(current).find(n=>n.id===targetId);
+  if(!target)fail('navigation','Экран перехода удалён, перемещён или больше не подходит профилю. Выберите цель повторно.');
+  const members=[...(current.root.type==='PAGE'?current.options.members??[]:[current.root]),target];
+  return {target,resolved:{...current,root:figma.currentPage,options:{members,projectName:figma.root.name},scope:{...current.scope,kind:'project'}}};
+}
 function linksContext(resolve:()=>ReturnType<ExportScope['resolve']>=()=>scopeContext.resolve()):LinkContext {
   let profile=scopeContext.profile;
   try{const resolved=resolve();profile=resolved.profile;if(resolved.scope.kind==='project')return resolved;}catch{ /* Multi-selection can be authored before choosing an export scope. */ }
@@ -101,9 +118,11 @@ function publish(keepRecognition=false,applied?:{root:ProjectNode;options:Projec
   let warning='',metadata:Metadata|null=null;
   try{scopeContext.refreshSelection();if(n)metadata=stored(n);}catch(e){warning=(e as Error).message;}
   let states:{stateId?:number;name?:string;role?:Role}[]=[];
-  try{if(n&&isButtonContainer(n)&&['button','level'].includes(metadata?.kind??''))states=n.children.map(c=>readMetadata(c)).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}catch(e){warning=warning||(e as Error).message;}
+  // Preview only reads state-local roles/slots. ID-only saving claims the button
+  // while copied descendants remain pending until check/export repairs them.
+  try{if(n&&isButtonContainer(n)&&['button','level'].includes(metadata?.kind??''))states=n.children.map(stored).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}catch(e){warning=warning||(e as Error).message;}
   let scope:{id:string;name:string;kind:string;profile?:Profile}|undefined;
-  let targets:{id:string;key:string;name:string;kind:string}[]=[],scopeHint='';
+  let targets:{id:string;key:string;name:string;kind:string;outsideScope?:boolean}[]=[],scopeHint='';
   let preparedLinks:{context:LinkContext;plan:RecognitionPlan}|undefined;
   let canRecognize=false;
   let canPrepare=false,kind:Metadata['kind']|undefined;
@@ -130,8 +149,20 @@ function publish(keepRecognition=false,applied?:{root:ProjectNode;options:Projec
         let container:BaseNode|null=n??null;
         while(container&&!['page','popup'].includes(read(container as SceneNode|PageNode)?.kind??''))container=container.parent;
         targets=projectMembers(root,read,options).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:read(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({id:c.node.id,key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
+    }else if(n){
+      // Show new/copy identities and automatic names without saving them.
+      // Reuse the authoring draft below, keeping one snapshot per selection.
+      const context=linksContext(resolveScope),plan=recognize(context.root,context.profile,context.options);
+      preparedLinks={context,plan};
+      metadata=plan.writes.find(w=>w.node.id===n.id)?.metadata??metadata;
     }
+    for(const target of extraNavigationScreens(resolved))targets.push({id:target.id,key:'node:'+target.id,name:target.name,kind:'page',outsideScope:true});
   }catch(e){if(scopeContext.mode!=='selection'){canRecognize=false;scopeHint=(e as Error).message;}}
+  // A newly copied screen can be selected for editing before it joins the
+  // remembered export members. Show its own draft, not the source's metadata.
+  if(n?.type==='FRAME'&&metadata?.kind==='page'&&metadata.ownerNodeId!==n.id)try{
+    metadata=recognize(n,metadata.profile??scopeContext.profile).writes.find(w=>w.node.id===n.id)?.metadata??metadata;
+  }catch{ /* The existing assignment remains available for manual repair. */ }
   let datetime:{pattern?:string;preview?:string;source?:string;error?:string;manual:boolean}|undefined;
   try{
     const copy=n&&controlText(n);
@@ -166,7 +197,53 @@ function apply(input:Record<string,unknown>):void {
   }
   try{assignNode(node,kind,data);}catch(e){node.setPluginData(MANUAL_KEY,previousFlag);node.setPluginData(MANUAL_PATTERN,previousPatternFlag);throw e;}
 }
+// ID authoring must work before artwork is exportable. Recognition supplies a
+// draft identity; persist only the selected node and any missing ancestors.
+function saveIds(node:SceneNode,input:Record<string,unknown>,replacement?:MetadataInput):Metadata {
+  // Author the selected node's project, independently of remembered export
+  // members. A popup/button may be selected while another screen is exported.
+  let profile=scopeContext.profile;
+  for(let parent=node.parent;parent&&parent.type!=='PAGE';parent=parent.parent){const saved=stored(parent);if(saved?.profile){profile=saved.profile;break;}}
+  const resolved={...popupContext(node,profile),profile};
+  let member:BaseNode=node;while(member.parent&&member.parent!==resolved.root)member=member.parent;
+  if(member.parent!==resolved.root||resolved.options.members&&!resolved.options.members.some(n=>n.id===member.id))fail('manual-ids',`${node.name}: выбранный слой не находится внутри экрана/popup проекта. Выберите саму кнопку в Layers.`);
+  const draft=recognize(resolved.root,resolved.profile,resolved.options);
+  const current=stored(node);
+  const value=replacement??(current?.ownerNodeId===node.id?current:draft.writes.find(w=>w.node.id===node.id)?.metadata??current);
+  if(!value||!ELEMENT_KINDS.includes(value.kind))fail('manual-ids',`${node.name}: у выбранного слоя нет назначения элемента Extron. Выберите внешний button_ / btn_ Frame кнопки, а не Text или состояние Off/On.${draft.errors.length?'\n'+draft.errors.join('\n'):''}`);
+  requireNodeForKind(node,value.kind);
+  const edited:Metadata={...value,schema:metadataSchema(value),ownerNodeId:node.id};
+  if(input.objectId!==undefined&&input.objectId!=='')edited.objectId=integer(Number(input.objectId),1,1000000,'ID объекта');
+  if(isControlKind(value.kind)&&input.controlId!==undefined&&input.controlId!=='')edited.controlId=integer(Number(input.controlId),1,65535,'ID управления Extron');
+  // A broken name/type can exclude an assigned control from recognition rows.
+  // Check actual owners directly; copies and unassigned drafts have no claim
+  // to their inherited/proposed IDs and will get free ones during export.
+  function check(other:SceneNode|PageNode):void {
+    const m=stored(other);
+    if(other.id!==node.id&&m?.ownerNodeId===other.id&&ELEMENT_KINDS.includes(m.kind)){
+      const control=isControlKind(edited.kind)&&isControlKind(m.kind)&&m.controlId===edited.controlId;
+      if(control||other.parent===node.parent&&m.objectId===edited.objectId)
+        fail('duplicate-id',`ID ${control?'управления Extron '+edited.controlId:'объекта '+edited.objectId} уже занят: ${other.name}. Выберите свободный ID или сначала измените назначение этого слоя.`);
+    }
+    if('children' in other)for(const child of other===resolved.root?(resolved.options.members??other.children):other.children)check(child);
+  }
+  check(resolved.root);
+  const registry=JSON.parse(draft.registry);
+  registry.nextObjectId=Math.max(registry.nextObjectId,edited.objectId!+1);
+  if(isControlKind(edited.kind))registry.nextControlId=Math.max(registry.nextControlId,edited.controlId!+1);
+  draft.registry=JSON.stringify(registry);
+  saveDraft(draft,[node],new Map([[node.id,edited]]));
+  return readMetadata(node)!;
+}
 function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unknown>):void {
+  let expandedNavigation:ReturnType<typeof navigationContext>|undefined;
+  if(kind==='button'&&data.navigationTargetId){
+    expandedNavigation=navigationContext(String(data.navigationTargetId));
+    const {resolved,target}=expandedNavigation,plan=recognize(resolved.root,resolved.profile,resolved.options);
+    const targetMetadata=plan.writes.find(w=>w.node.id===target.id)?.metadata??stored(target);
+    if(!targetMetadata?.key)fail('navigation','Не удалось подготовить экран перехода. Проверьте его имя и назначение.');
+    data={...data,navigate:targetMetadata.key};
+  }
   let value:MetadataInput;
   switch(kind){
     case 'project': case 'page': case 'popup': {
@@ -191,7 +268,7 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
   }
   if(kind==='button'){
     if(data.buttonMode==='legacy'){
-      const previous=readMetadata(node);
+      const previous=stored(node);
       if(previous?.kind!=='button'||previous.buttonMode)fail('button-mode','Прежние правила доступны только для уже сохранённой кнопки без нового типа.');
     }else{
       const mode=data.buttonMode??'on-off';
@@ -229,6 +306,18 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
     if(Object.keys(behavior).length)value.behavior=behavior;
   }
   requireNodeForKind(node,kind);
+  if(expandedNavigation){
+    const {resolved}=expandedNavigation;
+    const plan=recognize(resolved.root,resolved.profile,resolved.options,new Map([[node.id,value]]));
+    if(!plan.rows.some(row=>row.id===node.id))fail('navigation','Кнопка не входит в выбранный проект. Выделите нужные экраны вместе.');
+    if(plan.errors.length)fail('recognition',plan.errors.join('\n'));
+    applyRecognition(plan);
+    scopeContext.useProject(resolved.root,resolved.options);return;
+  }
+  const previous=stored(node);
+  if(isControlKind(kind)&&previous?.kind===kind&&(previous.ownerNodeId!==node.id||previous.objectId!==value.objectId||previous.controlId!==value.controlId)){
+    saveIds(node,data,value);return;
+  }
   if(kind==='button'&&value.navigate){
     const resolved=scopeContext.resolve();
     if(resolved.scope.kind!=='project')fail('navigation','Для перехода выберите «Экраны текущей страницы — один проект» или выделите экраны вместе.');
@@ -251,7 +340,7 @@ function safePublish(keepRecognition=false):void {
   try{publish(keepRecognition);}catch(e){figma.ui.postMessage({type:'error',message:e instanceof Error?e.message:String(e),code:(e as {code?:string}).code??'plugin'});}
 }
 function selectionChanged():void {if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){safePublish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;safePublish();}
-function pageChanged():void {recognition=undefined;diagnosticSelectionId=undefined;scopeContext.reset();safePublish();}
+function pageChanged():void {recognition=undefined;idMapPlan=undefined;figma.ui.postMessage({type:'id-map-clear'});diagnosticSelectionId=undefined;scopeContext.reset();safePublish();}
 // Figma delivers canvas events while an operation awaits fonts or PNG exports.
 // Handle them once the operation ends rather than on a half-finished document.
 let deferred:'selection'|'page'|undefined;
@@ -262,6 +351,16 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
   try {
+    if(message.type==='id-map-preview'){
+      idMapPlan=undefined;
+      const plan=planIdMap(figma.currentPage,String(message.data?.json??''));idMapPlan=plan;
+      figma.ui.postMessage({type:'id-map-preview',token:++idMapToken,rows:plan.rows});return;
+    }
+    if(message.type==='id-map-apply'){
+      const plan=idMapPlan;idMapPlan=undefined;
+      if(!plan||message.token!==idMapToken)fail('id-map-stale','Обновите предпросмотр карты ID.');
+      const changed=applyIdMap(plan);publish();figma.ui.postMessage({type:'id-map-applied',message:`Карта ID применена. Изменено кнопок: ${changed}. Можно экспортировать макет с ID из GUI Designer.`});return;
+    }
     if(message.type==='button-numbering-preview') {
       if(!message.numbering||typeof message.numbering!=='object')fail('button-numbering','Проверьте настройки нумерации.');
       numberingOptions={base:message.numbering.base,start:message.numbering.start,mode:message.numbering.mode,names:message.numbering.names,labels:message.numbering.labels};
@@ -279,7 +378,10 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
     if(message.type==='context'){recognition=undefined;publish();return;}
     if(['reference-target','selection-group','start-page','show-linked'].includes(message.type)){
       if(message.nodeId&&selected().id!==message.nodeId)fail('links','Выделение изменилось. Повторите действие для выбранного элемента.');
-      const ctx=linksContext();
+      let ctx=linksContext();
+      if(message.type==='show-linked'&&typeof message.targetId==='string')try{
+        if(extraNavigationScreens(scopeContext.resolve()).some(n=>n.id===message.targetId))ctx=navigationContext(message.targetId).resolved;
+      }catch{ /* linkedNode below reports stale or unavailable targets. */ }
       if(message.type==='show-linked'){
         if(typeof message.targetId!=='string')fail('links','Выберите цель.');
         const node=linkedNode(ctx,message.targetId);figma.currentPage.selection=[node];focusNode(node);
@@ -352,12 +454,16 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
     }else if(message.type==='apply') {
       if(message.nodeId&&selected().id!==message.nodeId)fail('selection','Выделение изменилось. Выберите слой и сохраните назначение ещё раз.');
       apply(message.data??{});publish();figma.ui.postMessage({type:'success',message:message.data?.kind==='popup-ref'&&!message.data.popup&&!message.data.group?'Место popup сохранено. Выделите popup-фреймы вместе, выберите это место в блоке «Размещение popup» и свяжите их.':'Назначение сохранено в Figma-узле.'});
+    }else if(message.type==='save-ids') {
+      if(!message.nodeId||selected().id!==message.nodeId)fail('selection','Выделение изменилось. Выберите слой и сохраните ID ещё раз.');
+      const metadata=saveIds(selected(),message.data??{});
+      publish();figma.ui.postMessage({type:'success',operation:message.type,message:`ID сохранены: объект ${metadata.objectId}${isControlKind(metadata.kind)?`, управление Extron ${metadata.controlId}`:''}. Ошибки оформления не мешают сохранению ID. Перед экспортом нажмите «Проверить макет».`});
     }
     else if(message.type==='preview') {
-      const node=selected();if(!isButtonContainer(node)||!['button','level'].includes(readMetadata(node)?.kind??''))fail('selection','Выберите Group, Frame или экземпляр кнопки кита.');
+      const node=selected();if(!isButtonContainer(node)||!['button','level'].includes(stored(node)?.kind??''))fail('selection','Выберите Group, Frame или экземпляр кнопки кита.');
       const role=message.role;if(message.stateId===undefined&&(!role||!Object.prototype.hasOwnProperty.call(ROLE_ID,role)))fail('states','Выберите состояние.');
       if(message.stateId!==undefined)integer(message.stateId,0,7,'ID состояния');
-      const children=node.children.map(n=>({node:n,metadata:readMetadata(n)}));
+      const children=node.children.map(n=>({node:n,metadata:stored(n)}));
       const matches=(m:Metadata|null)=>message.stateId!==undefined?m?.stateId===message.stateId:m?.role===role;
       if(children.length<2||children.length>8||children.some(c=>c.metadata?.kind!=='state')||children.filter(c=>matches(c.metadata)).length!==1)fail('states','Выберите одно назначенное состояние; при нескольких feedback используйте его ID.');
       for(const c of children)c.node.visible=matches(c.metadata);
@@ -366,6 +472,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
     else if(message.type==='export') {
       const resolved=exportRoot();if(!resolved)return;const {root,captured,assignmentSummary}=resolved;
       const bundle=await exportCaptured(root,captured,message=>figma.ui.postMessage({type:'progress',message}));
+      bundle.origin=createOrigin(root,bundle,captured.signatureMembers);
       if(root.type==='PAGE'&&root.id!==figma.currentPage.id)fail('design-changed','Открытая страница изменилась во время экспорта. Повторите экспорт на нужной странице.');
       figma.ui.postMessage({type:'bundle',bundle,assignmentSummary});
     }else fail('message','Неизвестная команда.');

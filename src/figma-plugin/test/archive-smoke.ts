@@ -38,7 +38,7 @@ function cli(args: string[]) {
   return JSON.parse(result.stdout);
 }
 const evidence: unknown[] = [];
-const scenarios=['blank-caption','expanded','on-off','feedback','dotted-name','many-assets','section','selected-frames','pen-lines','fractional-lines','alpha-lines','automatic-fresh','automatic-copy','automatic-merge'] as const;
+const scenarios=['blank-caption','expanded','on-off','feedback','dotted-name','many-assets','section','selected-frames','pen-lines','fractional-lines','alpha-lines','automatic-fresh','automatic-copy','automatic-merge','manual-id'] as const;
 const selectedScenarios=process.argv[5]==='all'?scenarios:process.argv[5]?scenarios.filter(s=>s===process.argv[5]):scenarios.slice(0,4);
 assert.ok(selectedScenarios.length,'Unknown archive smoke scenario');
 for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
@@ -46,7 +46,7 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     const fixture = scenario==='many-assets'?kitFixture():fakeFigma();
     const batch=scenario==='selected-frames'?twoScreens(profile):undefined;
     const automatic=scenario.startsWith('automatic-');
-    const frame = batch?figma.currentPage:scenario==='pen-lines'||scenario==='fractional-lines'||scenario==='alpha-lines'?await strokeLineFixture(profile):scenario==='section'?sectionFixture(profile):scenario==='many-assets'?await manyAssetsFixture(profile):scenario === 'expanded'||scenario==='automatic-fresh' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'||scenario==='dotted-name'||automatic?await namedFixture(profile,scenario==='on-off'||scenario==='dotted-name'):await graphicFixture(profile);
+    const frame = batch?figma.currentPage:scenario==='pen-lines'||scenario==='fractional-lines'||scenario==='alpha-lines'?await strokeLineFixture(profile):scenario==='section'?sectionFixture(profile):scenario==='many-assets'?await manyAssetsFixture(profile):scenario === 'expanded'||scenario==='automatic-fresh' ? expandedFixture(profile) : scenario==='on-off'||scenario==='feedback'||scenario==='dotted-name'||scenario==='manual-id'||automatic?await namedFixture(profile,scenario==='on-off'||scenario==='dotted-name'||scenario==='manual-id'):await graphicFixture(profile);
     if(scenario==='alpha-lines'){
       for(const node of frame.children as (VectorNode|LineNode)[])node.strokes=[solid('#D2AE6D')];
       const divider=frame.children[0] as VectorNode;divider.x=0;divider.y=frame.height-84;
@@ -87,6 +87,11 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     assert.ok(plan, JSON.stringify(fixture.messages));
     assert.deepEqual(JSON.parse(JSON.stringify(plan.errors)), []);
     await send({ type: 'apply-recognition', profile, token: plan.token });}
+    if(scenario==='manual-id'){
+      const button=frame.children[0];button.name='button_Page1';fixture.page.selection=[button as never];
+      await send({type:'save-ids',nodeId:button.id,data:{objectId:'',controlId:'1'}});
+      assert.equal(JSON.parse(button.getPluginData('exui')).controlId,1);
+    }
     if(batch){
       fixture.page.selection=[batch.button as any];fixture.emit('selectionchange');
       await send({type:'apply',data:{...JSON.parse(batch.button.getPluginData('exui')),navigate:'page.audiocontrol'}});
@@ -121,6 +126,10 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     const generation = cli(['convert-package', input, gdl, '--registry', process.env.EXUI_DONOR_REGISTRY??path.join(installed, 'samples/donors.json')]);
     const report = JSON.parse(await readFile(gdl + '.report.json', 'utf8'));
     assert.ok(report.Generation.Checks.every((c: { Passed: boolean }) => c.Passed));
+    if(scenario==='manual-id'){
+      const button=cli(['list-controls',gdl]).model.Pages[0].Controls.find((c:any)=>c.ControlId===1);
+      assert.ok(button);assert.equal(button.Name,'button_Page1');assert.deepEqual(button.States.map((s:any)=>s.Id),[0,1]);
+    }
     if(batch&&'pages' in bundle.screen){
       const model=cli(['list-controls',gdl]).model,start=bundle.screen.pages.find(p=>p.shownBy==='start')!;
       assert.deepEqual(model.Pages.map((p:any)=>p.Name),Array.from(bundle.screen.pages,p=>p.name));assert.equal(model.DefaultPage,start.objectId);

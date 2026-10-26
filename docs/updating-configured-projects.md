@@ -55,6 +55,8 @@ CLI **0.8.3**, плагин **0.8.4**, EXUI/5. Сравнение пакетов
 
 ## Выборочное обновление рабочего GDL
 
+**0.8.7:** можно сопоставлять кнопки с разными ID в списке «Новая кнопка Figma», связывать группы по порядку, сохранять соответствия и возвращать ID в Figma через карту. Полный процесс и совместимость: [обратная карта ID](figma-id-roundtrip.md). ID заранее назначать вручную не требуется.
+
 Основной путь, если в проекте есть страницы, popup или кнопки, созданные в GUI Designer вручную. Полный GDL из Figma их не содержит: при импорте они пропадут вместе с логикой, а команды, ссылающиеся на них, останутся без цели.
 
 **Рабочий GDL** — тот, что сейчас импортирован в проект GCP, включая ручные правки программиста, в виде файла, **сохранённого GUI Designer** (Save and Build). Храните его рядом с проектом; после каждого обновления рабочим становится новый файл. Если CLI сообщает `Missing KP end record or invalid archive comment length`, файл записан не GUI Designer (у GDL из GUI Designer переставлена сигнатура архива: `KP` вместо обычной `PK`): возьмите исходный GDL программиста.
@@ -94,9 +96,21 @@ CLI **0.8.3**, плагин **0.8.4**, EXUI/5. Сравнение пакетов
    Команда проверяет, что все невыбранные элементы, страницы и popup остались без изменений, и останавливается при несовпадении хеша рабочего GDL или экспорта с планом.
 5. Откройте `working-v2.gdl` в GUI Designer → Verify → Save and Build. Затем импортируйте его в копию проекта GCP по шагам [следующего раздела](#обновить-копию-проекта-gcp).
 
-Кнопки, которых нет в плане как `canUpdate`, этим путём не обновляются: новые кнопки из Figma, кнопки с изменённым ID и с несовместимыми состояниями. Чтобы не терять ID, в Figma редактируйте существующие слои кнопок, а не создавайте их заново.
+Кнопки, которых нет в плане как `canUpdate`, этим путём не обновляются: новые кнопки из Figma, кнопки с изменённым управляющим ID и с несовместимыми состояниями.
 
-При сборке из исходников то же доступно в окне `src/updater` («Figma → Extron — обновление оформления GDL») с превью «сейчас / новое». В архивы выпуска эта утилита не входит.
+Начиная с **0.8.5**, окно обновления с превью «сейчас / новое» входит в CLI ZIP: `updater/Extron.LayoutUpdater.exe`. Для него нужен .NET Desktop Runtime 10 x64. Сохраняйте всю папку `updater`, а не отдельный EXE.
+
+### Кнопка создана только в GUI Designer
+
+Можно заменить её оформление кнопкой из Figma с тем же **ID управления**, даже если внутренний ID объекта, страница, описание и имена состояний отличаются. Это отдельный явный режим; по умолчанию прежние строгие проверки сохраняются.
+
+1. В Figma выберите сам Frame кнопки → «Назначение выбранного элемента» → «ID управления Extron»: укажите номер из поля ID в GUI Designer, например `1`, и нажмите «Сохранить ID». «ID объекта» оставьте текущим. Сохранение не зависит от ошибок других слоёв или запомненного состава экспорта; занятые номера проверяются в проекте выбранной кнопки.
+2. Проверьте макет и скачайте EXUI. В утилите выберите рабочий GDL и новый EXUI/GDL, включите «Заменять оформление кнопок GUI Designer по ID управления» и нажмите «Сравнить».
+3. Проверьте строку «Замена по ID» с ID `1`, имя старой кнопки и превью; отметьте только нужные строки. При необходимости переноса размеров и положения включите отдельную настройку. Затем сохраните новый GDL.
+
+Рабочая кнопка сохраняет внутренние ID, свой контейнер, имя, описание, имена/ID состояний и поведение. Из Figma переносится оформление. Число, ID и порядок состояний должны совпадать; разные имена допустимы только в этом режиме. После сохранения выполните Verify / Save and Build в GUI Designer и проверьте импорт в копии GCP.
+
+CLI: добавьте `--rebind-by-control-id` к `plan-layout-update`. В `selection.json` укажите `rebindByControlId: true` вместе с нужными `controlIds`, например `[1]`; затем выполните обычный `update-layout`. Без этого поля применение остаётся строгим, даже если план построен с дополнительным флагом.
 
 Проверка на реальном проекте: [выборочное обновление в копии GCP](verification/results/2026-10-25-gcp-selected-update.md) — команды, Text и Visual Feedback обновлённых кнопок сохранились, ручные страницы остались на месте.
 
@@ -219,9 +233,13 @@ Run the commands below in PowerShell in the unpacked CLI folder. The `if ($LASTE
    The command checks that all unselected elements, pages and popups stayed unchanged, and stops if the hash of the working GDL or of the export does not match the plan.
 5. Open `working-v2.gdl` in GUI Designer → Verify → Save and Build. Then import it into a copy of the GCP project following the [next section](#update-a-copy-of-the-gcp-project).
 
-Buttons that are not `canUpdate` in the plan are not updated this way: new buttons from Figma, buttons with a changed ID and buttons with incompatible states. To keep IDs, edit the existing button layers in Figma instead of recreating them.
+Buttons that are not `canUpdate` in the plan are not updated this way: new buttons from Figma, buttons with a changed Control ID and buttons with incompatible states.
 
-When building from source, the same is available in the `src/updater` window ("Figma → Extron — обновление оформления GDL", GDL artwork update) with a "current / new" preview. This tool is not part of the release archives.
+Since **0.8.5**, the CLI ZIP includes the window with before/after previews at `updater/Extron.LayoutUpdater.exe`. It requires .NET Desktop Runtime 10 x64; keep the entire updater folder.
+
+For a button authored only in GUI Designer, give the new Figma button the same **Control ID**, such as `1`, using “Сохранить ID”. Keep its Figma Object ID. In the updater, enable “Заменять оформление кнопок GUI Designer по ID управления”, compare, review the “Замена по ID” row and select it. The existing button retains its internal identity, container, name, description, state names/IDs and behavior. State counts, IDs and order must match; names may differ in this explicit mode. Geometry remains a separate opt-in. Verify / Save and Build in GUI Designer and check the GCP import separately.
+
+CLI: append `--rebind-by-control-id` to `plan-layout-update` and set `rebindByControlId: true` in the selection JSON alongside the chosen `controlIds`. Without that field, applying remains strict.
 
 Checked on a real project: [selective update in a GCP copy](verification/results/2026-10-25-gcp-selected-update.md) (in Russian) — the commands, Text and Visual Feedback of the updated buttons were kept, and the manual pages stayed in place.
 

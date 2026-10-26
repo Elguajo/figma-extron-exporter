@@ -71,7 +71,11 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
   const newPopupRefs:SceneNode[]=[];
   function assign(node:SceneNode|PageNode,value:MetadataInput):Metadata {
     const original=saved.get(node.id),prior=existingFor(node),edit=edits.get(node.id);
-    const metadata=edit?{...edit,schema:metadataSchema(edit),ownerNodeId:node.id}:node===root&&root.type==='PAGE'&&prior?.kind==='project'?{...prior,profile,projectName:options.projectName??prior.projectName}:prior??{...value,schema:metadataSchema(value),ownerNodeId:node.id};
+    let metadata=edit?{...edit,schema:metadataSchema(edit),ownerNodeId:node.id}:node===root&&root.type==='PAGE'&&prior?.kind==='project'?{...prior,profile,projectName:options.projectName??prior.projectName}:prior??{...value,schema:metadataSchema(value),ownerNodeId:node.id};
+    // Copies get their own display name. Names previously derived from the
+    // frame keep following renames; explicitly customized project names stay.
+    if(!edit&&original&&['page','popup'].includes(metadata.kind)&&(original.ownerNodeId!==node.id||original.projectName&&original.key?.replace(/^(page|popup)\./,'')===containerSuffix(original.projectName)))
+      metadata={...metadata,projectName:node.name};
     if(metadata.kind!==value.kind)fail('kind',`${node.name}: сохранённое назначение ${metadata.kind} не соответствует ${value.kind}.`);
     if(!original||JSON.stringify(metadata)!==JSON.stringify(original)){proposed.set(node.id,metadata);plan.writes.push({node,metadata});}else if(!plan.warnings.length)plan.warnings.push('ID и свойства сохраняются, ключи следуют именам слоёв. Копии и совпадения получают свободные назначения.');
     plan.rows.push({id:node.id,name:node.name,kind:metadata.kind,...(metadata.buttonMode?{buttonMode:metadata.buttonMode}:{}),key:metadata.key,objectId:metadata.objectId,controlId:metadata.controlId,isNew:!original||original.ownerNodeId!==node.id});return metadata;
@@ -136,11 +140,12 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
       problemNode=node;
       requireNodeForKind(node,'page');
       const existing=existingFor(node),match=/^(scr|screen|pop|popup|mdl|modalpopup)_(.+)$/i.exec(node.name),prefix=match?.[1].toLowerCase();
-      const kind=existing?.kind??(prefix&&['pop','popup','mdl','modalpopup'].includes(prefix)?'popup':'page');if(kind!=='page'&&kind!=='popup')fail('placement','В проекте допустимы страницы и popup.');
+      const kind=existing?.kind??(prefix&&['pop','popup','mdl','modalpopup'].includes(prefix)?'popup':'page');
       if(group&&kind!=='popup')fail('placement','В группе допустимы только popup.');
+      if(kind!=='page'&&kind!=='popup')fail('placement','В проекте допустимы страницы и popup.');
       try{requireLatinName(node,kind==='popup'?'popup_':'screen_');}catch(e){report(e);}
       const containerKey=existing?key(existing.key,'Ключ контейнера'):freeKey((kind==='page'?'page.':'popup.')+containerSuffix(node.name),reservedKeys),suffix=containerKey.replace(/^(page|popup)\./,'');
-      assign(node,existing??{kind,key:containerKey,objectId:integer(registry.nextContainerId!++,1,65534,'ID контейнера'),profile,projectName:text(options.projectName??root.name,'Имя проекта'),shownBy:kind==='page'&&pageNumber===0?'start':'program',...(kind==='popup'?{modal:prefix==='mdl'||prefix==='modalpopup',...(group?{group}:{})}:{})});
+      assign(node,existing??{kind,key:containerKey,objectId:integer(registry.nextContainerId!++,1,65534,'ID контейнера'),profile,projectName:text(node.name,'Имя проекта'),shownBy:kind==='page'&&pageNumber===0?'start':'program',...(kind==='popup'?{modal:prefix==='mdl'||prefix==='modalpopup',...(group?{group}:{})}:{})});
       if(kind==='page')pageNumber++;elements(node,suffix);
     }
     for(const node of options.members??root.children){try{problemNode=node;const existing=existingFor(node),groupMatch=/^(pgrp|popupgroup)_(.+)$/i.exec(node.name);if(existing?.kind==='popup-group'||groupMatch){requireNodeForKind(node,'popup-group');try{requireLatinName(node,'popupgroup_');}catch(e){report(e);}const m=assign(node,existing??{kind:'popup-group',key:freeKey('group.'+containerSuffix(node.name),reservedKeys),objectId:integer(registry.nextGroupId!++,1,65535,'ID группы')});for(const child of node.children)container(child,m.key);}else container(node);}catch(e){report(e);}}

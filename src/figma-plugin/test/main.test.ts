@@ -79,8 +79,13 @@ test('Built plugin exports the whole project from a selected control, edits rang
  await p.send({type:'export'});const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.pages[0].elements[0].max,255);assert.equal(bundle.screen.pages[0].elements[0].behavior.visible,false);
  const button=home.children.find(n=>n.name==='button_Connection') as FrameNode;p.page.selection=[button as never];p.emit('selectionchange');const selection=p.messages.filter(m=>m.type==='selection').at(-1) as any;assert.equal(selection.states.length,4);await p.send({type:'preview',stateId:2});assert.deepEqual(button.children.map(n=>n.visible),[false,false,true,false]);
 });
-test('A copied state does not hide its parent button mapping; selection carries the repair warning',async()=>{
- const p=plugin();await p.send({type:'demo',profile:'tlp-pro-300m-portrait'});const button=p.page.selection[0].children[0],state=button.children[1],m=JSON.parse(state.getPluginData('exui'));m.ownerNodeId='copied';state.setPluginData('exui',JSON.stringify(m));p.page.selection=[button];p.emit('selectionchange');const selection=p.messages.filter(m=>m.type==='selection').at(-1) as any;assert.equal(selection.id,button.id);assert.equal(selection.metadata.kind,'button');assert.match(selection.warning,/копия/);assert.deepEqual([...selection.states],[]);
+test('A copied state keeps its parent mapping and preview available without a copy error on selection',async()=>{
+ const p=plugin();await p.send({type:'demo',profile:'tlp-pro-300m-portrait'});const button=p.page.selection[0].children[0],state=button.children[1],m=JSON.parse(state.getPluginData('exui'));m.ownerNodeId='copied';state.setPluginData('exui',JSON.stringify(m));p.page.selection=[button];p.emit('selectionchange');const selection=p.messages.filter(m=>m.type==='selection').at(-1) as any;assert.equal(selection.id,button.id);assert.equal(selection.metadata.kind,'button');assert.equal(selection.warning,'');assert.equal(selection.states.length,button.children.length);
+ const before=state.getPluginData('exui');await p.send({type:'preview',stateId:m.stateId});assert.equal(state.visible,true);assert.equal(state.getPluginData('exui'),before);
+});
+
+test('Corrupt state metadata still produces a selection warning without hiding the parent mapping',async()=>{
+ const p=plugin();await p.send({type:'demo',profile:'tlp-pro-300m-portrait'});const button=p.page.selection[0].children[0];button.children[1].setPluginData('exui','{broken');p.page.selection=[button];p.emit('selectionchange');const selection=p.messages.filter(m=>m.type==='selection').at(-1) as any;assert.equal(selection.id,button.id);assert.equal(selection.metadata.kind,'button');assert.ok(selection.warning);assert.deepEqual([...selection.states],[]);
 });
 
 test('Built plugin recognizes aliases and Off/On, rejects stale tokens and preserves IDs after restart',async()=>{

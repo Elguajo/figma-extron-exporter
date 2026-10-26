@@ -19,5 +19,11 @@ releases/figma-plugin/**/figma-extron-plugin-*/
 verification/results/**/*.gdl
 # Stable release archives live next to their release notes but stay out of git; checksums are tracked.
 /releases/**/*.zip
+# Unpacked updater builds remain local; retain only release notes and launchers.
+/releases/LayoutUpdater/**
+!/releases/LayoutUpdater/**/
+!/releases/LayoutUpdater/**/README.md
+!/releases/LayoutUpdater/**/SHA256SUMS.txt
+!/releases/LayoutUpdater/**/Start-LayoutUpdater.cmd
 # Local archive of old scratch outputs, extracted release copies and generated GDLs.
 /archive/

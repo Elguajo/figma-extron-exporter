@@ -85,7 +85,9 @@ export function metadataSchema(value:MetadataInput):Metadata['schema'] {
   if(value.buttonMode!==undefined)return 'exui-node/3';
   return ['project','popup','popup-group','popup-ref','value','slider','shape','line','datetime'].includes(value.kind)||value.display||value.orientation||value.min!==undefined||value.max!==undefined||value.navigate||value.behavior||value.shownBy||value.stateId!==undefined&&value.role&&value.stateId!==ROLE_ID[value.role]?'exui-node/2':'exui-node/1';
 }
-export interface Bundle { profile: Profile; screen: Screen; resources: { path: string; bytes: Uint8Array }[] }
+export interface FigmaOriginNode {nodeId:string;key:string;controlId:number;name:string}
+export interface FigmaOrigin {schema:'exui-figma-origin/1';pageId:string;pageToken:string;projectName:string;nodes:FigmaOriginNode[]}
+export interface Bundle { profile: Profile; screen: Screen; resources: { path: string; bytes: Uint8Array }[];origin?:FigmaOrigin }
 export class ExportError extends Error {
   code:string;
   nodeId?:string;

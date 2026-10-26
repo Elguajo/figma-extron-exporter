@@ -24,6 +24,7 @@ public sealed class ExuiPackage : IDisposable
     public string ScreenSha256 { get; }
     public ExuiProfile Profile { get; }
     public GeneratePlan Plan { get; }
+    public FigmaOrigin? Origin { get; private set; }
     /// <summary>The current package contract; older exports must be exported again in Figma.</summary>
     public string Contract => "exui/5";
 
@@ -53,7 +54,7 @@ public sealed class ExuiPackage : IDisposable
             foreach (var entry in zip.Entries)
             {
                 string name = entry.FullName;
-                bool allowed = name is "manifest.json" or "screen.json" || Regex.IsMatch(name, @"\Aassets/[a-z0-9][a-z0-9-]{0,63}\.png\z", RegexOptions.CultureInvariant);
+                bool allowed = name is "manifest.json" or "screen.json" or "figma.json" || Regex.IsMatch(name, @"\Aassets/[a-z0-9][a-z0-9-]{0,63}\.png\z", RegexOptions.CultureInvariant);
                 if (!allowed || !names.Add(name)) throw new ExuiException("package-entry", $"Unsafe, unsupported or duplicate entry: {name}.");
                 // Unix symlinks are not resources. No ZIP entry path is ever used as an extraction target.
                 if (((entry.ExternalAttributes >> 16) & 0xF000) == 0xA000) throw new ExuiException("package-entry", $"Symlink entry: {name}.");
@@ -69,14 +70,15 @@ public sealed class ExuiPackage : IDisposable
                 marker.ValueKind != JsonValueKind.String || marker.GetString() != "exui/5")
                 throw new ExuiException("package-schema", "Only exui/5 is supported. Export the design again with the current Figma plugin.");
             ContractJson.Validate(manifest, "manifest");
-            if (zip.Entries.Count != manifest.GetProperty("resources").GetArrayLength() + 2)
+            bool hasOrigin = manifest.TryGetProperty("figma", out var originDeclaration);
+            if (hasOrigin != (zip.GetEntry("figma.json") != null) || zip.Entries.Count != manifest.GetProperty("resources").GetArrayLength() + 2 + (hasOrigin ? 1 : 0))
                 throw new ExuiException("package-resource", "ZIP assets must exactly match manifest.resources.");
             var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
             long total = 0;
             foreach (var entry in zip.Entries)
             {
                 string name = entry.FullName;
-                int limit = name == "manifest.json" ? 64 * 1024 : name == "screen.json" ? 256 * 1024 : ScreenSpecReader.MaxImageBytes;
+                int limit = name == "manifest.json" ? 64 * 1024 : name == "screen.json" ? 256 * 1024 : name == "figma.json" ? 128 * 1024 : ScreenSpecReader.MaxImageBytes;
                 total += entry.Length;
                 if (entry.Length > limit || total > MaxExpandedBytes) throw new ExuiException("package-size", $"Expanded size limit exceeded at {name}.");
                 byte[] data = name == "manifest.json" ? manifestBytes : ReadEntry(entry, limit);
@@ -116,7 +118,18 @@ public sealed class ExuiPackage : IDisposable
             foreach (string file in declared) File.WriteAllBytes(Path.Combine(work, file), files[file]);
             var spec = JsonSerializer.Deserialize<ScreenSpec>(lowered.ToJsonString(), ScreenSpecReader.Json)!;
             var plan = ScreenSpecReader.Normalize(spec, profile.Panel, profile.Width, profile.Height, work);
-            return new(work, Hash(bytes), Hash(screenBytes), profile, plan);
+            FigmaOrigin? origin = null;
+            if (hasOrigin)
+            {
+                byte[] data = files["figma.json"];
+                if (!Hash(data).Equals(originDeclaration.GetProperty("sha256").GetString(), StringComparison.OrdinalIgnoreCase)) throw new ExuiException("package-integrity", "Figma origin SHA-256 mismatch.");
+                var value = ContractJson.Read(data, "figma.json"); ContractJson.Validate(value, "figma");
+                origin = JsonSerializer.Deserialize<FigmaOrigin>(value, ScreenSpecReader.Json)!;
+                var buttons = plan.Containers.SelectMany(c => c.Elements).Where(e => e.Kind == "button").ToArray();
+                if (origin.Nodes.Length != buttons.Length || origin.Nodes.Select(n => n.NodeId).Distinct().Count() != origin.Nodes.Length || origin.Nodes.Select(n => n.ControlId).Distinct().Count() != origin.Nodes.Length ||
+                    origin.Nodes.Any(n => !buttons.Any(b => b.Key == n.Key && b.ControlId == n.ControlId))) throw new ExuiException("package-origin", "Figma origin must identify each exported button exactly once.");
+            }
+            return new(work, Hash(bytes), Hash(screenBytes), profile, plan) { Origin = origin };
         }
         catch (Exception e)
         {

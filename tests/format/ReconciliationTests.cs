@@ -114,6 +114,72 @@ static class ReconciliationTests
                     Reject(() => LayoutReconciliation.Apply(before, changed, Select(before, changed)));
                 }
             });
+            test($"Layout update {name}: different IDs bind explicitly and export/reload the Figma ID map", () =>
+            {
+                var container=ExtronContainer.Parse(after);var doc=Read(container.Payload);
+                var music=Items(Child(Items(Child(doc.Root,"pagesField"))[0],"controlsField")).Single(c=>ControlId(c)==8101);
+                foreach(string field in ControlIdFields(music))music.Fields![field]=(ushort)9205;
+                byte[] incoming=container.RepackEditablePayload(doc.Write());
+                var pairs=new[]{new LayoutButtonBinding(8101,9205)};
+                var plan=LayoutReconciliation.Compare(before,incoming,bindings:pairs);
+                Check(plan.Items.Single(i=>i.ControlId==8101) is {CanUpdate:true,Status:"mapped",SourceControlId:9205});
+                Check(!LayoutReconciliation.Compare(before,incoming).Items.Single(i=>i.ControlId==8101).CanUpdate);
+                var selection=new LayoutUpdateSelection("exui-layout-selection/1",plan.BaseSha256,plan.SourceSha256,[8101],Bindings:pairs);
+                var updated=Model(LayoutReconciliation.Apply(before,incoming,selection).Gdl);
+                Check(Music(updated).ControlId==8101&&Music(updated).ObjectId==Music(Model(before)).ObjectId);
+                Check(Music(updated).States[0].Text==Model(incoming).Pages[0].Controls.Single(c=>c.ControlId==9205).States[0].Text);
+                var origin=new ExtronExporter.Screen.FigmaOrigin("exui-figma-origin/1","1:1","origin-test-00000001","Home",
+                    [new("10:1",Model(incoming).Pages[0].Controls.Single(c=>c.ControlId==9205).Comments![9..],9205,"button_Music")]);
+                var map=ExtronExporter.Screen.FigmaIdMap.Create(origin,name,before,incoming,selection);
+                Check(map.Entries.Single() is {NodeId:"10:1",SourceControlId:9205,ControlId:8101});
+                var changed=origin with {Nodes=[origin.Nodes[0] with {ControlId=8101}]};
+                Check(map.BindTo(changed,name).Single()==new LayoutButtonBinding(8101,8101));
+                Reject(()=>map.BindTo(changed with {PageToken="other-token-0000000"},name));
+                Reject(()=>LayoutReconciliation.Compare(before,incoming,bindings:[new(8101,65535)]));
+                Reject(()=>LayoutReconciliation.Compare(before,incoming,bindings:[new(8101,9205),new(8101,9205)]));
+                var duplicate=selection with {ControlIds=[8101,8103],Bindings=[new(8101,9205),new(8103,9205)]};
+                Reject(()=>LayoutReconciliation.Apply(before,incoming,duplicate));
+                Reject(()=>ExtronExporter.Screen.FigmaIdMap.Create(origin,name,before,incoming,duplicate));
+            });
+            test($"Layout update {name}: explicit ID-only replacement updates a manually authored ID 1 without changing its identity or behavior", () =>
+            {
+                var oldContainer = ExtronContainer.Parse(before); var oldDoc = Read(oldContainer.Payload);
+                var oldMusic = Items(Child(Items(Child(oldDoc.Root, "pagesField"))[0], "controlsField")).Single(c => ControlId(c) == 8101);
+                foreach (string field in ControlIdFields(oldMusic)) oldMusic.Fields![field] = (ushort)1;
+                Set(oldMusic, "idField", (ulong)2562);
+                Set(oldMusic, "nameField", new NrbfNode { Type = "System.String", Text = "Button1_ID1" });
+                Set(oldMusic, "commentsField", new NrbfNode { Type = "System.String", Text = "Created manually in GUI Designer" });
+                foreach (var state in Items(Child(oldMusic, "statesField")))
+                    Set(state, "nameField", new NrbfNode { Type = "System.String", Text = "Button1_ID1" });
+                byte[] manual = oldContainer.RepackEditablePayload(oldDoc.Write());
+                var nextContainer = ExtronContainer.Parse(after); var nextDoc = Read(nextContainer.Payload);
+                var nextPage = Items(Child(nextDoc.Root, "pagesField"))[0];
+                Set(nextPage, "idField", (ulong)6000);
+                var nextMusic = Items(Child(nextPage, "controlsField")).Single(c => ControlId(c) == 8101);
+                foreach (string field in ControlIdFields(nextMusic)) nextMusic.Fields![field] = (ushort)1;
+                byte[] incoming = nextContainer.RepackEditablePayload(nextDoc.Write());
+                string evidence = Path.Combine(root, "output", "reconciliation"); Directory.CreateDirectory(evidence);
+                File.WriteAllBytes(Path.Combine(evidence, name + "-manual-id1-working.gdl"), manual);
+                File.WriteAllBytes(Path.Combine(evidence, name + "-manual-id1-incoming.gdl"), incoming);
+                Check(!LayoutReconciliation.Compare(manual, incoming).Items.Single(i => i.ControlId == 1).CanUpdate);
+                var strict = Select(manual, incoming, [1]);
+                Reject(() => LayoutReconciliation.Apply(manual, incoming, strict));
+                var plan = LayoutReconciliation.Compare(manual, incoming, rebindByControlId: true);
+                Check(plan.Items.Single(i => i.ControlId == 1) is { CanUpdate: true, Status: "rebind" });
+                var original = Model(manual); var updated = Model(LayoutReconciliation.Apply(manual, incoming, strict with { RebindByControlId = true }).Gdl);
+                var oldButton = original.Pages.SelectMany(c => c.Controls).Single(c => c.ControlId == 1);
+                var actual = updated.Pages.SelectMany(c => c.Controls).Single(c => c.ControlId == 1);
+                Check(actual.ObjectId == 2562 && actual.Name == "Button1_ID1" && actual.Comments == oldButton.Comments);
+                Check(updated.Pages[0].ObjectId == original.Pages[0].ObjectId && updated.ProjectId == original.ProjectId);
+                Check(actual.States.Select(s => (s.Id, s.Name, s.Index)).SequenceEqual(oldButton.States.Select(s => (s.Id, s.Name, s.Index))));
+                Check(actual.States[0].Text == Model(incoming).Pages[0].Controls.Single(c => c.ControlId == 1).States[0].Text);
+                Check(JsonSerializer.Serialize(updated.Pages[0].Controls.Single(c => c.ControlId == 8103)) == JsonSerializer.Serialize(original.Pages[0].Controls.Single(c => c.ControlId == 8103)));
+                // Explicit matching cannot override an incompatible state map.
+                var bad = Items(Child(nextMusic, "statesField"))[0]; Set(bad, "idField", (ulong)7);
+                byte[] incompatible = nextContainer.RepackEditablePayload(nextDoc.Write());
+                Check(!LayoutReconciliation.Compare(manual, incompatible, rebindByControlId: true).Items.Single(i => i.ControlId == 1).CanUpdate);
+                Reject(() => LayoutReconciliation.Apply(manual, incompatible, Select(manual, incompatible, [1]) with { RebindByControlId = true }));
+            });
         }
     }
 }

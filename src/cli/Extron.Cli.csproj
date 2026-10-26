@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType><Version>0.8.3</Version></PropertyGroup>
+  <PropertyGroup><OutputType>Exe</OutputType><Version>0.8.7</Version></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../extron/Extron.Format.csproj" />
     <ProjectReference Include="../adapter/Extron.Adapter.csproj" />

@@ -5,10 +5,13 @@ using static ExtronExporter.Format.NrbfDocument;
 namespace ExtronExporter.Format;
 
 public sealed record LayoutUpdateItem(int ControlId, string Page, string Name, string? IncomingName, bool CanUpdate,
-    string Status, string Reason, string? BeforeCaption, string? AfterCaption, string? BeforePreview, string? AfterPreview);
+    string Status, string Reason, string? BeforeCaption, string? AfterCaption, string? BeforePreview, string? AfterPreview, int? SourceControlId = null);
+public sealed record LayoutButtonBinding(int ControlId, int SourceControlId);
+public sealed record LayoutButtonChoice(int ControlId, string Page, string Name, string? Caption)
+{ public string Label => ControlId == 0 ? "Без связи" : $"{Page} · {Name} · ID {ControlId}"; }
 public sealed record LayoutUpdatePlan(string Schema, string BaseSha256, string SourceSha256, string Panel,
     IReadOnlyList<LayoutUpdateItem> Items, bool GcpVerified = false);
-public sealed record LayoutUpdateSelection(string Schema, string BaseSha256, string SourceSha256, int[] ControlIds, bool IncludeGeometry = false);
+public sealed record LayoutUpdateSelection(string Schema, string BaseSha256, string SourceSha256, int[] ControlIds, bool IncludeGeometry = false, bool RebindByControlId = false, LayoutButtonBinding[]? Bindings = null);
 public sealed record LayoutUpdateResult(byte[] Gdl, int[] UpdatedIds, int ImportedResources, bool GcpVerified = false);
 
 /// <summary>Imports only selected button appearance. The existing project remains authoritative for identity and behavior.</summary>
@@ -28,24 +31,32 @@ public static class LayoutReconciliation
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
     private sealed record Button(NrbfNode Container, NrbfNode Node, ControlModel Model, ContainerModel Page);
 
-    public static LayoutUpdatePlan Compare(byte[] existingGdl, byte[] incomingGdl)
+    public static LayoutUpdatePlan Compare(byte[] existingGdl, byte[] incomingGdl, bool rebindByControlId = false, IReadOnlyList<LayoutButtonBinding>? bindings = null)
     {
         var (before, after, oldDoc, newDoc) = Open(existingGdl, incomingGdl);
         var oldButtons = Buttons(oldDoc, before); var newButtons = Buttons(newDoc, after);
+        var pairs = Bindings(bindings, oldButtons, newButtons);
         var items = new List<LayoutUpdateItem>();
         foreach (var old in oldButtons)
         {
-            var candidates = newButtons.Where(b => b.Model.ControlId == old.Model.ControlId).ToArray();
+            int sourceId = pairs.GetValueOrDefault(old.Model.ControlId, old.Model.ControlId);
+            bool mapped = pairs.ContainsKey(old.Model.ControlId) && sourceId > 0;
+            var candidates = newButtons.Where(b => b.Model.ControlId == sourceId).ToArray();
             var next = candidates.Length == 1 ? candidates[0] : null;
-            string? issue = next == null ? "Нет кнопки с таким ID в новом макете; существующая останется." : Conflict(old, next);
+            string? issue = next == null ? "Нет связанной кнопки в новом макете; существующая останется." : Conflict(old, next, rebindByControlId || mapped);
+            bool rebind = next != null && issue == null && Conflict(old, next) != null;
             items.Add(new(old.Model.ControlId, old.Page.Name, old.Model.Name, next?.Model.Name, issue == null,
-                next == null ? "missing" : issue == null ? "matched" : "conflict", issue ?? "Можно обновить оформление. ID, имена и поведение сохраняются.",
+                next == null ? "missing" : issue != null ? "conflict" : mapped ? "mapped" : rebind ? "rebind" : "matched", issue ?? (mapped
+                    ? "Кнопки сопоставлены вручную. Из новой переносится оформление; ID, имя, контейнер и поведение старой сохраняются. Проверьте соответствие по превью."
+                    : rebind
+                    ? "Замена оформления по ID управления. Проверьте назначение кнопки: внутренние ID/страница, описание или имена состояний отличаются. В рабочем GDL они и поведение сохранятся."
+                    : "Можно обновить оформление. ID, имена и поведение сохраняются."),
                 old.Model.States.FirstOrDefault()?.Text, next?.Model.States.FirstOrDefault()?.Text,
-                Preview(oldDoc, old.Model), next == null ? null : Preview(newDoc, next.Model)));
+                Preview(oldDoc, old.Model), next == null ? null : Preview(newDoc, next.Model), next?.Model.ControlId));
         }
-        foreach (var added in newButtons.Where(n => oldButtons.All(o => o.Model.ControlId != n.Model.ControlId)))
+        foreach (var added in newButtons.Where(n => items.All(i => i.SourceControlId != n.Model.ControlId)))
             items.Add(new(added.Model.ControlId, added.Page.Name, added.Model.Name, added.Model.Name, false, "new",
-                "Новая кнопка: режим обновления оформления её не добавляет.", null, added.Model.States.FirstOrDefault()?.Text, null, Preview(newDoc, added.Model)));
+                "Новая кнопка: выберите её в столбце «Новый макет» у существующей кнопки.", null, added.Model.States.FirstOrDefault()?.Text, null, Preview(newDoc, added.Model), added.Model.ControlId));
         return new("exui-layout-update/1", Hash(ExtronContainer.Parse(existingGdl).Payload), Hash(ExtronContainer.Parse(incomingGdl).Payload), before.Platform.PartNumber ?? before.Platform.PlatformClass, items);
     }
 
@@ -60,13 +71,17 @@ public static class LayoutReconciliation
         var (before, after, baseline, source) = Open(existingGdl, incomingGdl);
         var work = Read(originalContainer.Payload);
         var oldButtons = Buttons(baseline, before); var workButtons = Buttons(work, before); var newButtons = Buttons(source, after);
+        var pairs = Bindings(selection.Bindings, oldButtons, newButtons);
+        var usedSources = new HashSet<int>();
         var allowed = new HashSet<(NrbfNode, string)>();
         var selected = new List<(Button Before, Button After)>();
         foreach (int id in selection.ControlIds)
         {
             var old = oldButtons.SingleOrDefault(b => b.Model.ControlId == id);
-            var next = newButtons.SingleOrDefault(b => b.Model.ControlId == id);
-            if (old == null || next == null || Conflict(old, next) is { }) throw new InvalidDataException($"Button {id} is not eligible for appearance update.");
+            int sourceId = pairs.GetValueOrDefault(id, id);
+            var next = newButtons.SingleOrDefault(b => b.Model.ControlId == sourceId);
+            if (!usedSources.Add(sourceId)) throw new InvalidDataException("Одна новая кнопка сопоставлена нескольким выбранным кнопкам.");
+            if (old == null || next == null || Conflict(old, next, selection.RebindByControlId || pairs.ContainsKey(id)) is { }) throw new InvalidDataException($"Button {id} is not eligible for appearance update.");
             selected.Add((old, next));
         }
 
@@ -159,6 +174,23 @@ public static class LayoutReconciliation
     private static void ResetImageId(NrbfNode node)
     { foreach (string key in node.Fields!.Keys.ToArray()) if (Bare(key) == "<TLPImageID>k__BackingField") node.Fields[key] = -1; }
 
+    public static LayoutButtonChoice[] Choices(byte[] gdl)
+    {
+        var payload = ExtronContainer.Parse(gdl).Payload;
+        return Buttons(Read(payload), ProjectModel.Read(payload)).Select(b => new LayoutButtonChoice(b.Model.ControlId, b.Page.Name, b.Model.Name, b.Model.States.FirstOrDefault()?.Text)).ToArray();
+    }
+    private static Dictionary<int,int> Bindings(IReadOnlyList<LayoutButtonBinding>? bindings, List<Button> old, List<Button> incoming)
+    {
+        var result = new Dictionary<int,int>();
+        if (bindings == null) return result;
+        if (bindings.Count > 256) throw new InvalidDataException("Слишком много соответствий.");
+        foreach (var binding in bindings)
+            if (binding == null || !old.Any(b => b.Model.ControlId == binding.ControlId) || binding.SourceControlId < 0 || binding.SourceControlId > 65535 ||
+                binding.SourceControlId > 0 && !incoming.Any(b => b.Model.ControlId == binding.SourceControlId) || !result.TryAdd(binding.ControlId, binding.SourceControlId))
+                throw new InvalidDataException("Повторяющееся или неизвестное соответствие кнопок.");
+        return result;
+    }
+
     private static (ProjectModel Before, ProjectModel After, NrbfDocument Old, NrbfDocument New) Open(byte[] oldBytes, byte[] newBytes)
     {
         var old = ExtronContainer.Parse(oldBytes); var next = ExtronContainer.Parse(newBytes);
@@ -185,15 +217,16 @@ public static class LayoutReconciliation
             throw new InvalidDataException("Button IDs must be nonzero and unique throughout the project.");
         return result;
     }
-    private static string? Conflict(Button old, Button next)
+    private static string? Conflict(Button old, Button next, bool rebindByControlId = false)
     {
-        if (old.Model.ObjectId != next.Model.ObjectId || old.Page.ObjectId != next.Page.ObjectId || old.Page.Type != next.Page.Type)
+        if (!rebindByControlId && (old.Model.ObjectId != next.Model.ObjectId || old.Page.ObjectId != next.Page.ObjectId || old.Page.Type != next.Page.Type))
             return "ID управления совпал, но объект или страница отличаются. Автоматическая замена заблокирована.";
         if (old.Model.States.Count != next.Model.States.Count ||
-            !old.Model.States.Select(s => (s.Id, s.Name, s.Index)).SequenceEqual(next.Model.States.Select(s => (s.Id, s.Name, s.Index))))
+            !old.Model.States.Select(s => (s.Id, s.Index)).SequenceEqual(next.Model.States.Select(s => (s.Id, s.Index))) ||
+            !rebindByControlId && !old.Model.States.Select(s => s.Name).SequenceEqual(next.Model.States.Select(s => s.Name)))
             return "Изменены ID, имена или порядок состояний. Нужна отдельная проверка.";
         if (old.Model.States.Count == 0) return "У кнопки нет состояний.";
-        if (old.Model.Comments != next.Model.Comments) return "Служебный ключ/описание отличается: возможна другая функция с тем же ID.";
+        if (!rebindByControlId && old.Model.Comments != next.Model.Comments) return "Служебный ключ/описание отличается: возможна другая функция с тем же ID.";
         return null;
     }
     private static string? Preview(NrbfDocument doc, ControlModel button)

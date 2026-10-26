@@ -43,11 +43,14 @@ window.onmessage=e=>{if(e.source!==document.querySelector('iframe').contentWindo
 if(m.scopeMode)window.scopeMode=m.scopeMode;
 if(m.type==='context'){profile=m.profile;if(window.scopeMode!=='selection')window.sendBatch();else window.selectNode(window.currentSelection?.id?{...window.currentSelection,scopeMode:window.scopeMode}:{id:null,name:'Выберите экраны на холсте'});}
 if(m.type==='ready')window.selectNode({id:null,name:'Выберите секцию проекта или Frame экрана'});if(window.holdCommand){window.heldCommand=m.type;return;}
+if(m.type==='id-map-preview'){window.lastIdMapPreview=m;try{const map=JSON.parse(m.data.json);send({type:'id-map-preview',token:42,rows:map.entries.map(e=>({name:e.name,from:e.sourceControlId,to:e.controlId}))});}catch{send({type:'error',operation:m.type,code:'id-map',message:'Не удалось прочитать JSON карты ID.'});}}
+if(m.type==='id-map-apply'){window.lastIdMapApply=m;if(window.failIdMapApply)send({type:'error',operation:m.type,code:'id-map-stale',message:'Назначения изменились. Обновите предпросмотр карты ID.'});else send({type:'id-map-applied',message:'Карта ID применена. Изменено кнопок: 2.'});}
 if(m.type==='kit'){window.lastKitProfile=m.profile;send({type:'success',message:'Extron Kit создан: 30 компонентов и шаблоны проекта.'});}
 if(m.type.startsWith('button-')){window.lastButtonCommand=m;if(m.type==='button-apply-styles'){if(window.failButtonApply)send({type:'error',operation:m.type,code:'button-background',message:'Несколько фонов. Выберите нужный Rectangle.'});else{const before=window.currentSelection?.buttonWorkflow??buttonMixed;window.selectNode({...window.currentSelection,buttonWorkflow:buttonReady});send({type:'success',operation:m.type,message:'Оформление применено. Кнопок: '+(m.existing==='skip'?before.create:before.total)+'; новых состояний: '+before.create*2+'; пропущено готовых: '+(m.existing==='skip'?before.update:0)+'. Далее проверьте макет и скачайте .exui.'});}}else send({type:'success',message:'Эталон запомнен на текущей странице.'});}
 if(m.type==='prepare'){window.lastPreparation=m;profile=m.profile;window.selectNode({id:'custom',name:'Свой экран',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Свой экран',profile}});send({type:'success',message:'Назначение «Экран» сохранено. Далее назначьте элементы.'});}
 if(m.type==='check'&&!window.failRecognition)send({type:'success',message:'Экран проверен: 4 элемента, 2 PNG.'});
 if(m.type==='apply'){window.lastMapping=m.data;send({type:'success',message:'Назначение сохранено в Figma-узле.'});}
+if(m.type==='save-ids'){window.lastIds=m;window.selectNode({...window.currentSelection,metadata:{...window.currentSelection.metadata,objectId:Number(m.data.objectId),controlId:Number(m.data.controlId)}});send({type:'success',operation:m.type,message:'ID сохранены: объект '+m.data.objectId+', управление Extron '+m.data.controlId+'.'});}
 if(['reference-target','selection-group','start-page','show-linked'].includes(m.type)){window.lastLinksCommand=m;send({type:'success',message:m.type==='show-linked'?'Элемент показан на холсте.':'Связь сохранена в файле Figma.'});}
 if(m.type==='bind-popups'){window.lastPopupBinding=m;window.selectNode({id:m.referenceId,name:'popupref_AudioControls',nodeType:'FRAME',metadata:{kind:'popup-ref',key:'audio.controls',objectId:7,group:'group.audiocontrols',controlId:null},scope:{id:'project',name:'AV panels',kind:'project',profile}});send({type:'success',message:'Popup связаны с выбранным местом.'});}
 if(m.type==='preview'){window.lastPreview=m;send({type:'success',message:'Состояние показано.'});}
@@ -68,8 +71,47 @@ try{
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isDisabled(),true);
  assert.equal(await frame.locator('#buttonStates').evaluate(el=>(el as HTMLDetailsElement).open),false);
  assert.equal(await frame.locator('#demo').count(),0);
+ // The map is imported for the whole source page, without a selected node.
+ await frame.locator('#idMapImport > summary').click();
+ assert.equal(await frame.locator('#chooseIdMap').isEnabled(),true);
+ const mapPayload={schema:'exui-figma-id-map/1',profile:'tlp-pro-1025m',pageId:'1',pageToken:'test-origin-0000001',projectName:'Home',entries:[{nodeId:'a',key:'home.a',name:'button_Page1',sourceControlId:8101,controlId:1},{nodeId:'b',key:'home.b',name:'button_Page2',sourceControlId:8103,controlId:2}]};
+ await frame.locator('#idMapFile').setInputFiles({name:'map.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(mapPayload))});
+ await frame.locator('#idMapRows').getByText('button_Page1: 8101 → 1',{exact:true}).waitFor();
+ assert.equal(await frame.locator('#applyIdMap').isEnabled(),true);assert.equal(await page.evaluate(()=>(window as any).lastIdMapApply??null),null);
+ for(const width of [420,320]){await page.setViewportSize({width,height:720});assert.equal(await frame.locator('main').evaluate(el=>el.scrollWidth<=el.clientWidth),true);await frame.locator('#idMapImport').screenshot({path:path.join(out,`id-map-${width}.png`)});}
+ await page.setViewportSize({width:420,height:720});await page.evaluate(()=>(window as any).failIdMapApply=true);
+ await frame.locator('#applyIdMap').click();await frame.locator('#idMapSummary').filter({hasText:'Назначения изменились'}).waitFor();assert.equal(await frame.locator('#applyIdMap').isDisabled(),true);
+ await page.evaluate(()=>(window as any).failIdMapApply=false);await frame.locator('#refreshIdMap').click();await frame.locator('#idMapRows').waitFor({state:'visible'});
+ await frame.locator('#applyIdMap').focus();await page.keyboard.press('Enter');await frame.locator('#idMapSummary').filter({hasText:'Карта ID применена'}).waitFor();
+ assert.equal(await page.evaluate(()=>(window as any).lastIdMapApply.token),42);
+ await frame.locator('#idMapFile').setInputFiles({name:'broken.json',mimeType:'application/json',buffer:Buffer.from('{broken')});await frame.locator('#idMapSummary').filter({hasText:'Не удалось прочитать JSON'}).waitFor();assert.equal(await frame.locator('#applyIdMap').isDisabled(),true);
+ await frame.locator('#idMapImport > summary').click();
  // Popup prefixes and saved assignments disable screen-only actions before a click.
  await frame.locator('#editor > summary').click();
+ // ID recovery is a separate action and must not submit other form edits.
+ await page.evaluate(()=>(window as any).selectNode({id:'rebuilt',name:'button_CH01',nodeType:'FRAME',metadata:{kind:'button',buttonMode:'on-off',key:'hallsources.ch01',objectId:2597,controlId:9138}}));
+ await frame.getByLabel('ID управления Extron',{exact:true}).fill('9140');
+ await frame.getByLabel('Семантический ключ',{exact:true}).fill('unsaved.key');
+ await frame.getByRole('button',{name:'Сохранить ID',exact:true}).click();
+ await page.waitForFunction(()=>(window as any).lastIds?.data.controlId==='9140');
+ assert.deepEqual(await page.evaluate(()=>(window as any).lastIds),{type:'save-ids',scopeMode:'selection',profile:'tlp-pro-1025m',nodeId:'rebuilt',data:{objectId:'2597',controlId:'9140'}});
+ assert.equal(await frame.getByLabel('Семантический ключ',{exact:true}).inputValue(),'hallsources.ch01');
+ await frame.getByRole('status').filter({hasText:'ID сохранены'}).waitFor();
+ for(const width of [420,320]){
+  await page.setViewportSize({width,height:720});
+  await frame.locator('#controlId').scrollIntoViewIfNeeded();
+  assert.equal(await frame.locator('main').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
+  await page.screenshot({path:path.join(out,`manual-ids-${width}.png`),fullPage:true});
+ }
+ await page.setViewportSize({width:420,height:720});
+ await page.evaluate(()=>(window as any).lastIds=null);
+ await frame.getByLabel('ID управления Extron',{exact:true}).fill('65536');
+ await frame.getByRole('button',{name:'Сохранить ID',exact:true}).click();
+ assert.equal(await page.evaluate(()=>(window as any).lastIds),null);
+ await frame.getByLabel('ID управления Extron',{exact:true}).fill('9140');
+ await frame.getByRole('button',{name:'Сохранить ID',exact:true}).focus();
+ await page.keyboard.press('Enter');
+ await page.waitForFunction(()=>(window as any).lastIds?.data.controlId==='9140');
  for(const [name,kind] of [['modalpopup_Confirm','popup'],['popupgroup_AudioControls','popup-group'],['popupref_Sources','popup-ref']])for(const assigned of [false,true]){
   await page.evaluate(({name,kind,assigned})=>(window as any).selectNode({id:'popup-action',name,nodeType:'FRAME',selectionKind:kind,canPrepare:false,canRecognize:false,...(assigned?{metadata:{kind,key:'test.popup',objectId:101}}:{})}),{name,kind,assigned});
   await frame.locator('#selection').filter({hasText:name}).waitFor();
@@ -466,6 +508,14 @@ try{
  await target.selectOption('');await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();
  assert.equal(await frame.locator('#showNavigation').isDisabled(),true);
  await page.waitForFunction(()=>(window as any).lastMapping.navigate==='');
+ // A sibling outside remembered export membership is sent by node ID. Its
+ // transient option value must never be persisted as a navigation key.
+ await page.evaluate(()=>(window as any).selectNode({id:'nav',name:'button_VideoControl',nodeType:'FRAME',metadata:{kind:'button',key:'main.videocontrol',buttonMode:'on-off',objectId:1,controlId:8101},scope:{id:'page',name:'Project',kind:'project',profile:'tlp-pro-1025m'},targets:[{id:'video',key:'node:video',name:'screen_VideoControl',kind:'page',outsideScope:true}]}));
+ await target.selectOption({label:'screen_VideoControl · добавить в проект'});
+ assert.equal(await frame.locator('#showNavigation').isEnabled(),true);
+ await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();
+ await page.waitForFunction(()=>(window as any).lastMapping.navigationTargetId==='video');
+ assert.equal(await page.evaluate(()=>(window as any).lastMapping.navigate),'');
  await page.evaluate(()=>(window as any).selectNode({id:'section',name:'Триллиант / AV панели',nodeType:'SECTION',metadata:{kind:'project',key:'project.section',projectName:'Триллиант / AV панели',profile:'tlp-pro-1025m'}}));
  await frame.locator('#editor').evaluate((el:HTMLDetailsElement)=>el.open=false);await frame.locator('main').evaluate(el=>el.scrollTop=0);
  // In-flight commands lock the profile as well as actions; a failed check is recoverable.

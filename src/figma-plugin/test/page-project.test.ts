@@ -10,10 +10,105 @@ import { recognize,applyRecognition,REGISTRY_KEY } from '../src/recognize.ts';
 import { capture,designSignature,exportFrame } from '../src/export.ts';
 import { twoScreens } from './page-project-fixture.ts';
 import { pageScreens } from '../src/project.ts';
+import { ExportScope } from '../src/scope.ts';
 import { createDemo } from '../src/demo.ts';
 
 const source=buildSync({entryPoints:[fileURLToPath(new URL('../src/code.ts',import.meta.url))],bundle:true,write:false,target:'es2017',define:{__html__:'"test"',__ICONS__:JSON.stringify(Object.fromEntries(Object.entries(icons()).map(([k,v])=>[k,[...v]])))}}).outputFiles[0].text;
 function plugin(){const fake=fakeFigma();vm.runInNewContext(source,{figma:fake.api,Uint8Array,console});return{...fake,send:fake.api.ui.onmessage as (message:unknown)=>Promise<void>};}
+
+test('A copied screen shows its own name before joining the remembered project; customized originals keep their name',async()=>{
+ const p=plugin(),{main,audio}=twoScreens();
+ applyRecognition(recognize(p.page as never,'tlp-pro-1025m',{members:[main,audio],projectName:'Trilliant'}));
+ assert.equal(readMetadata(audio)!.projectName,audio.name);
+ p.page.selection=[main as never,audio as never];p.emit('selectionchange');
+ const video=audio.clone();video.name='screen_VideoControl';
+ p.page.selection=[video as never];const before=video.getPluginData(DATA_KEY);p.emit('selectionchange');
+ let selected=p.messages.filter(m=>m.type==='selection').at(-1) as any;
+ assert.equal(selected.metadata.projectName,video.name);assert.equal(selected.metadata.ownerNodeId,video.id);
+ assert.equal(video.getPluginData(DATA_KEY),before,'selection is read-only');
+ audio.setPluginData(DATA_KEY,JSON.stringify({...readMetadata(audio),projectName:'Custom AV project'}));
+ audio.name='screen_AudioRenamed';p.page.selection=[audio as never];p.emit('selectionchange');
+ selected=p.messages.filter(m=>m.type==='selection').at(-1) as any;
+ assert.equal(selected.metadata.projectName,'Custom AV project');
+});
+
+test('Automatically named screens follow renames in the form and export while IDs stay fixed',async()=>{
+ const p=plugin(),{audio}=twoScreens();applyRecognition(recognize(audio,'tlp-pro-1025m'));
+ const id=readMetadata(audio)!.objectId;audio.name='screen_VideoControl';p.page.selection=[audio as never];p.emit('selectionchange');
+ const selected=p.messages.filter(m=>m.type==='selection').at(-1) as any;
+ assert.equal(selected.metadata.projectName,audio.name);
+ await p.send({type:'export',scopeMode:'selection',profile:'tlp-pro-1025m'});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);
+ assert.equal((p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle.screen.project.name,audio.name);
+ assert.equal(readMetadata(audio)!.objectId,id);
+});
+
+test('A first navigation assignment from single-screen mode supplies draft button fields',async()=>{
+ const p=plugin(),{audio,button}=twoScreens();p.page.selection=[button as never];
+ await p.send({type:'context',scopeMode:'selection',profile:'tlp-pro-1025m'});
+ const editor=p.messages.filter(m=>m.type==='selection').at(-1) as any;
+ assert.equal(editor.metadata.kind,'button');assert.ok(editor.metadata.key);
+ assert.ok(editor.targets.some((t:any)=>t.id===audio.id&&t.outsideScope));
+ await p.send({type:'apply',data:{...editor.metadata,navigate:'',navigationTargetId:audio.id}});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);
+ assert.equal(readMetadata(button)!.navigate,readMetadata(audio)!.key);
+});
+
+for(const mode of ['selected-frames','selection'] as const)test(`Choosing a copied sibling target extends only that project (${mode})`,async()=>{
+ const p=plugin(),{main,audio,button}=twoScreens();
+ applyRecognition(recognize(p.page as never,'tlp-pro-1025m',{members:[main,audio]}));
+ p.page.selection=(mode==='selection'?[main]:[main,audio]) as never;p.emit('selectionchange');
+ const video=audio.clone();video.name='screen_VideoControl';
+ const scratch=frame(null,'screen_Unrelated',0,1700,1280,800,'#000000');label(scratch,'text_Title','Scratch',0,0,80,30);
+ const before=[video,scratch].map(designSignature),ids=[main,audio,button].map(n=>readMetadata(n)!.objectId);
+ p.page.selection=[button as never];p.emit('selectionchange');
+ const selected=p.messages.filter(m=>m.type==='selection').at(-1) as any,target=selected.targets.find((t:any)=>t.id===video.id);
+ assert.ok(target?.outsideScope);assert.equal(target.name,video.name);assert.deepEqual([video,scratch].map(designSignature),before);
+ // Previewing the new target must also work before it is saved, without adding it.
+ await p.send({type:'show-linked',nodeId:button.id,targetId:video.id});assert.equal(p.page.selection[0].id,video.id);
+ assert.deepEqual([video,scratch].map(designSignature),before);
+ p.page.selection=[button as never];p.emit('selectionchange');
+ await p.send({type:'apply',scopeMode:mode,profile:'tlp-pro-1025m',data:{...selected.metadata,navigate:'',navigationTargetId:video.id}});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);
+ assert.equal(readMetadata(button)!.navigate,readMetadata(video)!.key);
+ assert.equal(readMetadata(video)!.projectName,video.name);assert.notEqual(readMetadata(video)!.objectId,readMetadata(audio)!.objectId);
+ assert.deepEqual([main,audio,button].map(n=>readMetadata(n)!.objectId),ids);
+ assert.equal(designSignature(scratch),before[1]);
+ const restored=new ExportScope();assert.equal(restored.mode,'selected-frames');
+ assert.ok(restored.resolve().options.members!.some(n=>n.id===video.id),'chosen membership survives reopening');
+ await p.send({type:'export',scopeMode:'selected-frames',profile:'tlp-pro-1025m'});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);
+ const screen=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle.screen;
+ assert.deepEqual(Array.from(screen.pages,(c:any)=>c.name).sort(),(mode==='selection'?[main,video]:[main,audio,video]).map(n=>n.name).sort());
+ assert.equal(screen.pages.find((c:any)=>c.name===main.name).elements.find((e:any)=>e.kind==='button').navigate,readMetadata(video)!.key);
+});
+
+test('Navigation offers siblings from the same section, excluding other projects and panel sizes',async()=>{
+ const p=plugin(),{main,audio,button}=twoScreens(),section=p.api.createSection();
+ section.appendChild(main as never);section.appendChild(audio as never);
+ p.page.selection=[main as never,audio as never];p.emit('selectionchange');
+ const video=frame(null,'screen_VideoControl',0,900,1280,800,'#101010');label(video,'text_Title','Video',0,0,100,30);section.appendChild(video as never);
+ const foreign=p.api.createSection(),other=frame(null,'screen_Foreign',0,0,1280,800,'#101010');foreign.appendChild(other as never);
+ const mobile=frame(null,'screen_Mobile',0,0,320,480,'#101010');section.appendChild(mobile as never);
+ p.page.selection=[button as never];p.emit('selectionchange');const selected=p.messages.filter(m=>m.type==='selection').at(-1) as any;
+ assert.ok(selected.targets.some((t:any)=>t.id===video.id&&t.outsideScope));
+ assert.equal(selected.targets.some((t:any)=>[other.id,mobile.id].includes(t.id)),false);
+ await p.send({type:'apply',data:{...selected.metadata,navigate:'',navigationTargetId:other.id}});
+ assert.equal(p.messages.filter(m=>m.type==='error').at(-1)?.code,'navigation');
+});
+
+for(const failure of ['deleted','wrong-profile','invalid-design','write-failure'] as const)test(`Adding a navigation target is atomic on ${failure}`,async()=>{
+ const p=plugin(),{main,audio,button}=twoScreens();p.page.selection=[main as never,audio as never];p.emit('selectionchange');
+ const video=frame(null,'screen_VideoControl',0,900,1280,800,'#101010');label(video,'text_Title','Video',0,0,100,30);
+ p.page.selection=[button as never];p.emit('selectionchange');const selected=p.messages.filter(m=>m.type==='selection').at(-1) as any;
+ if(failure==='deleted')video.remove();
+ if(failure==='wrong-profile')video.resize(320,480);
+ if(failure==='invalid-design')video.children[0].name='Unsupported';
+ if(failure==='write-failure'){const original=video.setPluginData.bind(video);let once=true;video.setPluginData=(k,v)=>{if(once&&v){once=false;throw new Error('write failure');}original(k,v);};}
+ const before=designSignature(p.page as never);
+ await p.send({type:'apply',scopeMode:'selected-frames',profile:'tlp-pro-1025m',data:{...selected.metadata,navigate:'',navigationTargetId:video.id}});
+ assert.equal(p.messages.filter(m=>m.type==='error').length,1);assert.equal(designSignature(p.page as never),before);
+});
 
 for(const savedTarget of [false,true])test(`Navigation before recognition is saved (target saved: ${savedTarget})`,async()=>{
  const p=plugin(),{main,audio,button}=twoScreens();

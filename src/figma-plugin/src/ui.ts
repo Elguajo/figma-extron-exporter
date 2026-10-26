@@ -6,11 +6,12 @@ const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(
 const input=(id:string)=>$<HTMLInputElement>(id);
 let packing=false,operationBusy=false,selectedId:string|null=null,downloadUrl:string|undefined;
 let recognitionToken:number|undefined;
+let idMapToken:number|undefined,idMapJson='';
 let legacyButton=false,loadedKey='',loadedPattern='';
 let designPattern:{pattern?:string;preview?:string;source?:string;error?:string}|undefined;
 let canRecognize=false,canPrepare=false,hasScope=false;
 let bindingPopupIds:string[]=[],canBindPopups=false;
-let links:AuthoringLinks|undefined,navigationTargets:{id:string;key:string}[]=[];
+let links:AuthoringLinks|undefined,navigationTargets:{id:string;key:string;outsideScope?:boolean}[]=[];
 const NEW_GROUP='__create__';
 let buttonCanApply=false,buttonResultReady=false;
 let buttonSummary:ButtonPreparationSummary|undefined,buttonStylesReady=false,buttonScopeReady=false,buttonScopeKey='';
@@ -38,6 +39,10 @@ function setBusy(busy:boolean) {
   document.querySelectorAll<HTMLInputElement|HTMLSelectElement>('#mapping input,#mapping select,#profile,#scopeMode,#previewRole').forEach(e=>e.disabled=busy||(!selectedId&&!['profile','scopeMode'].includes(e.id)));
   $<HTMLButtonElement>('applyRecognition').disabled=busy||recognitionToken===undefined;
   $('mapping').setAttribute('aria-busy',String(busy));
+  $<HTMLButtonElement>('chooseIdMap').disabled=busy;
+  input('idMapFile').disabled=busy;
+  $<HTMLButtonElement>('applyIdMap').disabled=busy||idMapToken===undefined;
+  $<HTMLButtonElement>('refreshIdMap').disabled=busy||!idMapJson;
   input('buttonCorners').disabled=busy;
   input('buttonContrast').disabled=busy;
   document.querySelectorAll<HTMLInputElement>('#buttonExistingChoice input,#buttonPairChoice input').forEach(e=>e.disabled=busy);
@@ -180,13 +185,39 @@ $('mapping').onsubmit=event=>{
   const data:Record<string,string>={};for(const id of ['kind','buttonMode','key','objectId','controlId','projectName','profile','role','stateName','file','resourceName','stateId','shownBy','modal','display','orientation','min','max','pattern','popup','group','navigate','selectionGroup','enabled','visible'])data[id]=input(id).value;
   data.keyEdited=String(data.key!==loadedKey);
   data.patternEdited=String(data.pattern!==loadedPattern);
+  const target=navigationTargets.find(t=>t.key===data.navigate);
+  if(target?.outsideScope){data.navigationTargetId=target.id;data.navigate='';}
   for(const id of ['exportBackground','exportStroke'])data[id]=String(input(id).checked);
   send('apply',{data,nodeId:selectedId});
+};
+$('chooseIdMap').onclick=()=>input('idMapFile').click();
+function clearIdMap(){idMapToken=undefined;$('idMapRows').hidden=true;$('refreshIdMap').hidden=!idMapJson;}
+function previewIdMap(){clearIdMap();revokeDownload();send('id-map-preview',{data:{json:idMapJson}});}
+input('idMapFile').onchange=async()=>{
+  const file=input('idMapFile').files?.[0];if(!file)return;clearIdMap();idMapJson='';
+  try{if(file.size>128*1024)throw new Error('Карта ID больше 128 КиБ.');setBusy(true);idMapJson=await file.text();previewIdMap();}
+  catch(error){status(error instanceof Error?error.message:String(error),'error');setBusy(false);}
+  finally{input('idMapFile').value='';}
+};
+$('refreshIdMap').onclick=previewIdMap;
+$('applyIdMap').onclick=()=>{const token=idMapToken;clearIdMap();revokeDownload();send('id-map-apply',{token});};
+$('saveIds').onclick=()=>{
+  if(!input('objectId').reportValidity()||!input('controlId').disabled&&!input('controlId').reportValidity())return;
+  revokeDownload();
+  send('save-ids',{nodeId:selectedId,data:{objectId:input('objectId').value,controlId:input('controlId').value}});
 };
 window.onmessage=async(event:MessageEvent)=>{
   // Figma's bridge guarantees pluginMessage, not a parent Window as source.
   // In particular, platform-dispatched MessageEvent can have source === null.
   const msg=event.data?.pluginMessage;if(!msg||typeof msg!=='object'||typeof msg.type!=='string')return;
+  if(msg.type==='id-map-clear'){clearIdMap();$('idMapSummary').textContent='Страница изменилась. Откройте карту на исходной странице.';setBusy(operationBusy||packing);return;}
+  if(msg.type==='id-map-preview'){
+    idMapToken=msg.token;const rows=$('idMapRows');rows.replaceChildren();
+    for(const row of msg.rows){const li=document.createElement('li');li.className='recognition-item';li.textContent=`${row.name}: ${row.from} → ${row.to}`;rows.appendChild(li);}
+    rows.hidden=false;$('refreshIdMap').hidden=false;$('idMapSummary').textContent=`Проверьте соответствия: ${msg.rows.length} кнопок. Изменения ещё не сохранены.`;setBusy(false);return;
+  }
+  if(msg.type==='id-map-applied'){clearIdMap();$('idMapSummary').textContent=msg.message;status(msg.message,'success');setBusy(false);return;}
+  if(msg.type==='error'&&['id-map-preview','id-map-apply'].includes(msg.operation)){clearIdMap();$('idMapSummary').textContent=msg.message;}
   if(msg.operation==='button-text'&&['success','error'].includes(msg.type)){
     $('buttonTextResult').hidden=false;$('buttonTextResult').textContent=msg.message;
     $('buttonTextResult').setAttribute('role',msg.type==='error'?'alert':'status');
@@ -232,10 +263,10 @@ window.onmessage=async(event:MessageEvent)=>{
     navigationTargets=msg.targets??[];
     const addTarget=(value:string,label:string)=>{const option=document.createElement('option');option.value=value;option.textContent=label;navigation.appendChild(option);};
     addTarget('','Без перехода');
-    for(const target of msg.targets??[])addTarget(target.key,`${target.name}${target.kind==='popup'?' · Popup':''}`);
+    for(const target of msg.targets??[])addTarget(target.key,`${target.name}${target.kind==='popup'?' · Popup':''}${target.outsideScope?' · добавить в проект':''}`);
     if(m.navigate&&!Array.from(navigation.options).some(o=>o.value===m.navigate))addTarget(m.navigate,`Недоступная цель · ${m.navigate}`);
     navigation.value=m.navigate??'';
-    $('navigationHelp').textContent=msg.targets?.length?'Выберите цель из текущего проекта. Переход подключается в программе управления Extron.':'Цели не найдены. В «Что экспортировать» выберите «Экраны текущей страницы — один проект» или выделите нужные экраны вместе. Затем снова выберите кнопку.';
+    $('navigationHelp').textContent=msg.targets?.length?'Выберите цель и сохраните назначение. Экран с пометкой «добавить в проект» войдёт в экспорт после сохранения. Переход подключается в программе управления Extron.':'Цели не найдены. В «Что экспортировать» выберите «Экраны текущей страницы — один проект» или выделите нужные экраны вместе. Затем снова выберите кнопку.';
     for(const id of ['selectionGroup','enabled','visible'] as const)input(id).value=String(m.behavior?.[id]??'');
     input('display').value=m.display??'slider';input('orientation').value=m.orientation??'left-to-right';input('min').value=String(m.min??0);input('max').value=String(m.max??100);input('modal').value=String(m.modal??(kind==='popup'&&/^(mdl|modalpopup)_/i.test(msg.name)));
     input('kind').value=kind??(msg.nodeType==='SECTION'?'project':msg.nodeType==='TEXT'?'label':'page');

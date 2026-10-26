@@ -1,0 +1,1 @@
+887aed187b7f961dada0c53af1002da05d43803c27a22d82a45a8302f1c86ce7  figma-extron-cli-0.8.7-windows.zip

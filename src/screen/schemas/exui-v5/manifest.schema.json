@@ -42,6 +42,23 @@
           }
         }
       }
+    },
+    "figma": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "const": "figma.json"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]{64}(?![\\s\\S])"
+        }
+      }
     }
   }
 }

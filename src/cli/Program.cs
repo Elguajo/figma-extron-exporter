@@ -18,7 +18,8 @@ Usage:
   validate-package <input.exui>
   id-map <input.exui>
   compare-packages <previous.exui> <new.exui> [--json]
-  plan-layout-update <existing.gdl> <incoming.gdl>
+  plan-layout-update <existing.gdl> <incoming.gdl> [--rebind-by-control-id] [--bindings <pairs.json>]
+  export-figma-id-map <existing.gdl> <incoming.gdl> <source.exui> <selection.json> <new-map.json>
   update-layout <existing.gdl> <incoming.gdl> <selection.json> <new-output.gdl>
   convert-package <input.exui> <new-output.gdl> [--registry samples/donors.json] [--extron-dir <dir>]
 
@@ -30,10 +31,11 @@ var positional = new List<string>();
 string registryPath = Path.Combine("samples", "donors.json");
 string? extronDir = null;
 string? compatibilityPath = null, gcpDir = null;
+string? bindingsPath = null;
 var seenOptions = new HashSet<string>();
 for (int i = 0; i < args.Length; i++)
 {
-    if (args[i] is "--registry" or "--extron-dir" or "--compatibility" or "--gcp-dir")
+    if (args[i] is "--registry" or "--extron-dir" or "--compatibility" or "--gcp-dir" or "--bindings")
     {
         if (!seenOptions.Add(args[i]) || i + 1 >= args.Length || args[i + 1].StartsWith("--", StringComparison.Ordinal)) { Console.Error.Write(Usage); return 2; }
         switch (args[i])
@@ -42,6 +44,7 @@ for (int i = 0; i < args.Length; i++)
             case "--extron-dir": extronDir = args[++i]; break;
             case "--compatibility": compatibilityPath = args[++i]; break;
             case "--gcp-dir": gcpDir = args[++i]; break;
+            case "--bindings": bindingsPath = args[++i]; break;
         }
     }
     else positional.Add(args[i]);
@@ -50,15 +53,17 @@ string command = positional.Count > 0 ? positional[0] : "";
 bool adapterCommand = command is "prepare-donor" or "generate-screen" or "convert-package" or "doctor";
 ExtronAdapter CreateAdapter() => new(AdapterOptions.Default(extronDir) with { CompatibilityPath = compatibilityPath });
 bool comparisonJson = command == "compare-packages" && positional.Count == 4 && positional[3] == "--json";
+bool rebindByControlId = command == "plan-layout-update" && positional.Count == 4 && positional[3] == "--rebind-by-control-id";
 int expected = command switch
 {
     "doctor" => 1,
     "compare-packages" => comparisonJson ? 4 : 3,
-    "plan-layout-update" => 3,
+    "plan-layout-update" => rebindByControlId ? 4 : 3,
     "update-layout" => 5,
+    "export-figma-id-map" => 6,
     "inspect" or "list-controls" or "prepare-donor" or "validate-package" or "id-map" => 2, "repack" or "convert-package" or "compare-graph" => 3, "generate-screen" => 4, "set-button-text" => 6, _ => -1
 };
-if (expected < 0 || positional.Count != expected || (!adapterCommand && args.Length != positional.Count) ||
+if (expected < 0 || positional.Count != expected || (!adapterCommand && args.Length != positional.Count + (bindingsPath != null ? 2 : 0)) || (bindingsPath != null && command != "plan-layout-update") ||
     (gcpDir != null && command != "doctor") || (command == "doctor" && seenOptions.Contains("--registry")) ||
     (command == "set-button-text" && !int.TryParse(positional[3], out _)))
 {
@@ -75,9 +80,22 @@ try
     {
         case "plan-layout-update":
         {
-            var plan = LayoutReconciliation.Compare(ReadLayout(positional[1]), ReadLayout(positional[2]));
+            LayoutButtonBinding[]? bindings = null;
+            if(bindingsPath!=null){if(new FileInfo(bindingsPath).Length>64*1024)throw new InvalidDataException("Bindings exceed 64 KiB.");bindings=JsonSerializer.Deserialize<LayoutButtonBinding[]>(File.ReadAllText(bindingsPath),ScreenSpecReader.Json)??throw new InvalidDataException("Missing bindings.");}
+            var plan = LayoutReconciliation.Compare(ReadLayout(positional[1]), ReadLayout(positional[2]), rebindByControlId, bindings);
             Console.WriteLine(JsonSerializer.Serialize(plan, ScreenSpecReader.Json));
             break;
+        }
+        case "export-figma-id-map":
+        {
+            using var package=ExuiPackage.Load(positional[3]);
+            if(package.Origin==null)throw new InvalidDataException("В EXUI нет исходных слоёв. Экспортируйте его заново из текущего плагина.");
+            if(new FileInfo(positional[4]).Length>64*1024)throw new InvalidDataException("Selection exceeds 64 KiB.");
+            var selection=JsonSerializer.Deserialize<LayoutUpdateSelection>(File.ReadAllText(positional[4]),ScreenSpecReader.Json)??throw new InvalidDataException("Missing selection.");
+            var map=FigmaIdMap.Create(package.Origin,package.Profile.Id,ReadLayout(positional[1]),ReadLayout(positional[2]),selection);
+            byte[] data=JsonSerializer.SerializeToUtf8Bytes(map,ScreenSpecReader.Json);if(data.Length>128*1024)throw new InvalidDataException("ID map exceeds 128 KiB.");
+            using(var file=new FileStream(positional[5],FileMode.CreateNew,FileAccess.Write))file.Write(data);
+            Console.WriteLine(JsonSerializer.Serialize(new {output=Path.GetFullPath(positional[5]),buttons=map.Entries.Length},json));break;
         }
         case "update-layout":
         {

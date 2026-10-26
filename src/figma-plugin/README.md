@@ -1,8 +1,14 @@
 <a id="russian"></a>
 
-# Figma → Extron Exporter — плагин 0.8.4 preview
+# Figma → Extron Exporter — плагин 0.8.7 preview
 
 **Русский** · [English](#english)
+
+**0.8.7 — ID обратно из GUI Designer в Figma.** Экспортируйте EXUI, сопоставьте старые и новые кнопки в LayoutUpdater, сохраните «Карта ID → Figma…», затем откройте карту в плагине через «Назначения Extron → Импортировать карту ID из LayoutUpdater» и примените ко всем. Можно связывать кнопки с разными ID по одной либо группой. Следующий экспорт будет содержать номера GUI Designer.
+
+**0.8.7 — имя копии и переход на новый экран.** Копия `screen_AudioControl`, переименованная в `screen_VideoControl`, получает собственное имя проекта. В «Открыть страницу или popup» соседний экран того же размера доступен с пометкой «добавить в проект», даже если его ещё нет в запомненном экспорте. Выберите цель и нажмите «Сохранить назначение»: выбранный экран включится в проект, остальные соседние экраны не добавятся. «Показать» только выделяет цель на холсте. Выпуск работает с CLI **0.8.5**. [Установка](../../releases/figma-plugin/0.8.7/README.md).
+
+**0.8.5 — ручные ID и замена кнопок GUI Designer.** Выберите кнопку → «Назначение выбранного элемента» → «ID управления Extron» → «Сохранить ID». Можно взять ID кнопки, созданной только в GUI Designer, например `1`. Ошибки других слоёв и текущая область экспорта не мешают сохранению. Для переноса оформления в рабочий GDL используйте `updater/Extron.LayoutUpdater.exe` из CLI 0.8.5 и включите «Заменять оформление кнопок GUI Designer по ID управления». Внутренние ID и поведение рабочей кнопки сохраняются; ID, число и порядок состояний должны совпадать.
 
 **0.8.2 — автоматическое положение текста кнопок.** Выделите кнопки, экран или popup, откройте «Текст кнопок для GCP» и один раз примените «Автоматически из Figma». При каждом экспорте положение текстовой рамки внутри кнопки определяет центр или низ; по горизонтали текст всегда по центру. Настройки абзаца игнорируются, рамка на всю кнопку означает центр. Подпись хранится в состояниях самого Button и заменяется через Text Feedback; отдельный Label и текст в PNG для неё не создаются. Фон, иконки, ID и исходные слои Figma сохраняются. Ручные Center / Bottom Center и отмена через «Сохранить расположение Figma» остаются доступны. Нужен CLI **0.8.2** (подходит и 0.8.1); EXUI/5 не изменён. [Правила автоматического режима](NATIVE_TEXT.md#автоматически-из-figma-плагин-082).
 
@@ -31,7 +37,7 @@
 
 **0.6.7 — прозрачность линий:** Pen/Vector и Line Tool поддерживают непрозрачность SOLID Stroke и общую Opacity слоя; прямоугольные линии — Fill и Opacity. Линии остаются нативными PBLine. Нужен CLI **0.6.4**. [Установка](../../releases/figma-plugin/0.6.7/README.md).
 
-Текущий комплект: **плагин 0.8.4 + CLI 0.8.3**, единственный контракт пакетов — **EXUI/5**. CLI 0.7.0 пишет пустой Text у картинок, фигур, линий и регуляторов, чтобы GCP не оставлял страницу пустой, и сохраняет сравнение экспортов из 0.6.6 ([инструкция](../../docs/updating-configured-projects.md)). Начиная с CLI 0.6.5 устранены унаследованные заливки popup, принимает EXUI/5 прежних плагинов, прозрачные фоны popup/цвета фигур и ставит стартовую страницу первой при конвертации. Старые пакеты EXUI/1–4 актуальный CLI отклоняет: экспортируйте исходный макет заново. Сохранённые назначения и ID в Figma остаются на месте, ключи следуют именам слоёв; архивы прежних выпусков не меняются.
+Текущий комплект: **плагин 0.8.7 + CLI 0.8.5**, единственный контракт пакетов — **EXUI/5**. CLI 0.7.0 пишет пустой Text у картинок, фигур, линий и регуляторов, чтобы GCP не оставлял страницу пустой, и сохраняет сравнение экспортов из 0.6.6 ([инструкция](../../docs/updating-configured-projects.md)). Начиная с CLI 0.6.5 устранены унаследованные заливки popup, принимает EXUI/5 прежних плагинов, прозрачные фоны popup/цвета фигур и ставит стартовую страницу первой при конвертации. Старые пакеты EXUI/1–4 актуальный CLI отклоняет: экспортируйте исходный макет заново. Сохранённые назначения и ID в Figma остаются на месте, ключи следуют именам слоёв; архивы прежних выпусков не меняются.
 
 **0.6.6 — клиппинг растрового фона:** включите Clip content у экрана или popup. Выступающий за его границы Frame `image_Background` экспортируется только видимой частью PNG с прежним масштабом. Клиппинг самого `image_Background` обрезает его внутренний рисунок; для выхода самого Frame за экран нужен клиппинг у экрана. Исходные размеры и координаты не меняются. [Установка](../../releases/figma-plugin/0.6.6/README.md).
 
@@ -274,11 +280,17 @@ node src/figma-plugin/test/native-integration.ts output/figma-plugin/new-run
 
 <a id="english"></a>
 
-# Figma → Extron Exporter — plugin 0.8.4 preview
+# Figma → Extron Exporter — plugin 0.8.7 preview
+
+**0.8.7 — round-trip IDs.** Export EXUI, match existing and incoming buttons in LayoutUpdater, save the Figma ID map, then import and preview it under “Назначения Extron” in the plugin. Apply the batch to store GUI Designer Control IDs on the exact source layers. The updater supports different-ID pairs and ordered groups; existing GDL identities and behavior remain intact.
+
+**0.8.5 — manual IDs and GUI Designer button replacement.** Select the button, enter the existing GUI Designer number (including `1`) in “ID управления Extron” and click “Сохранить ID”. Unrelated artwork errors and the current export scope do not block saving. To replace the existing GDL artwork, use the updater included with CLI 0.8.5 and enable matching by Control ID. Existing internal identity and behavior stay intact; state counts, IDs and order must match.
 
 [Русский](#russian) · **English**
 
 The plugin interface is in Russian; its labels are quoted as shown, followed by their English meaning.
+
+**0.8.7 — copied screen names and navigation to new screens.** A copied screen uses its own Frame name. Sibling screens of the same profile outside the remembered export appear in the navigation selector with «добавить в проект» (add to project). Save the button assignment to include only the chosen target and store its navigation key. Showing a target on the canvas does not add it to the export. Use CLI **0.8.5**.
 
 **0.8.2 — automatic button text position.** Select buttons, a screen or a popup, open «Текст кнопок для GCP» (Button text for GCP) and apply «Автоматически из Figma» (Automatic from Figma) once. On every export, the position of the text frame inside the button decides center or bottom; horizontally the text is always centered. Paragraph settings are ignored; a frame covering the whole button means center. The caption is stored in the states of the Button itself and is replaced through Text Feedback; no separate Label and no text in the PNG are created for it. The background, icons, IDs and source Figma layers are kept. Manual Center / Bottom Center and undo through «Сохранить расположение Figma» (Keep Figma layout) remain available. Requires CLI **0.8.2** (0.8.1 also works); EXUI/5 did not change. [Rules of the automatic mode](NATIVE_TEXT.md#automatic-from-figma-plugin-082).
 
@@ -307,7 +319,7 @@ Button styling and Override use only the current Figma selection: one or more fr
 
 **0.6.7 — line transparency:** Pen/Vector and Line Tool support the opacity of a SOLID Stroke and the layer Opacity; rectangular lines support Fill and Opacity. Lines stay native PBLine. Requires CLI **0.6.4**. [Installation](../../releases/figma-plugin/0.6.7/README.md) (in Russian).
 
-Current kit: **plugin 0.8.4 + CLI 0.8.3**; the only package contract is **EXUI/5**. CLI 0.7.0 writes an empty Text for images, shapes, lines and sliders so that GCP does not leave the page blank, and keeps the export comparison from 0.6.6 ([guide](../../docs/updating-configured-projects.md#english)). Since CLI 0.6.5, inherited popup fills are removed; it accepts EXUI/5 from earlier plugins, transparent popup backgrounds/shape colors, and puts the start page first on conversion. The current CLI refuses old EXUI/1–4 packages: export the source layout again. Saved assignments and IDs in Figma stay in place, keys follow the layer names; archives of earlier releases do not change.
+Current kit: **plugin 0.8.7 + CLI 0.8.5**; the only package contract is **EXUI/5**. CLI 0.7.0 writes an empty Text for images, shapes, lines and sliders so that GCP does not leave the page blank, and keeps the export comparison from 0.6.6 ([guide](../../docs/updating-configured-projects.md#english)). Since CLI 0.6.5, inherited popup fills are removed; it accepts EXUI/5 from earlier plugins, transparent popup backgrounds/shape colors, and puts the start page first on conversion. The current CLI refuses old EXUI/1–4 packages: export the source layout again. Saved assignments and IDs in Figma stay in place, keys follow the layer names; archives of earlier releases do not change.
 
 **0.6.6 — clipping of a raster background:** turn on Clip content on the screen or popup. An `image_Background` Frame that extends beyond its bounds is exported as only the visible part of the PNG at the original scale. Clipping on `image_Background` itself crops its inner picture; for the Frame itself to extend beyond the screen, clipping must be on the screen. The source sizes and coordinates do not change. [Installation](../../releases/figma-plugin/0.6.6/README.md) (in Russian).
 

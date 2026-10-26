@@ -12,11 +12,14 @@ export function packageExui(bundle:Bundle):Uint8Array {
   const declared=new Set(bundle.screen.assets.map(a=>a.file));
   if(declared.size!==resources.length||resources.some(r=>!declared.has(r.path))) fail('package','Ресурсы не совпадают с assets.');
   const files:Zippable={};
-  const manifest={schema:'exui/5',profile:bundle.profile,screen:'screen.json',resources:resources.map(r=>({path:r.path,sha256:bytesToHex(sha256(r.bytes)).toUpperCase()}))};
+  const originBytes=bundle.origin?strToU8(JSON.stringify(bundle.origin)+'\n'):undefined;
+  if(originBytes&&originBytes.length>128*1024)fail('package-size','Карта исходных слоёв больше 128 КиБ.');
+  const manifest={schema:'exui/5',profile:bundle.profile,screen:'screen.json',resources:resources.map(r=>({path:r.path,sha256:bytesToHex(sha256(r.bytes)).toUpperCase()})),...(originBytes?{figma:{path:'figma.json',sha256:bytesToHex(sha256(originBytes)).toUpperCase()}}:{})};
   const manifestBytes=strToU8(JSON.stringify(manifest,null,2)+'\n'), screenBytes=strToU8(JSON.stringify(bundle.screen,null,2)+'\n');
   if(manifestBytes.length>64*1024||screenBytes.length>256*1024) fail('package-size','Превышен размер JSON.');
   files['manifest.json']=manifestBytes;files['screen.json']=screenBytes;
-  let total=manifestBytes.length+screenBytes.length;
+  if(originBytes)files['figma.json']=originBytes;
+  let total=manifestBytes.length+screenBytes.length+(originBytes?.length??0);
   for(const resource of resources) {
     if(!/^assets\/[a-z0-9][a-z0-9-]{0,63}\.png$/.test(resource.path)||/[\r\n]/.test(resource.path)) fail('package','Недопустимый PNG путь.');
     const bytes=new Uint8Array(resource.bytes);

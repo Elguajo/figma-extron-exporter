@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "pageId",
+    "pageToken",
+    "projectName",
+    "nodes"
+  ],
+  "properties": {
+    "schema": {
+      "const": "exui-figma-origin/1"
+    },
+    "pageId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "pageToken": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]{16,160}(?![\\s\\S])"
+    },
+    "projectName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "nodeId",
+          "key",
+          "controlId",
+          "name"
+        ],
+        "properties": {
+          "nodeId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "controlId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      }
+    }
+  }
+}

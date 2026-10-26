@@ -15,6 +15,9 @@ $version = $pluginPackage.version
 $cliProject = [xml](Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $repo 'src/cli/Extron.Cli.csproj'))
 $cliVersion = [string]($cliProject.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1)
 if (!$cliVersion) { throw 'CLI project must declare its release version' }
+$updaterProject = [xml](Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $repo 'src/updater/Extron.LayoutUpdater.csproj'))
+$updaterVersion = [string]($updaterProject.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1)
+if ($updaterVersion -ne $cliVersion) { throw 'Updater and CLI versions must match' }
 if ($pluginPackage.compatibleCliVersion -and [version]$cliVersion -lt [version]$pluginPackage.compatibleCliVersion) { throw 'CLI version is older than the plugin requires' }
 $sourceCommit = (& git -C $repo rev-parse HEAD)
 $sourceDirty = @(& git -C $repo status --porcelain).Count -gt 0
@@ -36,10 +39,14 @@ if ($LASTEXITCODE -ne 0) { throw 'Plugin build failed' }
 if ($LASTEXITCODE -ne 0) { throw 'Plugin packaging failed' }
 & $DotnetExe publish (Join-Path $repo 'src/cli/Extron.Cli.csproj') --no-restore --configuration Release --self-contained false -p:UseAppHost=false "-p:Version=$cliVersion" --output (Join-Path $stage 'cli')
 if ($LASTEXITCODE -ne 0) { throw 'CLI publish failed' }
+& $DotnetExe publish (Join-Path $repo 'src/updater/Extron.LayoutUpdater.csproj') --no-restore --configuration Release --self-contained false "-p:Version=$updaterVersion" --output (Join-Path $stage 'updater')
+if ($LASTEXITCODE -ne 0) { throw 'Updater publish failed' }
+if (!(Test-Path -LiteralPath (Join-Path $stage 'updater/Extron.LayoutUpdater.exe'))) { throw 'Published updater executable is missing' }
 if (!(Test-Path -LiteralPath (Join-Path $stage 'cli/host/ExtronAdapterHost.ps1'))) { throw 'Published adapter host is missing' }
 if (!(Test-Path -LiteralPath (Join-Path $stage 'cli/compatibility/extron.json'))) { throw 'Published compatibility profiles are missing' }
 $compatibility = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $stage 'cli/compatibility/extron.json') | ConvertFrom-Json
 Get-ChildItem -LiteralPath (Join-Path $stage 'cli') -Filter '*.pdb' | Remove-Item
+Get-ChildItem -LiteralPath (Join-Path $stage 'updater') -Filter '*.pdb' | Remove-Item
 foreach ($dir in @('samples/donors', 'samples/original', 'examples/home-1025m', 'docs', 'licenses')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $stage $dir) | Out-Null
 }
@@ -55,7 +62,7 @@ foreach ($file in @('donors.json', 'manifest.json')) {
 }
 Copy-Item -LiteralPath (Join-Path $repo 'docs/verification/results/2026-10-21-home-layout-1025m/actual-home-layout.exui') -Destination (Join-Path $stage 'examples/home-1025m/home.exui')
 Copy-Item -LiteralPath (Join-Path $repo 'docs/verification/results/2026-10-21-home-layout-1025m/id-map.md') -Destination (Join-Path $stage 'examples/home-1025m/id-map.md')
-foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md', 'updating-configured-projects.md', 'extron-compatibility.md')) {
+foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md', 'updating-configured-projects.md', 'extron-compatibility.md', 'figma-id-roundtrip.md')) {
     Copy-Item -LiteralPath (Join-Path $repo "docs/$file") -Destination (Join-Path $stage 'docs')
 }
 Copy-Item -LiteralPath (Join-Path $plugin 'NATIVE_TEXT.md') -Destination (Join-Path $stage 'docs/native-text.md')
@@ -76,7 +83,7 @@ function Assert-ZipEntryNames([string] $Path) {
     $zip = [IO.Compression.ZipFile]::OpenRead($Path)
     try { $bad = @($zip.Entries | Where-Object { $_.FullName.Contains('\') }); if ($bad.Count) { throw "$Path has '\' in entry name $($bad[0].FullName)" } } finally { $zip.Dispose() }
 }
-@{ version = $cliVersion; compatiblePluginVersion = $version; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersions = @($compatibility.profiles.guiDesignerVersion); compatibilityFile = 'cli/compatibility/extron.json'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $false } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
+@{ version = $cliVersion; compatiblePluginVersion = $version; updaterVersion = $updaterVersion; updaterPath = 'updater/Extron.LayoutUpdater.exe'; runtime = 'Microsoft.NETCore.App 10.0 (x64); updater: Microsoft.WindowsDesktop.App 10.0 (x64)'; guiDesignerVersions = @($compatibility.profiles.guiDesignerVersion); compatibilityFile = 'cli/compatibility/extron.json'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $false } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
 [IO.Compression.ZipFile]::CreateFromDirectory($stage, $cliZip)
 Assert-ZipEntryNames $pluginZip
 Assert-ZipEntryNames $cliZip
@@ -94,7 +101,7 @@ if ($IncludeLocalSamples) {
     New-Item -ItemType Directory -Path (Join-Path $stage 'figma-plugin') | Out-Null
     [IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, (Join-Path $stage 'figma-plugin'))
     Copy-Item -LiteralPath (Join-Path $repo 'samples/fixtures/home-layout-gui.gdl') -Destination (Join-Path $stage 'examples/home-1025m/home-gui-built.gdl')
-    @{ version = $version; cliVersion = $cliVersion; runtime = 'Microsoft.NETCore.App 10.0 (x64)'; guiDesignerVersions = @($compatibility.profiles.guiDesignerVersion); compatibilityFile = 'cli/compatibility/extron.json'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $true } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
+    @{ version = $version; cliVersion = $cliVersion; updaterVersion = $updaterVersion; updaterPath = 'updater/Extron.LayoutUpdater.exe'; runtime = 'Microsoft.NETCore.App 10.0 (x64); updater: Microsoft.WindowsDesktop.App 10.0 (x64)'; guiDesignerVersions = @($compatibility.profiles.guiDesignerVersion); compatibilityFile = 'cli/compatibility/extron.json'; sourceCommit = $sourceCommit; sourceDirty = $sourceDirty; includesLocalSamples = $true } | ConvertTo-Json | Write-Utf8NoBom (Join-Path $stage 'version.json')
     [IO.Compression.ZipFile]::CreateFromDirectory($stage, $localZip)
     Assert-ZipEntryNames $localZip
 }
