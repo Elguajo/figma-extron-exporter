@@ -69,9 +69,9 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
   const reservedKeys=new Set([...repaired.values()].map(m=>m.key).filter((k):k is string=>!!k));
   const read=(node:SceneNode|PageNode)=>proposed.get(node.id)??existingFor(node);
   const newPopupRefs:SceneNode[]=[];
-  function assign(node:SceneNode|PageNode,value:MetadataInput):Metadata {
+  function assign(node:SceneNode|PageNode,value:MetadataInput,stateRepair?:{role:Role;stateId:number;stateName:string}):Metadata {
     const original=saved.get(node.id),prior=existingFor(node),edit=edits.get(node.id);
-    let metadata=edit?{...edit,schema:metadataSchema(edit),ownerNodeId:node.id}:node===root&&root.type==='PAGE'&&prior?.kind==='project'?{...prior,profile,projectName:options.projectName??prior.projectName}:prior??{...value,schema:metadataSchema(value),ownerNodeId:node.id};
+    let metadata=edit?{...edit,...stateRepair,schema:metadataSchema(edit),ownerNodeId:node.id}:node===root&&root.type==='PAGE'&&prior?.kind==='project'?{...prior,profile,projectName:options.projectName??prior.projectName}:prior?{...prior,...stateRepair}: {...value,schema:metadataSchema(value),ownerNodeId:node.id};
     // Copies get their own display name. Names previously derived from the
     // frame keep following renames; explicitly customized project names stay.
     if(!edit&&original&&['page','popup'].includes(metadata.kind)&&(original.ownerNodeId!==node.id||original.projectName&&original.key?.replace(/^(page|popup)\./,'')===containerSuffix(original.projectName)))
@@ -89,11 +89,13 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
       const artwork=control.kind==='button'&&usesButtonArtwork(state);
       if(artwork)validateArtwork(state,button);
       else if(state.children.length<1||state.children.length>2||state.children.filter(n=>n.type==='TEXT').length!==1)fail('states',`${state.name}: нужен один Text и не более одной Frame-иконки.`);
-      const sm=existingFor(state);let role=sm?.role??namedRole(state.name);
+      const sm=existingFor(state),named=namedRole(state.name);let role=control.buttonMode?(named??sm?.role):(sm?.role??named);
       if(!role){if(!/^(st|state)_[A-Za-z][A-Za-z0-9-]*$/i.test(state.name))fail('states',`${state.name}: используйте Normal, On, Pressed или state_Ready.`);role='feedback';}
       let stateId=sm?.stateId??ROLE_ID[role];if(custom&&!sm){stateId=role==='normal'?0:1;while(used.has(stateId))stateId++;used.add(stateId);}
       const stateName=control.buttonMode?state.name.replace(/^(st|state)_/i,''):state.name;
-      assign(state,{kind:'state',role,stateId,stateName});
+      const stateRepair=control.buttonMode&&named?{role,stateId:ROLE_ID[role],stateName}:undefined;
+      if(stateRepair)stateId=stateRepair.stateId;
+      assign(state,{kind:'state',role,stateId,stateName},stateRepair);
       if(artwork)continue;
       for(const icon of state.children.filter(n=>n.type!=='TEXT')){problemNode=icon;const im=existingFor(icon),kitArtwork=isKitNode(icon)&&icon.name==='Artwork / '+state.name;if(!im&&!kitArtwork&&!/^(Icon|(ico|icon)_[A-Za-z][A-Za-z0-9-]*)$/i.test(icon.name))fail('name',`${icon.name}: нужен Icon, ico_Music или icon_Music.`);requireNodeForKind(icon,'image');const file=`control-${control.objectId}-${stateId}.png`;assign(icon,{kind:'image',key:key(`icon.${control.key}.state${stateId}`,'Ключ иконки'),file:'assets/'+file,resourceName:'exui-'+file});}
     }

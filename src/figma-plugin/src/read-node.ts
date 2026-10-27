@@ -83,7 +83,7 @@ export function sweepExportLeftovers(page:PageNode):number {
   for(const node of [...page.children])if(node.getPluginData(EXPORT_TEMP_KEY)==='1'){node.remove();removed++;}
   return removed;
 }
-export async function exportPng(node: SceneNode, artwork?:{omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}): Promise<Uint8Array> {
+export async function exportPng(node: SceneNode, artwork?:{omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}, placementX?:number): Promise<Uint8Array> {
   let temporary:SceneNode|undefined,cloned:SceneNode|undefined;
   try {
     // Export independently of hidden/clipping State ancestors. The original
@@ -104,8 +104,8 @@ export async function exportPng(node: SceneNode, artwork?:{omitTextId?:string;wi
       omit(node,cloned);
     }
     temporary.setPluginData(EXPORT_TEMP_KEY,'1');
-    const right=Math.max(0,...figma.currentPage.children.filter(n=>n!==temporary).map(n=>n.x+n.width));
-    temporary.x=Math.ceil(right)+128;temporary.y=0;
+    if(placementX===undefined){const right=figma.currentPage.children.reduce((edge,n)=>n===temporary?edge:Math.max(edge,n.x+n.width),0);placementX=Math.ceil(right)+128;}
+    temporary.x=placementX;temporary.y=0;
     return await temporary.exportAsync({ format:'PNG', constraint:{ type:'SCALE', value:1 }, useAbsoluteBounds:true, contentsOnly:true });
   } catch (e) { return fail('image-export', `${node.name}: PNG не экспортирован: ${String(e)}`); }
   finally {if(temporary&&!temporary.removed)temporary.remove();if(cloned&&!cloned.removed)cloned.remove();}

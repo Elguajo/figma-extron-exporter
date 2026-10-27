@@ -51,7 +51,9 @@ if(m.type==='prepare'){window.lastPreparation=m;profile=m.profile;window.selectN
 if(m.type==='check'&&!window.failRecognition)send({type:'success',message:'Экран проверен: 4 элемента, 2 PNG.'});
 if(m.type==='apply'){window.lastMapping=m.data;send({type:'success',message:'Назначение сохранено в Figma-узле.'});}
 if(m.type==='save-ids'){window.lastIds=m;window.selectNode({...window.currentSelection,metadata:{...window.currentSelection.metadata,objectId:Number(m.data.objectId),controlId:Number(m.data.controlId)}});send({type:'success',operation:m.type,message:'ID сохранены: объект '+m.data.objectId+', управление Extron '+m.data.controlId+'.'});}
-if(['reference-target','selection-group','start-page','show-linked'].includes(m.type)){window.lastLinksCommand=m;send({type:'success',message:m.type==='show-linked'?'Элемент показан на холсте.':'Связь сохранена в файле Figma.'});}
+if(m.type==='project-settings'){window.lastSettingsCommand=m;window.selectNode({id:null,name:'Нет выделения',projectSettings:window.settingsViews[m.projectId]});}
+if(m.type==='start-page'){window.lastLinksCommand=m;window.selectNode({...window.currentSelection,projectSettings:{...window.currentSelection.projectSettings,startId:m.targetId}});send({type:'success',message:'Стартовая страница сохранена в проекте.'});}
+if(['reference-target','selection-group','show-linked'].includes(m.type)){window.lastLinksCommand=m;send({type:'success',message:m.type==='show-linked'?'Элемент показан на холсте.':'Связь сохранена в файле Figma.'});}
 if(m.type==='bind-popups'){window.lastPopupBinding=m;window.selectNode({id:m.referenceId,name:'popupref_AudioControls',nodeType:'FRAME',metadata:{kind:'popup-ref',key:'audio.controls',objectId:7,group:'group.audiocontrols',controlId:null},scope:{id:'project',name:'AV panels',kind:'project',profile}});send({type:'success',message:'Popup связаны с выбранным местом.'});}
 if(m.type==='preview'){window.lastPreview=m;send({type:'success',message:'Состояние показано.'});}
 if(m.type==='select-issue'){window.lastIssueNode=m.nodeId;const issue=issueReport.issues.find(i=>i.nodeId===m.nodeId);window.selectNode({id:issue.nodeId,name:issue.nodeName,nodeType:issue.nodeType,keepRecognition:true,scope:{id:'custom',name:'screen_MainDashboard',kind:'page',profile}});}
@@ -488,7 +490,33 @@ try{
  await frame.getByRole('button',{name:'Показать popup_TerraceSources',exact:true}).click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.targetId==='terrace');
  for(const width of [420,320]){await page.setViewportSize({width,height:720});assert.equal(await frame.locator('main').evaluate(el=>el.scrollWidth<=el.clientWidth),true);await frame.locator('#referenceLinks').screenshot({path:path.join(out,`named-popup-links-${width}.png`)});}
  await page.evaluate(links=>(window as any).selectNode({id:'project',name:'project_Trilliant',nodeType:'FRAME',metadata:{kind:'project',key:'project.trilliant'},links:{...links,reference:undefined}}),links);
- await frame.locator('#startPage').selectOption('audio');await frame.getByRole('button',{name:'Сохранить стартовую страницу',exact:true}).click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.type==='start-page');assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand.targetId),'audio');
+ assert.equal(await frame.locator('#projectStart').isVisible(),false);
+ // Project operations live in the no-selection state, independently of element links.
+ const settings={projects:[{id:'project',name:'Trilliant'}],projectId:'project',pages:links.pages,startId:'main'};
+ await page.evaluate(projectSettings=>(window as any).selectNode({id:null,name:'Нет выделения',projectSettings}),settings);
+ await frame.locator('#projectStart').waitFor();
+ assert.equal(await frame.locator('#startPage').inputValue(),'main');
+ assert.equal(await frame.locator('#saveStartPage').isVisible(),false);assert.equal(await frame.locator('#startPageSaved').isVisible(),true);
+ await page.evaluate(()=>(window as any).lastLinksCommand=null);
+ await frame.locator('#startPage').selectOption('audio');assert.equal(await frame.locator('#saveStartPage').isEnabled(),true);
+ assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand),null,'choosing an option does not save');
+ await frame.locator('#startPage').selectOption('main');assert.equal(await frame.locator('#saveStartPage').isVisible(),false);
+ for(const width of [420,320]){await page.setViewportSize({width,height:720});assert.equal(await frame.locator('main').evaluate(el=>el.scrollWidth<=el.clientWidth),true);await frame.locator('#projectStart').screenshot({path:path.join(out,`project-settings-${width}.png`)});}
+ await frame.locator('#startPage').selectOption('audio');await frame.locator('#startPage').focus();await page.keyboard.press('Tab');
+ assert.equal(await frame.locator('#saveStartPage').evaluate(el=>el===document.activeElement),true);await page.keyboard.press('Enter');
+ await page.waitForFunction(()=>(window as any).lastLinksCommand?.type==='start-page');
+ assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand.projectId),'project');assert.equal(await page.evaluate(()=>(window as any).lastLinksCommand.targetId),'audio');
+ await frame.locator('#saveStartPage').waitFor({state:'hidden'});assert.equal(await frame.locator('#startPageSaved').isVisible(),true);
+ const multiple={projects:[{id:'project',name:'Trilliant'},{id:'other',name:'Other project'}],pages:[]};
+ await page.evaluate(multiple=>{(window as any).settingsViews={other:{...multiple,projectId:'other',pages:[{id:'other-page',name:'screen_Other'}],startId:'other-page'}};(window as any).selectNode({id:null,name:'Нет выделения',projectSettings:multiple});},multiple);
+ await frame.getByLabel('Проект',{exact:true}).selectOption('other');
+ await frame.locator('#startPage').waitFor();assert.equal(await frame.locator('#startPage').inputValue(),'other-page');
+ assert.equal(await frame.locator('#startPage option').count(),2);assert.equal(await page.evaluate(()=>(window as any).lastSettingsCommand.projectId),'other');
+ await frame.locator('#projectStart').screenshot({path:path.join(out,'project-settings-multiple-320.png')});
+ await page.evaluate(()=>(window as any).selectNode({id:null,name:'Нет выделения',projectSettings:{projects:[],pages:[]}}));
+ await frame.getByText('На странице нет проектов с экранами выбранного профиля.',{exact:true}).waitFor();assert.equal(await frame.locator('#startPage').isVisible(),false);
+ await page.evaluate(projectSettings=>(window as any).selectNode({id:null,name:'Выбрано фреймов: 2',projectSettings:undefined,links:{pages:projectSettings.pages,groups:[],startId:'main'}}),settings);
+ assert.equal(await frame.locator('#projectStart').isVisible(),false);
  await page.evaluate(links=>(window as any).selectNode({id:null,name:'Выбрано кнопок: 8',links:{...links,reference:undefined,buttons:{ids:['b1','b2'],names:['button_Broadcast1','button_Broadcast2'],mixed:false}}}),links);
  await frame.locator('#selectionGroups').waitFor();assert.equal(await frame.locator('#referenceLinks').isVisible(),false);await frame.locator('#choiceGroup').selectOption('__create__');
  await frame.locator('#choiceGroup').focus();await page.keyboard.press('Tab');assert.equal(await frame.locator('#saveChoiceGroup').evaluate(el=>el===document.activeElement),true);await page.keyboard.press('Enter');

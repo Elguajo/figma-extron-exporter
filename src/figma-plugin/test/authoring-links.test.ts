@@ -92,6 +92,48 @@ test('Built commands reject delayed saves and foreign target IDs',async()=>{
   await send({type:'start-page',nodeId:f.b.id,targetId:f.b.id});assert.equal(readMetadata(f.a),null);
   await send({type:'reference-target',nodeId:f.a.id,targetId:f.group.id});assert.equal(readMetadata(f.a),null);assert.equal(f.messages.filter(m=>m.type==='error').length,2);
 });
+
+for(const profile of Object.keys(PROFILES) as Profile[])for(const subset of ['other-screen','reference-screen','group'] as const)test(`${profile}/${subset}: popup reference links remain editable outside the saved export subset`,async()=>{
+  const f=fixture(profile,true),includeScreen=subset==='reference-screen';
+  // Saving an empty place intentionally disables name inference. The authoring
+  // selector must still find targets outside the remembered export subset.
+  setReferenceTarget(f.ctx,f.ref.id,'');
+  f.page.selection=(includeScreen?[f.a,f.b]:subset==='group'?[f.group]:[f.a]) as never;
+  const scope=new ExportScope();scope.mode='selected-frames';scope.profile=profile;scope.refreshSelection();scope.persist();
+  f.page.selection=[f.ref] as never;
+  const before=designSignature(f.root);
+  vm.runInNewContext(source,{figma:f.api,Uint8Array,console});
+  const send=f.api.ui.onmessage as (m:unknown)=>Promise<void>;
+  await send({type:'ready'});
+  const message=f.messages.filter(m=>m.type==='selection').at(-1) as any;
+  assert.ok(message.links?.reference,'reference selector must remain visible');
+  assert.ok(message.links.reference.targets.some((t:any)=>t.id===f.group.id),'sibling group must be selectable');
+  assert.equal(designSignature(f.root),before,'selection must not write assignments');
+  await send({type:'reference-target',nodeId:f.ref.id,targetId:f.group.id});
+  assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);
+  assert.equal(readMetadata(f.ref)!.group,readMetadata(f.group)!.key);
+  vm.runInNewContext(source,{figma:f.api,Uint8Array,console});
+  await (f.api.ui.onmessage as (m:unknown)=>Promise<void>)({type:'ready'});
+  const restored=f.messages.filter(m=>m.type==='selection').at(-1) as any;
+  assert.equal(restored.links.reference.targetId,f.group.id);
+  const exported=new ExportScope().resolve();
+  assert.equal(exported.options.members!.some(n=>n.id===f.b.id),includeScreen,'editing preserves the selected export screens');
+});
+
+test('Reference editing outside the export subset still rejects a foreign project target',async()=>{
+  const f=fixture('tlp-pro-1025m',true),foreign=frame(null,'project_Foreign',4000,0,2000,1000,'');
+  const popup=frame(foreign,'popup_Foreign',0,0,120,100);label(popup,'text_Title','Foreign',5,5,100,30);
+  setReferenceTarget(f.ctx,f.ref.id,'');
+  f.page.selection=[f.a] as never;const scope=new ExportScope();scope.mode='selected-frames';scope.refreshSelection();scope.persist();
+  f.page.selection=[f.ref] as never;vm.runInNewContext(source,{figma:f.api,Uint8Array,console});
+  const send=f.api.ui.onmessage as (m:unknown)=>Promise<void>;await send({type:'ready'});
+  const message=f.messages.filter(m=>m.type==='selection').at(-1) as any;
+  assert.ok(!message.links.reference.targets.some((t:any)=>t.id===popup.id));
+  const before=designSignature(f.root);
+  await send({type:'reference-target',nodeId:f.ref.id,targetId:popup.id});
+  assert.equal(f.messages.filter(m=>m.type==='error').length,1);
+  assert.equal(designSignature(f.root),before);
+});
 test('Saved selections survive recognition and export with references, single popup and exactly one start',()=>{
   const f=fixture(),ref=frame(f.b,'popupref_Single',150,100,120,100,'');
   setReferenceTarget(f.ctx,f.ref.id,f.group.id);setReferenceTarget(f.ctx,ref.id,f.single.id);setStartPage(f.ctx,f.b.id);

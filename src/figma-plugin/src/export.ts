@@ -314,9 +314,16 @@ export async function exportCaptured(root:SceneNode|PageNode,captured:Capture,pr
   };
   unchanged();
   const byPath=new Map<string,Uint8Array>();let imageBytes=0;
+  // Reuse one off-canvas position: renders are sequential and each temporary
+  // clone is removed before the next. Native-only exports need no page scan.
+  let placementX:number|undefined;
+  if(captured.images.length){
+    const right=figma.currentPage.children.reduce((edge,node)=>Math.max(edge,node.x+node.width),0);
+    placementX=Math.ceil(right)+128;
+  }
   for(const {asset,node,artwork} of captured.images) {
     progress('PNG: '+asset.key);
-    const bytes=await exportPng(node,artwork);
+    const bytes=await exportPng(node,artwork,placementX);
     if(bytes.length>4*1024*1024) fail('image-size',`${asset.key}: PNG больше 4 MiB.`);
     if(bytes.length<33) fail('image-size',`${asset.key}: PNG повреждён.`);
     const size=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);

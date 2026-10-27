@@ -1,7 +1,7 @@
 import { packageExui } from './package.ts';
 import { elementCount, type Bundle, type Metadata, type RecognitionIssue, type ButtonPreparationSummary, type PresetPreview } from './model.ts';
 import { DATETIME_FORMATS, formatDateTime, patternProblem } from './datetime-format.ts';
-import type { AuthoringLinks } from './model.ts';
+import type { AuthoringLinks, ProjectSettings } from './model.ts';
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const input=(id:string)=>$<HTMLInputElement>(id);
 let packing=false,operationBusy=false,selectedId:string|null=null,downloadUrl:string|undefined;
@@ -12,6 +12,7 @@ let designPattern:{pattern?:string;preview?:string;source?:string;error?:string}
 let canRecognize=false,canPrepare=false,hasScope=false;
 let bindingPopupIds:string[]=[],canBindPopups=false;
 let links:AuthoringLinks|undefined,navigationTargets:{id:string;key:string;outsideScope?:boolean}[]=[];
+let projectSettings:ProjectSettings|undefined;
 const NEW_GROUP='__create__';
 let buttonCanApply=false,buttonResultReady=false;
 let buttonSummary:ButtonPreparationSummary|undefined,buttonStylesReady=false,buttonScopeReady=false,buttonScopeKey='';
@@ -48,10 +49,13 @@ function setBusy(busy:boolean) {
   document.querySelectorAll<HTMLInputElement>('#buttonExistingChoice input,#buttonPairChoice input').forEach(e=>e.disabled=busy);
   $<HTMLButtonElement>('bindPopups').disabled=busy||!canBindPopups;
   $<HTMLSelectElement>('popupPlace').disabled=busy||!canBindPopups;
-  for(const id of ['referenceTarget','choiceGroup','startPage'])input(id).disabled=busy;
+  for(const id of ['referenceTarget','choiceGroup'])input(id).disabled=busy;
   $<HTMLButtonElement>('saveReference').disabled=busy||!links?.reference;
   $<HTMLButtonElement>('saveChoiceGroup').disabled=busy||!links?.buttons?.ids.length||input('choiceGroup').value==='__mixed__';
-  $<HTMLButtonElement>('saveStartPage').disabled=busy||!input('startPage').value;
+  input('settingsProject').disabled=busy;
+  input('startPage').disabled=busy||!projectSettings?.pages.length||!!projectSettings.error;
+  $<HTMLButtonElement>('saveStartPage').disabled=busy||!projectSettings?.projectId||!input('startPage').value||input('startPage').value===projectSettings.startId;
+  $('projectStart').setAttribute('aria-busy',String(busy));
   $<HTMLButtonElement>('showNavigation').disabled=busy||!navigationTargets.some(t=>t.key===input('navigate').value&&t.id);
   document.querySelectorAll<HTMLButtonElement>('[data-linked-node]').forEach(b=>b.disabled=busy);
   $('buttonStates').setAttribute('aria-busy',String(busy));
@@ -157,20 +161,22 @@ function clearRecognition(){recognitionToken=undefined;$('recognitionReport').hi
 $('recognize').onclick=()=>{clearRecognition();send('recognize',{profile:input('profile').value});};
 $('retryRecognition').onclick=()=>send('recognize',{fromReport:true});
 $('applyRecognition').onclick=()=>{const token=recognitionToken;clearRecognition();revokeDownload();send('apply-recognition',{token,profile:input('profile').value});};
-$('profile').addEventListener('change',()=>{clearRecognition();revokeDownload();clearButtonResult();if(input('scopeMode').value!=='selection')send('context');else setBusy(operationBusy||packing);});
+$('profile').addEventListener('change',()=>{clearRecognition();revokeDownload();clearButtonResult();if(input('scopeMode').value!=='selection'||projectSettings)send('context');else setBusy(operationBusy||packing);});
 $('scopeMode').addEventListener('change',()=>{revokeDownload();send('context');});
 $('check').onclick=()=>send('check');$('export').onclick=()=>{revokeDownload();send('export');};
 $('preview').onclick=()=>{const value=input('previewRole').value;send('preview',value.startsWith('id:')?{stateId:Number(value.slice(3))}:{role:value});};
 $('bindPopups').onclick=()=>send('bind-popups',{referenceId:input('popupPlace').value,popupIds:bindingPopupIds});
 $('saveReference').onclick=()=>send('reference-target',{nodeId:selectedId,targetId:input('referenceTarget').value});
-$('saveStartPage').onclick=()=>send('start-page',{nodeId:selectedId,targetId:input('startPage').value});
+$('settingsProject').onchange=()=>send('project-settings',{projectId:input('settingsProject').value});
+$('saveStartPage').onclick=()=>send('start-page',{projectId:projectSettings?.projectId,targetId:input('startPage').value});
 $('saveChoiceGroup').onclick=()=>send('selection-group',{buttonIds:links?.buttons?.ids,group:input('choiceGroup').value===NEW_GROUP?'':input('choiceGroup').value,create:input('choiceGroup').value===NEW_GROUP});
-$('choiceGroup').onchange=$('startPage').onchange=$('navigate').onchange=()=>setBusy(operationBusy||packing);
+$('choiceGroup').onchange=$('navigate').onchange=()=>setBusy(operationBusy||packing);
+$('startPage').onchange=()=>{startPageState();setBusy(operationBusy||packing);};
 $('showNavigation').onclick=()=>send('show-linked',{nodeId:selectedId,targetId:navigationTargets.find(t=>t.key===input('navigate').value)?.id});
 function fillOptions(id:string,options:{value:string;name:string}[],value:string){const select=$<HTMLSelectElement>(id);select.replaceChildren();for(const item of options){const option=document.createElement('option');option.value=item.value;option.textContent=item.name;select.appendChild(option);}select.value=value;}
 function renderLinks(value:AuthoringLinks|undefined){
   links=value;const ref=value?.reference,buttons=value?.buttons;
-  $('referenceLinks').hidden=!ref;$('selectionGroups').hidden=!buttons;$('projectStart').hidden=!value?.pages.length||!!ref||!!buttons;
+  $('referenceLinks').hidden=!ref;$('selectionGroups').hidden=!buttons;
   fillOptions('referenceTarget',[{value:'',name:'Без связи'},...(ref?.targets??[]).map(t=>({value:t.id,name:t.name})),...(ref?.targetId&&!ref.targets.some(t=>t.id===ref.targetId)?[{value:ref.targetId,name:'Сохранённая цель недоступна — выберите другую'}]:[])],ref?.targetId??'');
   $('referenceHelp').textContent=ref?.missing?'Сохранённая цель не найдена. Выберите другую или «Без связи» и сохраните.':'Выберите содержимое по имени и сохраните связь. В списке — цели этого проекта с подходящими размерами. «Без связи» снимает связь, сохраняя popup на холсте; до нового связывания проверка экспорта может сообщить об ошибках.';
   $('referenceSaved').textContent=ref?.targetId?`${ref.inferred?'Найдено по имени':'Сохранено'}: ${ref.targets.find(t=>t.id===ref.targetId)?.name??'цель недоступна'}.${ref.inferred?' Связь сохранится при проверке или скачивании.':''} Связанные popup:`:ref?.missing?'Сохранённая связь требует исправления.':'Связь пока не сохранена.';
@@ -178,7 +184,24 @@ function renderLinks(value:AuthoringLinks|undefined){
   for(const member of ref?.members??[]){const li=document.createElement('li');li.className='recognition-item';const button=document.createElement('button');button.type='button';button.className='secondary';button.textContent=`Показать ${member.name}`;button.dataset.linkedNode=member.id;button.onclick=()=>send('show-linked',{nodeId:selectedId,targetId:member.id});li.appendChild(button);members.appendChild(li);}
   $('selectionGroupNames').textContent=buttons?.names.join(', ')??'';
   fillOptions('choiceGroup',[...(buttons?.mixed?[{value:'__mixed__',name:'У выделенных кнопок разные группы'}]:[]),{value:'',name:'Без группы'},...(buttons&&buttons.ids.length>=2?[{value:NEW_GROUP,name:'Создать группу из выделенных кнопок'}]:[]),...(value?.groups??[]).map(g=>({value:g.key,name:g.name}))],buttons?.mixed?'__mixed__':buttons?.group??'');
+}
+function startPageState(){
+  const changed=!!input('startPage').value&&input('startPage').value!==projectSettings?.startId;
+  $('saveStartPage').hidden=!changed;
+  $('startPageSaved').hidden=!projectSettings?.startId||input('startPage').value!==projectSettings.startId;
+}
+function renderProjectSettings(value:ProjectSettings|undefined){
+  projectSettings=value;
+  $('projectStart').hidden=!value;
+  $('settingsProjectField').hidden=!value||value.projects.length<2;
+  fillOptions('settingsProject',[{value:'',name:'Выберите проект'},...(value?.projects??[]).map(p=>({value:p.id,name:p.name}))],value?.projectId??'');
+  $<HTMLSelectElement>('settingsProject').options[0].disabled=true;
+  $('settingsProjectName').textContent=value?.projects.find(p=>p.id===value.projectId)?.name??'';
+  $('settingsProjectName').hidden=!value?.projectId||value.projects.length>1;
+  $('startPageField').hidden=!value?.pages.length;
   fillOptions('startPage',[{value:'',name:'Выберите стартовый экран'},...(value?.pages??[]).map(p=>({value:p.id,name:p.name}))],value?.startId??'');
+  $('projectStartHelp').textContent=value?.error??(!value?.projects.length?'На странице нет проектов с экранами выбранного профиля.':!value.projectId?'Выберите проект, для которого нужно настроить стартовый экран.':!value.pages.length?'В этом проекте нет экранов выбранного профиля.':'После сохранения выбранный экран станет единственной стартовой страницей проекта.');
+  startPageState();
 }
 $('mapping').onsubmit=event=>{
   event.preventDefault();
@@ -230,6 +253,7 @@ window.onmessage=async(event:MessageEvent)=>{
     selectedId=msg.id;$('selection').textContent=msg.name;
     const m=(msg.metadata??{}) as Partial<Metadata>;
     renderLinks(msg.links);
+    renderProjectSettings(msg.projectSettings);
     const binding=msg.popupBinding as {popupIds:string[];names:string[];targets:{id:string;name:string}[];referenceId?:string;error?:string}|undefined;
     $('popupBinding').hidden=!binding;
     bindingPopupIds=binding?.popupIds??[];canBindPopups=!!bindingPopupIds.length&&!!binding?.targets.length&&!binding.error;

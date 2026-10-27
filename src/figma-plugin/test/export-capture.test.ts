@@ -6,6 +6,9 @@ import { createDemo } from '../src/demo.ts';
 import { recognize, applyRecognition } from '../src/recognize.ts';
 import { capture, exportCaptured, exportFrame } from '../src/export.ts';
 import { packageExui } from '../src/package.ts';
+import { twoScreens } from './page-project-fixture.ts';
+import { frame } from './expanded-fixture.ts';
+import { png } from './kit-fixture.ts';
 
 test('A committed capture exports the same package as a fresh read, including persisted IDs', async () => {
   fakeFigma();
@@ -47,4 +50,20 @@ test('A capture from another root cannot be exported under the selected root', a
   fake.setRenderHook(() => { renders++; });
   await assert.rejects(exportCaptured(other, capture(root)), (e: any) => e.code === 'design-changed');
   assert.equal(renders, 0);
+});
+
+for(const images of [0,3])test(`Export with ${images} PNGs reads unrelated page geometry ${images? 'once':'zero times'}`,async()=>{
+  const fake=fakeFigma(),{main,audio}=twoScreens();
+  for(let i=0;i<images;i++)frame(main,`image_Logo${i}`,200+i*30,20,20,20,'#FFFFFF');
+  const captured=applyRecognition(recognize(figma.currentPage,'tlp-pro-1025m',{members:[main,audio],projectName:'Panels'}));
+  assert.equal(captured.images.length,images);
+  const scratch=fake.api.createRectangle();scratch.name='Unrelated artwork';let geometryReads=0;
+  Object.defineProperty(scratch,'x',{get(){geometryReads++;return 5000;}});
+  const pageIds=fake.page.children.map(node=>node.id),positions:number[]=[];
+  fake.setRenderHook(node=>{positions.push(node.x);return png(node.width,node.height);});
+  const bundle=await exportCaptured(figma.currentPage,captured);
+  assert.equal(bundle.resources.length,images);
+  assert.equal(geometryReads,images?1:0);
+  assert.deepEqual(positions,Array(images).fill(5129));
+  assert.deepEqual(fake.page.children.map(node=>node.id),pageIds,'temporary copies are removed');
 });

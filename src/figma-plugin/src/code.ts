@@ -23,12 +23,20 @@ import { MANUAL_PATTERN,hasManualPattern,patternProblem,resolvePattern } from '.
 import { bindPopups,popupBindingInfo,savePopupPlace,saveContainerSettings,saveDraft,popupContext } from './popup-binding.ts';
 import { authoringLinks,setReferenceTarget,setSelectionGroup,setStartPage,linkedNode,type LinkContext,type AuthoringLinks } from './authoring-links.ts';
 import { createOrigin,planIdMap,applyIdMap,type IdMapPlan } from './id-map.ts';
+import { settingsProjects } from './project-settings.ts';
+import type { ProjectSettings } from './model.ts';
 // The build injects only our two local PNG resources; no remote source or server.
 declare const __ICONS__: Record<string,number[]>;
 declare const __html__:string;
 figma.showUI(__html__,{width:420,height:720,themeColors:true});
 try{sweepExportLeftovers(figma.currentPage);}catch{ /* A leftover copy is harmless; startup must not fail on it. */ }
 const scopeContext = new ExportScope();
+let settingsProjectId:string|undefined;
+function availableSettingsProjects(resolve=()=>scopeContext.resolve()) {
+  let context:LinkContext|undefined;
+  if(scopeContext.mode!=='selection')try{context=resolve();}catch{ /* Discover projects even when the export scope is unavailable. */ }
+  return settingsProjects(scopeContext.profile,context);
+}
 let recognitionMode:ScopeMode='selection';
 let busy=false;
 let idMapPlan:IdMapPlan|undefined,idMapToken=0;
@@ -62,10 +70,14 @@ function navigationContext(targetId:string):{resolved:ReturnType<ExportScope['re
   const members=[...(current.root.type==='PAGE'?current.options.members??[]:[current.root]),target];
   return {target,resolved:{...current,root:figma.currentPage,options:{members,projectName:figma.root.name},scope:{...current.scope,kind:'project'}}};
 }
-function linksContext(resolve:()=>ReturnType<ExportScope['resolve']>=()=>scopeContext.resolve()):LinkContext {
+function linksContext(resolve:()=>ReturnType<ExportScope['resolve']>=()=>scopeContext.resolve(),forReference=false):LinkContext {
+  const selection=figma.currentPage.selection,node=selection[0];
+  // A place is edited in its owning project, even when the remembered export
+  // subset omits its screen or an as-yet unbound sibling popup group.
+  const reference=forReference&&selection.length===1&&selectionKind(node)==='popup-ref';
   let profile=scopeContext.profile;
-  try{const resolved=resolve();profile=resolved.profile;if(resolved.scope.kind==='project')return resolved;}catch{ /* Multi-selection can be authored before choosing an export scope. */ }
-  const node=figma.currentPage.selection[0];if(!node)fail('links','Выберите элемент проекта.');
+  try{const resolved=resolve();profile=resolved.profile;if(resolved.scope.kind==='project'&&!reference)return resolved;}catch{ /* Multi-selection can be authored before choosing an export scope. */ }
+  if(!node)fail('links','Выберите элемент проекта.');
   return {...popupContext(node,profile),profile};
 }
 
@@ -173,10 +185,33 @@ function publish(keepRecognition=false,applied?:{root:ProjectNode;options:Projec
   }catch(e){warning=warning||(e as Error).message;}
   const buttonStylePreviews=presetPreviews();
   const buttonPresets={normal:buttonStylePreviews.normal.name,feedback:buttonStylePreviews.feedback.name};
-  let links:AuthoringLinks|undefined;try{links=preparedLinks?authoringLinks(preparedLinks.context,selection,preparedLinks.plan):authoringLinks(linksContext(resolveScope),selection);}catch{ /* Incomplete layouts retain manual assignment fields. */ }
+  let links:AuthoringLinks|undefined;
+  try{
+    const context=linksContext(resolveScope);
+    const plan=preparedLinks&&preparedLinks.context.root===context.root&&preparedLinks.context.profile===context.profile&&sameMembers(preparedLinks.context.options,context.options)?preparedLinks.plan:undefined;
+    links=authoringLinks(context,selection,plan);
+    if(n&&kind==='popup-ref'){
+      const referenceContext=linksContext(resolveScope,true);
+      if(referenceContext.root!==context.root||referenceContext.profile!==context.profile||!sameMembers(referenceContext.options,context.options))
+        links.reference=authoringLinks(referenceContext,selection).reference;
+    }
+  }catch{ /* Incomplete layouts retain manual assignment fields. */ }
+  let projectSettings:ProjectSettings|undefined;
+  if(!selection.length){
+    const projects=availableSettingsProjects(resolveScope);
+    const project=projects.find(p=>p.id===settingsProjectId)??(projects.length===1?projects[0]:undefined);
+    settingsProjectId=project?.id;
+    projectSettings={projects:projects.map(({id,name})=>({id,name})),projectId:project?.id,pages:[]};
+    if(project)try{
+      const context=project.context;
+      const plan=preparedLinks&&preparedLinks.context.root===context.root&&preparedLinks.context.profile===context.profile&&sameMembers(preparedLinks.context.options,context.options)?preparedLinks.plan:undefined;
+      const value=authoringLinks(context,[],plan);
+      projectSettings.pages=value.pages;projectSettings.startId=value.startId;
+    }catch(e){projectSettings.error=(e as Error).message;}
+  }
   try{scopeContext.persist(scope?.profile??scopeContext.profile);}catch{warning=warning||'Не удалось сохранить настройки текущей страницы. Назначения слоёв остаются в файле Figma.';}
   let popupBinding:ReturnType<typeof popupBindingInfo>;try{popupBinding=popupBindingInfo(scope?.profile??scopeContext.profile);}catch(e){warning=warning||(e as Error).message;}
-  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,links,popupBinding,buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile,numbering:numberingEnabled?numberingView():undefined});
+  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,links,projectSettings,popupBinding,buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile,numbering:numberingEnabled?numberingView():undefined});
 }
 function apply(input:Record<string,unknown>):void {
   const node=selected(),kind=input.kind as Metadata['kind'];
@@ -340,13 +375,13 @@ function safePublish(keepRecognition=false):void {
   try{publish(keepRecognition);}catch(e){figma.ui.postMessage({type:'error',message:e instanceof Error?e.message:String(e),code:(e as {code?:string}).code??'plugin'});}
 }
 function selectionChanged():void {if(diagnosticSelectionId&&figma.currentPage.selection.length===1&&figma.currentPage.selection[0].id===diagnosticSelectionId){safePublish(true);return;}diagnosticSelectionId=undefined;recognition=undefined;safePublish();}
-function pageChanged():void {recognition=undefined;idMapPlan=undefined;figma.ui.postMessage({type:'id-map-clear'});diagnosticSelectionId=undefined;scopeContext.reset();safePublish();}
+function pageChanged():void {recognition=undefined;idMapPlan=undefined;figma.ui.postMessage({type:'id-map-clear'});diagnosticSelectionId=undefined;scopeContext.reset();settingsProjectId=undefined;safePublish();}
 // Figma delivers canvas events while an operation awaits fonts or PNG exports.
 // Handle them once the operation ends rather than on a half-finished document.
 let deferred:'selection'|'page'|undefined;
 figma.on('selectionchange',()=>{if(busy){deferred=deferred??'selection';return;}selectionChanged();});
 figma.on('currentpagechange',()=>{if(busy){deferred='page';return;}pageChanged();});
-figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbering?:NumberingOptions;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;nodeId?:string;fromReport?:boolean;corners?:boolean;contrast?:boolean;statePair?:ButtonStatePair;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean;buttonText?:ButtonTextMode|'design'})=>{
+figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbering?:NumberingOptions;profile?:Profile;role?:Role;stateId?:number;token?:number;scopeMode?:ScopeMode;projectId?:string;nodeId?:string;fromReport?:boolean;corners?:boolean;contrast?:boolean;statePair?:ButtonStatePair;existing?:'skip'|'update';referenceId?:string;popupIds?:string[];targetId?:string;buttonIds?:string[];group?:string;create?:boolean;buttonText?:ButtonTextMode|'design'})=>{
   if(message.type==='ready'){safePublish();return;}
   if(busy){figma.ui.postMessage({type:'error',message:'Дождитесь завершения текущей операции.'});return;}
   busy=true;
@@ -376,9 +411,22 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
     if(message.scopeMode){if(!['selection','selected-frames','page'].includes(message.scopeMode))fail('scope','Выберите область экспорта.');scopeContext.mode=message.scopeMode;}
     if(message.profile&&Object.prototype.hasOwnProperty.call(PROFILES,message.profile))scopeContext.profile=message.profile;
     if(message.type==='context'){recognition=undefined;publish();return;}
-    if(['reference-target','selection-group','start-page','show-linked'].includes(message.type)){
+    if(message.type==='project-settings'||message.type==='start-page'){
+      if(figma.currentPage.selection.length)fail('links','Снимите выделение, чтобы открыть настройки проекта.');
+      const project=availableSettingsProjects().find(p=>p.id===message.projectId);
+      if(!project)fail('links','Проект недоступен. Выберите проект повторно.');
+      settingsProjectId=project.id;
+      if(message.type==='start-page'){
+        if(typeof message.targetId!=='string')fail('links','Выберите стартовую страницу.');
+        setStartPage(project.context,message.targetId);
+      }
+      publish();
+      if(message.type==='start-page')figma.ui.postMessage({type:'success',message:'Стартовая страница сохранена в проекте.'});
+      return;
+    }
+    if(['reference-target','selection-group','show-linked'].includes(message.type)){
       if(message.nodeId&&selected().id!==message.nodeId)fail('links','Выделение изменилось. Повторите действие для выбранного элемента.');
-      let ctx=linksContext();
+      let ctx=linksContext(undefined,message.type==='reference-target'||message.type==='show-linked'&&selectionKind(selected())==='popup-ref');
       if(message.type==='show-linked'&&typeof message.targetId==='string')try{
         if(extraNavigationScreens(scopeContext.resolve()).some(n=>n.id===message.targetId))ctx=navigationContext(message.targetId).resolved;
       }catch{ /* linkedNode below reports stale or unavailable targets. */ }
@@ -388,8 +436,6 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
       }else if(message.type==='reference-target'){
         if(typeof message.targetId!=='string')fail('links','Выберите popup или группу.');
         setReferenceTarget(ctx,selected().id,message.targetId);
-      }else if(message.type==='start-page'){
-        if(typeof message.targetId!=='string')fail('links','Выберите стартовую страницу.');setStartPage(ctx,message.targetId);
       }else {
         if(!Array.isArray(message.buttonIds)||message.buttonIds.some(id=>typeof id!=='string')||typeof message.group!=='string')fail('links','Выберите кнопки и группу.');
         setSelectionGroup(ctx,message.buttonIds,message.group,message.create===true);

@@ -17,6 +17,15 @@
 <label class="stack">Что экспортировать<select id="scopeMode"><option value="selection">Выбранный экран или секция</option><option value="selected-frames">Выбранные фреймы — один проект</option><option value="page">Экраны текущей страницы — один проект</option></select></label>
 <label class="stack">Профиль панели<select id="profile"><option value="tlp-pro-1025m">TLP Pro 1025M · 1280×800</option><option value="tlp-pro-300m-portrait">TLP Pro 300M · 320×480</option></select></label>
 </section>
+<section id="projectStart" class="card" aria-labelledby="projectStartTitle" hidden>
+<h2 id="projectStartTitle">Запуск проекта</h2>
+<label id="settingsProjectField" class="stack" hidden><span id="settingsProjectLabel">Проект</span><select id="settingsProject" aria-labelledby="settingsProjectLabel" aria-describedby="projectStartHelp"></select></label>
+<p id="settingsProjectName" class="sub scope" hidden></p>
+<label id="startPageField" class="stack" hidden><span id="startPageLabel">При запуске открыть</span><select id="startPage" aria-labelledby="startPageLabel" aria-describedby="projectStartHelp"></select></label>
+<small id="projectStartHelp">Выберите проект, для которого нужно настроить стартовый экран.</small>
+<small id="startPageSaved" role="status" hidden>Текущий стартовый экран проекта.</small>
+<button id="saveStartPage" class="action" type="button" hidden>Сохранить стартовую страницу</button>
+</section>
 <details id="buttonStates" class="card button-workflow"><summary><span><span class="step" aria-hidden="true">2</span>Оформление кнопок</span></summary><div class="disclosure-body">
 <div class="button-context" role="status" aria-live="polite" aria-atomic="true"><p id="buttonScope" class="selected">Выберите экран или popup с кнопками</p><p id="buttonScopeHint" class="sub">Выделите Frame экрана, popup_ или popupgroup_ на холсте или в списке слоёв Figma.</p></div>
 <div class="button-styles" aria-label="Образцы оформления">
@@ -101,12 +110,6 @@
 <label class="stack">Объединить с группой<select id="choiceGroup" aria-describedby="choiceHelp"></select></label>
 <small id="choiceHelp">Новая группа создаётся из выделенных кнопок. Выбор и обратную связь подключает программа управления Extron.</small>
 <button id="saveChoiceGroup" class="action" type="button">Сохранить группу выбора</button>
-</section>
-<section id="projectStart" class="card" aria-labelledby="projectStartTitle" hidden>
-<h2 id="projectStartTitle">Запуск проекта</h2>
-<label class="stack">При запуске открыть<select id="startPage"></select></label>
-<small>После сохранения выбранный экран станет единственной стартовой страницей проекта.</small>
-<button id="saveStartPage" class="action" type="button">Сохранить стартовую страницу</button>
 </section>
 <details id="editor" class="card"><summary>Назначение выбранного элемента</summary><div class="disclosure-body">
 <p class="sub">Для экспорта заполнять эту форму не нужно. Ключи и свободные ID назначаются автоматически, диапазон по умолчанию — 0–100. Здесь можно задать особые свойства.</p>

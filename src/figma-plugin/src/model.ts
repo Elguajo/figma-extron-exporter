@@ -3,6 +3,9 @@ export interface RecognitionIssue {nodeId:string;nodeName:string;nodeType:string
 export type ButtonMode = 'on-off' | 'feedback';
 export interface PresetPreview { name: string; ready: boolean; hint: string; fill?: string; stroke?: string; radius?: number }
 export interface LinkTarget {id:string;name:string}
+export interface ProjectSettings {
+  projects:LinkTarget[];projectId?:string;pages:LinkTarget[];startId?:string;error?:string;
+}
 export interface AuthoringLinks {
   pages:LinkTarget[];startId?:string;
   reference?:{id:string;targets:LinkTarget[];targetId?:string;members:LinkTarget[];missing:boolean;inferred?:boolean};
