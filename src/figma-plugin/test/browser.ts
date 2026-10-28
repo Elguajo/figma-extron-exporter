@@ -38,7 +38,7 @@ const send=m=>{const target=document.querySelector('iframe').contentWindow;if(ne
 const buttonStylePreviews=${JSON.stringify(buttonPreviews)},buttonMixed=${JSON.stringify(buttonMixed)},buttonReady=${JSON.stringify(buttonReady)};
 window.failButtonApply=false;
 window.selectNode=m=>{const scope=m.scope??(m.metadata||m.nodeType==='SECTION'?{id:m.id,name:m.name,kind:m.metadata?.kind==='project'||m.nodeType==='SECTION'?'project':'page',profile}:undefined);if(m.metadata?.profile)profile=m.metadata.profile;window.currentSelection=m;send({type:'selection',scopeMode:window.scopeMode,buttonStylePreviews,buttonWorkflow:buttonMixed,canPrepare:!!m.id&&m.nodeType==='FRAME'&&!m.metadata?.kind,canRecognize:!!m.id&&['FRAME','SECTION'].includes(m.nodeType)&&(!m.metadata?.kind||['page','project'].includes(m.metadata.kind)),...m,scope,buttonScope:Object.hasOwn(m,'buttonScope')?m.buttonScope:scope});};
-window.sendBatch=()=>window.selectNode({id:null,name:'Выбрано фреймов: 2',scopeMode:window.scopeMode,canRecognize:true,scopeHint:'В проекте: screen_Main, screen_AudioControl',profile,scope:{id:'current-page',name:'Trilliant',kind:'project',profile}});
+window.sendBatch=()=>window.selectNode({id:null,name:'Выбрано фреймов: 2',scopeMode:window.scopeMode,canRecognize:true,scopeHint:'',profile,scope:{id:'current-page',name:'Trilliant',kind:'project',profile}});
 window.onmessage=e=>{if(e.source!==document.querySelector('iframe').contentWindow)return;const m=e.data.pluginMessage;if(!m)return;
 if(m.scopeMode)window.scopeMode=m.scopeMode;
 if(m.type==='context'){profile=m.profile;if(window.scopeMode!=='selection')window.sendBatch();else window.selectNode(window.currentSelection?.id?{...window.currentSelection,scopeMode:window.scopeMode}:{id:null,name:'Выберите экраны на холсте'});}
@@ -524,26 +524,16 @@ try{
  await frame.locator('#choiceGroup').selectOption('hall.choice.1');await frame.locator('#saveChoiceGroup').click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.group==='hall.choice.1');
  await frame.locator('#selectionGroups').screenshot({path:path.join(out,'selection-group-320.png')});
  await page.setViewportSize({width:420,height:720});
- // Navigation shows target names and keeps unknown saved keys until explicitly changed.
- await page.evaluate(()=>(window as any).selectNode({id:'nav',name:'button_AudioControl',nodeType:'FRAME',metadata:{kind:'button',key:'main.audiocontrol',buttonMode:'on-off',objectId:1,controlId:8101,navigate:'page.removed'},scope:{id:'section',name:'Триллиант / AV панели',kind:'project',profile:'tlp-pro-1025m'},targets:[{id:'audio',key:'page.audiocontrol',name:'Audio Control',kind:'page'},{id:'sources',key:'popup.sources',name:'Sources',kind:'popup'}]}));
- const target=frame.getByLabel('Открыть страницу или popup');
- assert.equal(await target.inputValue(),'page.removed');
- assert.equal(await frame.locator('#showNavigation').isDisabled(),true);
- await target.selectOption({label:'Audio Control'});await frame.locator('#showNavigation').click();await page.waitForFunction(()=>(window as any).lastLinksCommand?.type==='show-linked'&&(window as any).lastLinksCommand?.targetId==='audio');
- await target.selectOption({label:'Audio Control'});await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();
- await page.waitForFunction(()=>(window as any).lastMapping.navigate==='page.audiocontrol');
- await page.screenshot({path:path.join(out,'navigation.png')});
- await target.selectOption('');await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();
- assert.equal(await frame.locator('#showNavigation').isDisabled(),true);
- await page.waitForFunction(()=>(window as any).lastMapping.navigate==='');
- // A sibling outside remembered export membership is sent by node ID. Its
- // transient option value must never be persisted as a navigation key.
- await page.evaluate(()=>(window as any).selectNode({id:'nav',name:'button_VideoControl',nodeType:'FRAME',metadata:{kind:'button',key:'main.videocontrol',buttonMode:'on-off',objectId:1,controlId:8101},scope:{id:'page',name:'Project',kind:'project',profile:'tlp-pro-1025m'},targets:[{id:'video',key:'node:video',name:'screen_VideoControl',kind:'page',outsideScope:true}]}));
- await target.selectOption({label:'screen_VideoControl · добавить в проект'});
- assert.equal(await frame.locator('#showNavigation').isEnabled(),true);
+ // Navigation is authored in GCP; legacy metadata must not recreate its fields.
+ await page.evaluate(()=>(window as any).selectNode({id:'nav',name:'button_AudioControl',nodeType:'FRAME',metadata:{kind:'button',key:'main.audiocontrol',buttonMode:'on-off',objectId:1,controlId:8101,navigate:'page.removed'},scope:{id:'section',name:'Project',kind:'project',profile:'tlp-pro-1025m'}}));
+ assert.equal(await frame.locator('#navigate,#showNavigation,#navigationHelp').count(),0);
+ assert.equal(await frame.locator('#shownBy option[value="navigation"]').count(),0);
+ await frame.getByText('Связывать кнопки с экранами в Figma не требуется.',{exact:false}).waitFor();
  await frame.getByRole('button',{name:'Сохранить назначение',exact:true}).click();
- await page.waitForFunction(()=>(window as any).lastMapping.navigationTargetId==='video');
- assert.equal(await page.evaluate(()=>(window as any).lastMapping.navigate),'');
+ await page.waitForFunction(()=>(window as any).lastMapping?.key==='main.audiocontrol');
+ assert.equal(await page.evaluate(()=>Object.hasOwn((window as any).lastMapping,'navigate')),false);
+ assert.equal(await page.evaluate(()=>Object.hasOwn((window as any).lastMapping,'navigationTargetId')),false);
+ await page.screenshot({path:path.join(out,'gcp-navigation.png')});
  await page.evaluate(()=>(window as any).selectNode({id:'section',name:'Триллиант / AV панели',nodeType:'SECTION',metadata:{kind:'project',key:'project.section',projectName:'Триллиант / AV панели',profile:'tlp-pro-1025m'}}));
  await frame.locator('#editor').evaluate((el:HTMLDetailsElement)=>el.open=false);await frame.locator('main').evaluate(el=>el.scrollTop=0);
  // In-flight commands lock the profile as well as actions; a failed check is recoverable.
@@ -579,6 +569,12 @@ try{
  // A selected-frame project works without a Section or a single active node.
  await frame.getByLabel('Что экспортировать').selectOption('selected-frames');
  await frame.getByText('Выбрано фреймов: 2',{exact:true}).waitFor();
+ assert.equal(await frame.locator('#scope').isVisible(),false);
+ await page.evaluate(()=>(window as any).selectNode({id:null,name:'Выберите экраны на холсте',scopeHint:'Выберите сами экраны, без их родительских фреймов.',canRecognize:false}));
+ await frame.getByText('Выберите сами экраны, без их родительских фреймов.',{exact:true}).waitFor();
+ await page.evaluate(()=>(window as any).sendBatch());
+ await frame.getByText('Выбрано фреймов: 2',{exact:true}).waitFor();
+ assert.equal(await frame.locator('#scope').isVisible(),false);
  assert.equal(await frame.getByRole('button',{name:'Распознать по именам',exact:true}).isEnabled(),true);
  assert.equal(await frame.getByRole('button',{name:'Скачать .exui',exact:true}).isEnabled(),true);
  await page.evaluate(()=>{(window as any).useBatch=true;});
@@ -598,12 +594,15 @@ try{
  await frame.getByRole('button',{name:'Распознать по именам',exact:true}).click();
  await frame.getByRole('button',{name:'Сохранить распознанные назначения'}).waitFor();
  await frame.getByLabel('Что экспортировать').selectOption('page');
+ await frame.getByText('Выбрано фреймов: 2',{exact:true}).waitFor();
+ assert.equal(await frame.locator('#scope').isVisible(),false);
  assert.equal(await frame.getByRole('button',{name:'Сохранить распознанные назначения'}).isVisible(),false);
  await frame.getByRole('button',{name:'Проверить макет'}).click();await frame.getByRole('status').filter({hasText:'Экран проверен'}).waitFor();
  await frame.getByLabel('Что экспортировать').selectOption('selection');await page.evaluate(()=>{(window as any).useBatch=false;});
  // Host-provided names are treated as text, never markup.
  await page.evaluate(()=>{const iframe=document.querySelector('iframe')!;(window as any).selectNode({id:'injection',name:'<img src=x onerror=alert(1)>',nodeType:'FRAME'});});
  await frame.getByText('<img src=x onerror=alert(1)>',{exact:true}).waitFor();assert.equal(await frame.locator('img').count(),0);
+ assert.equal(await frame.locator('#scope').isVisible(),true);
  await page.evaluate(()=>(window as any).selectNode({id:'screen',name:'Home',nodeType:'FRAME',metadata:{kind:'page',key:'page.home',objectId:100,projectName:'Home',profile:'tlp-pro-300m-portrait'}}));
  await frame.getByRole('status').filter({hasText:'Можно скачать'}).waitFor();
  await frame.locator('#editor').evaluate((el:HTMLDetailsElement)=>el.open=false);await frame.locator('main').evaluate(el=>el.scrollTop=0);
@@ -622,6 +621,6 @@ try{
  assert.deepEqual(await readFile(path.join(out,'bridge-'+bridgeDownload.suggestedFilename())),await readFile(path.join(out,bridgeDownload.suggestedFilename())));
  await frame.getByRole('status').filter({hasText:'Пакет готов'}).waitFor();
  await page.screenshot({path:path.join(out,'bridge-ui.png'),fullPage:true});assert.deepEqual(failures,[]);
- await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,browser:browser.version(),checks:['empty selection, demo absent, optional library collapsed','button workflow: samples selection guidance, missing/ambiguous sample, actual sample colors and preparation/update counts','combined apply, next-step download, scoped errors, recovery and stale-result clearing','button workflow keyboard, busy locks, 420/320 widths and light/dark tokens','keyboard navigation and expanded prefix table without horizontal overflow','custom Frame preparation command and metadata display','recognition preview, keyboard review, apply, error blocking and profile invalidation','both profile downloads','Section recognition and multipage ZIP download','selected-frame project without active node, page mode, scope invalidation and two-screen download','target names, saved unknown navigation and clearing a transition','busy profile/action locking and check recovery','420/320 widths, visible keyboard focus, pinned export controls, light/dark tokens','ZIP payload','explicit metadata form including passive graphic','slider orientation/range and behavior, dynamic label ID, datetime pattern, popup target fields','render error recovery','text injection','null-source bridge selection, idle, check and download'],boundary:'actual Chromium UI; Figma parent and null-source bridge messages mocked; dark Figma tokens simulated',pageErrors:failures},null,2)+'\n');
+ await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,browser:browser.version(),checks:['empty selection, demo absent, optional library collapsed','button workflow: samples selection guidance, missing/ambiguous sample, actual sample colors and preparation/update counts','combined apply, next-step download, scoped errors, recovery and stale-result clearing','button workflow keyboard, busy locks, 420/320 widths and light/dark tokens','keyboard navigation and expanded prefix table without horizontal overflow','custom Frame preparation command and metadata display','recognition preview, keyboard review, apply, error blocking and profile invalidation','both profile downloads','Section recognition and multipage ZIP download','selected-frame project without active node, page mode, scope invalidation and two-screen download','GCP navigation guidance, retired fields absent and form submits no navigation','busy profile/action locking and check recovery','420/320 widths, visible keyboard focus, pinned export controls, light/dark tokens','ZIP payload','explicit metadata form including passive graphic','slider orientation/range and behavior, dynamic label ID, datetime pattern, popup target fields','render error recovery','text injection','null-source bridge selection, idle, check and download'],boundary:'actual Chromium UI; Figma parent and null-source bridge messages mocked; dark Figma tokens simulated',pageErrors:failures},null,2)+'\n');
  console.log('PASS Chromium plugin UI: both downloads, metadata form, error recovery, no page errors. '+out);
 }finally{await browser?.close();await new Promise<void>((resolve,reject)=>server.close(e=>e?reject(e):resolve()));}

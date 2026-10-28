@@ -53,10 +53,24 @@ try{
   await frame.locator('#buttonTextMode').selectOption('middle-center');await frame.locator('#applyButtonText').click();
   await frame.locator('#buttonTextResult').filter({hasText:'Текст для GCP настроен: 1'}).waitFor();
   assert.equal(f.buttons[0].getPluginData(BUTTON_TEXT_KEY),'middle-center');assert.equal(f.buttons[1].getPluginData(BUTTON_TEXT_KEY),'');
+  // A renamed card with an old native setting stays raster through the actual UI command.
+  f.buttons[0].name='imagebutton_AudioControl';
+  for(const state of f.buttons[0].children)state.children.find(n=>n.type==='TEXT')!.y=0;
+  start=f.messages.length;f.emit('documentchange');
+  await page.evaluate(messages=>(window as any).sendMessages(messages),f.messages.slice(start));
+  await frame.locator('#buttonTextMode').selectOption('auto');await frame.locator('#applyButtonText').click();
+  await frame.locator('#buttonTextResult').filter({hasText:'Текст для GCP настроен: 0'}).waitFor();
+  await frame.locator('#buttonTextResult').filter({hasText:'imagebutton_ / ibtn_ сохраняют подписи внутри PNG'}).waitFor();
+  assert.equal(f.buttons[0].getPluginData(BUTTON_TEXT_KEY),'middle-center');
+  const raster=capture(f.root);assert.ok(raster.screen.elements[0].states!.every(s=>s.text===''&&s.image));
+  assert.ok(raster.images.filter(i=>i.asset.key.startsWith(`button-artwork.${raster.screen.elements[0].controlId}.`)).every(i=>!i.artwork?.omitTextId));
+  await frame.locator('#buttonTextMode').selectOption('design');await frame.locator('#applyButtonText').click();
+  await frame.locator('#buttonTextResult').filter({hasText:'Восстановлен экспорт по расположению Figma: 0'}).waitFor();
+  assert.equal(f.buttons[0].getPluginData(BUTTON_TEXT_KEY),'middle-center');
   start=f.messages.length;f.page.selection=[];f.emit('selectionchange');
   await page.evaluate(messages=>(window as any).sendMessages(messages),f.messages.slice(start));
   await frame.locator('#applyButtonText:disabled').waitFor();
   assert.deepEqual(errors,[]);
-  await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,checks:['keyboard disclosure','320/420 widths','real UI-to-plugin command','native caption export','restore design mode','live selection isolation','empty selection disabled'],errors,boundary:'Chromium, built UI/plugin; modeled Figma API'},null,2)+'\n');
+  await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,checks:['keyboard disclosure','320/420 widths','real UI-to-plugin command','native caption export','restore design mode','live selection isolation','imagebutton ignores native text command and old alignment','empty selection disabled'],errors,boundary:'Chromium, built UI/plugin; modeled Figma API'},null,2)+'\n');
   console.log('PASS native text UI: scope, native export, reversal, keyboard and responsive layout');
 }finally{await browser.close();await new Promise<void>(resolve=>server.close(()=>resolve()));}

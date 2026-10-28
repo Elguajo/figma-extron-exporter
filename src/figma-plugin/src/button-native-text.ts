@@ -1,11 +1,12 @@
 import { fail, readMetadata, stateRole } from './model.ts';
-import { isButtonContainer, type ArtworkText, type ButtonContainer } from './button-artwork.ts';
+import { isButtonContainer, isImageButton, type ArtworkText, type ButtonContainer } from './button-artwork.ts';
 import { plain, readText, rect } from './read-node.ts';
 import type { ProjectNode, ProjectOptions } from './project.ts';
 
 export const BUTTON_TEXT_KEY = 'exui-button-native-text';
 export type ButtonTextMode = 'auto' | 'middle-center' | 'bottom-center';
 export function buttonTextMode(node: SceneNode): ButtonTextMode | undefined {
+  if (isImageButton(node)) return;
   const mode = node.getPluginData(BUTTON_TEXT_KEY);
   if (!mode) return;
   if (mode !== 'auto' && mode !== 'middle-center' && mode !== 'bottom-center')
@@ -55,7 +56,7 @@ export function setButtonTextMode(root: ProjectNode, options: ProjectOptions, mo
   const buttons: ButtonContainer[] = [];
   function visit(node: SceneNode) {
     const metadata = readMetadata(node, {allowCopied:true});
-    if (metadata?.kind === 'button' || /^(button|btn|feedbackbutton|fbtn)_/i.test(node.name)) {
+    if (metadata?.kind === 'button' || /^(button|btn|feedbackbutton|fbtn|imagebutton|ibtn)_/i.test(node.name)) {
       if (!isButtonContainer(node)) fail('button-text', `${node.name}: нужен Frame, Group или экземпляр кнопки.`, node);
       buttons.push(node);return;
     }
@@ -63,10 +64,11 @@ export function setButtonTextMode(root: ProjectNode, options: ProjectOptions, mo
     if ('children' in node) node.children.forEach(visit);
   }
   (options.members ?? root.children).forEach(visit);
-  if (!buttons.length) fail('button-text','В выбранной области нет кнопок button_ / btn_ / feedbackbutton_ / fbtn_.');
+  if (!buttons.length) fail('button-text','В выбранной области нет кнопок button_ / btn_ / feedbackbutton_ / fbtn_ / imagebutton_ / ibtn_.');
   // Validate the complete batch before the first metadata write.
   const changes: {node:ButtonContainer;before:string;after:string}[] = [];let skipped=0;
   for (const node of buttons) {
+    if (isImageButton(node)) {skipped++;continue;}
     if (mode !== 'design') {
       const states = node.children;
       if (states.length < 2 || states.some(state => !isButtonContainer(state) || !(readMetadata(state,{allowCopied:true})?.kind==='state' || stateRole(state.name.replace(/^(st|state)_/i,'')))))

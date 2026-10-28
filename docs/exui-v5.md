@@ -81,7 +81,7 @@ ZIP/PNG/JSON, ограничения размера, CRC/SHA-256, пути, шр
 
 Расширение exui/5 в плагине и CLI 0.2.1 допускает `text: ""` у состояний Button: видимый текст может быть независимыми Label/Value поверх кнопки. `text` остаётся обязательным; null, пробельные строки и повреждённый Unicode запрещены. У Label/Value и Multistate Level текст непустой. Прежние контракты exui/1–4 остаются строгими. Нативный Button сохраняет состояния и touch target, а наложенные подписи — независимые объекты; их цвет/поведение и касания не синхронизируются автоматически. Для этого расширения нужны плагин и CLI 0.2.1; архив 0.2.0 остаётся историческим.
 
-`behavior`: optional selectionGroup (ключ, только Button), enabled/visible (boolean). Это **указания для программы управления** в id-map, а не native actions, отключение/скрытие объекта или автоматически созданная ControlScript-программа. Контрол должен иметь controlId. State Disabled задаёт только внешний вид. navigate сохраняет прежний смысл указания программисту.
+`behavior`: optional selectionGroup (ключ, только Button), enabled/visible (boolean). Это **указания для программы управления** в id-map, а не native actions, отключение/скрытие объекта или автоматически созданная ControlScript-программа. Контрол должен иметь controlId. State Disabled задаёт только внешний вид. `navigate` и `shownBy: navigation` поддерживаются CLI для прежних пакетов как указания программисту. Текущий плагин их не создаёт: переходы настраиваются в GCP, дополнительные контейнеры имеют `shownBy: program`.
 
 ## Writer и независимая проверка
 
@@ -182,7 +182,7 @@ Button and Multistate Level have 2..8 states. Explicit stateIds are dense 0..N a
 
 The exui/5 extension in plugin and CLI 0.2.1 allows `text: ""` for Button states: the visible text may be independent Labels/Values on top of the button. `text` stays required; null, whitespace-only strings and broken Unicode are forbidden. Label/Value and Multistate Level text is non-empty. The earlier exui/1–4 contracts stay strict. A native Button keeps its states and touch target, while overlaid labels are independent objects; their color/behavior and touches are not synchronized automatically. This extension needs plugin and CLI 0.2.1; the 0.2.0 archive remains historical.
 
-`behavior`: optional selectionGroup (a key, Button only), enabled/visible (boolean). These are **hints for the control program** in the id-map, not native actions, disabling/hiding of the object or an automatically created ControlScript program. The control must have a controlId. The Disabled state sets only the look. navigate keeps its earlier meaning as a hint for the programmer.
+`behavior`: optional selectionGroup (a key, Button only), enabled/visible (boolean). These are **hints for the control program** in the id-map, not native actions, disabling/hiding of the object or an automatically created ControlScript program. The control must have a controlId. The Disabled state sets only the look. The CLI retains `navigate` and `shownBy: navigation` as programmer hints for older packages. The current plugin does not produce them: configure navigation in GCP; additional containers use `shownBy: program`.
 
 ## Writer and independent verification
 

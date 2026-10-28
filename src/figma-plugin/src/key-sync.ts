@@ -54,8 +54,8 @@ export function syncKeys(root:Node,members:readonly SceneNode[],isProject:boolea
   for(const {node} of containers)for(const element of elementsOf(node))for(const state of 'children' in element?element.children:[]){const sm=meta(state);if(sm?.kind!=='state')continue;for(const icon of 'children' in state?state.children:[])if(synced.has(icon.id))icons.push({node:icon,base:`icon.${meta(element)!.key}.state${sm.stateId}`});}
   settle(icons);
 
-  // Navigation, popup and group references follow renamed containers.
+  // Popup and group references follow renamed containers.
   const renamed=new Map<string,string>();for(const node of [root,...groups,...containers.map(c=>c.node)]){const from=previous.get(node.id),to=meta(node)?.key;if(from&&to&&to!==from)renamed.set(from,to);}
-  if(renamed.size)for(const [id,m] of assignments){let next=m;for(const field of ['navigate','popup','group'] as const){const target=m[field];if(target&&renamed.has(target))next={...next,[field]:renamed.get(target)};}if(next!==m)assignments.set(id,next);}
+  if(renamed.size)for(const [id,m] of assignments){let next=m;for(const field of ['popup','group'] as const){const target=m[field];if(target&&renamed.has(target))next={...next,[field]:renamed.get(target)};}if(next!==m)assignments.set(id,next);}
   return changes;
 }

@@ -91,7 +91,7 @@ export function markBackground(node: SceneNode): boolean {
   if (node.type !== 'RECTANGLE' && node.type !== 'FRAME') fail('button-background', 'Выберите прямоугольник или Frame фона.');
   let owner = node.parent;
   while (owner && owner.type !== 'PAGE') {
-    if (isButtonContainer(owner as SceneNode) && (readMetadata(owner,{allowCopied:true})?.kind==='state' || stateRole(owner.name.replace(/^(st|state)_/i, '')) || /^(button|btn|feedbackbutton|fbtn)_/i.test(owner.name))) break;
+    if (isButtonContainer(owner as SceneNode) && (readMetadata(owner,{allowCopied:true})?.kind==='state' || stateRole(owner.name.replace(/^(st|state)_/i, '')) || /^(button|btn|feedbackbutton|fbtn|imagebutton|ibtn)_/i.test(owner.name))) break;
     owner = owner.parent;
   }
   if (!owner || owner.type === 'PAGE') fail('button-background', 'Выберите фон внутри кнопки или её состояния.');
@@ -115,7 +115,7 @@ function targets(root: ProjectNode, options: ProjectOptions): Target[] {
   const result: Target[] = [];
   function visit(node: SceneNode) {
     const metadata = readMetadata(node, {allowCopied: true});
-    if (metadata?.kind === 'button' || /^(button|btn|feedbackbutton|fbtn)_/i.test(node.name)) {
+    if (metadata?.kind === 'button' || /^(button|btn|feedbackbutton|fbtn|imagebutton|ibtn)_/i.test(node.name)) {
       if (!isButtonContainer(node)) fail('button-prepare', `${node.name}: подготовка доступна для Group или Frame.`, node);
       plain(node, false, true);
       if (!node.children.length) fail('button-prepare', `${node.name}: нарисуйте содержимое кнопки.`, node);
@@ -141,7 +141,7 @@ function targets(root: ProjectNode, options: ProjectOptions): Target[] {
     if ('children' in node) for (const child of node.children) visit(child);
   }
   for (const node of options.members ?? root.children) visit(node);
-  if (!result.length) fail('button-prepare', 'В выбранном макете нет button_ / btn_ / feedbackbutton_ / fbtn_.');
+  if (!result.length) fail('button-prepare', 'В выбранном макете нет button_ / btn_ / feedbackbutton_ / fbtn_ / imagebutton_ / ibtn_.');
   return result;
 }
 export function buttonPreparationSummary(root: ProjectNode, options: ProjectOptions = {}): ButtonPreparationSummary {

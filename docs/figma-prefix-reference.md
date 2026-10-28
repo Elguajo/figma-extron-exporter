@@ -33,6 +33,7 @@
 | Сущность и имена | Что это и для чего использовать | Как подготовить / поведение |
 |---|---|---|
 | Кнопка: `btn_Music` / `button_Music` | Команда, выбор источника, зоны или Mute, когда достаточно двух видов. | Ровно 2 состояния: normal + feedback либо normal + pressed. Например, Off / On, Passive / Active или Normal / Pressed. |
+| Кнопка целиком в PNG: `ibtn_VideoControl` / `imagebutton_VideoControl` | Карточка с произвольным положением и оформлением текста и иконок. | Весь вид каждого состояния, включая подпись, в одном PNG; Text Button пустой, отдельного Label нет. У новой кнопки 2 состояния как у btn_; у переименованной сохраняется назначенный тип и ID. Text Feedback подпись в PNG не меняет. Поддерживается локальным development build от 27.10.2026. |
 | Feedback-кнопка: `fbtn_Mute` / `feedbackbutton_Mute` | Показывать состояние устройства и при необходимости отдельный вид нажатия. | Normal / Active, Passive / Active или Off / On; Pressed необязателен. Экспортируются 2 или 3 существующих состояния. |
 | Громкость «+»/«-»: `btn_VolumeUp`, `btn_VolumeDown` / `button_VolumeUp`, `button_VolumeDown` | Увеличивать или уменьшать громкость с видом при удержании. | Normal / Pressed; цвет Pressed рисует дизайнер. Шаг, повтор и команды реализует программа. |
 | Mute: `btn_Mute` / `button_Mute` | Показывать включённое заглушение звука. | Off / On; устойчивый On приходит по feedback. Для дополнительного Pressed использовать `fbtn_Mute` с Off / On / Pressed. |
@@ -100,7 +101,7 @@ Passive / Active, Normal / Active без Pressed и другие поддерж�
 
 Проект: 1-16 страниц, до 32 popup, 16 групп, 256 элементов всего; внутри одного контейнера 1-64 элемента. Целые координаты и размеры, без поворота. Свободная графика и эффекты допустимы внутри растеризуемых Artwork / изображений; у нативных частей Slider и примитивов сохраняются ограничения оформления.
 
-Видео `vid_` / `video_` и обновляемая по URL картинка `dimg_` / `dynamicimage_` зарезервированы, но для профилей 1025M / 300M вызывают ошибку экспорта. Prototype interactions Figma не экспортируются. Группа выбора, доступность, видимость и переходы передаются в id-map для программы управления.
+Видео `vid_` / `video_` и обновляемая по URL картинка `dimg_` / `dynamicimage_` зарезервированы, но для профилей 1025M / 300M вызывают ошибку экспорта. Prototype interactions Figma не экспортируются. Группа выбора, доступность и видимость передаются в id-map как указания для программы управления. Переходы задаются в GCP; привязывать экраны к кнопкам в Figma не требуется.
 
 ## Текст и иконки в новых кнопках
 
@@ -155,6 +156,7 @@ Prefixes help choose the right element and prepare it for export. Links to devic
 | Entity and names | What it is and when to use it | How to prepare it / behavior |
 |---|---|---|
 | Button: `btn_Music` / `button_Music` | A command, a choice of source or zone, or Mute, when two looks are enough. | Exactly 2 states: normal + feedback or normal + pressed. For example, Off / On, Passive / Active or Normal / Pressed. |
+| Whole-state PNG button: `ibtn_VideoControl` / `imagebutton_VideoControl` | A card with freely positioned and styled captions and icons. | Every whole state is one PNG, including captions; Button Text is empty and no separate Label is created. A new button uses two states like btn_; a renamed one retains its assigned type and IDs. Text Feedback does not replace captions drawn in PNG. Available in the local development build dated 2026-10-27. |
 | Feedback button: `fbtn_Mute` / `feedbackbutton_Mute` | Shows the device state and, if needed, a separate pressed look. | Normal / Active, Passive / Active or Off / On; Pressed is optional. 2 or 3 existing states are exported. |
 | Volume "+"/"−": `btn_VolumeUp`, `btn_VolumeDown` / `button_VolumeUp`, `button_VolumeDown` | Raise or lower the volume with a look while held. | Normal / Pressed; the designer draws the Pressed color. Step, repeat and commands are implemented by the program. |
 | Mute: `btn_Mute` / `button_Mute` | Shows that muting is on. | Off / On; the stable On comes from feedback. For an extra Pressed look use `fbtn_Mute` with Off / On / Pressed. |
@@ -222,7 +224,7 @@ The updated **exui/5 has no separate limit on the number of PNGs**. Packages wit
 
 A project: 1–16 pages, up to 32 popups, 16 groups, 256 elements in total; 1–64 elements inside one container. Integer coordinates and sizes, no rotation. Free artwork and effects are fine inside rasterized Artwork / images; the native Slider parts and primitives keep their styling limits.
 
-Video `vid_` / `video_` and the URL-updated picture `dimg_` / `dynamicimage_` are reserved, but cause an export error for the 1025M / 300M profiles. Figma Prototype interactions are not exported. Selection groups, availability, visibility and navigation are passed in the id-map for the control program.
+Video `vid_` / `video_` and the URL-updated picture `dimg_` / `dynamicimage_` are reserved, but cause an export error for the 1025M / 300M profiles. Figma Prototype interactions are not exported. Selection groups, availability and visibility are passed in the id-map as hints for the control program. Configure navigation in GCP; buttons need no links to screens in Figma.
 
 ## Text and icons in new buttons
 

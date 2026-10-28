@@ -169,13 +169,18 @@ test('Page buttons keep manual IDs 1/2 through invalid placement, popup moves, s
     assert.deepEqual([first,second].map(n=>[readMetadata(n)!.objectId,readMetadata(n)!.controlId]),ids);
   }
   // Reproduce the visible Off/On pair with a stale saved role from a copied state.
-  const on=(first as FrameNode).children[1],before=on.getPluginData(DATA_KEY);
+  const on=(first as FrameNode).children[1];
   on.setPluginData(DATA_KEY,JSON.stringify({...readMetadata(on),role:'normal'}));
   await p.send({type:'check'});
-  const report=p.messages.filter(m=>m.type==='recognition').at(-1) as any;
-  assert.ok(report.errors.some((e:string)=>e.startsWith('On:')&&e.includes('ID и роли состояний')),JSON.stringify(report.errors));
+  assert.deepEqual(p.messages.filter(m=>m.type==='recognition'||m.type==='error'),[]);
+  assert.equal(readMetadata(on)!.role,'feedback');assert.equal(readMetadata(on)!.stateId,1);
   assert.deepEqual([first,second].map(n=>[readMetadata(n)!.objectId,readMetadata(n)!.controlId]),ids);
-  on.setPluginData(DATA_KEY,before);p.restart();await p.send({type:'export'});
+  // A genuinely ambiguous pair is still rejected without changing manual IDs.
+  on.name='Off';await p.send({type:'check'});
+  const report=p.messages.filter(m=>m.type==='recognition').at(-1) as any;
+  assert.ok(report.errors.some((e:string)=>e.startsWith('button_Page1:')&&e.includes('требует ровно 2 состояния')),JSON.stringify(report.errors));
+  assert.deepEqual([first,second].map(n=>[readMetadata(n)!.objectId,readMetadata(n)!.controlId]),ids);
+  on.name='On';p.restart();await p.send({type:'export'});
   assert.deepEqual(errors(p),[]);
   const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;
   const exported=bundle.screen.popups.flatMap((popup:any)=>popup.elements);

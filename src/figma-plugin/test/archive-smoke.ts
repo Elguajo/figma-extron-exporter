@@ -92,18 +92,6 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
       await send({type:'save-ids',nodeId:button.id,data:{objectId:'',controlId:'1'}});
       assert.equal(JSON.parse(button.getPluginData('exui')).controlId,1);
     }
-    if(batch){
-      fixture.page.selection=[batch.button as any];fixture.emit('selectionchange');
-      await send({type:'apply',data:{...JSON.parse(batch.button.getPluginData('exui')),navigate:'page.audiocontrol'}});
-      fixture.page.selection=[batch.audio as any];fixture.emit('selectionchange');
-      await send({type:'apply',data:{...JSON.parse(batch.audio.getPluginData('exui')),shownBy:'navigation'}});
-    }
-    if(scenario==='section'){
-      const home=frame.children[0] as FrameNode,button=home.children.find(n=>n.name==='button_Connection')!,settings=frame.children[1];
-      fixture.page.selection=[button as any];await send({type:'apply',data:{...JSON.parse(button.getPluginData('exui')),buttonMode:'legacy',navigate:'page.settings'}});
-      fixture.page.selection=[settings as any];await send({type:'apply',data:{...JSON.parse(settings.getPluginData('exui')),shownBy:'navigation'}});
-      fixture.page.selection=[button as any];
-    }
     const sourceSignature=scenario==='fractional-lines'?designSignature(frame):undefined;
     if(!automatic)await send({ type: 'check' });
     await send({ type: 'export',profile,...(automaticMembers?{scopeMode:'selected-frames'}:{}) });
@@ -116,7 +104,7 @@ for (const profile of ['tlp-pro-1025m', 'tlp-pro-300m-portrait'] as const) {
     const validation = cli(['validate-package', input]);
     assert.equal(validation.contract, 'exui/5');
     // The first selected page stays the start page; GUI Designer lists it first, then frame-name order.
-    if(batch){assert.ok('pages' in bundle.screen);assert.deepEqual(Array.from(bundle.screen.pages,p=>[p.name,p.shownBy]),[['screen_Main','start'],['screen_AudioControl','navigation']]);assert.equal(bundle.screen.pages[0].elements.find(e=>e.kind==='button')!.navigate,'page.audiocontrol');}
+    if(batch){assert.ok('pages' in bundle.screen);assert.deepEqual(Array.from(bundle.screen.pages,p=>[p.name,p.shownBy]),[['screen_Main','start'],['screen_AudioControl','program']]);assert.equal(bundle.screen.pages.some(p=>p.elements.some(e=>Object.hasOwn(e,'navigate'))),false);}
     if(scenario==='section'){
       assert.ok('pages' in bundle.screen);assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.popups.length,4);
       const map=spawnSync(process.env.DOTNET_EXE??'dotnet',[path.join(installed,'cli/Extron.Cli.dll'),'id-map',input],{cwd:out,encoding:'utf8',timeout:30000});

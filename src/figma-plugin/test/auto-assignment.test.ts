@@ -70,12 +70,12 @@ test('Whole-screen copies, including a cloned registry and identical names, get 
  const stable=designSignature(p.page as never);await p.send({type:'export',scopeMode:'selected-frames',profile:'tlp-pro-1025m'});latestBundle(p);assert.equal(designSignature(p.page as never),stable);
 });
 
-test('Copied complete project remaps internal popup/group/navigation targets and keeps original source intact',async()=>{
+test('Copied complete project remaps internal popup/group targets and ignores legacy navigation and keeps original source intact',async()=>{
  const p=plugin(),root=sectionFixture();applyRecognition(recognize(root,'tlp-pro-1025m'));
  const pages=root.children.filter(n=>readMetadata(n)?.kind==='page'),button=(pages[0] as FrameNode).children.find(n=>readMetadata(n)?.kind==='button')!;
  tag(button,{...readMetadata(button)!,navigate:readMetadata(pages[1])!.key});tag(pages[1],{...readMetadata(pages[1])!,shownBy:'navigation'});
  const before=designSignature(root),copy=root.clone();p.page.selection=[copy as never];await p.send({type:'export'});const bundle=latestBundle(p);
- assert.equal(designSignature(root),before);assert.equal(bundle.screen.pages.length,2);assert.ok(bundle.screen.pages[0].elements.some((e:any)=>e.navigate===bundle.screen.pages[1].key));assert.ok(bundle.screen.popups.length);capture(copy);
+ assert.equal(designSignature(root),before);assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.pages.flatMap((p:any)=>p.elements).some((e:any)=>Object.hasOwn(e,'navigate')),false);assert.equal(bundle.screen.pages[1].shownBy,'program');assert.ok(bundle.screen.popups.length);capture(copy);
 });
 
 test('Repeated fresh ordinary layers receive distinct keys, objects and controls',async()=>{
@@ -116,6 +116,19 @@ test('Retry after PNG render failure reuses the automatically saved assignments'
  const p=plugin(),root=await namedFixture();p.page.selection=[root as never];p.setRenderHook(()=>{throw new Error('render unavailable');});await p.send({type:'export'});
  assert.equal(p.messages.some(m=>m.type==='bundle'),false);assert.ok(readMetadata(root));const before=designSignature(root);p.setRenderHook(()=>{});p.messages.length=0;
  await p.send({type:'export'});latestBundle(p);assert.equal(designSignature(root),before);
+});
+
+for(const command of ['check','export'])test(`${command} repairs stale Off/On metadata automatically and keeps the repair stable`,async()=>{
+ const p=plugin(),root=await namedFixture('tlp-pro-1025m',true),button=root.children[0] as FrameNode;
+ applyRecognition(recognize(root,'tlp-pro-1025m'));const identity=button.getPluginData(DATA_KEY);
+ button.children[0].name='On';button.children[1].name='Off';
+ for(const state of button.children){const m=readMetadata(state)!;state.setPluginData(DATA_KEY,JSON.stringify({...m,schema:'exui-node/2',role:'feedback',stateId:7,stateName:'Passive'}));}
+ p.page.selection=[root as never];await p.send({type:command,profile:'tlp-pro-1025m'});
+ assert.deepEqual(p.messages.filter(m=>m.type==='error'||m.type==='recognition'),[]);
+ assert.equal(button.getPluginData(DATA_KEY),identity);
+ assert.deepEqual(button.children.map(s=>[readMetadata(s)!.stateName,readMetadata(s)!.role,readMetadata(s)!.stateId]),[['On','feedback',1],['Off','normal',0]]);
+ if(command==='export')assert.deepEqual([...latestBundle(p).screen.elements[0].states.map((s:any)=>s.name)],['Off','On']);
+ const stable=designSignature(root);await p.send({type:command,profile:'tlp-pro-1025m'});assert.equal(designSignature(root),stable);
 });
 
 for(const command of ['check','export'])test(`${command} automatically hides the extra Passive/Active preview layer and keeps persistent identities`,async()=>{

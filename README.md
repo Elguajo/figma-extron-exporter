@@ -47,7 +47,7 @@ flowchart LR
 | Icons and complex artwork | PNG resources |
 | Saved assignments | Element IDs and a map for the programmer; IDs are kept when existing layers are edited |
 
-The mockup follows naming and structure rules. For example, `button_Mute` becomes a button, and the Extron programmer connects the mute command and its feedback from the hardware. Figma Prototype interactions are not transferred automatically.
+The mockup follows naming and structure rules. For example, `button_Mute` becomes a button, and the Extron programmer connects the mute command and its feedback from the hardware. Configure page navigation and popup show/hide actions in GCP; buttons need no links to screens in Figma. Figma Prototype interactions are not transferred automatically.
 
 <details>
 <summary><strong>Explore the real Figma project without the plugin window</strong></summary>
@@ -126,7 +126,7 @@ screen_Home
 └── value_Volume
 ```
 
-Full list of names: [prefix reference](src/figma-plugin/PREFIXES.md#english). Several screens, popups and navigation: [layout standard](src/figma-plugin/AUTHORING_STANDARD.md) (in Russian).
+Full list of names: [prefix reference](src/figma-plugin/PREFIXES.md#english). Several screens and popup placement: [layout standard](src/figma-plugin/AUTHORING_STANDARD.md) (in Russian).
 
 </details>
 
@@ -245,12 +245,12 @@ Each guide is one file with the Russian text first and the English text below; t
 | Update a configured GCP project | [Updating projects](docs/updating-configured-projects.md#english) |
 | Support new Extron versions | [Extron compatibility](docs/extron-compatibility.md#english) |
 | Understand the format and architecture | [EXUI/5](docs/exui-v5.md#english) · [GDL format](docs/extron-format.md) (in Russian) · [Decisions](docs/decisions.md) (in Russian) |
-| Check the result | [Checklist](docs/verification/checklist.md#english) · [0.8.4 checks](docs/verification/results/2026-10-25-release-0.8.4.md) (in Russian) |
+| Check the result | [Checklist](docs/verification/checklist.md#english) · [0.8.8 checks](docs/verification/results/2026-10-28-release-0.8.8.md) (in Russian) |
 | See changes and plans | [CHANGELOG](CHANGELOG.md) · [ROADMAP](ROADMAP.md) (in Russian) |
 
 ## Build and checks
 
-This section is for working with the sources. Installing from the ready archives does not need Node.js or the .NET SDK. Current sources: **plugin 0.8.4 + CLI 0.8.3**, EXUI/5.
+This section is for working with the sources. Installing from the ready archives does not need Node.js or the .NET SDK. Current sources: **plugin 0.8.8 + CLI and LayoutUpdater 0.8.8**, EXUI/5.
 
 Development needs **.NET SDK 10.0.402** and **Node.js ≥ 22.18**. From the repository root:
 

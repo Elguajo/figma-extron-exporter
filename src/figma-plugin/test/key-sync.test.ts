@@ -21,7 +21,7 @@ async function exportBoth(p:Plugin,frames:SceneNode[]){p.page.selection=frames a
 const keyOf=(n:SceneNode)=>readMetadata(n)!.key;
 const ids=(n:SceneNode)=>{const m=readMetadata(n)!;return [m.objectId,m.controlId];};
 
-test('Stale page.home, home.* and homeexportready.*-2 keys follow current names; navigation follows; IDs stay',async()=>{
+test('Stale page.home, home.* and homeexportready.*-2 keys follow current names; legacy navigation is ignored; IDs stay',async()=>{
   const p=plugin(),{main,audio,button:open,ch01,back}=project();await exportBoth(p,[main,audio]);
   // The state left by a screen first named Home and a slider copied from homeExportReady.
   tag(audio,{...readMetadata(audio)!,key:'page.home'});const title=audio.children[0];
@@ -30,9 +30,9 @@ test('Stale page.home, home.* and homeexportready.*-2 keys follow current names;
   const before=[audio,title,ch01,back,open].map(ids);
   const result=await exportBoth(p,[main,audio]);
   assert.deepEqual([audio,title,ch01,back].map(keyOf),['page.audiocontrol','audiocontrol.title','audiocontrol.ch01','audiocontrol.backtomain']);
-  assert.equal(readMetadata(open)!.navigate,'page.audiocontrol');assert.deepEqual([audio,title,ch01,back,open].map(ids),before);
+  assert.equal(Object.hasOwn(readMetadata(open)!,'navigate'),false);assert.deepEqual([audio,title,ch01,back,open].map(ids),before);
   assert.match(result.assignmentSummary,/Ключи обновлены по именам слоёв: 4; ID не изменены/);
-  const exported=result.bundle.screen.pages.flatMap((c:any)=>c.elements).find((e:any)=>e.name==='button_AudioControl');assert.equal(exported.navigate,'page.audiocontrol');
+  const exported=result.bundle.screen.pages.flatMap((c:any)=>c.elements).find((e:any)=>e.name==='button_AudioControl');assert.equal(Object.hasOwn(exported,'navigate'),false);
   const stable=designSignature(p.page as never);const again=await exportBoth(p,[main,audio]);assert.equal(designSignature(p.page as never),stable);assert.doesNotMatch(again.assignmentSummary,/Ключи обновлены/);
 });
 

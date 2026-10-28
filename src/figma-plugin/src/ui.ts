@@ -11,7 +11,7 @@ let legacyButton=false,loadedKey='',loadedPattern='';
 let designPattern:{pattern?:string;preview?:string;source?:string;error?:string}|undefined;
 let canRecognize=false,canPrepare=false,hasScope=false;
 let bindingPopupIds:string[]=[],canBindPopups=false;
-let links:AuthoringLinks|undefined,navigationTargets:{id:string;key:string;outsideScope?:boolean}[]=[];
+let links:AuthoringLinks|undefined;
 let projectSettings:ProjectSettings|undefined;
 const NEW_GROUP='__create__';
 let buttonCanApply=false,buttonResultReady=false;
@@ -56,7 +56,6 @@ function setBusy(busy:boolean) {
   input('startPage').disabled=busy||!projectSettings?.pages.length||!!projectSettings.error;
   $<HTMLButtonElement>('saveStartPage').disabled=busy||!projectSettings?.projectId||!input('startPage').value||input('startPage').value===projectSettings.startId;
   $('projectStart').setAttribute('aria-busy',String(busy));
-  $<HTMLButtonElement>('showNavigation').disabled=busy||!navigationTargets.some(t=>t.key===input('navigate').value&&t.id);
   document.querySelectorAll<HTMLButtonElement>('[data-linked-node]').forEach(b=>b.disabled=busy);
   $('buttonStates').setAttribute('aria-busy',String(busy));
   document.querySelectorAll<HTMLInputElement|HTMLSelectElement>('#buttonNumbering input,#buttonNumbering select').forEach(e=>e.disabled=busy);
@@ -170,9 +169,8 @@ $('saveReference').onclick=()=>send('reference-target',{nodeId:selectedId,target
 $('settingsProject').onchange=()=>send('project-settings',{projectId:input('settingsProject').value});
 $('saveStartPage').onclick=()=>send('start-page',{projectId:projectSettings?.projectId,targetId:input('startPage').value});
 $('saveChoiceGroup').onclick=()=>send('selection-group',{buttonIds:links?.buttons?.ids,group:input('choiceGroup').value===NEW_GROUP?'':input('choiceGroup').value,create:input('choiceGroup').value===NEW_GROUP});
-$('choiceGroup').onchange=$('navigate').onchange=()=>setBusy(operationBusy||packing);
+$('choiceGroup').onchange=()=>setBusy(operationBusy||packing);
 $('startPage').onchange=()=>{startPageState();setBusy(operationBusy||packing);};
-$('showNavigation').onclick=()=>send('show-linked',{nodeId:selectedId,targetId:navigationTargets.find(t=>t.key===input('navigate').value)?.id});
 function fillOptions(id:string,options:{value:string;name:string}[],value:string){const select=$<HTMLSelectElement>(id);select.replaceChildren();for(const item of options){const option=document.createElement('option');option.value=item.value;option.textContent=item.name;select.appendChild(option);}select.value=value;}
 function renderLinks(value:AuthoringLinks|undefined){
   links=value;const ref=value?.reference,buttons=value?.buttons;
@@ -205,11 +203,9 @@ function renderProjectSettings(value:ProjectSettings|undefined){
 }
 $('mapping').onsubmit=event=>{
   event.preventDefault();
-  const data:Record<string,string>={};for(const id of ['kind','buttonMode','key','objectId','controlId','projectName','profile','role','stateName','file','resourceName','stateId','shownBy','modal','display','orientation','min','max','pattern','popup','group','navigate','selectionGroup','enabled','visible'])data[id]=input(id).value;
+  const data:Record<string,string>={};for(const id of ['kind','buttonMode','key','objectId','controlId','projectName','profile','role','stateName','file','resourceName','stateId','shownBy','modal','display','orientation','min','max','pattern','popup','group','selectionGroup','enabled','visible'])data[id]=input(id).value;
   data.keyEdited=String(data.key!==loadedKey);
   data.patternEdited=String(data.pattern!==loadedPattern);
-  const target=navigationTargets.find(t=>t.key===data.navigate);
-  if(target?.outsideScope){data.navigationTargetId=target.id;data.navigate='';}
   for(const id of ['exportBackground','exportStroke'])data[id]=String(input(id).checked);
   send('apply',{data,nodeId:selectedId});
 };
@@ -272,6 +268,7 @@ window.onmessage=async(event:MessageEvent)=>{
     buttonWorkflow(msg);
     $('selectionType').textContent=input('scopeMode').value!=='selection'?'Проект':selectedId?({SECTION:'Секция',FRAME:'Frame',GROUP:'Группа',INSTANCE:'Компонент',TEXT:'Текст'} as Record<string,string>)[msg.nodeType]??'Элемент':'Нет выбора';
     $('scope').textContent=msg.scopeHint|| (msg.scope?`Экспорт ${msg.scope.kind==='project'?'проекта':'экрана'}: ${msg.scope.name}`:selectedId?'Выберите внешний Frame экрана или секцию проекта.':'Выделите нужные фреймы вместе, чтобы собрать один проект.');
+    $('scope').hidden=input('scopeMode').value!=='selection'&&!msg.scopeHint;
     $('recognitionHelp').textContent=canRecognize?'При проверке и скачивании ключи и свободные ID назначаются автоматически. Распознавание позволяет заранее посмотреть результат.':['popup','popup-group','popup-ref'].includes(kind)?'Popup, группы и места popup распознаются в составе проекта. Выберите секцию или внешний Frame проекта.':selectedId?'Для распознавания выберите секцию проекта или внешний Frame экрана.':'Выберите секцию или экран. Ключи и ID заполнятся при экспорте.';
     legacyButton=m.kind==='button'&&!m.buttonMode;
     input('buttonMode').value=m.buttonMode??(legacyButton?'legacy':'on-off');
@@ -283,14 +280,6 @@ window.onmessage=async(event:MessageEvent)=>{
     // Only a typed pattern is shown for editing; the design's one is a placeholder.
     designPattern=msg.datetime;input('pattern').value=msg.datetime?.manual?m.pattern??'':'';loadedPattern=input('pattern').value;
     input('pattern').placeholder=designPattern?.pattern??'Из макета';patternPreview();
-    const navigation=$<HTMLSelectElement>('navigate');navigation.replaceChildren();
-    navigationTargets=msg.targets??[];
-    const addTarget=(value:string,label:string)=>{const option=document.createElement('option');option.value=value;option.textContent=label;navigation.appendChild(option);};
-    addTarget('','Без перехода');
-    for(const target of msg.targets??[])addTarget(target.key,`${target.name}${target.kind==='popup'?' · Popup':''}${target.outsideScope?' · добавить в проект':''}`);
-    if(m.navigate&&!Array.from(navigation.options).some(o=>o.value===m.navigate))addTarget(m.navigate,`Недоступная цель · ${m.navigate}`);
-    navigation.value=m.navigate??'';
-    $('navigationHelp').textContent=msg.targets?.length?'Выберите цель и сохраните назначение. Экран с пометкой «добавить в проект» войдёт в экспорт после сохранения. Переход подключается в программе управления Extron.':'Цели не найдены. В «Что экспортировать» выберите «Экраны текущей страницы — один проект» или выделите нужные экраны вместе. Затем снова выберите кнопку.';
     for(const id of ['selectionGroup','enabled','visible'] as const)input(id).value=String(m.behavior?.[id]??'');
     input('display').value=m.display??'slider';input('orientation').value=m.orientation??'left-to-right';input('min').value=String(m.min??0);input('max').value=String(m.max??100);input('modal').value=String(m.modal??(kind==='popup'&&/^(mdl|modalpopup)_/i.test(msg.name)));
     input('kind').value=kind??(msg.nodeType==='SECTION'?'project':msg.nodeType==='TEXT'?'label':'page');

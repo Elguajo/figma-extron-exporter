@@ -48,10 +48,10 @@ export function repairAssignments(nodes:Node[],saved:Map<string,Metadata>,ids:As
   function add(map:Map<string,Set<string>>,from:string,to:string){const values=map.get(from)??new Set<string>();values.add(to);map.set(from,values);}
   for(const node of nodes){const raw=saved.get(node.id),m=result.get(node.id);if(!raw?.key||!m?.key||!['page','popup','popup-group'].includes(m.kind))continue;add(global,raw.key,m.key);if(raw.ownerNodeId!==node.id){const scope=copyScope(node),map=scopes.get(scope)??new Map<string,Set<string>>();add(map,raw.key,m.key);scopes.set(scope,map);}}
   for(const node of nodes){const raw=saved.get(node.id),m=result.get(node.id);if(!raw||!m)continue;
-    for(const field of ['navigate','popup','group'] as const){const old=m[field];if(!old)continue;const local=raw.ownerNodeId!==node.id?scopes.get(copyScope(node))?.get(old):undefined,targets=local??global.get(old);if(targets?.size===1)m[field]=[...targets][0];}
+    for(const field of ['popup','group'] as const){const old=m[field];if(!old)continue;const local=raw.ownerNodeId!==node.id?scopes.get(copyScope(node))?.get(old):undefined,targets=local??global.get(old);if(targets?.size===1)m[field]=[...targets][0];}
     if(m.kind==='image'&&node.parent?.parent){const control=result.get(node.parent.parent.id),previous=saved.get(node.parent.parent.id),state=result.get(node.parent.id);if(control&&state&&(raw.ownerNodeId!==node.id||control.key!==previous?.key||control.objectId!==previous?.objectId)){m.key=key(`icon.${control.key}.state${state.stateId}`,'Ключ иконки');m.file=`assets/control-${control.objectId}-${state.stateId}.png`;m.resourceName=`exui-control-${control.objectId}-${state.stateId}.png`;}}
     // A copied start page is a normal additional page when its original is
-    // included. Preserve explicit navigation/program settings.
+    // included. Preserve the other pages' program setting.
     if(m.kind==='page'&&raw.ownerNodeId!==node.id&&m.shownBy==='start'&&nodes.some(n=>n.id!==node.id&&saved.get(n.id)?.ownerNodeId===n.id&&saved.get(n.id)?.shownBy==='start'))m.shownBy='program';
   }
   return result;

@@ -32,18 +32,15 @@ test('Manual Pen line mapping → check/export from a child; invalid curves do n
  assert.equal(line.getPluginData('exui'),metadata);
 });
 
-test('Section project: recognize → map navigation by target list → check/export from a child',async()=>{
+test('Section project: recognize → check/export unlinked screens from a child',async()=>{
  const p=plugin(),root=sectionFixture('tlp-pro-300m-portrait');p.page.selection=[root as never];
  await p.send({type:'recognize',profile:'tlp-pro-300m-portrait'});const report=p.messages.filter(m=>m.type==='recognition').at(-1) as any;assert.deepEqual([...report.errors],[]);
  await p.send({type:'apply-recognition',token:report.token,profile:'tlp-pro-300m-portrait'});
  const home=root.children[0] as FrameNode,button=home.children.find(n=>n.name==='button_Connection')!;p.page.selection=[button as never];p.emit('selectionchange');
  const selection=p.messages.filter(m=>m.type==='selection').at(-1) as any;assert.equal(selection.scope.id,root.id);assert.equal(selection.scope.kind,'project');assert.equal(selection.scope.profile,'tlp-pro-300m-portrait');
- assert.ok(selection.targets.some((t:any)=>t.key==='page.settings'));assert.equal(selection.targets.some((t:any)=>t.key==='page.home'),false);
- const m=JSON.parse(button.getPluginData('exui'));await p.send({type:'apply',data:{...m,buttonMode:'legacy',navigate:'page.settings'}});
- p.page.selection=[root.children[1] as never];const settings=JSON.parse(root.children[1].getPluginData('exui'));await p.send({type:'apply',data:{...settings,shownBy:'navigation'}});
  p.page.selection=[button as never];await p.send({type:'check'});await p.send({type:'export'});
  assert.deepEqual(p.messages.filter(m=>m.type==='error'),[]);const bundle=(p.messages.filter(m=>m.type==='bundle').at(-1) as any).bundle;
- assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.pages[0].elements.find((e:any)=>e.key===m.key).navigate,'page.settings');
+ assert.equal(bundle.screen.pages.length,2);assert.equal(bundle.screen.pages[1].shownBy,'program');assert.equal(bundle.screen.pages.flatMap((p:any)=>p.elements).some((e:any)=>Object.hasOwn(e,'navigate')),false);
 });
 
 test('Manual mapping supports Section only as a project and preserves an invalid selection',async()=>{

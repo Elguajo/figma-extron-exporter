@@ -37,8 +37,8 @@ interface MetadataFields {
   role?: Role; stateId?: number; stateName?: string;
   file?: string; resourceName?: string;
   display?: 'slider'|'gauge'|'volume-led'|'multistate'; orientation?: Orientation; min?:number; max?:number;
-  pattern?:string; modal?:boolean; shownBy?:'start'|'program'|'navigation'; popup?:string; group?:string;
-  navigate?:string; behavior?:Behavior;
+  pattern?:string; modal?:boolean; shownBy?:'start'|'program'; popup?:string; group?:string;
+  behavior?:Behavior;
   exportBackground?:boolean; exportStroke?:boolean;
 }
 export type MetadataInput = MetadataFields & (
@@ -67,7 +67,7 @@ export interface Element {
   text?: string; textColor?: string; font?: Font; states?: State[]; press?: string;
   display?: 'slider'|'gauge'|'volume-led'|'multistate'; orientation?: Orientation; min?: number; max?: number; fillColor?: string;
   image?: string;
-  native?:NativeStyle; navigate?:string;popup?:string;group?:string;behavior?:Behavior;
+  native?:NativeStyle;popup?:string;group?:string;behavior?:Behavior;
   textAlign?:TextAlignment;
 }
 export interface Asset { key: string; file: string; resourceName: string }
@@ -76,7 +76,7 @@ export interface SingleScreen {
   page: { key: string; objectId: number; name: string; background: string };
   assets: Asset[]; elements: Element[];
 }
-export interface Container {key:string;objectId:number;name:string;background:string;shownBy:'start'|'program'|'navigation';elements:Element[];modal?:boolean;size?:number[];group?:string}
+export interface Container {key:string;objectId:number;name:string;background:string;shownBy:'start'|'program';elements:Element[];modal?:boolean;size?:number[];group?:string}
 export interface ProjectScreen {schema:'exui-screen/5';project:{name:string};pages:Container[];popups:Container[];groups:{key:string;groupId:number;name:string}[];assets:Asset[]}
 export type Screen=SingleScreen|ProjectScreen;
 export function elementCount(screen:Screen):number {return 'elements' in screen?screen.elements.length:[...screen.pages,...screen.popups].reduce((n,c)=>n+c.elements.length,0);}
@@ -86,7 +86,7 @@ export function isControlKind(kind: Kind): kind is ControlKind { return CONTROL_
 export function isElementKind(kind: Kind): kind is ElementKind { return ELEMENT_KINDS.includes(kind); }
 export function metadataSchema(value:MetadataInput):Metadata['schema'] {
   if(value.buttonMode!==undefined)return 'exui-node/3';
-  return ['project','popup','popup-group','popup-ref','value','slider','shape','line','datetime'].includes(value.kind)||value.display||value.orientation||value.min!==undefined||value.max!==undefined||value.navigate||value.behavior||value.shownBy||value.stateId!==undefined&&value.role&&value.stateId!==ROLE_ID[value.role]?'exui-node/2':'exui-node/1';
+  return ['project','popup','popup-group','popup-ref','value','slider','shape','line','datetime'].includes(value.kind)||value.display||value.orientation||value.min!==undefined||value.max!==undefined||value.behavior||value.shownBy||value.stateId!==undefined&&value.role&&value.stateId!==ROLE_ID[value.role]?'exui-node/2':'exui-node/1';
 }
 export interface FigmaOriginNode {nodeId:string;key:string;controlId:number;name:string}
 export interface FigmaOrigin {schema:'exui-figma-origin/1';pageId:string;pageToken:string;projectName:string;nodes:FigmaOriginNode[]}
@@ -130,6 +130,10 @@ export function readMetadata(node: { id: string; name: string; getPluginData(k: 
     fail('metadata',`${node.name}: некорректное оформление popup.`);
   if(typeof data.ownerNodeId!=='string'||!data.ownerNodeId)fail('metadata',`${node.name}: повреждён владелец назначения Extron.`);
   if (data.ownerNodeId !== node.id && !options.allowCopied) fail('copied-node', `${node.name}: это копия. Нажмите «Проверить макет» или «Скачать .exui» — собственные ключ и ID будут назначены автоматически.`);
+  // Legacy navigation was documentation only. Ignore it without touching the
+  // stored record or any IDs; later explicit saves may omit the retired fields.
+  delete (data as Metadata & {navigate?:unknown}).navigate;
+  if((data.shownBy as string)==='navigation')data.shownBy='program';
   return data;
 }
 

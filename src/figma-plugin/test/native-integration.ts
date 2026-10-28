@@ -75,8 +75,7 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
  for(const [name,fixture] of [['expanded',expandedFixture],['project',projectFixture],['vertical',verticalFixture]] as const){
   fakeFigma();const frame=fixture(profile),plan=recognize(frame,profile);assert.deepEqual(plan.errors,[]);applyRecognition(plan);
   const homeNode=name==='project'?(frame.children[0] as FrameNode):frame;
-  const button=homeNode.children.find(n=>n.name==='button_Connection')!;tag(button,{...readMetadata(button)!,behavior:{selectionGroup:'sources.hall',enabled:true,visible:true},...(name==='project'?{navigate:'page.settings'}:{})});
-  if(name==='project'){const settings=frame.children.find(n=>n.name==='screen_Settings')!;tag(settings,{...readMetadata(settings)!,shownBy:'navigation'});}
+  const button=homeNode.children.find(n=>n.name==='button_Connection')!;tag(button,{...readMetadata(button)!,behavior:{selectionGroup:'sources.hall',enabled:true,visible:true}});
   const bundle=await exportFrame(frame),input=path.join(out,`${name}-${profile}.exui`);await writeFile(input,packageExui(bundle),{flag:'wx'});const validation=cli(['validate-package',input]);assert.equal(validation.contract,'exui/5');
   const row:Record<string,unknown>={profile,name,validation,figmaBoundary:'fake Figma API; real native writer and independent NRBF'};
   if(registry){const output=path.join(out,`${name}-${profile}.gdl`);row.generation=cli(['convert-package',input,output,'--registry',registry]);const report=JSON.parse(await readFile(output+'.report.json','utf8'));assert.ok(report.Generation.Checks.every((c:any)=>c.Passed));

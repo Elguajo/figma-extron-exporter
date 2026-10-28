@@ -3,6 +3,11 @@ import { font, hasTransform, plain, readText, rect } from './read-node.ts';
 
 export type ButtonContainer = FrameNode | GroupNode | InstanceNode;
 export const BACKGROUND_KEY = 'exui-button-background';
+// This prefix keeps the complete state in PNG, including its captions, even
+// when a native-text setting was saved before the button was renamed.
+export function isImageButton(node: {readonly name: string}): boolean {
+  return /^(imagebutton|ibtn)_/i.test(node.name);
+}
 export function isButtonContainer(node: SceneNode): node is ButtonContainer {
   return node.type === 'FRAME' || node.type === 'GROUP' || node.type === 'INSTANCE';
 }
@@ -36,7 +41,7 @@ export function background(node: SceneNode): FrameNode | RectangleNode {
   fail('button-background', `${node.name}: ${candidates.length ? 'несколько слоёв размером с кнопку' : 'не найден фон размером с кнопку'}. Выберите нужный прямоугольник и нажмите «Выбранный слой — фон».`, node);
 }
 export function usesButtonArtwork(node: ButtonContainer): boolean {
-  return hasTransform(node) || node.type === 'GROUP' || node.children.some(n => !['TEXT','FRAME','SLOT'].includes(n.type)) || node.getPluginData('exui-generated-state') === '1' ||
+  return (node.parent !== null && isImageButton(node.parent)) || hasTransform(node) || node.type === 'GROUP' || node.children.some(n => !['TEXT','FRAME','SLOT'].includes(n.type)) || node.getPluginData('exui-generated-state') === '1' ||
     node.children.some(n=>{if(n.type!=='TEXT')return false;try{font(n);return false;}catch(error){if(error instanceof ExportError&&error.code==='font')return true;throw error;}}) ||
     ('strokes' in node && node.strokes.some(p => p.visible !== false)) || ('cornerRadius' in node && node.cornerRadius !== 0);
 }
@@ -44,9 +49,10 @@ export interface ArtworkText { font: Font; text: string; textColor: string; omit
 // Native Button text has only full-area CENTER / BOTTOM alignment. Other text
 // stays in the PNG so an arbitrary authored label is not moved during export.
 export function artworkText(state: ButtonContainer): ArtworkText {
+  const fallback: ArtworkText = { font: { family: 'Arial', size: 12, bold: false }, text: '', textColor: '#FFFFFF', bottom: false };
+  if (state.parent && isImageButton(state.parent)) return fallback;
   const labels = descendants(state).filter((n): n is TextNode => n.type === 'TEXT' && n.visible);
   const label = labels[0];
-  const fallback: ArtworkText = { font: { family: 'Arial', size: 12, bold: false }, text: '', textColor: '#FFFFFF', bottom: false };
   if (hasTransform(state)) return fallback;
   if (labels.length !== 1 || !label) return fallback;
   const full = fillsArea(label,state);

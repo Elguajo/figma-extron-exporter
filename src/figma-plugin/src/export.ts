@@ -5,7 +5,7 @@ import { captureProject,type ProjectOptions } from './project.ts';
 import { controlText,isControlFrame,KIT_KEY,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
 import { ExportError, nodeError } from './model.ts';
-import { artworkText, isButtonContainer, usesButtonArtwork, validateArtwork } from './button-artwork.ts';
+import { artworkText, isButtonContainer, isImageButton, usesButtonArtwork, validateArtwork } from './button-artwork.ts';
 import { popupAppearance,TRANSPARENT } from './popup-appearance.ts';
 import { BUTTON_TEXT_KEY, buttonTextMode, nativeButtonText } from './button-native-text.ts';
 
@@ -141,7 +141,6 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
   plain(root,false,false,false,{ignoreCornerRadius:true,ignoreOpacity:pm.kind==='popup',ignoreStrokes:pm.kind==='popup'});
   if(!pm.profile || !(pm.profile in PROFILES)) fail('profile','Выберите один из двух профилей панели.');
   const profile=pm.profile, canvas=PROFILES[profile];
-  if(!inProject&&pm.shownBy&&pm.shownBy!=='start')fail('page','Для способа показа navigation/program нужна общая секция проекта или Frame project_Name.');
   if(pm.kind==='popup'&&!pm.modal){if(root.width<1||root.height<1||root.width>canvas.width||root.height>canvas.height)fail('profile','Popup должен помещаться в холст.');}
   else if(root.width!==canvas.width || root.height!==canvas.height) fail('profile',`Холст должен быть ${canvas.width}×${canvas.height}; масштабирование не выполняется.`);
   const keys=new Set<string>(), ids=new Set<number>(), controls=new Set<number>();
@@ -197,7 +196,6 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
     if(x<0||y<0||w<1||h<1||x+w>Math.round(root.width)||y+h>Math.round(root.height)) fail('bounds',`${node.name}: элемент выходит за холст.`);
     const e: Element={key:addKey(m.key,node.name),kind:m.kind as Element['kind'],objectId,controlId,name:text(node.name,'Имя элемента'),rect:bounds};
     let caption:Element|undefined;
-    if(m.navigate){if(!inProject)fail('navigation','Для переходов нужна секция проекта или Frame project_Name.');if(m.kind!=='button')fail('navigation','Переход допустим только у кнопки.');e.navigate=key(m.navigate,'Цель перехода');}
     if(m.behavior){if(passive)fail('behavior','Поведение требует управляющего ID.');if(Object.keys(m.behavior).some(k=>!['selectionGroup','enabled','visible'].includes(k))||['enabled','visible'].some(k=>k in m.behavior!&&typeof m.behavior![k as 'enabled'|'visible']!=='boolean'))fail('behavior','Неизвестные или некорректные поля поведения.');if(m.behavior.selectionGroup){if(m.kind!=='button')fail('behavior','Группа выбора применяется к кнопкам.');key(m.behavior.selectionGroup,'Группа выбора');}e.behavior=m.behavior;}
     if(strokeLine) {
       Object.assign(e,strokeLine);
@@ -230,7 +228,7 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       if(node.children.filter(visible).length!==1) fail('states',`${node.name}: для предпросмотра должно быть видно ровно одно состояние.`);
       const states: State[]=[];let commonFont:Font|undefined;
       const textMode=m.kind==='button'?buttonTextMode(node):undefined;
-      const shared=m.kind==='button'&&!textMode?commonButtonCaption(node):undefined;
+      const shared=m.kind==='button'&&!textMode&&!isImageButton(node)?commonButtonCaption(node):undefined;
       if(shared){
         const captionId=captionIds.get(objectId)!;ids.add(captionId);
         caption={key:addKey(`button-caption.${screen.page.objectId}.${objectId}`,node.name),kind:'label',objectId:captionId,controlId:null,name:text(node.name.slice(0,248)+' caption','Имя подписи'),rect:[x+shared.rect[0],y+shared.rect[1],shared.rect[2],shared.rect[3]],...shared.copy};

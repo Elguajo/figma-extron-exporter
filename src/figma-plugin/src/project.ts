@@ -90,7 +90,6 @@ export function captureProject(root:SceneNode|PageNode,read:(n:SceneNode|PageNod
     const mismatch=targets.find(p=>p.size?.[0]!==ref.rect[2]||p.size?.[1]!==ref.rect[3]);
     if(mismatch)fail('popup-ref',`${ref.name}: размер места ${ref.rect[2]}×${ref.rect[3]}, а ${mismatch.name} — ${mismatch.size?.join('×')}. Размеры должны совпадать.`,source);
   }
-  for(const c of all){for(const e of c.elements){if(e.navigate&&(!all.some(t=>t.key===e.navigate)||e.navigate===c.key))fail('navigation',`${e.name}: неизвестная или собственная цель перехода.`);}if(c.shownBy==='navigation'&&!all.some(p=>p.elements.some(e=>e.navigate===c.key)))fail('navigation',`${c.name}: нужна кнопка, ведущая к контейнеру.`);}
   const paths=[...assets.values()].map(a=>a.file),resourceNames=[...assets.values()].map(a=>a.resourceName.toLowerCase());if(new Set(paths).size!==paths.length||new Set(resourceNames).size!==resourceNames.length)fail('image-conflict','Разные PNG имеют одинаковый путь или resourceName.');
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));
   return {profile,screen,images,signature:signature(root)};

@@ -8,7 +8,7 @@
 .button-workflow>summary>span{display:flex;align-items:center;gap:8px}.button-context{padding-top:12px}.button-context p+p{margin-top:4px}.button-styles{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-top:12px}.button-style{min-width:0;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface)}.button-style strong{display:block;font-size:11px}.button-swatch{height:42px;margin:8px 0;border:1px solid var(--border);border-radius:6px;background:var(--bg)}.button-style small{overflow-wrap:anywhere;margin-top:4px}.button-style [data-ready=false]{border-style:dashed}.button-plan{margin-top:12px;color:var(--muted);font-size:11px}.button-check{display:flex;gap:8px;align-items:center}.button-check input{width:16px;min-height:16px;margin:0;flex:none}.button-result{margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);overflow-wrap:anywhere}.button-result[data-kind=error]{border-color:var(--danger)}.button-result p{font-size:11px}.button-advanced{margin-top:12px;border-top:1px solid var(--border)}.button-advanced>summary{padding:10px 0;font-size:11px}.button-advanced[open]>summary{border-bottom:0}.button-advanced small:first-child{margin-top:0}#patternPreview{overflow-wrap:anywhere}#patternPreview[data-kind=error]{color:var(--danger)}
 .button-options{min-width:0;margin:12px 0 0;padding:8px 10px;border:1px solid var(--border);border-radius:6px}.button-options legend{padding:0 4px;font-size:11px;font-weight:600}.button-choice{display:flex;align-items:center;gap:8px;min-height:36px;font-size:11px;cursor:pointer}.button-choice input{width:16px;min-height:16px;margin:0;flex:none}
 </style></head><body>
-<header class="app-header"><div class="app-mark" aria-hidden="true">EX</div><div><h1>Figma → Extron Exporter <span class="version">· 0.8.7</span></h1><p class="sub">Экран или проект → пакет .exui</p></div></header>
+<header class="app-header"><div class="app-mark" aria-hidden="true">EX</div><div><h1>Figma → Extron Exporter <span class="version">· 0.8.8</span></h1><p class="sub">Экран или проект → пакет .exui</p></div></header>
 <main aria-label="Подготовка макета">
 <section class="card" aria-labelledby="selectionTitle">
 <div class="section-head"><h2 id="selectionTitle"><span class="step" aria-hidden="true">1</span>Макет и панель</h2><span id="selectionType" class="badge">Нет выбора</span></div>
@@ -50,10 +50,12 @@
 <button id="buttonBackground" class="secondary action">Выбранный слой — фон</button>
 <small>Если у кнопки несколько фонов, выберите нужный Rectangle или Frame размером с кнопку и отметьте его. Повторное нажатие снимает отметку.</small>
 <small>Новые кнопки: Group или Frame с именем button_ / btn_ → Off / On; feedbackbutton_ / fbtn_ → Normal / Active. Normal / Pressed для удержания и третье состояние Pressed подготавливаются вручную. Passive / Active и другие поддержанные имена сохраняются.</small>
+<small><b>Произвольное расположение текста:</b> назовите кнопку imagebutton_VideoControl или ibtn_VideoControl. Каждое состояние целиком сохраняется в PNG: фон, иконки и текст на своих местах. Новые кнопки подготавливаются как button_; у переименованных сохраняются тип, состояния и ID. Подпись редактируется в Figma и не меняется через Text Feedback.</small>
 </details>
 </div></details>
 <details id="buttonText" class="card"><summary>Текст кнопок для GCP</summary><div class="disclosure-body">
 <p class="sub">Выберите кнопки, экран или popup в Figma. Подпись станет текстом самой кнопки, который заменяет Text Feedback.</p>
+<p class="sub">Кнопки imagebutton_ / ibtn_ сохраняют весь текст в PNG и пропускаются при применении текста для GCP, даже если раньше для них было настроено выравнивание.</p>
 <label class="stack">Положение текста в GUI Designer<select id="buttonTextMode"><option value="auto">Автоматически из Figma</option><option value="bottom-center">Снизу по центру</option><option value="middle-center">По центру</option><option value="design">Сохранить расположение Figma</option></select></label>
 <small id="buttonTextHelp">Один раз примените к кнопкам, экрану или popup. Автоматический режим при каждом экспорте определяет центр или низ по положению текстовой рамки внутри кнопки. По горизонтали текст всегда по центру; настройки абзаца Figma игнорируются. Рамка на всю кнопку означает центр; верх и неоднозначное положение требуют ручного выбора. Фон, иконки, ID и слои Figma сохраняются. Для кнопки нужен один непустой Text в каждом состоянии и общий шрифт. «Сохранить расположение Figma» возвращает прежний экспорт, включая отдельные Label.</small>
 <button id="applyButtonText" class="action" aria-describedby="buttonTextHelp">Применить текст для GCP</button>
@@ -123,7 +125,7 @@
 <label class="stack" data-for="project page popup popup-group popup-ref button label value level slider shape line datetime image graphic">Семантический ключ<input id="key" placeholder="source.music" autocomplete="off" aria-describedby="keyHelp"></label>
 <small id="keyHelp" data-for="project page popup popup-group popup-ref button label value level slider shape line datetime image graphic">Обновляется по имени слоя при проверке и скачивании. Изменённый здесь ключ сохраняется; очистите поле, чтобы вернуть автоматический. ID не меняются.</small>
 <div class="row"><label class="stack" data-for="page popup popup-group popup-ref button label value level slider shape line datetime graphic">ID объекта<input id="objectId" type="number" min="1" step="1" aria-describedby="idHelp"></label><label class="stack" data-for="button level value slider">ID управления Extron<input id="controlId" type="number" min="1" max="65535" step="1" aria-describedby="idHelp"></label></div>
-<small id="idHelp" data-for="popup-ref button label value level slider shape line datetime graphic">Поле ID в GUI Designer — это «ID управления Extron» (1–65535). Можно взять ID кнопки, созданной в GUI Designer, например 1; «ID объекта» оставьте текущим. Сохранение проверяет занятые ID в проекте выбранной кнопки независимо от области экспорта. Чтобы перенести оформление в рабочий GDL, используйте режим замены по ID в утилите обновления 0.8.7.</small>
+<small id="idHelp" data-for="popup-ref button label value level slider shape line datetime graphic">Поле ID в GUI Designer — это «ID управления Extron» (1–65535). Можно взять ID кнопки, созданной в GUI Designer, например 1; «ID объекта» оставьте текущим. Сохранение проверяет занятые ID в проекте выбранной кнопки независимо от области экспорта. Чтобы перенести оформление в рабочий GDL, используйте режим замены по ID в утилите обновления 0.8.8.</small>
 <button id="saveIds" type="button" class="secondary action" data-for="popup-ref button label value level slider shape line datetime graphic" aria-describedby="idHelp">Сохранить ID</button>
 <small data-for="popup-ref button label value level slider shape line datetime graphic">Сохраняет только ID выбранного элемента; остальные поля формы не применяются. Ошибки оформления других слоёв не мешают сохранению. Копии и состояния подготавливаются отдельно при проверке и экспорте.</small>
 <label class="stack" data-for="project page popup">Имя проекта<input id="projectName" maxlength="256"></label>
@@ -132,7 +134,7 @@
 <label class="stack" data-for="state">Имя состояния<input id="stateName" placeholder="Off"></label>
 <label class="stack" data-for="image graphic">Файл PNG в пакете<input id="file" placeholder="assets/note-light.png"></label>
 <label class="stack" data-for="image graphic">Имя ресурса Extron<input id="resourceName" placeholder="exui-note-light.png"></label>
-<label class="stack" data-for="page popup">Показывается<select id="shownBy"><option value="">По умолчанию</option><option value="start">Стартовая страница</option><option value="program">Программой управления</option><option value="navigation">По кнопке, указанной в карте ID</option></select></label>
+<label class="stack" data-for="page popup">Показывается<select id="shownBy"><option value="">По умолчанию</option><option value="start">Стартовая страница</option><option value="program">Программой управления</option></select></label>
 <label class="stack" data-for="popup">Модальный popup<select id="modal"><option value="false">Нет</option><option value="true">Да</option></select></label>
 <details data-for="popup-ref"><summary>Ключи связи вручную</summary><div class="disclosure-body">
 <label class="stack">Ключ popup<input id="popup" placeholder="popup.sources"></label>
@@ -150,13 +152,11 @@
 <label class="stack" data-for="datetime">Формат даты/времени<input id="pattern" list="patternPresets" placeholder="Из макета" autocomplete="off" spellcheck="false" aria-describedby="patternPreview patternHelp"></label><datalist id="patternPresets"></datalist>
 <small id="patternPreview" data-for="datetime" role="status"></small>
 <small id="patternHelp" data-for="datetime">Пусто — формат берётся из макета: свойство Format компонента datetime_Clock из Extron Kit, Text-слой «Pattern: HH:mm» внутри компонента или текст-пример из каталога, например «September 28, 12:00 AM». Введённый здесь формат сохраняется и важнее макета.</small>
-<label class="stack" data-for="button">Открыть страницу или popup<select id="navigate" aria-describedby="navigationHelp"><option value="">Без перехода</option></select></label>
-<button id="showNavigation" class="secondary action" type="button" data-for="button">Показать цель в Figma</button>
-<small id="navigationHelp" data-for="button">Выберите цель из текущего проекта. Переход подключается в программе управления Extron.</small>
+<small data-for="button">Переходы между экранами и открытие/закрытие popup настраиваются в GCP после импорта интерфейса. Связывать кнопки с экранами в Figma не требуется.</small>
 <label class="stack" data-for="button">Группа выбора<input id="selectionGroup" placeholder="sources.hall"></label>
 <label class="stack" data-for="button level value slider">Доступность при запуске<select id="enabled"><option value="">Без указания</option><option value="true">Доступен</option><option value="false">Недоступен</option></select></label>
 <label class="stack" data-for="button level value slider">Видимость при запуске<select id="visible"><option value="">Без указания</option><option value="true">Виден</option><option value="false">Скрыт</option></select></label>
-<small data-for="button level value slider">Переходы, группа выбора, доступность и видимость — указания в карте ID. Их применяет программа управления; GDL сам их не исполняет.</small>
+<small data-for="button level value slider">Группа выбора, доступность и видимость — указания в карте ID. Их применяет программа управления; GDL сам их не исполняет.</small>
 <button type="submit">Сохранить назначение</button>
 </form>
 <div id="statePreview" data-for="button level"><label class="stack">Просмотр состояния<select id="previewRole"></select></label><button id="preview" class="secondary">Показать состояние</button><small>Экспорт включает все существующие состояния, в том числе скрытые.</small></div>

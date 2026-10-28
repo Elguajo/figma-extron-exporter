@@ -17,7 +17,7 @@ interface Registry {schema:'exui-id-registry/1'|'exui-id-registry/2';ownerNodeId
 export interface RecognitionRow {id:string;name:string;kind:Kind;buttonMode?:ButtonMode;key?:string;objectId?:number;controlId?:number|null;isNew:boolean}
 export interface RecognitionPlan {root:ProjectNode;options:ProjectOptions;profile:Profile;signature:string;registry:string;writes:{node:SceneNode|PageNode;metadata:Metadata}[];visibility:{node:SceneNode;visible:boolean}[];rows:RecognitionRow[];keys:{name:string;from:string;to:string}[];errors:string[];issues:RecognitionIssue[];warnings:string[]}
 const KIND_PREFIX:Partial<Record<Kind,string>>={button:'button_',label:'text_',value:'value_',level:'level_',slider:'slider_',shape:'shape_',line:'line_',datetime:'datetime_','popup-ref':'popupref_',graphic:'image_'};
-const TYPES:Record<string,Kind>={btn:'button',button:'button',lvl:'level',level:'level',txt:'label',text:'label',logo:'graphic',img:'graphic',image:'graphic',val:'value',value:'value',sld:'slider',slider:'slider',shp:'shape',shape:'shape',ln:'line',line:'line',dt:'datetime',datetime:'datetime',pr:'popup-ref',popupref:'popup-ref',gau:'level',gauge:'level',ind:'level',indicator:'level',led:'level',volumeled:'level',mlvl:'level',multilevel:'level'};
+const TYPES:Record<string,Kind>={btn:'button',button:'button',imagebutton:'button',ibtn:'button',lvl:'level',level:'level',txt:'label',text:'label',logo:'graphic',img:'graphic',image:'graphic',val:'value',value:'value',sld:'slider',slider:'slider',shp:'shape',shape:'shape',ln:'line',line:'line',dt:'datetime',datetime:'datetime',pr:'popup-ref',popupref:'popup-ref',gau:'level',gauge:'level',ind:'level',indicator:'level',led:'level',volumeled:'level',mlvl:'level',multilevel:'level'};
 export function namedControl(name:string):{kind:Kind;suffix:string;display?:Metadata['display'];buttonMode?:ButtonMode}|null {
   const match=/^([a-z]+)_(.+)$/i.exec(name);if(!match)return null;
   const prefix=match[1].toLowerCase(),kind=['fbtn','feedbackbutton'].includes(prefix)?'button':TYPES[prefix];if(!kind)return null;
@@ -83,17 +83,23 @@ export function recognize(root:SceneNode|PageNode,profile:Profile,options:Projec
   function states(button:ButtonContainer,control:Metadata){
     if(button.children.length<2||button.children.length>8)fail('states',`${button.name}: нужны 2..8 состояний. Для готового дизайна нажмите «Применить оформление» в разделе «Оформление кнопок».`);
     const custom=control.display==='multistate'||button.children.some(s=>!namedRole(s.name)),used=new Set(button.children.map(s=>existingFor(s)?.stateId).filter((id):id is number=>id!==undefined));
+    // Partly renamed artwork can still rely on saved roles. Infer new roles
+    // only when every state has an explicit, supported name.
+    const repairByNames=!!control.buttonMode&&!custom;
     for(const state of button.children){
       problemNode=state;
       requireNodeForKind(state,'state');
       const artwork=control.kind==='button'&&usesButtonArtwork(state);
       if(artwork)validateArtwork(state,button);
       else if(state.children.length<1||state.children.length>2||state.children.filter(n=>n.type==='TEXT').length!==1)fail('states',`${state.name}: нужен один Text и не более одной Frame-иконки.`);
-      const sm=existingFor(state),named=namedRole(state.name);let role=control.buttonMode?(named??sm?.role):(sm?.role??named);
+      const sm=existingFor(state),named=namedRole(state.name);let role=repairByNames?(named??sm?.role):(sm?.role??named);
       if(!role){if(!/^(st|state)_[A-Za-z][A-Za-z0-9-]*$/i.test(state.name))fail('states',`${state.name}: используйте Normal, On, Pressed или state_Ready.`);role='feedback';}
       let stateId=sm?.stateId??ROLE_ID[role];if(custom&&!sm){stateId=role==='normal'?0:1;while(used.has(stateId))stateId++;used.add(stateId);}
       const stateName=control.buttonMode?state.name.replace(/^(st|state)_/i,''):state.name;
-      const stateRepair=control.buttonMode&&named?{role,stateId:ROLE_ID[role],stateName}:undefined;
+      // Preparation can persist a momentary Pressed in slot 1 with metadata/2.
+      // This is already a valid assignment; recognition must not renumber it.
+      const densePressed=control.buttonMode==='on-off'&&button.children.length===2&&role==='pressed'&&sm?.schema==='exui-node/2'&&sm.stateId===1;
+      const stateRepair=repairByNames&&named?{role,stateId:densePressed?1:ROLE_ID[role],stateName}:undefined;
       if(stateRepair)stateId=stateRepair.stateId;
       assign(state,{kind:'state',role,stateId,stateName},stateRepair);
       if(artwork)continue;

@@ -10,6 +10,8 @@
 
 [Таблица «что это и для чего использовать»](../../docs/figma-prefix-reference.md) · [Шпаргалка в PDF](../../docs/prefix_map/figma-extron-prefix-cheatsheet.pdf).
 
+**Локальное обновление 27.10.2026 — `imagebutton_` / `ibtn_`.** Для произвольного положения подписей: `imagebutton_VideoControl` экспортирует каждое состояние целиком в PNG, включая фон, иконки и текст. Button сохраняет ID, действия и переключение состояний. Text остаётся пустым, отдельные Label не создаются; Text Feedback нарисованную подпись не меняет. Префикс имеет приоритет над сохранённой настройкой нативного текста. У новой кнопки правила состояний как у `button_`; у переименованной сохраняется ранее назначенный тип. Подготовка и нумерация поддерживают оба префикса. Нужен обновлённый development build; прежние архивы не менялись. [Подробнее](NATIVE_TEXT.md#подписи-кнопок).
+
 ## Текст с иконкой
 
 Для новых кнопок: **нативный текст по центру всей кнопки, иконка слева или справа в Artwork**. Примените «Текст кнопок для GCP» > «По центру». Оставьте симметричный резерв с обеих сторон под самое длинное значение Text Feedback. icon_ входит в PNG состояния и не получает controlId. Текущий плагин экспортирует для текста Button центр / низ по центру; GUI Designer имеет девять сочетаний. [Подробности и ограничения](NATIVE_TEXT.md).
@@ -147,7 +149,7 @@ project_Trilliant
 
 С 0.6.2 фон самих Frame popup/popupref по умолчанию прозрачен, обводки, радиусы и Opacity Frame игнорируются. Красные рамки можно оставить в Figma для обозначения границ. Для намеренного переноса фона или обводки включите соответствующий флажок в «Назначение выбранного элемента» и сохраните назначение. Переносимая обводка — SOLID Inside, одинаковая толщина, без пунктира; радиусы и Opacity Frame всё равно игнорируются. Оформление вложенных контролов сохраняет прежние правила. Для таких пакетов нужен CLI 0.6.1 или новее.
 
-По умолчанию первая новая страница — стартовая, остальные показывает программа. Ровно одна страница должна оставаться стартовой. С 0.6.3 она стоит первой в списке страниц GDL; остальные идут по именам с учётом чисел. Для добавленного `screen_StartPage` выберите «Показывается → Стартовая страница» и сохраните назначение; с 0.6.4 прежняя стартовая автоматически становится обычной. Через форму у кнопки можно задать цель `page.settings`/`popup.sources`, а у цели — «По кнопке». Эти связи попадают в карту ID; переходы исполняет программа Extron. Prototype interactions Figma не экспортируются.
+По умолчанию первая новая страница — стартовая, остальные показывает программа. Ровно одна страница должна оставаться стартовой. С 0.6.3 она стоит первой в списке страниц GDL; остальные идут по именам с учётом чисел. Для добавленного `screen_StartPage` выберите «Показывается → Стартовая страница» и сохраните назначение; с 0.6.4 прежняя стартовая автоматически становится обычной. Переходы между страницами и открытие/закрытие popup настраиваются в GCP после импорта. Привязывать экраны к кнопкам в Figma не требуется. Прежние назначения переходов игнорируются без изменения ID. Prototype interactions Figma не экспортируются.
 
 ## Поведение и платформенные ограничения
 
@@ -321,7 +323,7 @@ In 0.6.5, when the popupref itself is selected, a reverse list «Popup или г
 
 Since 0.6.2, the background of popup/popupref Frames themselves is transparent by default; strokes, radii and Frame Opacity are ignored. You can keep red frames in Figma to mark the bounds. To transfer the background or stroke on purpose, turn on the matching checkbox in «Назначение выбранного элемента» (Assignment of the selected element) and save the assignment. A transferable stroke is SOLID Inside, of equal thickness, without dashes; radii and Frame Opacity are ignored anyway. Styling of nested controls keeps the existing rules. Such packages need CLI 0.6.1 or newer.
 
-By default, the first new page is the start page; the others are shown by the program. Exactly one page must remain the start page. Since 0.6.3 it comes first in the list of GDL pages; the others follow by name, taking numbers into account. For an added `screen_StartPage`, choose «Показывается → Стартовая страница» (Shown → Start page) and save the assignment; since 0.6.4 the previous start page automatically becomes an ordinary one. In the form, a button can get the target `page.settings`/`popup.sources`, and the target «По кнопке» (By button). These links go into the ID map; navigation is executed by the Extron program. Figma Prototype interactions are not exported.
+By default, the first new page is the start page; the others are shown by the program. Exactly one page must remain the start page. Since 0.6.3 it comes first in the list of GDL pages; the others follow by name, taking numbers into account. For an added `screen_StartPage`, choose «Показывается → Стартовая страница» (Shown → Start page) and save the assignment; since 0.6.4 the previous start page automatically becomes an ordinary one. Configure page navigation and popup show/hide actions in GCP after import. Buttons need no links to screens in Figma. Legacy navigation assignments are ignored without changing IDs. Figma Prototype interactions are not exported.
 
 ## Behavior and platform limits
 

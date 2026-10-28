@@ -59,7 +59,7 @@ test('Ready and selection events do not serialize unrelated page artwork in sele
   await (f.api.ui.onmessage as (m:unknown)=>Promise<void>)({type:'ready'});
   f.page.selection=[main.children[0] as never];f.emit('selectionchange');
   assert.equal(paintReads,0);assert.equal(f.messages.filter(m=>m.type==='selection').length,2);
-  assert.ok((f.messages.at(-1)!.targets as unknown[]).length);
+  assert.equal(f.messages.at(-1)!.targets,undefined);
   assert.ok(f.page.getPluginData(PAGE_SETTINGS_KEY));
 });
 

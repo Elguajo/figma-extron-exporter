@@ -37,7 +37,7 @@ function screenOf(node:SceneNode):ProjectNode {
     if(metadata?.kind==='page'&&current.type==='FRAME')found=current;
     if(!metadata&&current.type==='SECTION')return current;
     if(!metadata&&current.type==='FRAME'&&(/^(prj|project)_/i.test(current.name)))return current;
-    if(!selectionKind(current)&&current.type==='FRAME'&&!/^(button|btn|feedbackbutton|fbtn|slider|sld)_/i.test(current.name)){const candidate=current;if(Object.values(PROFILES).some(p=>candidate.width===p.width&&candidate.height===p.height))found=candidate;}
+    if(!selectionKind(current)&&current.type==='FRAME'&&!/^(button|btn|feedbackbutton|fbtn|imagebutton|ibtn|slider|sld)_/i.test(current.name)){const candidate=current;if(Object.values(PROFILES).some(p=>candidate.width===p.width&&candidate.height===p.height))found=candidate;}
     current=current.parent;
   }
   if(found)return found;
@@ -117,7 +117,7 @@ export class ExportScope {
     const selection=figma.currentPage.selection;
     // Selecting a page to edit its properties must retain the rest of the project.
     if(selection.length===1&&this.selectedProject?.page.id===figma.currentPage.id)return;
-    if(!selection.length||selection.some(n=>n.type!=='FRAME'||['button','state','graphic','image','slider','shape','line','level','popup-ref'].includes(stored(n)?.kind??'')||/^(button|btn|feedbackbutton|fbtn)_/i.test(n.name)))return;
+    if(!selection.length||selection.some(n=>n.type!=='FRAME'||['button','state','graphic','image','slider','shape','line','level','popup-ref'].includes(stored(n)?.kind??'')||/^(button|btn|feedbackbutton|fbtn|imagebutton|ibtn)_/i.test(n.name)))return;
     const ids=new Set(selection.map(n=>n.id));
     for(const node of selection){let p=node.parent;while(p&&p.type!=='PAGE'){if(ids.has(p.id))fail('selection','Выберите сами экраны, без их родительских фреймов.');p=p.parent;}}
     this.selectedProject={page:figma.currentPage,nodes:selection as readonly FrameNode[]};
@@ -139,7 +139,7 @@ export class ExportScope {
   }
   refreshSelection(): void {
     const selection = figma.currentPage.selection;
-    if (this.mode === 'selection' && selection.length > 1 && selection.every(n => n.type === 'FRAME'&&!['button','state','graphic','image','slider','shape','line','level','popup-ref'].includes(selectionKind(n)??'')&&!/^(button|btn|feedbackbutton|fbtn)_/i.test(n.name))) this.mode = 'selected-frames';
+    if (this.mode === 'selection' && selection.length > 1 && selection.every(n => n.type === 'FRAME'&&!['button','state','graphic','image','slider','shape','line','level','popup-ref'].includes(selectionKind(n)??'')&&!/^(button|btn|feedbackbutton|fbtn|imagebutton|ibtn)_/i.test(n.name))) this.mode = 'selected-frames';
     if (this.mode === 'selected-frames') this.rememberFrames();
   }
   get canRecognize(): boolean {
@@ -155,7 +155,7 @@ export class ExportScope {
     // Styling follows the live selection, never the saved export project or
     // automatically linked popups. Resolving it must not change export settings.
     const selection=figma.currentPage.selection;
-    const isButton=(node:SceneNode)=>stored(node)?.kind==='button'||/^(button|btn|feedbackbutton|fbtn)_/i.test(node.name);
+    const isButton=(node:SceneNode)=>stored(node)?.kind==='button'||/^(button|btn|feedbackbutton|fbtn|imagebutton|ibtn)_/i.test(node.name);
     const isTarget=(node:SceneNode)=>node.type==='FRAME'||node.type==='SECTION'||(node.type==='GROUP'||node.type==='INSTANCE')&&isButton(node);
     if(!selection.length)fail('selection','Выберите один или несколько фреймов для оформления кнопок.');
     let members:readonly SceneNode[]=selection;
@@ -205,7 +205,7 @@ export class ExportScope {
         profile,
       },
       canRecognize: this.canRecognize,
-      hint: this.mode === 'selection' ? '' : `В проекте: ${byName(options.members!).map(n => n.name).join(', ')}`,
+      hint: '',
     };
   }
 }

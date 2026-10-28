@@ -5,7 +5,7 @@ import { recognize, applyRecognition, type RecognitionPlan } from './recognize.t
 import { createKit } from './kit.ts';
 import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
 import { sweepExportLeftovers } from './read-node.ts';
-import { pageScreens,projectMembers, type ProjectNode,type ProjectOptions } from './project.ts';
+import { type ProjectNode,type ProjectOptions } from './project.ts';
 import { ExportScope, selected, pageOf, selectionKind, type ScopeMode } from './scope.ts';
 import { requireNodeForKind } from './assignment-rules.ts';
 import { containerSuffix,freeKey } from './assignment-repair.ts';
@@ -55,21 +55,6 @@ function postRecognition(plan:RecognitionPlan):void {
   figma.ui.postMessage({type:'recognition',token:++recognitionToken,rows:plan.rows,errors:plan.errors,issues:plan.issues,warnings:plan.warnings});
 }
 const stored=(node:BaseNode)=>readMetadata(node,{allowCopied:true});
-// Offer sibling screens without changing an explicitly selected export subset.
-// Only choosing and saving a target adds that screen to the remembered project.
-function extraNavigationScreens(resolved:ReturnType<ExportScope['resolve']>):FrameNode[] {
-  const {root,options,profile}=resolved;
-  if(root.type!=='PAGE'&&!(root.type==='FRAME'&&root.parent?.type==='PAGE'&&resolved.scope.kind==='page'))return [];
-  const members=root.type==='PAGE'?options.members??[]:[root],included=new Set(members.map(n=>n.id));
-  const parents=new Set(members.map(n=>n.parent?.id));
-  return pageScreens(figma.currentPage,profile).filter(n=>parents.has(n.parent?.id)&&!included.has(n.id));
-}
-function navigationContext(targetId:string):{resolved:ReturnType<ExportScope['resolve']>;target:FrameNode} {
-  const current=scopeContext.resolve(),target=extraNavigationScreens(current).find(n=>n.id===targetId);
-  if(!target)fail('navigation','Экран перехода удалён, перемещён или больше не подходит профилю. Выберите цель повторно.');
-  const members=[...(current.root.type==='PAGE'?current.options.members??[]:[current.root]),target];
-  return {target,resolved:{...current,root:figma.currentPage,options:{members,projectName:figma.root.name},scope:{...current.scope,kind:'project'}}};
-}
 function linksContext(resolve:()=>ReturnType<ExportScope['resolve']>=()=>scopeContext.resolve(),forReference=false):LinkContext {
   const selection=figma.currentPage.selection,node=selection[0];
   // A place is edited in its owning project, even when the remembered export
@@ -134,7 +119,7 @@ function publish(keepRecognition=false,applied?:{root:ProjectNode;options:Projec
   // while copied descendants remain pending until check/export repairs them.
   try{if(n&&isButtonContainer(n)&&['button','level'].includes(metadata?.kind??''))states=n.children.map(stored).filter(m=>m?.kind==='state').map(m=>({stateId:m!.stateId,name:m!.stateName,role:m!.role}));}catch(e){warning=warning||(e as Error).message;}
   let scope:{id:string;name:string;kind:string;profile?:Profile}|undefined;
-  let targets:{id:string;key:string;name:string;kind:string;outsideScope?:boolean}[]=[],scopeHint='';
+  let scopeHint='';
   let preparedLinks:{context:LinkContext;plan:RecognitionPlan}|undefined;
   let canRecognize=false;
   let canPrepare=false,kind:Metadata['kind']|undefined;
@@ -151,16 +136,13 @@ function publish(keepRecognition=false,applied?:{root:ProjectNode;options:Projec
     const {root,options}=resolved,rm=stored(root);
     canRecognize=resolved.canRecognize;scopeHint=resolved.hint;scope=resolved.scope;
     if(rm?.kind==='project'||resolved.scope.kind==='project'){
-        // A navigation error can prevent the very assignments needed to repair
-        // it. Offer the draft keys without writing anything on selection.
+        // Offer draft identities without writing on selection, even when
+        // the project artwork still needs repair.
         const plan=applied&&applied.root===root&&sameMembers(applied.options,options)&&applied.plan.profile===resolved.profile?applied.plan:recognize(root,resolved.profile,options);
         preparedLinks={context:resolved,plan};
         const proposed=new Map(plan.writes.map(w=>[w.node.id,w.metadata]));
         const read=(node:SceneNode|PageNode)=>proposed.get(node.id)??readMetadata(node);
         if(n)metadata=read(n);
-        let container:BaseNode|null=n??null;
-        while(container&&!['page','popup'].includes(read(container as SceneNode|PageNode)?.kind??''))container=container.parent;
-        targets=projectMembers(root,read,options).containers.filter(c=>c.id!==container?.id).map(c=>({node:c,metadata:read(c)})).filter(c=>c.metadata&&['page','popup'].includes(c.metadata.kind)).map(c=>({id:c.node.id,key:c.metadata!.key!,name:c.node.name,kind:c.metadata!.kind}));
     }else if(n){
       // Show new/copy identities and automatic names without saving them.
       // Reuse the authoring draft below, keeping one snapshot per selection.
@@ -168,7 +150,6 @@ function publish(keepRecognition=false,applied?:{root:ProjectNode;options:Projec
       preparedLinks={context,plan};
       metadata=plan.writes.find(w=>w.node.id===n.id)?.metadata??metadata;
     }
-    for(const target of extraNavigationScreens(resolved))targets.push({id:target.id,key:'node:'+target.id,name:target.name,kind:'page',outsideScope:true});
   }catch(e){if(scopeContext.mode!=='selection'){canRecognize=false;scopeHint=(e as Error).message;}}
   // A newly copied screen can be selected for editing before it joins the
   // remembered export members. Show its own draft, not the source's metadata.
@@ -211,7 +192,7 @@ function publish(keepRecognition=false,applied?:{root:ProjectNode;options:Projec
   }
   try{scopeContext.persist(scope?.profile??scopeContext.profile);}catch{warning=warning||'Не удалось сохранить настройки текущей страницы. Назначения слоёв остаются в файле Figma.';}
   let popupBinding:ReturnType<typeof popupBindingInfo>;try{popupBinding=popupBindingInfo(scope?.profile??scopeContext.profile);}catch(e){warning=warning||(e as Error).message;}
-  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,targets,links,projectSettings,popupBinding,buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile,numbering:numberingEnabled?numberingView():undefined});
+  figma.ui.postMessage({type:'selection',keepRecognition,id:n?.id??null,name:n?.name??(selection.length?`Выбрано фреймов: ${selection.length}`:'Выберите экраны на холсте'),nodeType:n?.type,metadata,selectionKind:kind,canPrepare,warning,states,scope,links,projectSettings,popupBinding,buttonPresets,buttonStylePreviews,buttonScope,buttonWorkflow,datetime,scopeMode:scopeContext.mode,canRecognize,scopeHint,profile:scope?.profile??scopeContext.profile,numbering:numberingEnabled?numberingView():undefined});
 }
 function apply(input:Record<string,unknown>):void {
   const node=selected(),kind=input.kind as Metadata['kind'];
@@ -271,14 +252,6 @@ function saveIds(node:SceneNode,input:Record<string,unknown>,replacement?:Metada
   return readMetadata(node)!;
 }
 function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unknown>):void {
-  let expandedNavigation:ReturnType<typeof navigationContext>|undefined;
-  if(kind==='button'&&data.navigationTargetId){
-    expandedNavigation=navigationContext(String(data.navigationTargetId));
-    const {resolved,target}=expandedNavigation,plan=recognize(resolved.root,resolved.profile,resolved.options);
-    const targetMetadata=plan.writes.find(w=>w.node.id===target.id)?.metadata??stored(target);
-    if(!targetMetadata?.key)fail('navigation','Не удалось подготовить экран перехода. Проверьте его имя и назначение.');
-    data={...data,navigate:targetMetadata.key};
-  }
   let value:MetadataInput;
   switch(kind){
     case 'project': case 'page': case 'popup': {
@@ -312,7 +285,7 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
     }
   }
   if(kind==='page'||kind==='popup'){
-    if(data.shownBy){if(!['start','navigation','program'].includes(String(data.shownBy)))fail('page','Выберите способ показа.');value.shownBy=data.shownBy as Metadata['shownBy'];}
+    if(data.shownBy){if(!['start','program'].includes(String(data.shownBy)))fail('page','Выберите способ показа.');value.shownBy=data.shownBy as Metadata['shownBy'];}
     if(kind==='popup')value.modal=data.modal==='true';
   }
   if(kind==='image'||kind==='graphic'){
@@ -334,34 +307,15 @@ function assignNode(node:SceneNode,kind:Metadata['kind'],data:Record<string,unkn
     if(data[field]!==undefined&&!['true','false'].includes(String(data[field])))fail('appearance','Выберите, экспортировать ли оформление popup.');
     if(data[field]==='true')value[field]=true;
   }
-  if(kind==='button'&&data.navigate)value.navigate=key(data.navigate,'Цель перехода');
   if(CONTROL_KINDS.includes(kind)){
     const behavior:NonNullable<Metadata['behavior']>={};if(data.selectionGroup){if(kind!=='button')fail('behavior','Группа выбора применяется к кнопкам.');behavior.selectionGroup=key(data.selectionGroup,'Группа выбора');}
     for(const field of ['enabled','visible'] as const)if(data[field]!==''&&data[field]!==undefined){if(!['true','false'].includes(String(data[field])))fail('behavior','Выберите значение поведения.');behavior[field]=data[field]==='true';}
     if(Object.keys(behavior).length)value.behavior=behavior;
   }
   requireNodeForKind(node,kind);
-  if(expandedNavigation){
-    const {resolved}=expandedNavigation;
-    const plan=recognize(resolved.root,resolved.profile,resolved.options,new Map([[node.id,value]]));
-    if(!plan.rows.some(row=>row.id===node.id))fail('navigation','Кнопка не входит в выбранный проект. Выделите нужные экраны вместе.');
-    if(plan.errors.length)fail('recognition',plan.errors.join('\n'));
-    applyRecognition(plan);
-    scopeContext.useProject(resolved.root,resolved.options);return;
-  }
   const previous=stored(node);
   if(isControlKind(kind)&&previous?.kind===kind&&(previous.ownerNodeId!==node.id||previous.objectId!==value.objectId||previous.controlId!==value.controlId)){
     saveIds(node,data,value);return;
-  }
-  if(kind==='button'&&value.navigate){
-    const resolved=scopeContext.resolve();
-    if(resolved.scope.kind!=='project')fail('navigation','Для перехода выберите «Экраны текущей страницы — один проект» или выделите экраны вместе.');
-    if(!stored(node)||!stored(resolved.root)||projectMembers(resolved.root,stored,resolved.options).containers.some(c=>!stored(c))){
-      const plan=recognize(resolved.root,resolved.profile,resolved.options,new Map([[node.id,value]]));
-      if(!plan.rows.some(row=>row.id===node.id))fail('navigation','Кнопка не входит в выбранный проект. Выделите нужные экраны вместе.');
-      if(plan.errors.length)fail('recognition',plan.errors.join('\n'));
-      applyRecognition(plan);return;
-    }
   }
   if(kind==='line'&&isStrokeLine(node))readStrokeLine(node);
   const parentKind=node.parent&&!(kind==='project'&&node.parent.type==='PAGE')?readMetadata(node.parent)?.kind:undefined;
@@ -426,10 +380,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
     }
     if(['reference-target','selection-group','show-linked'].includes(message.type)){
       if(message.nodeId&&selected().id!==message.nodeId)fail('links','Выделение изменилось. Повторите действие для выбранного элемента.');
-      let ctx=linksContext(undefined,message.type==='reference-target'||message.type==='show-linked'&&selectionKind(selected())==='popup-ref');
-      if(message.type==='show-linked'&&typeof message.targetId==='string')try{
-        if(extraNavigationScreens(scopeContext.resolve()).some(n=>n.id===message.targetId))ctx=navigationContext(message.targetId).resolved;
-      }catch{ /* linkedNode below reports stale or unavailable targets. */ }
+      const ctx=linksContext(undefined,message.type==='reference-target'||message.type==='show-linked'&&selectionKind(selected())==='popup-ref');
       if(message.type==='show-linked'){
         if(typeof message.targetId!=='string')fail('links','Выберите цель.');
         const node=linkedNode(ctx,message.targetId);figma.currentPage.selection=[node];focusNode(node);
@@ -487,7 +438,9 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
       const resolved=scopeContext.resolveButtons();
       const result=setButtonTextMode(resolved.root,resolved.options,message.buttonText!);
       recognition=undefined;publish();
-      figma.ui.postMessage({type:'success',operation:message.type,message:message.buttonText==='design'?`Восстановлен экспорт по расположению Figma: ${result.buttons} кнопок. Отдельные подписи снова могут экспортироваться как Label.`:`Текст для GCP настроен: ${result.buttons} кнопок; без изменений: ${result.skipped}. В GDL подписи будут частью Button ${message.buttonText==='auto'?'с автоматическим выравниванием из Figma при каждом экспорте':message.buttonText==='bottom-center'?'снизу по центру':'по центру'}, без отдельного Label. Слои Figma и ID сохранены. Скачайте .exui и создайте новый GDL.`});
+      const detail=result.buttons?`У настроенных кнопок в GDL подписи будут частью Button ${message.buttonText==='auto'?'с автоматическим выравниванием из Figma при каждом экспорте':message.buttonText==='bottom-center'?'снизу по центру':'по центру'}, без отдельного Label.`:'Настройки текста не изменены.';
+      const messageText=message.buttonText==='design'?`Восстановлен экспорт по расположению Figma: ${result.buttons} кнопок. Отдельные подписи снова могут экспортироваться как Label.`:`Текст для GCP настроен: ${result.buttons} кнопок; без изменений: ${result.skipped}. ${detail} Слои Figma и ID сохранены. Скачайте .exui и создайте новый GDL.`;
+      figma.ui.postMessage({type:'success',operation:message.type,message:messageText+' Кнопки imagebutton_ / ibtn_ сохраняют подписи внутри PNG.'});
     }else if(message.type==='kit') {
       const result=await createKit(message.profile!);
       publish();figma.ui.postMessage({type:'success',message:`Extron Kit создан: ${result.components.length-result.dateTime.children.length} компонентов, datetime_Clock с ${result.dateTime.children.length} форматами, шаблоны проекта, 3 сценария ожидания/доступности/восстановления и отдельный экран 320×480. Выбран пример экрана. Изменяйте оформление в слотах Artwork, затем скачайте .exui — назначения подготовятся автоматически.`});

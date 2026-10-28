@@ -1,12 +1,16 @@
 <a id="russian"></a>
 
-# Figma → Extron Exporter — плагин 0.8.7 preview
+# Figma → Extron Exporter — плагин 0.8.8 preview
 
 **Русский** · [English](#english)
 
+**Локальное обновление 28.10.2026 — переходы в GCP.** Цель перехода у кнопок, режим «По кнопке» и проверки этих связей удалены. Переходы и открытие/закрытие popup настраиваются в GCP после импорта. Прежние назначения читаются без изменения ID: `navigate` игнорируется, `shownBy: navigation` означает `program`. EXUI/5 и CLI совместимы с прежними пакетами. Структура popupref, popup-группы и стартовая страница сохранены. Перезапустите development-плагин после сборки.
+
+**Локальное обновление — кнопки целиком в PNG.** Назовите карточку `imagebutton_VideoControl` или `ibtn_VideoControl`: фон, иконки и текст каждого состояния сохранят расположение из Figma. ID, действия и состояния остаются у Button. Префикс имеет приоритет над настройкой текста для GCP; подпись меняется в Figma с повторным экспортом. Подготовка состояний и нумерация поддерживают оба имени. Для нового рисунка примените обычную подготовку состояний; у существующей кнопки достаточно заменить префикс, сохранив оставшуюся часть имени. Обновлён development build; прежние архивы выпусков не изменены. [Подробности](NATIVE_TEXT.md#подписи-кнопок).
+
 **0.8.7 — ID обратно из GUI Designer в Figma.** Экспортируйте EXUI, сопоставьте старые и новые кнопки в LayoutUpdater, сохраните «Карта ID → Figma…», затем откройте карту в плагине через «Назначения Extron → Импортировать карту ID из LayoutUpdater» и примените ко всем. Можно связывать кнопки с разными ID по одной либо группой. Следующий экспорт будет содержать номера GUI Designer.
 
-**0.8.7 — имя копии и переход на новый экран.** Копия `screen_AudioControl`, переименованная в `screen_VideoControl`, получает собственное имя проекта. В «Открыть страницу или popup» соседний экран того же размера доступен с пометкой «добавить в проект», даже если его ещё нет в запомненном экспорте. Выберите цель и нажмите «Сохранить назначение»: выбранный экран включится в проект, остальные соседние экраны не добавятся. «Показать» только выделяет цель на холсте. Выпуск работает с CLI **0.8.5**. [Установка](../../releases/figma-plugin/0.8.7/README.md).
+**0.8.7 — имя копии экрана.** Копия `screen_AudioControl`, переименованная в `screen_VideoControl`, получает собственное имя проекта. Состав экспорта задаётся выделением фреймов или областью экспорта. Прежнее добавление экрана через цель перехода удалено в 0.8.8.
 
 **0.8.5 — ручные ID и замена кнопок GUI Designer.** Выберите кнопку → «Назначение выбранного элемента» → «ID управления Extron» → «Сохранить ID». Можно взять ID кнопки, созданной только в GUI Designer, например `1`. Ошибки других слоёв и текущая область экспорта не мешают сохранению. Для переноса оформления в рабочий GDL используйте `updater/Extron.LayoutUpdater.exe` из CLI 0.8.5 и включите «Заменять оформление кнопок GUI Designer по ID управления». Внутренние ID и поведение рабочей кнопки сохраняются; ID, число и порядок состояний должны совпадать.
 
@@ -37,7 +41,7 @@
 
 **0.6.7 — прозрачность линий:** Pen/Vector и Line Tool поддерживают непрозрачность SOLID Stroke и общую Opacity слоя; прямоугольные линии — Fill и Opacity. Линии остаются нативными PBLine. Нужен CLI **0.6.4**. [Установка](../../releases/figma-plugin/0.6.7/README.md).
 
-Текущий комплект: **плагин 0.8.7 + CLI 0.8.5**, единственный контракт пакетов — **EXUI/5**. CLI 0.7.0 пишет пустой Text у картинок, фигур, линий и регуляторов, чтобы GCP не оставлял страницу пустой, и сохраняет сравнение экспортов из 0.6.6 ([инструкция](../../docs/updating-configured-projects.md)). Начиная с CLI 0.6.5 устранены унаследованные заливки popup, принимает EXUI/5 прежних плагинов, прозрачные фоны popup/цвета фигур и ставит стартовую страницу первой при конвертации. Старые пакеты EXUI/1–4 актуальный CLI отклоняет: экспортируйте исходный макет заново. Сохранённые назначения и ID в Figma остаются на месте, ключи следуют именам слоёв; архивы прежних выпусков не меняются.
+Текущий комплект: **плагин 0.8.8 + CLI и LayoutUpdater 0.8.8**, единственный контракт пакетов — **EXUI/5**. CLI 0.7.0 пишет пустой Text у картинок, фигур, линий и регуляторов, чтобы GCP не оставлял страницу пустой, и сохраняет сравнение экспортов из 0.6.6 ([инструкция](../../docs/updating-configured-projects.md)). Начиная с CLI 0.6.5 устранены унаследованные заливки popup, принимает EXUI/5 прежних плагинов, прозрачные фоны popup/цвета фигур и ставит стартовую страницу первой при конвертации. Старые пакеты EXUI/1–4 актуальный CLI отклоняет: экспортируйте исходный макет заново. Сохранённые назначения и ID в Figma остаются на месте, ключи следуют именам слоёв; архивы прежних выпусков не меняются.
 
 **0.6.6 — клиппинг растрового фона:** включите Clip content у экрана или popup. Выступающий за его границы Frame `image_Background` экспортируется только видимой частью PNG с прежним масштабом. Клиппинг самого `image_Background` обрезает его внутренний рисунок; для выхода самого Frame за экран нужен клиппинг у экрана. Исходные размеры и координаты не меняются. [Установка](../../releases/figma-plugin/0.6.6/README.md).
 
@@ -81,7 +85,7 @@
 
 Версия 0.3.5 выполняет назначения автоматически при **«Проверить макет»** и **«Скачать .exui»**. Выберите экран, секцию или несколько экранов и профиль панели — отдельное распознавание и ручное заполнение ключей/ID больше не нужны. Нужны поддержанные префиксы и структура макета. При ошибке структуры назначения не записываются; при сбое записи восстанавливаются прежние данные.
 
-Копии получают собственные ключи/ID вместе с состояниями и PNG. При объединении отдельно подготовленных экранов исправляются совпадения, включая прежние `page.home` / `100`; первое уникальное назначение остаётся прежним. Одинаковые имена слоёв разрешены. Повторный экспорт использует сохранённые значения. Диапазон Slider/Level по умолчанию — 0–100; заданные диапазон, направление, поведение и переходы сохраняются. При исправлении уже конфликтовавших ID используйте новую карту ID для программы управления. «Распознать по именам» остаётся доступным для предварительного просмотра.
+Копии получают собственные ключи/ID вместе с состояниями и PNG. При объединении отдельно подготовленных экранов исправляются совпадения, включая прежние `page.home` / `100`; первое уникальное назначение остаётся прежним. Одинаковые имена слоёв разрешены. Повторный экспорт использует сохранённые значения. Диапазон Slider/Level по умолчанию — 0–100; заданные диапазон, направление и указания поведения сохраняются. При исправлении уже конфликтовавших ID используйте новую карту ID для программы управления. «Распознать по именам» остаётся доступным для предварительного просмотра.
 
 Версия 0.3.4 добавляет нативный экспорт горизонтальных и вертикальных линий Pen Tool (Vector) и Line Tool: `line_Divider` / `ln_Divider`. Цвет и толщина берутся из одного непрозрачного SOLID Stroke CENTER, PNG не создаётся. Нужны два конца без кривых, пунктира и стрелок. С 0.5.4 дробные толщина и геометрия округляются при экспорте; привязка оси к полупикселю не обязательна. [Подготовка линий](AUTHORING_STANDARD.md#линии-pen-tool-и-line-tool-034).
 
@@ -105,24 +109,23 @@
 
 ## Выбранные фреймы в одном проекте — без секции
 
-Список «Открыть страницу или popup» доступен и до сохранения распознанных назначений. Выберите экраны вместе либо режим «Экраны текущей страницы — один проект», затем выберите кнопку. Ключи и ID показываются предварительно; сохранение перехода проверяет и сохраняет необходимые назначения одним действием. Если у целевого экрана уже стоит показ «По кнопке», временно менять его на показ программой не требуется.
+Связывать кнопки с экранами перед экспортом не требуется. Ключи и ID назначаются при проверке и скачивании; переходы настраиваются в GCP.
 
 1. На открытой странице Figma выделить вместе `screen_Main` и `screen_AudioControl`. В меню «Что экспортировать» автоматически включится «Выбранные фреймы — один проект»; вариант можно выбрать и вручную.
 2. Выбрать профиль панели → «Проверить макет» или сразу «Скачать .exui». Ключи, свободные ID и имя проекта заполняются автоматически. Первой новой странице в порядке выделения назначается стартовый показ; имя проекта берётся из имени файла Figma. При необходимости сначала просмотреть результат через «Распознать по именам».
-3. Выделить кнопку Audio Control в Main → «Назначение выбранного элемента → Открыть страницу или popup» → выбрать `screen_AudioControl` → «Сохранить назначение».
-4. «Проверить макет» → «Скачать .exui». Пакет содержит обе страницы.
+3. Преобразовать EXUI в GDL, выполнить Verify и Save and Build в GUI Designer, затем импортировать интерфейс в GCP и настроить действия кнопок.
 
 Плагин помнит набор экранов до закрытия или смены страницы. Можно выделять кнопки и отдельные страницы для настройки свойств, состав проекта сохраняется. Новое выделение нескольких фреймов заменяет набор; после перезапуска нужно выделить их заново. Посторонние фреймы не получают назначений и не экспортируются. Слои не перемещаются, обёртка не создаётся. Реестр проекта хранится в служебных данных открытой страницы.
 
 «Экраны текущей страницы — один проект» собирает `screen_`, `scr_`, `Home` и ранее назначенные страницы точного размера выбранной панели; секции и известные Frame-проекты просматриваются для поиска экранов. Черновые фреймы, текстовые подписи, компоненты и экраны другого размера исключаются. Другие страницы документа не читаются. Для popup и их групп используйте явное выделение нужных Frame либо прежний экспорт секции / Frame проекта.
 
-Прежние назначения сохраняются. Если экраны ранее были независимо подготовлены с одинаковыми ID либо несколькими стартовыми страницами, проверка покажет конфликт; автоматического переназначения старых ID нет. В одном проекте используется один профиль панели. Связь навигации хранится в id-map; переход на панели выполняет программа управления Extron.
+Прежние назначения сохраняются. Если экраны ранее были независимо подготовлены с одинаковыми ID либо несколькими стартовыми страницами, проверка покажет конфликт; автоматического переназначения старых ID нет. В одном проекте используется один профиль панели. Переходы между страницами и popup на панели настраиваются в GCP.
 
 ## Проект из секции и переходы
 
 Секция — организационный контейнер, её размер и оформление не экспортируются. Экраны внутри остаются Frame точного размера панели. При первом распознавании первой странице в порядке слоёв назначается стартовый показ, остальным — показ программой. Ровно одна страница должна остаться стартовой; это меняется в «Назначение выбранного элемента → Показывается».
 
-Для кнопки перехода выделить её родительский Frame / экземпляр → раскрыть «Назначение выбранного элемента» → выбрать страницу в «Открыть страницу или popup» → «Сохранить назначение». Для целевой страницы выбрать «Показывается → По кнопке, указанной в карте ID». Связь экспортируется в id-map для программы Extron; сама программа управления выполняет переход. Текущая страница не предлагается в списке целей. Недоступная сохранённая цель остаётся в форме и блокирует проверку до исправления; она не удаляется молча.
+Переходы между экранами и открытие/закрытие popup задавайте в GCP. В плагине сохраняйте стартовую страницу, размещение popup и идентификаторы элементов; цели переходов у кнопок не нужны.
 
 Frame `project_Trilliant` продолжает работать. Ключ секции при новом распознавании — `project.section`, имя проекта берётся из заголовка секции; ключи и ID её страниц/элементов выдаются прежним реестром. После подготовки секции проверка и экспорт доступны и при выделении её дочернего элемента. Для распознавания нужно выбрать саму секцию или внешний Frame.
 
@@ -280,7 +283,7 @@ node src/figma-plugin/test/native-integration.ts output/figma-plugin/new-run
 
 <a id="english"></a>
 
-# Figma → Extron Exporter — plugin 0.8.7 preview
+# Figma → Extron Exporter — plugin 0.8.8 preview
 
 **0.8.7 — round-trip IDs.** Export EXUI, match existing and incoming buttons in LayoutUpdater, save the Figma ID map, then import and preview it under “Назначения Extron” in the plugin. Apply the batch to store GUI Designer Control IDs on the exact source layers. The updater supports different-ID pairs and ordered groups; existing GDL identities and behavior remain intact.
 
@@ -288,9 +291,11 @@ node src/figma-plugin/test/native-integration.ts output/figma-plugin/new-run
 
 [Русский](#russian) · **English**
 
+**Local update, 2026-10-28 — navigation in GCP.** Button navigation targets, the By button display mode and their validation have been removed. Configure page navigation and popup show/hide actions in GCP after import. Legacy `navigate` is ignored and `shownBy: navigation` is read as `program`, without rewriting stored records or IDs on read. EXUI/5 and CLI compatibility with older packages is retained. Popup placement, popup groups and the start page remain supported.
+
 The plugin interface is in Russian; its labels are quoted as shown, followed by their English meaning.
 
-**0.8.7 — copied screen names and navigation to new screens.** A copied screen uses its own Frame name. Sibling screens of the same profile outside the remembered export appear in the navigation selector with «добавить в проект» (add to project). Save the button assignment to include only the chosen target and store its navigation key. Showing a target on the canvas does not add it to the export. Use CLI **0.8.5**.
+**0.8.7 — copied screen names.** A copied screen uses its own Frame name. Choose export members using frame selection or export scope. Adding screens through navigation targets was retired in 0.8.8.
 
 **0.8.2 — automatic button text position.** Select buttons, a screen or a popup, open «Текст кнопок для GCP» (Button text for GCP) and apply «Автоматически из Figma» (Automatic from Figma) once. On every export, the position of the text frame inside the button decides center or bottom; horizontally the text is always centered. Paragraph settings are ignored; a frame covering the whole button means center. The caption is stored in the states of the Button itself and is replaced through Text Feedback; no separate Label and no text in the PNG are created for it. The background, icons, IDs and source Figma layers are kept. Manual Center / Bottom Center and undo through «Сохранить расположение Figma» (Keep Figma layout) remain available. Requires CLI **0.8.2** (0.8.1 also works); EXUI/5 did not change. [Rules of the automatic mode](NATIVE_TEXT.md#automatic-from-figma-plugin-082).
 
@@ -319,11 +324,11 @@ Button styling and Override use only the current Figma selection: one or more fr
 
 **0.6.7 — line transparency:** Pen/Vector and Line Tool support the opacity of a SOLID Stroke and the layer Opacity; rectangular lines support Fill and Opacity. Lines stay native PBLine. Requires CLI **0.6.4**. [Installation](../../releases/figma-plugin/0.6.7/README.md) (in Russian).
 
-Current kit: **plugin 0.8.7 + CLI 0.8.5**; the only package contract is **EXUI/5**. CLI 0.7.0 writes an empty Text for images, shapes, lines and sliders so that GCP does not leave the page blank, and keeps the export comparison from 0.6.6 ([guide](../../docs/updating-configured-projects.md#english)). Since CLI 0.6.5, inherited popup fills are removed; it accepts EXUI/5 from earlier plugins, transparent popup backgrounds/shape colors, and puts the start page first on conversion. The current CLI refuses old EXUI/1–4 packages: export the source layout again. Saved assignments and IDs in Figma stay in place, keys follow the layer names; archives of earlier releases do not change.
+Current kit: **plugin 0.8.8 + CLI and LayoutUpdater 0.8.8**; the only package contract is **EXUI/5**. CLI 0.7.0 writes an empty Text for images, shapes, lines and sliders so that GCP does not leave the page blank, and keeps the export comparison from 0.6.6 ([guide](../../docs/updating-configured-projects.md#english)). Since CLI 0.6.5, inherited popup fills are removed; it accepts EXUI/5 from earlier plugins, transparent popup backgrounds/shape colors, and puts the start page first on conversion. The current CLI refuses old EXUI/1–4 packages: export the source layout again. Saved assignments and IDs in Figma stay in place, keys follow the layer names; archives of earlier releases do not change.
 
 **0.6.6 — clipping of a raster background:** turn on Clip content on the screen or popup. An `image_Background` Frame that extends beyond its bounds is exported as only the visible part of the PNG at the original scale. Clipping on `image_Background` itself crops its inner picture; for the Frame itself to extend beyond the screen, clipping must be on the screen. The source sizes and coordinates do not change. [Installation](../../releases/figma-plugin/0.6.6/README.md) (in Russian).
 
-**0.6.5 — links by name:** select a popupref → «Содержимое места popup» (Popup place content) → popup/group → «Сохранить связь popup» (Save popup link). Below, saved links and buttons to jump to them on the canvas are shown; «Без связи» (No link) removes the assignment without deleting the Frame (until linked again, the project may fail the export check). Select buttons of one page/popup → «Группа выбора кнопок» (Button selection group) → create from the selection or choose an existing one → save. The key is assigned automatically; IDs stay the same. The project has a list of start screens; next to a button's navigation there is «Показать цель в Figma» (Show target in Figma). All link changes are saved explicitly and survive a restart. Button selection and feedback are still connected by the Extron control program. [Installation](../../releases/figma-plugin/0.6.5/README.md) (in Russian).
+**0.6.5 — links by name:** select a popupref → «Содержимое места popup» (Popup place content) → popup/group → «Сохранить связь popup» (Save popup link). Below, saved links and buttons to jump to them on the canvas are shown; «Без связи» (No link) removes the assignment without deleting the Frame (until linked again, the project may fail the export check). Select buttons of one page/popup → «Группа выбора кнопок» (Button selection group) → create from the selection or choose an existing one → save. The key is assigned automatically; IDs stay the same. The project has a list of start screens. All link changes are saved explicitly and survive a restart. Button selection and feedback are still connected by the Extron control program. [Installation](../../releases/figma-plugin/0.6.5/README.md) (in Russian).
 
 **0.6.4 — popup linking and page memory:** an empty `popupref_…` can be saved without keys and IDs. Select popups together or their existing group → «Размещение popup» (Popup placement) → choose the place by name → «Связать с местом popup» (Link to popup place). The group is created automatically or reused; popup coordinates and sizes are kept. Assignments are written after the «Сохранить назначение» (Save assignment) button and restored after a restart. The profile, the export mode and the chosen project content are saved separately on the Figma page. A new start page automatically replaces the previous one. [Installation and rules](../../releases/figma-plugin/0.6.4/README.md) (in Russian).
 
@@ -363,7 +368,7 @@ Version 0.3.6 shows recognition errors before assignments: the name and actual t
 
 Version 0.3.5 makes assignments automatically on **«Проверить макет»** (Check layout) and **«Скачать .exui»** (Download .exui). Select a screen, a section or several screens and the panel profile — separate recognition and manual entry of keys/IDs are no longer needed. Supported prefixes and layout structure are required. On a structure error, assignments are not written; if writing fails, the previous data is restored.
 
-Copies get their own keys/IDs together with their states and PNGs. When separately prepared screens are combined, collisions are fixed, including the earlier `page.home` / `100`; the first unique assignment stays as it was. Identical layer names are allowed. A repeated export uses the saved values. The default Slider/Level range is 0–100; a set range, direction, behavior and navigation are kept. When fixing IDs that already collided, use the new ID map for the control program. «Распознать по именам» (Recognize by names) remains available for a preview.
+Copies get their own keys/IDs together with their states and PNGs. When separately prepared screens are combined, collisions are fixed, including the earlier `page.home` / `100`; the first unique assignment stays as it was. Identical layer names are allowed. A repeated export uses the saved values. The default Slider/Level range is 0–100; a set range, direction and behavior hints are kept. When fixing IDs that already collided, use the new ID map for the control program. «Распознать по именам» (Recognize by names) remains available for a preview.
 
 Version 0.3.4 adds native export of horizontal and vertical Pen Tool (Vector) and Line Tool lines: `line_Divider` / `ln_Divider`. Color and thickness come from one opaque SOLID Stroke CENTER; no PNG is created. Two ends without curves, dashes or arrows are needed. Since 0.5.4, fractional thickness and geometry are rounded on export; snapping the axis to a half pixel is not required. [Preparing lines](AUTHORING_STANDARD.md#линии-pen-tool-и-line-tool-034) (in Russian).
 
@@ -387,24 +392,23 @@ Only states that exist in the layout are exported. An ordinary `button_` / `btn_
 
 ## Selected frames in one project — without a section
 
-The «Открыть страницу или popup» (Open page or popup) list is available even before recognized assignments are saved. Select the screens together or the «Экраны текущей страницы — один проект» (Screens of the current page — one project) mode, then select a button. Keys and IDs are shown in advance; saving the navigation checks and saves the needed assignments in one action. If the target screen is already shown «По кнопке» (By button), you do not need to switch it temporarily to being shown by the program.
+Buttons need no links to screens before export. Checks and downloads assign keys and IDs; configure navigation in GCP.
 
 1. On the open Figma page, select `screen_Main` and `screen_AudioControl` together. In the «Что экспортировать» (What to export) menu, «Выбранные фреймы — один проект» (Selected frames — one project) turns on automatically; you can also choose it by hand.
 2. Choose the panel profile → «Проверить макет» (Check layout) or straight «Скачать .exui» (Download .exui). Keys, free IDs and the project name are filled in automatically. The first new page in selection order gets the start display; the project name comes from the Figma file name. If needed, first preview the result through «Распознать по именам» (Recognize by names).
-3. Select the Audio Control button in Main → «Назначение выбранного элемента → Открыть страницу или popup» (Assignment of the selected element → Open page or popup) → choose `screen_AudioControl` → «Сохранить назначение» (Save assignment).
-4. «Проверить макет» → «Скачать .exui» (Check layout → Download .exui). The package contains both pages.
+3. Convert EXUI to GDL, run Verify and Save and Build in GUI Designer, then import the interface into GCP and configure button actions.
 
 The plugin remembers the set of screens until it is closed or the page changes. You can select buttons and individual pages to set properties; the project content is kept. A new selection of several frames replaces the set; after a restart, select them again. Unrelated frames get no assignments and are not exported. Layers are not moved and no wrapper is created. The project registry is stored in the service data of the open page.
 
 «Экраны текущей страницы — один проект» (Screens of the current page — one project) collects `screen_`, `scr_`, `Home` and previously assigned pages of the exact size of the selected panel; sections and known project Frames are searched for screens. Draft frames, text captions, components and screens of another size are excluded. Other pages of the document are not read. For popups and their groups, explicitly select the needed Frames or use the earlier section / project Frame export.
 
-Earlier assignments are kept. If screens were previously prepared independently with identical IDs or several start pages, the check shows a conflict; old IDs are not reassigned automatically. One project uses one panel profile. The navigation link is stored in the id-map; the Extron control program performs the navigation on the panel.
+Earlier assignments are kept. If screens were previously prepared independently with identical IDs or several start pages, the check shows a conflict; old IDs are not reassigned automatically. One project uses one panel profile. Configure page navigation and popup actions in GCP.
 
 ## A project from a section, and navigation
 
 A section is an organizing container; its size and styling are not exported. Screens inside remain Frames of the exact panel size. On first recognition, the first page in layer order gets the start display, the others are shown by the program. Exactly one page must remain the start page; change this in «Назначение выбранного элемента → Показывается» (Assignment of the selected element → Shown).
 
-For a navigation button, select its parent Frame / instance → open «Назначение выбранного элемента» (Assignment of the selected element) → choose the page in «Открыть страницу или popup» (Open page or popup) → «Сохранить назначение» (Save assignment). For the target page, choose «Показывается → По кнопке, указанной в карте ID» (Shown → By the button given in the ID map). The link is exported into the id-map for the Extron program; the control program itself performs the navigation. The current page is not offered in the target list. An unavailable saved target stays in the form and blocks the check until fixed; it is not removed silently.
+Configure page navigation and popup show/hide actions in GCP. In the plugin, keep the start page, popup placement and element IDs; button navigation targets are unnecessary.
 
 A `project_Trilliant` Frame keeps working. On new recognition, the section key is `project.section`, and the project name comes from the section title; keys and IDs of its pages/elements are issued by the existing registry. After the section is prepared, check and export are also available when its child element is selected. Recognition needs the section itself or the outer Frame to be selected.
 

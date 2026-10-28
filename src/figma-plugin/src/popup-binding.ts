@@ -93,7 +93,7 @@ export function saveContainerSettings(node:SceneNode,data:Record<string,unknown>
   if(data.objectId!==undefined&&data.objectId!=='')m.objectId=integer(Number(data.objectId),1,kind==='popup-group'?65535:65534,'ID объекта');
   if(kind!=='popup-group'){
     m.profile=profile;if(data.projectName)m.projectName=text(data.projectName,'Имя проекта');
-    if(data.shownBy){if(!['start','program','navigation'].includes(String(data.shownBy))||kind==='popup'&&data.shownBy==='start')fail('page','Выберите допустимый способ показа.');m.shownBy=data.shownBy as Metadata['shownBy'];}
+    if(data.shownBy){if(!['start','program'].includes(String(data.shownBy))||kind==='popup'&&data.shownBy==='start')fail('page','Выберите допустимый способ показа.');m.shownBy=data.shownBy as Metadata['shownBy'];}
   }
   if(kind==='popup'){
     m.modal=data.modal==='true';

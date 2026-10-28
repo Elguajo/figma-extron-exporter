@@ -11,10 +11,10 @@ export const DEFAULT_NUMBERING: NumberingOptions = {base:'Box',start:1,mode:'pos
 function isButton(node: SceneNode): node is ButtonContainer {
   if (!isButtonContainer(node)) return false;
   const metadata = readMetadata(node, {allowCopied:true});
-  return metadata ? metadata.kind === 'button' : /^(button|btn|feedbackbutton|fbtn)_.+/i.test(node.name);
+  return metadata ? metadata.kind === 'button' : /^(button|btn|feedbackbutton|fbtn|imagebutton|ibtn)_.+/i.test(node.name);
 }
 function prefix(node: ButtonContainer): string {
-  return /^(button|btn|feedbackbutton|fbtn)_/i.exec(node.name)?.[0] ?? (readMetadata(node,{allowCopied:true})?.buttonMode === 'feedback' ? 'feedbackbutton_' : 'button_');
+  return /^(button|btn|feedbackbutton|fbtn|imagebutton|ibtn)_/i.exec(node.name)?.[0] ?? (readMetadata(node,{allowCopied:true})?.buttonMode === 'feedback' ? 'feedbackbutton_' : 'button_');
 }
 function ordered(nodes: readonly ButtonContainer[]): ButtonContainer[] {
   // Form rows using a fixed top-edge tolerance, then read each row left to right.
@@ -55,7 +55,7 @@ export function planNumbering(selection: readonly SceneNode[], options: Numberin
   if (!['position','duplicates'].includes(options.mode) || typeof options.names !== 'boolean' || typeof options.labels !== 'boolean') fail('button-numbering','Проверьте настройки нумерации.');
   if (!options.names && !options.labels) fail('button-numbering','Выберите изменение имён слоёв или текста кнопок.');
   const buttons = new Map(selection.filter(isButton).map(node=>[node.id,node]));
-  if (!buttons.size) fail('button-numbering','Выделите сами кнопки button_ / btn_ / feedbackbutton_ / fbtn_ в Figma. Выбор родительской группы, фрейма или слоя внутри кнопки не включает кнопку в нумерацию.');
+  if (!buttons.size) fail('button-numbering','Выделите сами кнопки button_ / btn_ / feedbackbutton_ / fbtn_ / imagebutton_ / ibtn_ в Figma. Выбор родительской группы, фрейма или слоя внутри кнопки не включает кнопку в нумерацию.');
   const roots=[...buttons.values()];
   const parents = [...new Set([...buttons.values()].map(node=>node.parent!))];
   const entries: Entry[] = [], rows: NumberingRow[] = [];
