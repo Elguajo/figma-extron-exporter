@@ -51,6 +51,7 @@ foreach ($dir in @('samples/donors', 'samples/original', 'examples/home-1025m', 
     New-Item -ItemType Directory -Force -Path (Join-Path $stage $dir) | Out-Null
 }
 Copy-Item -LiteralPath (Join-Path $repo 'scripts/ExtronExporter.ps1') -Destination $stage
+Copy-Item -LiteralPath (Join-Path $repo 'scripts/Convert-EXUI.cmd') -Destination $stage
 Copy-Item -LiteralPath (Join-Path $repo 'LICENSE') -Destination $stage
 $cliReadme = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $repo "releases/cli/$cliVersion/README.md")
 $cliReadme.Replace("figma-extron-complete-$cliVersion-local.zip", "figma-extron-complete-$version-local.zip").Replace("CLI для плагина **$cliVersion**", "CLI для плагина **$version**").Replace("CLI для плагина $cliVersion", "CLI для плагина $version").Replace("Комплект для плагина $cliVersion", "Комплект для плагина $version").Replace("заголовок плагина должен показывать **$cliVersion**", "заголовок плагина должен показывать **$version**") | Write-Utf8NoBom (Join-Path $stage 'README.md')
@@ -62,7 +63,7 @@ foreach ($file in @('donors.json', 'manifest.json')) {
 }
 Copy-Item -LiteralPath (Join-Path $repo 'docs/verification/results/2026-10-21-home-layout-1025m/actual-home-layout.exui') -Destination (Join-Path $stage 'examples/home-1025m/home.exui')
 Copy-Item -LiteralPath (Join-Path $repo 'docs/verification/results/2026-10-21-home-layout-1025m/id-map.md') -Destination (Join-Path $stage 'examples/home-1025m/id-map.md')
-foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md', 'updating-configured-projects.md', 'extron-compatibility.md', 'figma-id-roundtrip.md')) {
+foreach ($file in @('exui-v5.md', 'figma-prefix-reference.md', 'updating-configured-projects.md', 'extron-compatibility.md', 'figma-id-roundtrip.md', 'exui-desktop-converter.md')) {
     Copy-Item -LiteralPath (Join-Path $repo "docs/$file") -Destination (Join-Path $stage 'docs')
 }
 Copy-Item -LiteralPath (Join-Path $plugin 'NATIVE_TEXT.md') -Destination (Join-Path $stage 'docs/native-text.md')

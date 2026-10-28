@@ -13,21 +13,33 @@ const root=path.resolve(import.meta.dirname,'../../..'),out=path.resolve(process
 await mkdir(out,{recursive:true});
 function cli(args:string[]){const r=spawnSync(process.env.DOTNET_EXE??path.join(root,'.tools/dotnet/dotnet.exe'),[process.env.EXUI_CLI_DLL??path.join(root,'src/cli/bin/Debug/net10.0/Extron.Cli.dll'),...args],{cwd:root,encoding:'utf8',timeout:180000,maxBuffer:8*1024*1024});assert.equal(r.status,0,r.stderr||r.stdout||String(r.error));return JSON.parse(r.stdout);}
 const evidence:unknown[]=[];
-for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)for(const variant of ['middle-center','bottom-center','auto-middle','auto-bottom'] as const){
+for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)for(const variant of ['default','middle-center','bottom-center','auto-middle','auto-bottom'] as const){
   const mode=variant.startsWith('auto')?'auto':variant as 'middle-center'|'bottom-center';
   const bottom=variant==='bottom-center'||variant==='auto-bottom';
-  const f=authorButtons(profile);prepareButtons(f.root);
+  const f=authorButtons(profile);
+  if(variant==='default'){
+    const card=f.buttons[0];card.name='button_CH01';card.resize(138,126);
+    card.children.find(n=>n.type==='RECTANGLE')!.resize(138,126);
+    const label=card.children.find(n=>n.type==='TEXT')!;label.characters='BGM Music';label.x=19;label.y=51;label.resize(100,24);
+    card.children.find(n=>n.type==='GROUP')!.remove();f.buttons[1].y=150;
+  }
+  prepareButtons(f.root);
+  if(variant==='default')f.buttons[0].children.forEach((state,i)=>state.name=i?'Pressed':'Normal');
   for(const b of f.buttons)for(const state of b.children){const label=state.children.find(n=>n.type==='TEXT')!;label.fontName={family:'Inter',style:'Regular'};if(variant==='auto-middle')label.y=28;}
   applyRecognition(recognize(f.root,profile));const source=designSignature(f.root),before=await exportFrame(f.root);
-  assert.equal(before.screen.elements.filter(e=>e.kind==='label').length,2);
-  setButtonTextMode(f.root,{},mode);const after=await exportFrame(f.root);
+  assert.equal(before.screen.elements.filter(e=>e.kind==='label').length,0);assert.ok(before.screen.elements.every(e=>e.kind==='button'&&e.states!.every(s=>!!s.text)));
+  if(variant!=='default')setButtonTextMode(f.root,{},mode);const after=await exportFrame(f.root);
   const base=path.join(out,profile+'-'+variant),input=base+'.exui',output=base+'.gdl';
   await writeFile(input,packageExui(after),{flag:'wx'});
   const generation=cli(['convert-package',input,output,'--registry',path.join(root,'samples/donors.json')]);
   const controls=cli(['list-controls',output]).model.Pages[0].Controls;
   assert.equal(controls.length,2);assert.ok(controls.every((c:any)=>c.Type==='PBButton'&&!c.FlattenText));
+  if(variant==='default'){
+    assert.deepEqual([controls[0].Width,controls[0].Height],[138,126]);assert.equal(controls[0].PressFeedbackState,1);
+    assert.deepEqual(controls[0].States.map((s:any)=>[s.Name,s.Text]),[['Normal','BGM Music'],['Pressed','BGM Music']]);
+  }
   for(const e of after.screen.elements){const c=controls.find((c:any)=>c.ObjectId===e.objectId);assert.equal(c.ControlId,e.controlId);assert.deepEqual(c.States.map((s:any)=>s.Text),e.states!.map(s=>s.text));assert.ok(c.States.every((s:any)=>s.TextAlignment===(bottom?0:3)));}
-  const replaced=base+'-replaced.gdl';cli(['set-button-text',output,replaced,String(controls[0].ControlId),'Audio','BGM CH 1']);
+  const replaced=base+'-replaced.gdl';cli(['set-button-text',output,replaced,String(controls[0].ControlId),controls[0].States[0].Text,'BGM CH 1']);
   const changed=cli(['list-controls',replaced]).model.Pages[0].Controls;
   assert.equal(changed.length,2);assert.ok(changed[0].States.every((s:any)=>s.Text==='BGM CH 1'));assert.deepEqual(changed[1],controls[1]);
   assert.deepEqual(changed.map((c:any)=>[c.ObjectId,c.ControlId]),controls.map((c:any)=>[c.ObjectId,c.ControlId]));

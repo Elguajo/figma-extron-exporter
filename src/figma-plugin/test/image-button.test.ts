@@ -82,15 +82,15 @@ test('Renaming a native-text button overrides saved alignment and is reversible 
   assert.deepEqual(capture(f.root).screen.elements.find(e => e.controlId === native.controlId), native);
 });
 
-test('Identical Inter captions stay inside imagebutton PNGs rather than becoming a shared Label', () => {
+test('Identical Inter captions switch from native Button text to PNG only with imagebutton prefix', () => {
   const f = authorButtons();prepareButtons(f.root);
   for (const button of f.buttons) for (const state of button.children)
     (descendants(state).find(n => n.type === 'TEXT') as TextNode).fontName = {family:'Inter',style:'Regular'};
   applyRecognition(recognize(f.root, 'tlp-pro-1025m'));
-  assert.equal(capture(f.root).screen.elements.filter(e => e.kind === 'label').length, 2);
+  assert.equal(capture(f.root).screen.elements.filter(e => e.kind === 'label').length, 0);
   f.buttons[0].name = 'imagebutton_AudioControl';
   const result = capture(f.root);
-  assert.equal(result.screen.elements.filter(e => e.kind === 'label').length, 1);
+  assert.equal(result.screen.elements.filter(e => e.kind === 'label').length, 0);
   const id = readMetadata(f.buttons[0])!.controlId;
   assert.ok(result.images.filter(i => i.asset.key.startsWith(`button-artwork.${id}.`)).every(i => !i.artwork?.omitTextId));
 });

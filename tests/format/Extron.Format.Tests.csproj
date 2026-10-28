@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../src/updater/ConversionFiles.cs" Link="ConversionFiles.cs" />
     <ProjectReference Include="../../src/extron/Extron.Format.csproj" />
     <ProjectReference Include="../../src/adapter/Extron.Adapter.csproj" />
   </ItemGroup>

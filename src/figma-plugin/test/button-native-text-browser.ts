@@ -29,7 +29,10 @@ try{
   await page.goto(`http://127.0.0.1:${(server.address() as {port:number}).port}`);
   const frame=page.frameLocator('iframe');await frame.locator('#buttonText').waitFor();
   await page.evaluate(messages=>(window as any).sendMessages(messages),f.messages);
+  assert.ok(capture(f.root).screen.elements.every(e=>e.kind==='button'&&e.states!.every(s=>!!s.text)),'ordinary buttons are native before any UI command');
+  assert.equal(await frame.locator('#buttonTextMode').inputValue(),'design');
   await frame.locator('#buttonText > summary').focus();await page.keyboard.press('Enter');
+  await frame.locator('#buttonTextMode').selectOption('auto');
   await frame.locator('#applyButtonText').click();
   await frame.locator('#buttonTextResult').filter({hasText:'Текст для GCP настроен: 2'}).waitFor();
   assert.ok(f.buttons.every(b=>b.getPluginData(BUTTON_TEXT_KEY)==='auto'));
@@ -45,7 +48,7 @@ try{
     await page.screenshot({path:path.join(out,`ui-${width}.png`)});
   }
   await frame.locator('#buttonTextMode').selectOption('design');await frame.locator('#applyButtonText').click();
-  await frame.locator('#buttonTextResult').filter({hasText:'Восстановлен экспорт'}).waitFor();
+  await frame.locator('#buttonTextResult').filter({hasText:'Восстановлен нативный текст'}).waitFor();
   assert.ok(f.buttons.every(b=>!b.getPluginData(BUTTON_TEXT_KEY)));
   // Scope is live: selecting one button changes only that button.
   let start=f.messages.length;f.page.selection=[f.buttons[0] as never];f.emit('selectionchange');
@@ -65,12 +68,12 @@ try{
   const raster=capture(f.root);assert.ok(raster.screen.elements[0].states!.every(s=>s.text===''&&s.image));
   assert.ok(raster.images.filter(i=>i.asset.key.startsWith(`button-artwork.${raster.screen.elements[0].controlId}.`)).every(i=>!i.artwork?.omitTextId));
   await frame.locator('#buttonTextMode').selectOption('design');await frame.locator('#applyButtonText').click();
-  await frame.locator('#buttonTextResult').filter({hasText:'Восстановлен экспорт по расположению Figma: 0'}).waitFor();
+  await frame.locator('#buttonTextResult').filter({hasText:'Восстановлен нативный текст по умолчанию: 0'}).waitFor();
   assert.equal(f.buttons[0].getPluginData(BUTTON_TEXT_KEY),'middle-center');
   start=f.messages.length;f.page.selection=[];f.emit('selectionchange');
   await page.evaluate(messages=>(window as any).sendMessages(messages),f.messages.slice(start));
   await frame.locator('#applyButtonText:disabled').waitFor();
   assert.deepEqual(errors,[]);
-  await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,checks:['keyboard disclosure','320/420 widths','real UI-to-plugin command','native caption export','restore design mode','live selection isolation','imagebutton ignores native text command and old alignment','empty selection disabled'],errors,boundary:'Chromium, built UI/plugin; modeled Figma API'},null,2)+'\n');
+  await writeFile(path.join(out,'browser.json'),JSON.stringify({passed:true,checks:['keyboard disclosure','320/420 widths','real UI-to-plugin command','native caption export','reset native alignment','live selection isolation','imagebutton ignores native text command and old alignment','empty selection disabled'],errors,boundary:'Chromium, built UI/plugin; modeled Figma API'},null,2)+'\n');
   console.log('PASS native text UI: scope, native export, reversal, keyboard and responsive layout');
 }finally{await browser.close();await new Promise<void>(resolve=>server.close(()=>resolve()));}

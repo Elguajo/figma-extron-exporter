@@ -1,5 +1,5 @@
 import { ExportError, fail, type Font } from './model.ts';
-import { font, hasTransform, plain, readText, rect } from './read-node.ts';
+import { font, hasTransform, plain, rect, type ArtworkMove } from './read-node.ts';
 
 export type ButtonContainer = FrameNode | GroupNode | InstanceNode;
 export const BACKGROUND_KEY = 'exui-button-background';
@@ -41,27 +41,13 @@ export function background(node: SceneNode): FrameNode | RectangleNode {
   fail('button-background', `${node.name}: ${candidates.length ? 'несколько слоёв размером с кнопку' : 'не найден фон размером с кнопку'}. Выберите нужный прямоугольник и нажмите «Выбранный слой — фон».`, node);
 }
 export function usesButtonArtwork(node: ButtonContainer): boolean {
-  return (node.parent !== null && isImageButton(node.parent)) || hasTransform(node) || node.type === 'GROUP' || node.children.some(n => !['TEXT','FRAME','SLOT'].includes(n.type)) || node.getPluginData('exui-generated-state') === '1' ||
+  return (node.parent !== null && isImageButton(node.parent)) || hasTransform(node) || node.type === 'GROUP' || node.children.filter(n=>n.type==='TEXT').length!==1 ||
+    node.children.some(n=>n.type!=='TEXT'&&descendants(n).some(child=>child.type==='TEXT')) ||
+    node.children.some(n => !['TEXT','FRAME','SLOT'].includes(n.type)) || node.getPluginData('exui-generated-state') === '1' ||
     node.children.some(n=>{if(n.type!=='TEXT')return false;try{font(n);return false;}catch(error){if(error instanceof ExportError&&error.code==='font')return true;throw error;}}) ||
     ('strokes' in node && node.strokes.some(p => p.visible !== false)) || ('cornerRadius' in node && node.cornerRadius !== 0);
 }
-export interface ArtworkText { font: Font; text: string; textColor: string; omitTextId?: string; bottom: boolean }
-// Native Button text has only full-area CENTER / BOTTOM alignment. Other text
-// stays in the PNG so an arbitrary authored label is not moved during export.
-export function artworkText(state: ButtonContainer): ArtworkText {
-  const fallback: ArtworkText = { font: { family: 'Arial', size: 12, bold: false }, text: '', textColor: '#FFFFFF', bottom: false };
-  if (state.parent && isImageButton(state.parent)) return fallback;
-  const labels = descendants(state).filter((n): n is TextNode => n.type === 'TEXT' && n.visible);
-  const label = labels[0];
-  if (hasTransform(state)) return fallback;
-  if (labels.length !== 1 || !label) return fallback;
-  const full = fillsArea(label,state);
-  if (label.parent !== state || state.children[state.children.length-1] !== label || !full || label.textAlignHorizontal !== 'CENTER' || !['CENTER', 'BOTTOM'].includes(label.textAlignVertical)) return fallback;
-  try {
-    const copy = readText(label, true);
-    return { ...copy, omitTextId: label.id, bottom: label.textAlignVertical === 'BOTTOM' };
-  } catch { return fallback; }
-}
+export interface ArtworkText { font: Font; text: string; textColor: string; omitTextId?: string; bottom: boolean; moves?:ArtworkMove[] }
 export function validateArtwork(state: ButtonContainer, button: ButtonContainer): void {
   plain(state, true, true, false, {rasterTransform:true});
   const actual = rect(state, button), expected = rect(button, button);

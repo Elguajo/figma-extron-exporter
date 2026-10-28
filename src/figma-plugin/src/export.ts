@@ -1,15 +1,15 @@
 import { DATA_KEY, PROFILES, ROLE_ID, ELEMENT_KINDS, CONTROL_KINDS, fail, integer, key, readMetadata, text, validateButtonStates, type Asset, type Bundle, type Element, type Font, type Metadata, type Profile, type Role, type Screen, type SingleScreen, type State } from './model.ts';
-import { color, exportPng, hasTransform, plain, readText, rect, textAlignment } from './read-node.ts';
+import { color, exportPng, hasTransform, plain, readText, rect, textAlignment, type ArtworkRender } from './read-node.ts';
 import { nativeElement,range } from './extended.ts';
 import { captureProject,type ProjectOptions } from './project.ts';
 import { controlText,isControlFrame,KIT_KEY,KIT_POPUP_GROUP_KEY } from './kit-contract.ts';
 import { isStrokeLine,readStrokeLine } from './stroke-line.ts';
 import { ExportError, nodeError } from './model.ts';
-import { artworkText, isButtonContainer, isImageButton, usesButtonArtwork, validateArtwork } from './button-artwork.ts';
+import { isButtonContainer, usesButtonArtwork, validateArtwork, type ArtworkText } from './button-artwork.ts';
 import { popupAppearance,TRANSPARENT } from './popup-appearance.ts';
 import { BUTTON_TEXT_KEY, buttonTextMode, nativeButtonText } from './button-native-text.ts';
 
-export interface ArtworkRender {omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}
+export type { ArtworkRender } from './read-node.ts';
 export interface Capture { profile: Profile; screen: Screen; images: { asset: Asset; node: SceneNode; artwork?:ArtworkRender }[]; signature: string; signatureMembers?: readonly SceneNode[] }
 type MetadataReader = (node: SceneNode|PageNode) => Metadata | null;
 type VisibilityReader = (node: SceneNode) => boolean;
@@ -79,34 +79,6 @@ export function nativeTextRect(label:TextNode,font:Font,align:Element['textAlign
   const [ny,nh]=grow(y,h,height,vertical==='top'?'start':vertical==='bottom'?'end':'middle',limit[1],limit[1]+limit[3]);
   return [nx,ny,nw,nh];
 }
-function commonButtonCaption(button:SceneNode) {
-  if(!isButtonContainer(button)||button.children.length<2||hasTransform(button)||button.children.some(hasTransform))return;
-  const labels=new Map<string,string>();let common:ReturnType<typeof nativeStaticText>,bounds:number[]|undefined,signature:string|undefined;
-  for(const state of button.children){
-    if(!isButtonContainer(state))return;
-    const directLabels=state.children.filter((n):n is TextNode=>n.type==='TEXT');
-    const label=directLabels[0];if(directLabels.length!==1||!label.visible||state.children.some(n=>'isMask'in n&&n.isMask))return;
-    const textBox=label.absoluteBoundingBox;if(!textBox)return;
-    // An icon higher in the stack is safe when its painted bounds do not
-    // intersect the caption. Preserve overlapping/masked compositions in PNG.
-    for(const above of state.children.slice(state.children.indexOf(label)+1)){
-      if(!above.visible)continue;
-      const box=('absoluteRenderBounds'in above?above.absoluteRenderBounds:null)??above.absoluteBoundingBox;
-      if(!box||box.x<textBox.x+textBox.width&&box.x+box.width>textBox.x&&box.y<textBox.y+textBox.height&&box.y+box.height>textBox.y)return;
-    }
-    try {
-      const copy=nativeStaticText(label);if(!copy||copy.font.family==='Arial')return;
-      const r=rect(label,state);
-      const buttonRect=rect(button,button);
-      if(r[0]<0||r[1]<0||r[2]<1||r[3]<1||r[0]+r[2]>buttonRect[2]||r[1]+r[3]>buttonRect[3])return;
-      // Full-area captions belong to the native Button itself.
-      if(JSON.stringify(r)===JSON.stringify(buttonRect)&&label.textAlignHorizontal==='CENTER'&&['CENTER','BOTTOM'].includes(label.textAlignVertical))return;
-      const next=JSON.stringify([copy,r]);if(signature&&signature!==next)return;
-      signature=next;common=copy;bounds=nativeTextRect(label,copy.font,copy.textAlign,r,buttonRect);labels.set(state.id,label.id);
-    }catch(error){if(error instanceof ExportError)return;throw error;}
-  }
-  return common&&bounds?{copy:common,rect:bounds,labels}:undefined;
-}
 function snapshot(node: SceneNode|PageNode, members?: readonly SceneNode[]): unknown {
   // Detect edits across async PNG exports; no package may silently combine two design revisions.
   const props: Record<string,unknown>={ parentId:node.parent?.id, metadata:node.getPluginData(DATA_KEY),registry:node.getPluginData('exui-id-registry'),kit:node.getPluginData(KIT_KEY),kitPopupGroup:node.getPluginData(KIT_POPUP_GROUP_KEY),buttonBackground:node.getPluginData('exui-button-background'),generatedState:node.getPluginData('exui-generated-state'),buttonText:node.getPluginData(BUTTON_TEXT_KEY) };
@@ -160,20 +132,20 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
   const appearance=pm.kind==='popup'?popupAppearance(root,pm):undefined;
   const screen: SingleScreen={schema:'exui-screen/5',project:{name:text(pm.projectName,'Имя проекта')},page:{key:addKey(pm.key,root.name),objectId:integer(pm.objectId,1,65534,'ID страницы'),name:text(root.name,'Имя страницы'),background:appearance?.background??color(root)},assets:[],elements:[]};
   if(root.children.length<1 || root.children.length>64) fail('elements','На странице должно быть 1..64 элемента.');
-  // Derived caption IDs must remain independent of layer order and avoid the
+  // Derived decoration IDs must remain independent of layer order and avoid the
   // full authored ID range, including explicitly assigned IDs near 1,000,000.
   const sourceIds=new Set(root.children.map(node=>{try{return read(node)?.objectId;}catch(error){nodeError(error,node);}}).filter((id):id is number=>typeof id==='number'&&Number.isInteger(id)&&id>=1&&id<=1000000));
-  const captionIds=new Map<number,number>(),reservedCaptionIds=new Set(sourceIds);
+  const decorationIds=new Map<number,number>(),reservedDecorationIds=new Set(sourceIds);
   for(const sourceId of [...sourceIds].sort((a,b)=>a-b)){
     let candidate=1000001-sourceId;
-    while(reservedCaptionIds.has(candidate))candidate=candidate===1?1000000:candidate-1;
-    reservedCaptionIds.add(candidate);captionIds.set(sourceId,candidate);
+    while(reservedDecorationIds.has(candidate))candidate=candidate===1?1000000:candidate-1;
+    reservedDecorationIds.add(candidate);decorationIds.set(sourceId,candidate);
   }
   function decoration(node:SceneNode,objectId:number,bounds:number[],fillColor:string,stroke?:Element['native']) {
     if(fillColor===TRANSPARENT&&!stroke)return;
     let derivedId:number;
-    if(node===root){derivedId=1000000;while(reservedCaptionIds.has(derivedId))derivedId--;reservedCaptionIds.add(derivedId);}
-    else derivedId=captionIds.get(objectId)!;
+    if(node===root){derivedId=1000000;while(reservedDecorationIds.has(derivedId))derivedId--;reservedDecorationIds.add(derivedId);}
+    else derivedId=decorationIds.get(objectId)!;
     ids.add(derivedId);
     screen.elements.push({key:addKey(`popup-appearance.${screen.page.objectId}.${objectId}`,node.name),kind:'shape',objectId:derivedId,controlId:null,name:text(node.name.slice(0,245)+' appearance','Имя оформления'),rect:bounds,fillColor,native:stroke??{shape:'rectangle',radius:0,strokeColor:TRANSPARENT,thickness:0}});
   }
@@ -195,7 +167,6 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
     const bounds=strokeLine?.rect??graphic?.rect??rect(node,root), [x,y,w,h]=bounds;
     if(x<0||y<0||w<1||h<1||x+w>Math.round(root.width)||y+h>Math.round(root.height)) fail('bounds',`${node.name}: элемент выходит за холст.`);
     const e: Element={key:addKey(m.key,node.name),kind:m.kind as Element['kind'],objectId,controlId,name:text(node.name,'Имя элемента'),rect:bounds};
-    let caption:Element|undefined;
     if(m.behavior){if(passive)fail('behavior','Поведение требует управляющего ID.');if(Object.keys(m.behavior).some(k=>!['selectionGroup','enabled','visible'].includes(k))||['enabled','visible'].some(k=>k in m.behavior!&&typeof m.behavior![k as 'enabled'|'visible']!=='boolean'))fail('behavior','Неизвестные или некорректные поля поведения.');if(m.behavior.selectionGroup){if(m.kind!=='button')fail('behavior','Группа выбора применяется к кнопкам.');key(m.behavior.selectionGroup,'Группа выбора');}e.behavior=m.behavior;}
     if(strokeLine) {
       Object.assign(e,strokeLine);
@@ -228,24 +199,19 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       if(node.children.filter(visible).length!==1) fail('states',`${node.name}: для предпросмотра должно быть видно ровно одно состояние.`);
       const states: State[]=[];let commonFont:Font|undefined;
       const textMode=m.kind==='button'?buttonTextMode(node):undefined;
-      const shared=m.kind==='button'&&!textMode&&!isImageButton(node)?commonButtonCaption(node):undefined;
-      if(shared){
-        const captionId=captionIds.get(objectId)!;ids.add(captionId);
-        caption={key:addKey(`button-caption.${screen.page.objectId}.${objectId}`,node.name),kind:'label',objectId:captionId,controlId:null,name:text(node.name.slice(0,248)+' caption','Имя подписи'),rect:[x+shared.rect[0],y+shared.rect[1],shared.rect[2],shared.rect[3]],...shared.copy};
-      }
       for(const stateNode of node.children) {
         try {
-        if(m.kind==='button'&&isButtonContainer(stateNode)&&(textMode||shared||usesButtonArtwork(stateNode))) {
+        if(m.kind==='button'&&isButtonContainer(stateNode)&&(node.getPluginData(BUTTON_TEXT_KEY)||usesButtonArtwork(stateNode))) {
           validateArtwork(stateNode,node);
           const sm=meta(stateNode,'state',read);integer(sm.stateId,0,7,'ID состояния');
           if(!sm.role||!(sm.role in ROLE_ID))fail('states',`${stateNode.name}: нужны роли состояний.`);
-          const copy=textMode?nativeButtonText(stateNode,textMode):shared?{font:{family:'Arial' as const,size:12,bold:false},text:'',textColor:'#FFFFFF',bottom:false,omitTextId:shared.labels.get(stateNode.id)}:artworkText(stateNode);
-          if(copy.omitTextId&&!shared){
+          const copy:ArtworkText=textMode?nativeButtonText(stateNode,textMode):{font:{family:'Arial',size:12,bold:false},text:'',textColor:'#FFFFFF',bottom:false};
+          if(copy.omitTextId){
             if(commonFont&&JSON.stringify(commonFont)!==JSON.stringify(copy.font))fail('font',`${node.name}: шрифт должен совпадать во всех состояниях.`);
             commonFont=copy.font;
           }
           const file=`button-${controlId}-${sm.stateId}.png`;
-          const image=addImage(stateNode,{file:'assets/'+file,resourceName:'exui-'+file},key(`button-artwork.${controlId}.state${sm.stateId}`,'Ключ оформления'),{omitTextId:copy.omitTextId,width:w,height:h});
+          const image=addImage(stateNode,{file:'assets/'+file,resourceName:'exui-'+file},key(`button-artwork.${controlId}.state${sm.stateId}`,'Ключ оформления'),{omitTextId:copy.omitTextId,width:w,height:h,...(copy.moves?{moves:copy.moves}:{})});
           // The PNG carries the whole look. A transparent state fill lets its
           // rounded corners show whatever lies beneath, e.g. a background image.
           const fill='#00000000';
@@ -293,7 +259,6 @@ function captureSingleContent(root:SceneNode,read:MetadataReader,inProject:boole
       if(m.kind==='level'){if(pressed)fail('states','Multistate Level не имеет Pressed.');Object.assign(e,{display:'multistate',...range(m,node),fillColor:states[0].fill});}
     }
     screen.elements.push(e);
-    if(caption)screen.elements.push(caption);
     }catch(error){nodeError(error,node);}
   }
   screen.assets=[...assets.values()].sort((a,b)=>a.key.localeCompare(b.key,'en'));

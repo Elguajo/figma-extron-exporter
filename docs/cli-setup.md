@@ -42,6 +42,8 @@ CLI сверяет SHA-256 исходного и подготовленного 
 
 ## Необязательная проверка на комплектном примере
 
+В новой локальной сборке доступна [конвертация без команд PowerShell](exui-desktop-converter.md): `Convert-EXUI.cmd` открывает окно выбора EXUI, а кнопка регистрации позволяет затем открывать `.exui` двойным щелчком. Требования к GUI Designer и донорам остаются теми же.
+
 Этот шаг проверяет установленный CLI и не требует макета Figma, GUI Designer или донора. В PowerShell из папки CLI выполните:
 
 ```powershell
@@ -105,6 +107,8 @@ The CLI checks the SHA-256 of the source and of the prepared GDL against `sample
 For another GUI Designer location use `--extron-dir <folder>`, for your own registry `--registry <donors.json>`. [All commands and options](development.md#cli-commands).
 
 ## Optional check with the bundled example
+
+The new local build includes a desktop conversion mode: open `Convert-EXUI.cmd`, select an EXUI, or register the application using its association button to open EXUI files by double-click. It creates a new GDL beside the input and opens GUI Designer. Existing outputs are preserved. The same GUI Designer and donor setup is required; this mode also requires .NET Desktop Runtime 10 x64. Earlier published archives are unchanged.
 
 This step checks the installed CLI and does not need a Figma layout, GUI Designer or a donor. In PowerShell in the CLI folder, run:
 

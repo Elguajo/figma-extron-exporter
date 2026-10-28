@@ -439,7 +439,7 @@ figma.ui.onmessage=async(message:{type:string;data?:Record<string,unknown>;numbe
       const result=setButtonTextMode(resolved.root,resolved.options,message.buttonText!);
       recognition=undefined;publish();
       const detail=result.buttons?`У настроенных кнопок в GDL подписи будут частью Button ${message.buttonText==='auto'?'с автоматическим выравниванием из Figma при каждом экспорте':message.buttonText==='bottom-center'?'снизу по центру':'по центру'}, без отдельного Label.`:'Настройки текста не изменены.';
-      const messageText=message.buttonText==='design'?`Восстановлен экспорт по расположению Figma: ${result.buttons} кнопок. Отдельные подписи снова могут экспортироваться как Label.`:`Текст для GCP настроен: ${result.buttons} кнопок; без изменений: ${result.skipped}. ${detail} Слои Figma и ID сохранены. Скачайте .exui и создайте новый GDL.`;
+      const messageText=message.buttonText==='design'?`Восстановлен нативный текст по умолчанию: ${result.buttons} кнопок. Подпись остаётся частью Button, без отдельного Label. Скачайте .exui и создайте новый GDL.`:`Текст для GCP настроен: ${result.buttons} кнопок; без изменений: ${result.skipped}. ${detail} Слои Figma и ID сохранены. Скачайте .exui и создайте новый GDL.`;
       figma.ui.postMessage({type:'success',operation:message.type,message:messageText+' Кнопки imagebutton_ / ibtn_ сохраняют подписи внутри PNG.'});
     }else if(message.type==='kit') {
       const result=await createKit(message.profile!);

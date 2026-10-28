@@ -200,6 +200,7 @@ ScreenTests.Container(Test);
 ScreenTests.Spec(Test);
 ScreenTests.Boundary(Test);
 CompatibilityTests.Unit(Test);
+ConversionTests.Unit(Test);
 PackageTests.Unit(Test);
 PagesTests.Unit(Test);
 ComparisonTests.Unit(Test);

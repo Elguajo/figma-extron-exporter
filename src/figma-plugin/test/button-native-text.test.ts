@@ -39,7 +39,7 @@ test('Auto centers a horizontally offset text box without changing source geomet
   for(const state of button.children){const label=state.children.find(n=>n.type==='TEXT')!;label.x=1;label.resize(80,24);}
   const before=designSignature(f.root),ids=capture(f.root).screen.elements.filter(e=>e.kind==='button').map(e=>[e.objectId,e.controlId]);
   setButtonTextMode(f.root,{members:[button]},'auto');
-  const captured=capture(f.root);assert.equal(captured.screen.elements.filter(e=>e.kind==='label').length,1);
+  const captured=capture(f.root);assert.equal(captured.screen.elements.filter(e=>e.kind==='label').length,0);
   assert.ok(captured.screen.elements[0].states!.every(s=>s.textAlign==='bottom-center'));
   assert.deepEqual(captured.screen.elements.filter(e=>e.kind==='button').map(e=>[e.objectId,e.controlId]),ids);
   setButtonTextMode(f.root,{members:[button]},'design');assert.equal(designSignature(f.root),before);
@@ -58,15 +58,15 @@ test('Moving auto caption into an unsupported position after applying gives a co
   const label=f.buttons[0].children[0].children.find(n=>n.type==='TEXT')!;label.y=0;
   assert.throws(()=>capture(f.root),(e:any)=>e.code==='button-text-alignment'&&e.nodeId===label.id);
 });
-for(const mode of ['middle-center','bottom-center'] as const)test(`${mode}: editable overlay becomes Button text; source layout, IDs and unselected button stay intact`,async()=>{
+for(const mode of ['middle-center','bottom-center'] as const)test(`${mode}: alignment changes native Button text; source layout, IDs and unselected button stay intact`,async()=>{
   const f=fixture(),button=f.buttons[0],before=designSignature(f.root),neighbor=designSignature(f.buttons[1]);
-  assert.equal(capture(f.root).screen.elements.filter(e=>e.kind==='label').length,2);
+  assert.equal(capture(f.root).screen.elements.filter(e=>e.kind==='label').length,0);
   assert.deepEqual(setButtonTextMode(f.root,{members:[button]},mode),{buttons:1,skipped:0});
   const captured=capture(f.root),native=captured.screen.elements[0];
   assert.deepEqual(native.states!.map(s=>s.text),['Audio','Audio']);
   assert.ok(native.states!.every(s=>(s.textAlign??'middle-center')===mode));
   assert.equal(native.font!.family,'Inter');
-  assert.equal(captured.screen.elements.filter(e=>e.kind==='label').length,1);
+  assert.equal(captured.screen.elements.filter(e=>e.kind==='label').length,0);
   assert.ok(captured.images.filter(i=>i.asset.key.startsWith('button-artwork.'+native.controlId+'.')).every(i=>!!i.artwork?.omitTextId));
   assert.equal(designSignature(f.buttons[1]),neighbor);
   const plan=recognize(f.root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
@@ -134,7 +134,7 @@ test('Changing text ownership during asynchronous rendering invalidates the expo
   await assert.rejects(()=>exportFrame(f.root),(error:any)=>error.code==='design-changed');
 });
 
-test('Bundled plugin command applies to selected scope independently of style presets and can restore design export',async()=>{
+test('Bundled plugin command applies to selected scope independently of style presets and can reset native alignment',async()=>{
   const f=fixture();f.styles.remove();f.page.selection=[f.root as never];
   const code=buildSync({entryPoints:[fileURLToPath(new URL('../src/code.ts',import.meta.url))],bundle:true,write:false,target:'es2017',define:{__html__:'"test"',__ICONS__:'{}'}}).outputFiles[0].text;
   vm.runInNewContext(code,{figma:f.api,Uint8Array,console});const send=f.api.ui.onmessage as (m:unknown)=>Promise<void>;

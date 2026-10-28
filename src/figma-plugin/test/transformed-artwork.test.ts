@@ -51,7 +51,8 @@ for(const [name,linear,shift] of [
 
 for(const type of ['GROUP','FRAME'] as const)test(`${type} mirrored state recognizes and exports all artwork without native caption or changing IDs`,async()=>{
   const fake=fakeFigma(),root=await namedFixture(),button=root.children[3] as FrameNode,state=button.children[0] as FrameNode;
-  (state as any).type=type;
+  applyRecognition(recognize(root,'tlp-pro-1025m'));
+  button.name='ibtn_Mirrored';(state as any).type=type;
   if(type==='GROUP'){
     const background=fake.api.createRectangle();background.resize(state.width,state.height);background.fills=[{type:'SOLID',color:{r:0.1,g:0.1,b:0.1}}];state.appendChild(background as never);
   }
@@ -85,7 +86,7 @@ for(const kind of ['datetime','value','text'] as const)test(`Single-Text main Co
 });
 
 test('Rotated outer button uses canvas bounds and raster states with inherited rotation',async()=>{
-  const f=authorButtons(),button=f.buttons[0];prepareButtons(f.root);
+  const f=authorButtons(),button=f.buttons[0];button.name='ibtn_Rotated';prepareButtons(f.root);
   Object.defineProperty(button,'relativeTransform',{get:()=>[[0,-1,180],[1,0,10]]});
   // Supply geometric API values for the original design only. The rendering
   // boundary is covered separately above; this is not a Figma raster renderer.

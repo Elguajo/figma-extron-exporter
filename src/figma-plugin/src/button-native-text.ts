@@ -1,14 +1,15 @@
-import { fail, readMetadata, stateRole } from './model.ts';
-import { isButtonContainer, isImageButton, type ArtworkText, type ButtonContainer } from './button-artwork.ts';
+import { ExportError,fail, readMetadata, stateRole } from './model.ts';
+import { fillsArea,isButtonContainer, isImageButton, type ArtworkText, type ButtonContainer } from './button-artwork.ts';
 import { plain, readText, rect } from './read-node.ts';
 import type { ProjectNode, ProjectOptions } from './project.ts';
+import { inlineArtworkMoves } from './button-inline-artwork.ts';
 
 export const BUTTON_TEXT_KEY = 'exui-button-native-text';
 export type ButtonTextMode = 'auto' | 'middle-center' | 'bottom-center';
-export function buttonTextMode(node: SceneNode): ButtonTextMode | undefined {
+export function buttonTextMode(node: SceneNode): ButtonTextMode | 'native' | undefined {
   if (isImageButton(node)) return;
   const mode = node.getPluginData(BUTTON_TEXT_KEY);
-  if (!mode) return;
+  if (!mode) return 'native';
   if (mode !== 'auto' && mode !== 'middle-center' && mode !== 'bottom-center')
     fail('button-text', `${node.name}: неизвестный режим текста. Повторно выберите положение текста кнопок.`, node);
   return mode;
@@ -30,7 +31,14 @@ function automaticAlignment(label: TextNode, state: ButtonContainer): 'middle-ce
 
 // A hidden state still needs its caption. Hidden descendants do not contribute.
 // Empty Kit placeholders are harmless beside one actual label in Artwork.
-export function nativeButtonText(state: ButtonContainer, mode: ButtonTextMode): ArtworkText {
+export function nativeButtonText(state: ButtonContainer, mode: ButtonTextMode|'native'): ArtworkText {
+  try { return readNativeButtonText(state,mode); }
+  catch(error){
+    if(error instanceof ExportError)error.message+=' Для обычной button_ подпись должна оставаться редактируемым текстом Button. Для полного экспорта состояния в PNG используйте imagebutton_ / ibtn_.';
+    throw error;
+  }
+}
+function readNativeButtonText(state: ButtonContainer, mode: ButtonTextMode|'native'): ArtworkText {
   const labels: TextNode[] = [];
   function visit(node: SceneNode) {
     if (node !== state && !node.visible) return;
@@ -45,10 +53,14 @@ export function nativeButtonText(state: ButtonContainer, mode: ButtonTextMode): 
   for (let node: BaseNode | null = label.parent; node && node !== state.parent; node = node.parent) {
     if ('visible' in node) plain(node as SceneNode, true, true);
     if ('children' in node && node.children.some(child => 'isMask' in child && child.isMask))
-      fail('button-text', `${state.name}: подпись с маской нельзя перенести в текст Button. Уберите маску или сохраните расположение Figma.`, label);
+      fail('button-text', `${state.name}: подпись с маской нельзя перенести в текст Button. Уберите маску.`, label);
   }
-  const alignment=mode==='auto'?automaticAlignment(label,state):mode;
-  return {...readText(label),omitTextId:label.id,bottom:alignment==='bottom-center'};
+  // Preserve an existing full-area Bottom caption. Otherwise the default is
+  // native Middle-Center; explicit alignment settings remain available.
+  const alignment=mode==='native'?(fillsArea(label,state)&&label.textAlignVertical==='BOTTOM'?'bottom-center':'middle-center'):mode==='auto'?automaticAlignment(label,state):mode;
+  const copy=readText(label),bottom=alignment==='bottom-center';
+  const moves=inlineArtworkMoves(state,label,copy.font,bottom);
+  return {...copy,omitTextId:label.id,bottom,...(moves.length?{moves}:{})};
 }
 
 export function setButtonTextMode(root: ProjectNode, options: ProjectOptions, mode: ButtonTextMode | 'design'): {buttons:number;skipped:number} {

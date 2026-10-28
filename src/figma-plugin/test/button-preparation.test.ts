@@ -69,7 +69,7 @@ for (const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const) test(`
   const bundle = await exportFrame(f.root);
   assert.equal(bundle.resources.length,4);assert.equal(bundle.screen.assets.length,4);
   assert.deepEqual(bundle.screen.elements.map(e => e.states!.map(s => s.name)),[['Off','On'],['Normal','Active']]);
-  assert.ok(bundle.screen.elements.every(e => e.states!.every(s => s.text==='' && s.fill==='#00000000')));
+  assert.ok(bundle.screen.elements.every(e => e.states!.every(s => !!s.text && s.fill==='#00000000')));
   assert.equal(designSignature(f.root),signature);assert.deepEqual(f.page.children.map(n => n.id),layers);
   assert.deepEqual(prepareButtons(f.root),{buttons:0,states:0,skipped:2});assert.equal(designSignature(f.root),signature);
   f.active.fills=[paint('#009900')];prepareButtons(f.root,{},true,true);
@@ -133,7 +133,7 @@ test('Existing single On creates only Off; explicit style update applies the act
 test('Native full-area centered text is omitted only from temporary PNG clone and remains editable in EXUI', async () => {
   const f=authorButtons();for(const b of f.buttons){const label=descendants(b).find(n=>n.type==='TEXT') as TextNode;label.x=0;label.y=0;label.resize(b.width,b.height);label.textAlignHorizontal='CENTER';label.textAlignVertical='BOTTOM';}
   prepareButtons(f.root);applyRecognition(recognize(f.root,'tlp-pro-1025m'));
-  const texts:string[]=[];f.setRenderHook(node=>{assert.equal(node.type,'FRAME');texts.push(...descendants(node as never).filter(n=>n.type==='TEXT'&&!n.visible).map(n=>n.name));return png(node.width,node.height);});
+  const texts:string[]=[];f.setRenderHook(node=>{assert.equal(node.type,'FRAME');texts.push(...descendants(node as never).filter(n=>n.type==='TEXT'&&n.opacity===0).map(n=>n.name));return png(node.width,node.height);});
   const before=designSignature(f.root),bundle=await exportFrame(f.root);assert.equal(texts.length,4);
   assert.deepEqual(bundle.screen.elements.map(e=>e.states!.map(s=>[s.text,s.textAlign])),[[['Audio','bottom-center'],['Audio','bottom-center']],[['Power','bottom-center'],['Power','bottom-center']]]);
   assert.equal(designSignature(f.root),before);
@@ -175,13 +175,13 @@ test('Failure preparing the temporary PNG viewport cleans up both the viewport a
   await assert.rejects(()=>exportFrame(f.root),/viewport failure/);assert.equal(designSignature(f.root),before);assert.deepEqual(f.page.children.map(n=>n.id),pageBefore);
 });
 
-test('A manually added raster caption does not change the shared native font of the other states', () => {
+test('A manually added Pressed caption stays native with the shared font', () => {
   const f=authorButtons(),b=f.buttons[1];
   const text=descendants(b).find(n=>n.type==='TEXT') as TextNode;text.x=0;text.y=0;text.resize(b.width,b.height);text.textAlignHorizontal='CENTER';text.textAlignVertical='CENTER';text.fontSize=24;
   prepareButtons(f.root);const pressed=b.children[1].clone();b.appendChild(pressed);pressed.name='Pressed';pressed.visible=false;
   const caption=descendants(pressed).find(n=>n.type==='TEXT') as TextNode;caption.resize(100,24);caption.y=50;
   const plan=recognize(f.root,'tlp-pro-1025m');assert.deepEqual(plan.errors,[]);applyRecognition(plan);
-  const button=capture(f.root).screen.elements[1];assert.equal(button.font!.size,18);assert.deepEqual(button.states!.map(s=>s.text),['Power','Power','']);
+  const button=capture(f.root).screen.elements[1];assert.equal(button.font!.size,18);assert.deepEqual(button.states!.map(s=>s.text),['Power','Power','Power']);
 });
 
 test('Ready Kit instances are skipped when creating states for fresh groups on the same screen', async () => {

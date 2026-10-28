@@ -62,7 +62,7 @@ test(`Kit ${profile}: components, slots, native controls → recognition → val
   assert.equal(bundle.screen.elements.find(e=>e.kind==='value')!.text,'42%');
   assert.deepEqual(bundle.screen.elements.find(e=>e.kind==='datetime')!.native,{pattern:'MMMM d, h:mm tt'});
   assert.equal(bundle.screen.elements.find(e=>e.kind==='label')!.text,profile==='tlp-pro-1025m'?'Hall / AV Control':'Room control');
-  for(const button of bundle.screen.elements.filter(e=>e.kind==='button'))assert.ok(button.states!.every(s=>s.text===''&&s.image));
+  for(const button of bundle.screen.elements.filter(e=>e.kind==='button'))assert.ok(button.states!.every(s=>!!s.text&&s.image));
   assert.ok(Object.keys(unzipSync(packageExui(bundle))).length>2);
   const ids=bundle.screen.elements.map(e=>[e.key,e.objectId,e.controlId]);
   kit.example.children[1].x+=1;const again=recognize(kit.example,profile);assert.deepEqual(again.errors,[]);assert.equal(again.writes.length,0);applyRecognition(again);

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {authorButtons,paint} from './button-preparation-fixture.ts';
 import {prepareButtons} from '../src/button-preparation.ts';
 import {recognize,applyRecognition} from '../src/recognize.ts';
-import {capture,exportFrame,designSignature} from '../src/export.ts';
+import {capture,exportFrame,designSignature,nativeTextRect} from '../src/export.ts';
 import {font} from '../src/read-node.ts';
 import {readMetadata} from '../src/model.ts';
 
@@ -31,28 +31,28 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const)test(`${
     const e=capture(f.root).screen.elements.find(e=>e.key===readMetadata(node)!.key)!;assert.equal(e.kind,kind);assert.equal(e.font!.style,'Semi Bold');assert.equal(e.textAlign,'bottom-right');
   }
 });
-test('Matching arbitrary-position Inter button captions become one editable native overlay; differing states retain their artwork',async()=>{
+test('Arbitrary-position Inter captions belong to Button; differing states retain editable text',async()=>{
   const f=authorButtons();prepareButtons(f.root);
   const button=f.buttons[0];
   for(const state of button.children)for(const n of state.children)if(n.type==='TEXT')n.fontName={family:'Inter',style:'Medium'};
   applyRecognition(recognize(f.root,'tlp-pro-1025m'));
-  const before=designSignature(f.root),bundle=await exportFrame(f.root),native=bundle.screen.elements.find(e=>e.key.startsWith('button-caption.'))!;
-  assert.equal(native.kind,'label');assert.equal(native.text,'Audio');assert.equal(native.font!.style,'Medium');assert.deepEqual(native.rect,[20,60,110,24]);
-  assert.ok(bundle.screen.elements[0].states!.every(s=>s.text===''));assert.equal(designSignature(f.root),before);
+  const before=designSignature(f.root),bundle=await exportFrame(f.root),native=bundle.screen.elements[0];
+  assert.equal(native.kind,'button');assert.equal(native.font!.style,'Medium');assert.equal(bundle.screen.elements.length,2);
+  assert.ok(native.states!.every(s=>s.text==='Audio'));assert.equal(designSignature(f.root),before);
   button.children[1].children.find(n=>n.type==='TEXT')!.characters='Different';
-  assert.ok(!capture(f.root).screen.elements.some(e=>e.key.startsWith('button-caption.')));
+  assert.deepEqual(capture(f.root).screen.elements[0].states!.map(s=>s.text),['Audio','Different']);
 });
-test('Native Inter captions get GDI room around their alignment anchor without leaving the button',async()=>{
+test('Native Inter static text gets GDI room around its alignment anchor without leaving the container',()=>{
   const f=authorButtons();prepareButtons(f.root);
   const button=f.buttons[0];
   for(const state of button.children)for(const n of state.children)if(n.type==='TEXT'){
     n.fontName={family:'Inter',style:'Semi Bold'};n.fontSize=21;n.characters='Video\nControl';n.resize(76,46);n.x=22;n.y=30;
     n.textAlignHorizontal='CENTER';n.textAlignVertical='CENTER';(n as any).textAutoResize='WIDTH_AND_HEIGHT';
   }
-  applyRecognition(recognize(f.root,'tlp-pro-1025m'));
-  const before=designSignature(f.root),native=(await exportFrame(f.root)).screen.elements.find(e=>e.key.startsWith('button-caption.'))!;
+  const label=button.children[0].children.find(n=>n.type==='TEXT') as TextNode,before=designSignature(f.root);
+  const rect=nativeTextRect(label,font(label),'middle-center',[22,30,76,46],[0,0,120,80]);
   // Two GDI lines need 57px; the bottom edge allows only 4 of the 11 extra pixels, mirrored on top.
-  assert.deepEqual(native.rect,[24,36,92,54]);assert.equal(native.textAlign,'middle-center');assert.equal(designSignature(f.root),before);
+  assert.deepEqual(rect,[14,26,92,54]);assert.equal(designSignature(f.root),before);
 });
 test('Figma variable-font reads with standard named axes stay native; custom axis values never silently change',()=>{
   authorButtons();const label=figma.createText();
@@ -60,22 +60,23 @@ test('Figma variable-font reads with standard named axes stay native; custom axi
   label.fontName={family:'Inter Display',style:'Regular',variationSettings:{wght:400,opsz:32}};assert.equal(font(label).family,'Inter Display');
   for(const variationSettings of [{wght:550,opsz:14},{wght:400,opsz:24},{wght:400,slnt:-5},{wght:400,wdth:100}]){label.fontName={family:'Inter',style:'Regular',variationSettings};assert.throws(()=>font(label),(e:any)=>e.code==='font');}
 });
-test('Derived caption IDs handle both ends of the authored range and survive layer reordering',()=>{
+test('Native Button text needs no extra object IDs at either end of the authored range',()=>{
   const f=authorButtons();prepareButtons(f.root);applyRecognition(recognize(f.root,'tlp-pro-1025m'));
   for(const [i,button] of f.buttons.entries()){
     const metadata=readMetadata(button)!;button.setPluginData('exui',JSON.stringify({...metadata,objectId:i?1:1000000}));
     for(const state of button.children)state.children.find(n=>n.type==='TEXT')!.fontName={family:'Inter',style:'Regular'};
   }
   const ids=()=>capture(f.root).screen.elements.map(e=>[e.key,e.objectId]).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));
-  const before=ids();assert.equal(new Set(before.map(e=>e[1])).size,4);
+  const before=ids();assert.equal(new Set(before.map(e=>e[1])).size,2);
   f.root.insertChild(0,f.buttons[1]);assert.deepEqual(ids(),before);
 });
-test('A non-overlapping icon above an Inter caption does not flatten it; overlap and masks preserve the composition in PNG',()=>{
+test('An icon above or overlapping a caption never flattens ordinary Button text; masks require imagebutton',()=>{
   const f=authorButtons();prepareButtons(f.root);const button=f.buttons[0];
   for(const state of button.children){state.children.find(n=>n.type==='TEXT')!.fontName={family:'Inter',style:'Regular'};state.appendChild(state.children.find(n=>n.type==='GROUP')!);}
   applyRecognition(recognize(f.root,'tlp-pro-1025m'));
-  const hasCaption=()=>capture(f.root).screen.elements.some(e=>e.key.startsWith('button-caption.'));
+  const hasCaption=()=>capture(f.root).screen.elements[0].states!.every(s=>s.text==='Audio');
   assert.ok(hasCaption());
-  const state=button.children[0],icon=state.children[state.children.length-1];icon.y=50;assert.equal(hasCaption(),false);
-  icon.y=10;icon.isMask=true;assert.equal(hasCaption(),false);
+  const state=button.children[0],icon=state.children[state.children.length-1];icon.y=50;assert.equal(hasCaption(),true);
+  icon.y=10;icon.isMask=true;assert.throws(hasCaption,/imagebutton_/);
+  button.name='ibtn_AudioControl';assert.equal(capture(f.root).screen.elements[0].states!.every(s=>s.text===''),true);
 });

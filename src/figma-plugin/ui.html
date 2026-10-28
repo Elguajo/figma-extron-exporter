@@ -53,12 +53,12 @@
 <small><b>Произвольное расположение текста:</b> назовите кнопку imagebutton_VideoControl или ibtn_VideoControl. Каждое состояние целиком сохраняется в PNG: фон, иконки и текст на своих местах. Новые кнопки подготавливаются как button_; у переименованных сохраняются тип, состояния и ID. Подпись редактируется в Figma и не меняется через Text Feedback.</small>
 </details>
 </div></details>
-<details id="buttonText" class="card"><summary>Текст кнопок для GCP</summary><div class="disclosure-body">
-<p class="sub">Выберите кнопки, экран или popup в Figma. Подпись станет текстом самой кнопки, который заменяет Text Feedback.</p>
+<details id="buttonText" class="card"><summary>Выравнивание текста кнопок</summary><div class="disclosure-body">
+<p class="sub">У обычных кнопок подпись уже является редактируемым текстом Button. Выберите кнопки, экран или popup, чтобы изменить её выравнивание.</p>
 <p class="sub">Кнопки imagebutton_ / ibtn_ сохраняют весь текст в PNG и пропускаются при применении текста для GCP, даже если раньше для них было настроено выравнивание.</p>
-<label class="stack">Положение текста в GUI Designer<select id="buttonTextMode"><option value="auto">Автоматически из Figma</option><option value="bottom-center">Снизу по центру</option><option value="middle-center">По центру</option><option value="design">Сохранить расположение Figma</option></select></label>
-<small id="buttonTextHelp">Один раз примените к кнопкам, экрану или popup. Автоматический режим при каждом экспорте определяет центр или низ по положению текстовой рамки внутри кнопки. По горизонтали текст всегда по центру; настройки абзаца Figma игнорируются. Рамка на всю кнопку означает центр; верх и неоднозначное положение требуют ручного выбора. Фон, иконки, ID и слои Figma сохраняются. Для кнопки нужен один непустой Text в каждом состоянии и общий шрифт. «Сохранить расположение Figma» возвращает прежний экспорт, включая отдельные Label.</small>
-<button id="applyButtonText" class="action" aria-describedby="buttonTextHelp">Применить текст для GCP</button>
+<label class="stack">Положение текста в GUI Designer<select id="buttonTextMode"><option value="design">По умолчанию — редактируемый текст</option><option value="auto">Автоматически из Figma</option><option value="bottom-center">Снизу по центру</option><option value="middle-center">По центру</option></select></label>
+<small id="buttonTextHelp">button_ / btn_ и feedbackbutton_ / fbtn_ уже экспортируют подпись как редактируемый текст самой кнопки; применять этот раздел для этого не нужно. Здесь можно изменить выравнивание. По умолчанию текст по центру; у рамки на всю кнопку сохраняется Bottom. «Автоматически из Figma» выбирает центр или низ по положению текстовой рамки; верх и неоднозначное положение требуют ручного выбора. Нужен один непустой Text на состояние и общий поддержанный шрифт; кнопки без текста разрешены. Фон и иконки остаются графикой, ID и слои сохраняются. imagebutton_ / ibtn_ всегда экспортируют состояние целиком в PNG.</small>
+<button id="applyButtonText" class="action" aria-describedby="buttonTextHelp">Применить выравнивание</button>
 <p id="buttonTextResult" class="button-plan" role="status" aria-live="polite" hidden></p>
 </div></details>
 <details id="buttonNumbering" class="card"><summary>Нумерация кнопок</summary><div class="disclosure-body">

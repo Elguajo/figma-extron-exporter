@@ -83,7 +83,9 @@ export function sweepExportLeftovers(page:PageNode):number {
   for(const node of [...page.children])if(node.getPluginData(EXPORT_TEMP_KEY)==='1'){node.remove();removed++;}
   return removed;
 }
-export async function exportPng(node: SceneNode, artwork?:{omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number}, placementX?:number): Promise<Uint8Array> {
+export interface ArtworkMove {nodeId:string;dx:number;dy:number}
+export interface ArtworkRender {omitTextId?:string;width:number;height:number;offsetX?:number;offsetY?:number;moves?:ArtworkMove[]}
+export async function exportPng(node: SceneNode, artwork?:ArtworkRender, placementX?:number): Promise<Uint8Array> {
   let temporary:SceneNode|undefined,cloned:SceneNode|undefined;
   try {
     // Export independently of hidden/clipping State ancestors. The original
@@ -93,14 +95,30 @@ export async function exportPng(node: SceneNode, artwork?:{omitTextId?:string;wi
     cloned=node.clone();temporary=cloned;figma.currentPage.appendChild(cloned);cloned.visible=true;
     if(artwork){
       const wrapper=figma.createFrame();temporary=wrapper;wrapper.fills=[];wrapper.resize(artwork.width,artwork.height);wrapper.clipsContent=true;
-      // A full-size background anchors Group bounds when native text is hidden.
-      function omit(original:SceneNode,copy:SceneNode){if(original.id===artwork!.omitTextId)copy.visible=false;if('children' in original&&'children' in copy)original.children.forEach((child,i)=>omit(child,copy.children[i]));}
       if(!bounds)fail('geometry',`${node.name}: нет геометрии.`,node);
       wrapper.appendChild(cloned);
       cloned.relativeTransform=[
         [transform[0][0],transform[0][1],transform[0][2]-bounds.x+(artwork.offsetX??0)],
         [transform[1][0],transform[1][1],transform[1][2]-bounds.y+(artwork.offsetY??0)]
       ];
+      const moves=new Map(artwork.moves?.map(move=>[move.nodeId,move]));
+      function omit(original:SceneNode,copy:SceneNode){
+        // Invisible paint still occupies its original Auto Layout slot. Hiding
+        // the Text would collapse a centered row and pull its icon to the center.
+        if(original.id===artwork!.omitTextId&&'opacity'in copy)copy.opacity=0;
+        const move=moves.get(original.id);
+        if(move){
+          const overlay=copy.clone();wrapper.appendChild(overlay);
+          const t=original.absoluteTransform;
+          overlay.relativeTransform=[
+            [t[0][0],t[0][1],t[0][2]-bounds!.x+(artwork!.offsetX??0)+move.dx],
+            [t[1][0],t[1][1],t[1][2]-bounds!.y+(artwork!.offsetY??0)+move.dy]
+          ];
+          // Keep the original slot too, so siblings cannot reflow in Auto Layout.
+          if('opacity'in copy)copy.opacity=0;return;
+        }
+        if('children'in original&&'children'in copy)original.children.forEach((child,i)=>omit(child,copy.children[i]));
+      }
       omit(node,cloned);
     }
     temporary.setPluginData(EXPORT_TEMP_KEY,'1');

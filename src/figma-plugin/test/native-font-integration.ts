@@ -34,7 +34,7 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
   }
   if(send){await send({type:'export',profile});assert.deepEqual(f.messages.filter(m=>m.type==='error'),[]);}else applyRecognition(recognize(f.root,profile));
   const bundle=send?f.messages.find(m=>m.type==='bundle')!.bundle as Awaited<ReturnType<typeof exportFrame>>:await exportFrame(f.root);
-  assert.ok(bundle.screen.elements.every(e=>e.kind!=='graphic'));assert.equal(bundle.screen.elements.filter(e=>e.key.startsWith('button-caption.')).length,1);
+  assert.ok(bundle.screen.elements.every(e=>e.kind!=='graphic'));assert.equal(bundle.screen.elements.filter(e=>e.key.startsWith('button-caption.')).length,0);
   const input=path.join(out,profile+'.exui'),output=path.join(out,profile+'.gdl');await writeFile(input,packageExui(bundle),{flag:'wx'});
   const validation=cli(['validate-package',input]),generation=cli(['convert-package',input,output,'--registry',path.join(root,'samples/donors.json')]);
   const model=cli(['list-controls',output]).model;
@@ -55,6 +55,6 @@ for(const profile of ['tlp-pro-1025m','tlp-pro-300m-portrait'] as const){
     const badPath=path.join(out,profile+'-'+defect+'.exui');await writeFile(badPath,packageExui(bad),{flag:'wx'});
     const rejected=spawnSync(dotnet,[cliDll,'validate-package',badPath],{cwd:root,encoding:'utf8',timeout:30000});assert.equal(rejected.status,1,defect+' must be a validation refusal');assert.ok(rejected.stderr.includes(defect==='inconsistent-bold'?'ERROR [spec]':'ERROR [package-schema]'),rejected.stderr);
   }
-  evidence.push({profile,archivedPlugin:!!archive,validation,generation,checks:report.Generation.Checks.length,guiDesigner:'separate real application check',hardware:'not run'});console.log('PASS native Inter / '+profile+': 18 styles, editable Button, caption overlay, Label, Value and DateTime; embedded once');
+  evidence.push({profile,archivedPlugin:!!archive,validation,generation,checks:report.Generation.Checks.length,guiDesigner:'separate real application check',hardware:'not run'});console.log('PASS native Inter / '+profile+': 18 styles, editable Button text, Label, Value and DateTime; embedded once');
 }
 await writeFile(path.join(out,'integration.json'),JSON.stringify(evidence,null,2)+'\n');
